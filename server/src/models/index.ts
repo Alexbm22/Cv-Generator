@@ -1,4 +1,11 @@
 import sequelize from '../config/database_config';
+import user from './user';
+import CV from './CV';
+
+export {
+    user,
+    CV
+}
 
 export const initModels = async () => {
     //Define Models Relationships here
