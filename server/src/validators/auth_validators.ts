@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 
-export const RegistrationValidation = [
+export const registrationRules = [
     body('email')
         .trim()
         .isEmail()
@@ -11,19 +11,14 @@ export const RegistrationValidation = [
         .withMessage('Password must be at least 6 characters long')
         .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/)
         .withMessage('Password must include uppercase, lowercase, number, and special character'),
-    body('firstName')
+    body('username')
         .trim()
-        .isLength({ min: 2 })
-        .withMessage('First name must be at least 2 characters long')
+        .isLength({ min: 3 })
+        .withMessage('First name must be at least 3 characters long')
         .escape(),
-    body('lastName')
-        .trim()
-        .isLength({ min: 2 })
-        .withMessage('Last name must be at least 2 characters long')
-        .escape()
 ]
 
-export const LoginValidator = [
+export const loginRules = [
     body('email')
         .trim()
         .isEmail()

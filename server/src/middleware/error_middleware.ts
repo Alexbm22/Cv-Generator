@@ -3,11 +3,13 @@ import { Request, Response, NextFunction } from 'express';
 export class AppError extends Error {
     statusCode: number;
     isOperational: boolean;
+    data?: any;
 
-    constructor(message: string, statusCode: number){
+    constructor(message: string, statusCode: number, data?: any){
         super(message);
         this.statusCode = statusCode;
         this.isOperational = true;
+        this.data = data;
 
         Error.captureStackTrace(this, this.constructor);
     }
@@ -21,6 +23,7 @@ export const errorHandler = (
 ): Response | void => {
     const statusCode = "statusCode" in err ? err.statusCode : 500;
     const isOperational = "isOperational" in err ? err.isOperational : false;
+    const errors = "data" in err ? err.data : undefined;
     
     if(process.env.NODE_ENV === "development"){
         return res.status(statusCode).json({
@@ -28,6 +31,7 @@ export const errorHandler = (
             error: err,
             errorStack: err.stack,
             errorMessage: err.message,
+            errors: errors,
             isOperational
         })
     }
@@ -35,7 +39,8 @@ export const errorHandler = (
     if(isOperational){
         return res.status(statusCode).json({
             status: "error",
-            errorMessage: err.message
+            errorMessage: err.message,
+            errors: errors,
         })
     } else {
         console.error("ERROR: ", err);

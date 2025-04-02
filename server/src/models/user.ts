@@ -6,32 +6,47 @@ interface UserAttributes {
     id: number;
     username: string;
     email: string;
-    password: string;
-    createdAt: Date;
-    updatedAt: Date;
+    password: string | null;
+    refreshToken: string | null;
+    refreshTokenExpiry: Date | null;
+    googleId: string | null;
+    profilePicture: string | null;
+    authProvider: 'local' | 'google';
+    isActive: boolean;
+    lastLogin: Date | null;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 
+'id' | 'refreshToken' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive'> {}
 
-class user extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
     public id!: number;
     public username!: string;
     public email!: string;
+    public refreshToken!: string | null;
+    public refreshTokenExpiry!: Date | null;
+    public googleId!: string | null;
+    public profilePicture!: string | null;
+    public authProvider!: 'local' | 'google';
+    public isActive!: boolean;
+    public lastLogin!: Date | null;
     public password!: string;
-    public createdAt!: Date;
-    public updatedAt!: Date;
+    public readonly createdAt!: Date;
+    public readonly updatedAt!: Date;
 
     public async comparePasswords(ComparedPassword: string): Promise<boolean> {
-        return await bcrypt.compare(ComparedPassword, this.password);
+        return await bcrypt.compare(ComparedPassword, this.get('password'));
     }
 
-    public safeUser(): Omit<UserAttributes, 'password'> {
-        const {password, ...safeUser} = this.get() as UserAttributes;
+    public safeUser(): Omit<UserAttributes, 'password' | 'refreshToken' | 'refreshTokenExpiry'> {
+        const {password, refreshToken, refreshTokenExpiry, ...safeUser} = this.get() as UserAttributes;
         return safeUser;
     }
 }
 
-user.init({
+User.init({
     id: {
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
@@ -43,7 +58,7 @@ user.init({
         unique: true,
         validate: {
             notEmpty: true,
-            len: [3, 30]
+            len: [3, 50]
         }
     },
     email: {
@@ -51,33 +66,67 @@ user.init({
         allowNull: false,
         unique: true,
         validate: {
-            isEmail: true
+            isEmail: true,
+            notEmpty: true,
         }
     },
     password: {
         type: DataTypes.STRING(255),
         allowNull: false
     },
+    refreshToken: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+    },
+    refreshTokenExpiry: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    googleId: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        unique: true,
+    },
+    profilePicture: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+    },
+    authProvider: {
+        type: DataTypes.ENUM('local', 'google'),
+        allowNull: false,
+        defaultValue: 'local',
+    },
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    lastLogin: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
 }, {
     sequelize,
-    tableName: 'user',
+    tableName: 'User',
     hooks: {
-        beforeCreate: async (user: user) => {
-            if(user.password){
+        beforeCreate: async (user: User) => {
+            const password = user.get('password');
+            if(password){
                 const salt = await bcrypt.genSalt(10);
-                user.password = await bcrypt.hash(user.password, salt);
+                user.set('password', await bcrypt.hash(password, salt));
             }
         },
 
-        beforeUpdate: async (user: user) => {
+        beforeUpdate: async (user: User) => {
             if(user.changed('password')){
+                const password = user.get('password');
                 const salt = await bcrypt.genSalt(10);
-                user.password = await bcrypt.hash(user.password, salt);
+                user.set('password', await bcrypt.hash(password, salt));
             }
         }
     }
 })
 
-export default user;
+export default User;

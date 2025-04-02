@@ -1,8 +1,6 @@
 import app from './app';
 import sequelize from './config/database_config';
 import { initModels } from './models';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const PORT: number = Number(process.env.PORT) || 5001;
 

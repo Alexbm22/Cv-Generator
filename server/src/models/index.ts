@@ -1,9 +1,9 @@
 import sequelize from '../config/database_config';
-import user from './user';
+import User from './User';
 import CV from './CV';
 
 export {
-    user,
+    User,
     CV
 }
 
@@ -12,7 +12,7 @@ export const initModels = async () => {
 
     switch (process.env.NODE_ENV) {
         case 'development':
-            await sequelize.sync({ alter: true });
+            await sequelize.sync({ alter: false, force: true });
             break;
         case 'test':
             await sequelize.sync({ force: true });
