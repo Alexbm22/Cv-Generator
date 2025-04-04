@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import {
+    AuthRequest,
     AuthResponse,
     loginDto,
     registerDto
@@ -38,4 +39,20 @@ export class AuthController{
         return res.status(200).json({ loginResult: loginResult});
     }
 
+    async logout(req: Request, res: Response, next: NextFunction) {
+        const AuthRequest = req as AuthRequest;
+        const user = AuthRequest.user;
+
+        if (!user) {
+            return next(new AppError('User not provided', 401));
+        }
+
+        const logoutResult: AuthResponse = await this.authServices.logout(user, res);
+
+        if (!logoutResult.success) {
+            return next(new AppError(logoutResult.message, 401));
+        }
+
+        return res.status(200).json({ logoutResult: logoutResult});
+    }
 }

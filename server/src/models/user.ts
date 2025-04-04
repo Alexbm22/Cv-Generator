@@ -42,6 +42,13 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
 
     public safeUser(): Omit<UserAttributes, 'password' | 'refreshToken' | 'refreshTokenExpiry'> {
         const {password, refreshToken, refreshTokenExpiry, ...safeUser} = this.get() as UserAttributes;
+        
+        //resolving the issue of id being undefined in the safeUser object
+        // this is a workaround to ensure that the id is always present in the safeUser object
+        if(this.id) {
+            safeUser.id = this.id;
+        }
+
         return safeUser;
     }
 }
@@ -51,6 +58,7 @@ User.init({
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
         primaryKey: true,
+        allowNull: false,
     },
     username: {
         type: DataTypes.STRING(255),

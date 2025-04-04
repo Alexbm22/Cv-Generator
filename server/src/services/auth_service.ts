@@ -37,15 +37,16 @@ export class AuthServices {
             };
         }
 
+        
         const existingUserByUsername = await User.findOne({ where: { username } });
-
+        
         if (existingUserByUsername) {
             return {
                 success: false,
                 message: 'Username is already taken',
             };
         }
-
+        
         const newUser = await User.create({
             username: username,
             email: email,
@@ -56,19 +57,17 @@ export class AuthServices {
         });
         
         const tokens = this.generateTokens(newUser);
-
+        
+        // Set the refresh token in the client cookies
         this.setRefreshToken(tokens.refreshToken, res);
-
-        const refreshExpiresIn = this.getExpirationInSeconds(this.JWT_REFRESH_EXPIRATION);
-        const refreshExpirationDate = new Date(Date.now() + refreshExpiresIn * 1000);
-
-        newUser.update({
+        
+        const refreshExpirationDate = this.getExpirationDate(this.JWT_REFRESH_EXPIRATION);
+        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
+        
+        await newUser.update({
             refreshToken: tokens.refreshToken,
             refreshTokenExpiry: refreshExpirationDate
         })
-
-        const accessExpiresIn = this.getExpirationInSeconds(this.JWT_EXPIRATION);
-        const accessExpirationDate = new Date(Date.now() + accessExpiresIn * 1000);
 
         return {
             success: true,
@@ -94,17 +93,17 @@ export class AuthServices {
             };
         }
 
-        if (!user.isActive) {
+        if (!user.get('isActive')) {
             return {
               success: false,
-              message: `${user.get('isActive')}`
+              message: `This account is inactive. Please contact support.`
             };
         }
 
-        if (user.authProvider !== 'local') {
+        if (user.get('authProvider') !== 'local') {
             return {
               success: false,
-              message: `Please use ${user.authProvider} login for this account`
+              message: `Please use ${user.get('authProvider')} login for this account`
             };
         }
 
@@ -120,16 +119,13 @@ export class AuthServices {
 
         this.setRefreshToken(tokens.refreshToken, res);
 
-        const refreshExpiresIn = this.getExpirationInSeconds(this.JWT_REFRESH_EXPIRATION);
-        const refreshExpirationDate = new Date(Date.now() + refreshExpiresIn * 1000);
+        const refreshExpirationDate = this.getExpirationDate(this.JWT_REFRESH_EXPIRATION);
+        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
 
         user.update({
             refreshToken: tokens.refreshToken,
             refreshTokenExpiry: refreshExpirationDate
         })
-
-        const accessExpiresIn = this.getExpirationInSeconds(this.JWT_EXPIRATION);
-        const accessExpirationDate = new Date(Date.now() + accessExpiresIn * 1000);
 
         return {
             success: true,
@@ -145,12 +141,98 @@ export class AuthServices {
 
     }
 
+    async logout(user: UserData, res: Response): Promise<AuthResponse> {
+        const userToLogout = await User.findOne({ where: { id: user.id, email: user.email } });
+        if (!userToLogout) {
+            return {
+                success: false,
+                message: 'User not found'
+            };
+        }
+
+        userToLogout.update({
+            refreshToken: null,
+            refreshTokenExpiry: null
+        });
+
+        res.clearCookie('refreshToken');
+
+        return {
+            success: true,
+            message: 'Logout successfully'
+        };
+    }
+
+    async refreshToken(req: AuthRequest, res: Response): Promise<AuthResponse> {
+        const token = req.cookies.refreshToken;
+        if (!token) {
+            return {
+                success: false,
+                message: 'Refresh token not found'
+            };
+        }
+
+        const decodedToken = jwt.verify(token, this.JWT_REFRESH_SECRET as string) as UserData;
+        if (!decodedToken) {
+            return {
+                success: false,
+                message: 'Invalid refresh token'
+            };
+        }
+
+        const user = await User.findOne({
+            where: {
+                id: decodedToken.id,
+                refreshToken: token
+            }
+        })
+        if (!user) {
+            return {
+                success: false,
+                message: 'User not found'
+            };
+        } 
+
+        if (!user.get('refreshTokenExpiry') || (user.get('refreshTokenExpiry') as Date) < new Date()) {
+            return {
+                success: false,
+                message: 'Refresh token expired'
+            };
+        }
+
+        const tokens = this.generateTokens(user);
+        this.setRefreshToken(tokens.refreshToken, res);
+
+        const refreshExpirationDate = this.getExpirationDate(this.JWT_REFRESH_EXPIRATION);
+        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
+
+        user.update({
+            refreshToken: tokens.refreshToken,
+            refreshTokenExpiry: refreshExpirationDate
+        })
+
+        return {
+            success: true,
+            message: 'Refreshed Tokens successfully',
+            data: {
+                user: user.safeUser() as UserData,
+                tokens: {
+                    accessToken: tokens.accessToken,
+                    expiresIn: accessExpirationDate
+                }
+            }
+        };
+
+    }
+
     private generateTokens(user: User): TokenData {
         const payload = {
-            id: user.id,
-            username: user.username,
-            email: user.email
-        }
+            id: user.get('id'),
+            username: user.get('username'),
+            email: user.get('email'),
+            authProvider: user.get('authProvider'),
+            isActive: user.get('isActive'),
+        } as UserData
 
         const accessToken = jwt.sign(payload, this.JWT_SECRET as jwt.Secret, {
             expiresIn: this.JWT_EXPIRATION as any
@@ -192,6 +274,11 @@ export class AuthServices {
           case 'd': return value * 24 * 60 * 60;
           default: return 3600;
         }
+    }
+
+    getExpirationDate(expiration: string): Date {
+        const expiresIn = this.getExpirationInSeconds(expiration);
+        return new Date(Date.now() + expiresIn * 1000);
     }
 
 }
