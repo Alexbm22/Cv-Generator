@@ -3,6 +3,7 @@ import { AppError, errorHandler, notFound } from './middleware/error_middleware'
 import { RateLimitMiddleware } from './middleware/rate_limit_middleware';
 import Routes from './routes';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 const app: Application = express();
@@ -13,6 +14,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import { AppError } from './error_middleware';
-import { AuthRequest, UserData } from '../interfaces/auth_interfaces';
+import { AppError, catchAsync } from './error_middleware';
+import { AuthRequest, TokenPayload, UserData } from '../interfaces/auth_interfaces';
 import jwt from 'jsonwebtoken';
+import { User } from '../models';
 
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction)=> {
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader) {
         return next(new AppError('Authorization header is missing', 401));
@@ -14,16 +15,26 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
         return next(new AppError('Token is missing', 401));
     }
 
-    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET as string) as UserData
-    if (!decodedToken) {
+    let decodedToken: TokenPayload;
+    try{
+        decodedToken = jwt.verify(
+            accessToken, 
+            process.env.JWT_SECRET as string
+        ) as TokenPayload;
+    } catch(error: any) {
         return next(new AppError('Invalid token', 401));
     }
 
-    req.user = decodedToken;
+    const user = await User.findOne({
+        where: {
+            id: decodedToken.id
+        }
+    });
+    if (!user) {
+        return next(new AppError('User not found', 401));
+    }   
 
-    if(!decodedToken.isActive) {
-        return next(new AppError('This account is inactive. Please contact support.', 401));
-    }
+    req.user = user.get() as UserData;
 
     next();
-}
+});

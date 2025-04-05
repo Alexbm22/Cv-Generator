@@ -8,7 +8,6 @@ interface UserAttributes {
     email: string;
     password: string | null;
     refreshToken: string | null;
-    refreshTokenExpiry: Date | null;
     googleId: string | null;
     profilePicture: string | null;
     authProvider: 'local' | 'google';
@@ -26,7 +25,6 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public username!: string;
     public email!: string;
     public refreshToken!: string | null;
-    public refreshTokenExpiry!: Date | null;
     public googleId!: string | null;
     public profilePicture!: string | null;
     public authProvider!: 'local' | 'google';
@@ -40,10 +38,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
         return await bcrypt.compare(ComparedPassword, this.get('password'));
     }
 
-    public safeUser(): Omit<UserAttributes, 'password' | 'refreshToken' | 'refreshTokenExpiry'> {
-        const {password, refreshToken, refreshTokenExpiry, ...safeUser} = this.get() as UserAttributes;
+    public safeUser(): Omit<UserAttributes, 'password' | 'refreshToken'> {
+        const {password, refreshToken, ...safeUser} = this.get() as UserAttributes;
         
-        //resolving the issue of id being undefined in the safeUser object
         // this is a workaround to ensure that the id is always present in the safeUser object
         if(this.id) {
             safeUser.id = this.id;
@@ -84,10 +81,6 @@ User.init({
     },
     refreshToken: {
         type: DataTypes.STRING(255),
-        allowNull: true,
-    },
-    refreshTokenExpiry: {
-        type: DataTypes.DATE,
         allowNull: true,
     },
     googleId: {

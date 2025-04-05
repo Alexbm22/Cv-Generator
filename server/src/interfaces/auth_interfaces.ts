@@ -37,6 +37,11 @@ export interface UserData {
     isActive: boolean;
 }
 
+export interface TokenPayload {
+    id: number;
+    exp?: number;
+}
+
 export interface TokenClientData {
     accessToken: string;
     expiresIn: Date;

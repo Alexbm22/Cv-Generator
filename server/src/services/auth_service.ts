@@ -4,11 +4,10 @@ import {
     AuthResponse,
     UserData,
     TokenData,
-    AuthRequest,
-    TokenClientData
+    TokenPayload
 } from '../interfaces/auth_interfaces';
 import { User } from '../models';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -37,7 +36,6 @@ export class AuthServices {
             };
         }
 
-        
         const existingUserByUsername = await User.findOne({ where: { username } });
         
         if (existingUserByUsername) {
@@ -61,12 +59,14 @@ export class AuthServices {
         // Set the refresh token in the client cookies
         this.setRefreshToken(tokens.refreshToken, res);
         
-        const refreshExpirationDate = this.getExpirationDate(this.JWT_REFRESH_EXPIRATION);
         const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
         
-        await newUser.update({
+        await User.update({
             refreshToken: tokens.refreshToken,
-            refreshTokenExpiry: refreshExpirationDate
+        }, {
+            where: { 
+                id: newUser.id
+            },
         })
 
         return {
@@ -119,12 +119,14 @@ export class AuthServices {
 
         this.setRefreshToken(tokens.refreshToken, res);
 
-        const refreshExpirationDate = this.getExpirationDate(this.JWT_REFRESH_EXPIRATION);
         const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
 
-        user.update({
+        await User.update({
             refreshToken: tokens.refreshToken,
-            refreshTokenExpiry: refreshExpirationDate
+        }, {
+            where: { 
+                id: user.get('id')
+            },
         })
 
         return {
@@ -150,10 +152,13 @@ export class AuthServices {
             };
         }
 
-        userToLogout.update({
+        await User.update({
             refreshToken: null,
-            refreshTokenExpiry: null
-        });
+        }, {
+            where: { 
+                id: userToLogout.get('id')
+            },
+        })
 
         res.clearCookie('refreshToken');
 
@@ -163,7 +168,7 @@ export class AuthServices {
         };
     }
 
-    async refreshToken(req: AuthRequest, res: Response): Promise<AuthResponse> {
+    async refreshToken(req: Request, res: Response): Promise<AuthResponse> {
         const token = req.cookies.refreshToken;
         if (!token) {
             return {
@@ -172,8 +177,13 @@ export class AuthServices {
             };
         }
 
-        const decodedToken = jwt.verify(token, this.JWT_REFRESH_SECRET as string) as UserData;
-        if (!decodedToken) {
+        let decodedToken: TokenPayload;
+        try {
+            decodedToken = jwt.verify(
+                token,
+                this.JWT_REFRESH_SECRET as string
+            ) as TokenPayload;
+        } catch (error) {
             return {
                 success: false,
                 message: 'Invalid refresh token'
@@ -186,6 +196,7 @@ export class AuthServices {
                 refreshToken: token
             }
         })
+
         if (!user) {
             return {
                 success: false,
@@ -193,22 +204,17 @@ export class AuthServices {
             };
         } 
 
-        if (!user.get('refreshTokenExpiry') || (user.get('refreshTokenExpiry') as Date) < new Date()) {
-            return {
-                success: false,
-                message: 'Refresh token expired'
-            };
-        }
-
         const tokens = this.generateTokens(user);
         this.setRefreshToken(tokens.refreshToken, res);
 
-        const refreshExpirationDate = this.getExpirationDate(this.JWT_REFRESH_EXPIRATION);
         const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
 
-        user.update({
+        await User.update({
             refreshToken: tokens.refreshToken,
-            refreshTokenExpiry: refreshExpirationDate
+        }, {
+            where: { 
+                id: user.get('id')
+            },
         })
 
         return {
@@ -227,12 +233,8 @@ export class AuthServices {
 
     private generateTokens(user: User): TokenData {
         const payload = {
-            id: user.get('id'),
-            username: user.get('username'),
-            email: user.get('email'),
-            authProvider: user.get('authProvider'),
-            isActive: user.get('isActive'),
-        } as UserData
+            id: user.get('id') ? user.get('id') : user.id,
+        } as TokenPayload
 
         const accessToken = jwt.sign(payload, this.JWT_SECRET as jwt.Secret, {
             expiresIn: this.JWT_EXPIRATION as any

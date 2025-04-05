@@ -39,9 +39,8 @@ export class AuthController{
         return res.status(200).json({ loginResult: loginResult});
     }
 
-    async logout(req: Request, res: Response, next: NextFunction) {
-        const AuthRequest = req as AuthRequest;
-        const user = AuthRequest.user;
+    async logout(req: AuthRequest, res: Response, next: NextFunction) {
+        const user = req.user;
 
         if (!user) {
             return next(new AppError('User not provided', 401));
@@ -55,4 +54,15 @@ export class AuthController{
 
         return res.status(200).json({ logoutResult: logoutResult});
     }
+
+    async refreshToken(req: AuthRequest, res: Response, next: NextFunction){
+        const refreshResult: AuthResponse = await this.authServices.refreshToken(req, res);
+
+        if (!refreshResult.success) {
+            return next(new AppError(refreshResult.message, 401));
+        }
+
+        return res.status(200).json({ refreshResult: refreshResult});
+    }
+
 }
