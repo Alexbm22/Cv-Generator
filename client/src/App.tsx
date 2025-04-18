@@ -4,7 +4,9 @@ function App() {
 
   return (
     <>
-      <div>CvGen</div>
+      <div>
+        Cv gen App
+      </div>
     </>
   )
 }

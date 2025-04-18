@@ -1,85 +1,11 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/database_config';
 import { encrypt, decrypt } from '../utils/encryption';
-
-export enum ProficiencyLanguageLevel {
-    BEGINNER = 'BEGINNER',
-    INTERMEDIATE = 'INTERMEDIATE',
-    ADVANCED = 'ADVANCED',
-    FLUENT = 'FLUENT',
-    NATIVE = 'NATIVE'
-  }
-  
-  export enum SkillLevel {
-    BEGINNER = 'BEGINNER',
-    INTERMEDIATE = 'INTERMEDIATE',
-    ADVANCED = 'ADVANCED',
-    EXPERT = 'EXPERT'
-  }
-
-// to do - adjust the attributes optional fields
-interface CVContentAttributes {
-    languages?: {
-        name: string,
-        level: ProficiencyLanguageLevel
-    }[],
-    skills?: {
-        name: string,
-        level: SkillLevel
-    }[],
-    workExperience?: {
-        JobTitle: string,
-        company: string,
-        startDate: Date,
-        endDate: Date,
-        description: string
-    }[],
-    education?: {
-        degree: string,
-        school: string,
-        startDate: Date,
-        endDate: Date,
-        description: string
-    }[],
-    projects?: {
-        name: string;
-        description?: string;
-        url?: string;
-        technologies?: string[];
-    }[],
-    customSection?: {
-        title: string,
-        content: {
-            title: string,
-            description: string
-        }[]
-    }
-}
-
-interface PersonalDataAttributes {
-    firstName?: string,
-    lastName?: string,
-    email?: string,
-    phoneNumber?: string,
-    address?: string,
-    birthDate?: Date,
-    socialLinks?: {
-        platform: string,
-        url: string
-    }[]
-}
-
-interface CVAttributes {
-    id: number,
-    title: string,
-    userId: number,
-    template: string,
-    personalData?: PersonalDataAttributes | null,
-    encryptedPersonalData: string
-    content: CVContentAttributes
-    createdAt: Date,
-    updatedAt: Date
-}
+import {
+    CVAttributes, 
+    CVContentAttributes, 
+    PersonalDataAttributes }
+from '../interfaces/cv_interface';
 
 interface CVCreationAttributes extends Optional<CVAttributes, 'id' | 'encryptedPersonalData' | 'createdAt' | 'updatedAt'> {}
 

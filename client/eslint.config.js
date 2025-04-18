@@ -23,14 +23,6 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-      // Development-specific rules
-      'no-console': 'off', // Allow console logs during development
-      'no-debugger': 'off', // Allow debugger statements during development
-    },
-    env: {
-      node: true,
-      browser: true,
-      es2020: true,
     },
   },
 )
