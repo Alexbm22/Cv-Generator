@@ -71,7 +71,7 @@ export interface CVMetadataActions {
     setTemplate: (template: string) => void;
     setTitle: (title: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
-    setId: (id: string | null) => void;
+    setId: (id: string | undefined) => void;
 }
 
 export interface CVContentActions {
@@ -115,7 +115,7 @@ export interface CVPersonalInfoActions {
 }
 
 export interface CVMetadataAttributes {
-    id: string;
+    id: string | undefined;
     title: string;
     template: string;
     sectionsOrder: string[];
@@ -142,10 +142,15 @@ export interface CVPersonalInfoAttributes {
     socialLinks: SocialLink[]
 }
 
+export interface CVStoreActions {
+    getCVObject: () => CVAttributes;
+    saveCV: () => void;
+}
+
 export interface CVAttributes extends CVMetadataAttributes, CVContentAttributes, CVPersonalInfoAttributes {}
 
 export interface CVMetadataSliceAttributes extends CVMetadataAttributes, CVMetadataActions {}
 export interface CVContentSliceAttributes extends CVContentAttributes, CVContentActions {}
 export interface CVPersonalInfoSliceAttributes extends CVPersonalInfoAttributes, CVPersonalInfoActions {}
 
-export interface CVStoreAttributes extends CVMetadataSliceAttributes, CVContentSliceAttributes, CVPersonalInfoSliceAttributes {}
+export interface CVStore extends CVMetadataSliceAttributes, CVContentSliceAttributes, CVPersonalInfoSliceAttributes, CVStoreActions {}

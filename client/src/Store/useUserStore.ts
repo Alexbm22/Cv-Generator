@@ -7,7 +7,7 @@ import { UserStore } from '../interfaces/user_interface';
 
 export const useUserStore = create<UserStore>()(
     devtools(
-        persist((set) => ({
+        persist((set, get) => ({
             userName: null,
             userEmail: null,
             userId: null,
@@ -21,7 +21,16 @@ export const useUserStore = create<UserStore>()(
             setUserProfilePicture: (userProfilePicture: string) => set({ userProfilePicture }),
             setUserAuthProvider: (userAuthProvider: 'local' | 'google') => set({ userAuthProvider }),
             setUserisAuthenticated: (userisAuthenticated: boolean) => set({ userisAuthenticated }),
-            setCVs: (CVs: CVAttributes[]) => set({ CVs })
+
+            addCV: (CV: CVAttributes) => set((state) => ({ CVs: state.CVs.concat(CV) })),
+            removeCV: (id: string) => set((state) => ({ CVs: state.CVs.filter((cv) => cv.id !== id) })),
+            updateCV: (updatedCV: CVAttributes) => {
+                if (get().CVs.some((cv) => cv.id === updatedCV.id)) {
+                    set((state) => ({ CVs: state.CVs.map((cv) => (cv.id === updatedCV.id ? updatedCV : cv)) }))
+                } else { 
+                    get().addCV(updatedCV);
+                }
+            }
         }), {
             name: 'resumes',
             partialize: (state) => ({

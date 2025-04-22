@@ -7,7 +7,7 @@ export interface UserState {
     userProfilePicture: string | null;
     userAuthProvider: 'local' | 'google' | null;
     userisAuthenticated: boolean;
-    CVs: CVAttributes[] | null;
+    CVs: CVAttributes[];
 }
 
 export interface UserActions {
@@ -17,7 +17,10 @@ export interface UserActions {
     setUserProfilePicture: (userProfilePicture: string) => void;
     setUserAuthProvider: (userAuthProvider: 'local' | 'google') => void;
     setUserisAuthenticated: (userisAuthenticated: boolean) => void;
-    setCVs: (CVs: CVAttributes[]) => void;
+
+    addCV: (CV: CVAttributes) => void;
+    removeCV: (id: string) => void;
+    updateCV: (updatedCV: CVAttributes) => void;
 }
 
 export interface UserStore extends UserState, UserActions {}

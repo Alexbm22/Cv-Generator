@@ -1,7 +1,13 @@
-import { CVPersonalInfoSliceAttributes, SocialLink } from '../../../interfaces/cv_interface';
+import { 
+    CVPersonalInfoSliceAttributes, 
+    SocialLink, 
+    CVStore } from '../../interfaces/cv_interface';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
-export const createPersonalInfoSlice = (set: any) => ({
+export const createPersonalInfoSlice = (set: {
+    (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;
+    (state: CVStore | ((state: CVStore) => CVStore), replace: true): void;
+}): CVPersonalInfoSliceAttributes => ({
     photo: '',
     firstName: '',
     lastName: '',

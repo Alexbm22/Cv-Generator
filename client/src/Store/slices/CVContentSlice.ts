@@ -1,5 +1,6 @@
 import { 
     CVContentSliceAttributes, 
+    CVStore,
     Language, 
     ProficiencyLanguageLevel,
     Skill,
@@ -8,10 +9,13 @@ import {
     Education, 
     CustomSection,
     Project
-} from '../../../interfaces/cv_interface';
+} from '../../interfaces/cv_interface'; // Adjust the import path as necessary
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
-export const createContentSlice = (set: any) => ({
+export const createContentSlice = (set: {
+    (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;
+    (state: CVStore | ((state: CVStore) => CVStore), replace: true): void;
+}): CVContentSliceAttributes => ({
     languages: [],
     skills: [],
     workExperience: [],
