@@ -68,6 +68,7 @@ export enum SkillLevel {
 }
 
 export interface CVContentAttributes {
+    professionalSummary: string,
     languages: Language[],
     skills: Skill[],
     workExperience: WorkExperience[],

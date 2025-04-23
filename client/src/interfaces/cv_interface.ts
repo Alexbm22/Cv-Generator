@@ -67,6 +67,35 @@ export enum SkillLevel {
     EXPERT = 'EXPERT'
 }
 
+export interface CVMetadataAttributes {
+    id: string | undefined;
+    title: string;
+    template: string;
+    sectionsOrder: string[];
+}
+
+// to do - adjust the attributes optional fields
+export interface CVContentAttributes {
+    professionalSummary: string,
+    languages: Language[],
+    skills: Skill[],
+    workExperience: WorkExperience[],
+    education: Education[],
+    projects: Project[],
+    customSections: CustomSection[]
+}
+
+export interface CVPersonalInfoAttributes {
+    photo: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    phoneNumber: string,
+    address: string,
+    birthDate: Date | null,
+    socialLinks: SocialLink[]
+}
+
 export interface CVMetadataActions {
     setTemplate: (template: string) => void;
     setTitle: (title: string) => void;
@@ -114,37 +143,11 @@ export interface CVPersonalInfoActions {
     updateSocialLink: (id: string, socialLink: Partial<SocialLink>) => void;
 }
 
-export interface CVMetadataAttributes {
-    id: string | undefined;
-    title: string;
-    template: string;
-    sectionsOrder: string[];
-}
-
-// to do - adjust the attributes optional fields
-export interface CVContentAttributes {
-    languages: Language[],
-    skills: Skill[],
-    workExperience: WorkExperience[],
-    education: Education[],
-    projects: Project[],
-    customSections: CustomSection[]
-}
-
-export interface CVPersonalInfoAttributes {
-    photo: string,
-    firstName: string,
-    lastName: string,
-    email: string,
-    phoneNumber: string,
-    address: string,
-    birthDate: Date | null,
-    socialLinks: SocialLink[]
-}
 
 export interface CVStoreActions {
     getCVObject: () => CVAttributes;
     saveCV: () => void;
+    setCV: (CV: CVAttributes) => void;
 }
 
 export interface CVAttributes extends CVMetadataAttributes, CVContentAttributes, CVPersonalInfoAttributes {}

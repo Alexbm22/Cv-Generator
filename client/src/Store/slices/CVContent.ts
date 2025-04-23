@@ -16,6 +16,7 @@ export const createContentSlice = (set: {
     (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;
     (state: CVStore | ((state: CVStore) => CVStore), replace: true): void;
 }): CVContentSliceAttributes => ({
+    professionalSummary: '',
     languages: [],
     skills: [],
     workExperience: [],

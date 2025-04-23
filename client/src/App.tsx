@@ -1,22 +1,22 @@
 import './App.css'
-import { useCvStore } from './Store'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+
+import { routes } from './config/routes'
+
 
 function App() {
 
-  const { title, setTitle } = useCvStore();
-
   return (
     <>
-      <div>
-        Cv gen App
-      </div>
-
-      <div>
-        <input type="text" onChange={(e) => {
-          setTitle(e.target.value);
-        }} />
-        {title}
-      </div>
+      <Router>
+        <Routes>
+          {
+            routes.map((route) => (
+              <Route path={route.path} element={<route.element />} />
+            ))
+          }
+        </Routes>
+      </Router>
     </>
   )
 }

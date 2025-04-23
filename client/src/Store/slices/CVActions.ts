@@ -39,5 +39,12 @@ export const createStoreActionsSlice = (set: {
 
         const { updateCV } = useUserStore.getState();
         updateCV(CV);
+    },
+
+    setCV: (CV: CVAttributes) => {
+        set((state) => ({
+            ...state,
+            ...CV,
+        }));
     }
 })

@@ -1,7 +1,7 @@
-import { createMetadataSlice } from './CVMetadataSlice';
-import { createContentSlice } from './CVContentSlice';
-import { createPersonalInfoSlice } from './CVPersonalInfoSlice';
-import { createStoreActionsSlice } from './CVActionsSlice';
+import { createMetadataSlice } from './CVMetadata';
+import { createContentSlice } from './CVContent';
+import { createPersonalInfoSlice } from './CVPersonalInfo';
+import { createStoreActionsSlice } from './CVActions';
 
 export {
     createMetadataSlice,
