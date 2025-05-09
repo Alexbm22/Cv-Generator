@@ -14,8 +14,8 @@ export interface WorkExperience {
     id: string,
     jobTitle: string,
     company: string,
-    startDate: Date | null,
-    endDate: Date | null,
+    startDate: Date,
+    endDate: Date,
     description: string
 }
 
@@ -92,7 +92,7 @@ export interface CVPersonalInfoAttributes {
     email: string,
     phoneNumber: string,
     address: string,
-    birthDate: Date | null,
+    birthDate: Date,
     socialLinks: SocialLink[]
 }
 
@@ -104,6 +104,8 @@ export interface CVMetadataActions {
 }
 
 export interface CVContentActions {
+    setProfessionalSummary: (summary: string) => void;
+
     addLanguage: (language: Partial<Language>) => void;
     removeLanguage: (id: string) => void;
     updateLanguage: (id: string, language: Partial<Language>) => void;
@@ -136,7 +138,7 @@ export interface CVPersonalInfoActions {
     setEmail: (email: string) => void;
     setPhoneNumber: (phoneNumber: string) => void;
     setAddress: (address: string) => void;
-    setBirthDate: (birthDate: Date | null) => void;
+    setBirthDate: (birthDate: Date) => void;
 
     addSocialLink: (socialLink: Partial<SocialLink>) => void;
     removeSocialLink: (id: string) => void;

@@ -15,6 +15,7 @@ export const createStoreActionsSlice = (set: {
             id: CV.id,
             title: CV.title,
             template: CV.template,
+            professionalSummary: CV.professionalSummary,
             sectionsOrder: CV.sectionsOrder,
             languages: CV.languages,
             skills: CV.skills,

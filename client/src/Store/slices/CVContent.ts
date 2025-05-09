@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 import { 
     CVContentSliceAttributes, 
     CVStore,
@@ -23,6 +24,8 @@ export const createContentSlice = (set: {
     education: [],
     projects: [],
     customSections: [],
+
+    setProfessionalSummary: (summary: string) => set({professionalSummary: sanitizeHtml(summary)}),
 
     addLanguage: (language: Partial<Language>) => {
         const newLanguage: Language = {
@@ -63,28 +66,32 @@ export const createContentSlice = (set: {
     addWorkExperience: (workExperience: Partial<WorkExperience>) => {
         const newWorkExperience: WorkExperience = {
             id: workExperience.id || uuidv4(),
-            jobTitle: workExperience.jobTitle || '',
+            jobTitle: workExperience.jobTitle || 'Untitled',
             company: workExperience.company || '',
-            startDate: workExperience.startDate || null,
-            endDate: workExperience.endDate || null,
+            startDate: workExperience.startDate || new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
+            endDate: workExperience.endDate || new Date(),
             description: workExperience.description || ''
         }
 
         return set((state: CVContentSliceAttributes) => ({
-            workExperience: state.workExperience.concat(newWorkExperience)
+            workExperience: state.workExperience.concat(newWorkExperience).sort((a, b) => 
+                new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+            )
         }))
     },
     removeWorkExperience: (id: string) => set((state: CVContentSliceAttributes) => ({
         workExperience: state.workExperience.filter((work) => work.id !== id)
     })),
     updateWorkExperience: (id: string, workExperience: Partial<WorkExperience>) => set((state: CVContentSliceAttributes) => ({
-        workExperience: state.workExperience.map((work) => work.id === id ? { ...work, ...workExperience} : work)
+        workExperience: state.workExperience.map((work) => work.id === id ? { ...work, ...workExperience} : work).sort((a, b) => 
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        )
     })),    
 
     addEducation: (education: Partial<Education>) => {
         const newEducation: Education = {
             id: education.id || uuidv4(),
-            institution: education.institution || '',
+            institution: education.institution || 'Untitled',
             degree: education.degree || '',
             startDate: education.startDate || null,
             endDate: education.endDate || null,

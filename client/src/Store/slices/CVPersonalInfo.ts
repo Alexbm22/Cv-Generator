@@ -14,7 +14,7 @@ export const createPersonalInfoSlice = (set: {
     email: '',
     phoneNumber: '',
     address: '',
-    birthDate: null,
+    birthDate: new Date(),
     socialLinks: [],
     setPhoto: (photo: string) => set({ photo }),
     setFirstName: (firstName: string) => set({ firstName }),
@@ -22,7 +22,7 @@ export const createPersonalInfoSlice = (set: {
     setEmail: (email: string) => set({ email }),
     setPhoneNumber: (phoneNumber: string) => set({ phoneNumber }),
     setAddress: (address: string) => set({ address }),
-    setBirthDate: (birthDate: Date | null) => set({ birthDate }),
+    setBirthDate: (birthDate: Date) => set({ birthDate }),
 
     addSocialLink: (socialLink: Partial<SocialLink>) => {
         const newSocialLink: SocialLink = {

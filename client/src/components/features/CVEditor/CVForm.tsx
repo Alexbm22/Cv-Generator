@@ -1,11 +1,17 @@
 import React from "react";
+import {
+    PersonalInfos,
+    ProfessionalSummary,
+    WorkExperience,
+} from "./sections";
 
 const CVEditorForm: React.FC = () => {
     return (
-        <div>
-        <h1>CV Editor Form</h1>
-        {/* Add your form fields and logic here */}
-        </div>
+        <div className="p-7">        
+            <PersonalInfos/>
+            <ProfessionalSummary/>
+            <WorkExperience/>
+        </div>  
     );
 }
 

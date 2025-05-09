@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCvStore, useUserStore } from "../../Store";
 import { CVAttributes } from "../../interfaces/cv_interface";
+import CVEditorForm  from "../../components/features/CVEditor/CVForm";
 
 const CVEditPage: React.FC = () => {
     
@@ -25,7 +26,7 @@ const CVEditPage: React.FC = () => {
 
     return (
         <>
-
+            <CVEditorForm/>
         </>
     );
 }
