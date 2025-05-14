@@ -92,7 +92,7 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       }
     }, [htmlContent]);
 
-    return <div ref={containerRef} className="border border-gray-300 rounded-lg overflow-hidden"></div>;
+    return <div ref={containerRef} className="border border-gray-300 rounded-lg overflow-hidden shadow-sm focus:outline-none"></div>;
   }
 );
 

@@ -7,7 +7,7 @@ export interface Language {
 export interface Skill {
     id: string,
     name: string,
-    level: SkillLevel
+    level: SkillLevel | null
 }
 
 export interface WorkExperience {
@@ -23,8 +23,8 @@ export interface Education {
     id: string,
     degree: string,
     institution: string,
-    startDate: Date | null,
-    endDate: Date | null,
+    startDate: Date,
+    endDate: Date,
     description: string
 }
 
@@ -61,10 +61,10 @@ export enum ProficiencyLanguageLevel {
 }
 
 export enum SkillLevel {
-    BEGINNER = 'BEGINNER',
-    INTERMEDIATE = 'INTERMEDIATE',
-    ADVANCED = 'ADVANCED',
-    EXPERT = 'EXPERT'
+    BEGINNER = 'Begginer',
+    INTERMEDIATE = 'Intermediate',
+    ADVANCED = 'Advanced',
+    EXPERT = 'Expert'
 }
 
 export interface CVMetadataAttributes {

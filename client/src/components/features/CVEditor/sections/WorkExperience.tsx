@@ -12,7 +12,7 @@ interface ComponentProps {
 
 const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
 
-    const {updateWorkExperience } = useCvStore();
+    const { updateWorkExperience } = useCvStore();
 
     return (
         <div className='p-0.5'>
@@ -78,9 +78,9 @@ const WorkExperienceMain: React.FC = () => {
                                 workExperience.map((work) => (
                                     <div key={work.id} >
                                         <Collapsable 
-                                            title={work.jobTitle} 
+                                            title={work.jobTitle ? work.jobTitle : "Untitled"} 
                                             children={<WorkExperienceComponent work={work}/>} 
-                                            deleteFunction={() => removeWorkExperience(work.id)}
+                                            onDelete={() => removeWorkExperience(work.id)}
                                         />
                                     </div>
                                 ))

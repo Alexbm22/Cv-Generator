@@ -83,7 +83,7 @@ const PersonalInfos: React.FC = () => {
                         <div className="flex flex-col content-start gap-x-8 gap-y-5 mt-3">
                             {
                                 socialLinks.map((link) => (
-                                    <div key={link.id} className="border rounded-lg p-5 border-gray-400 flex flex-col gap-x-8 gap-y-3 font-sans md:grid grid-cols-2">
+                                    <div key={link.id} className="border rounded-lg p-5 border-gray-300 shadow-sm flex flex-col gap-x-8 gap-y-3 font-sans md:grid grid-cols-2">
                                         <div className="flex items-center justify-between col-span-2">
                                             <span className="text-lg font-medium text-gray-700">{link.platform == '' ? 'Untitled' : link.platform }</span>
                                             <button onClick={() => removeSocialLink(link.id)}><span className="text-red-500 hover:cursor-pointer">del</span></button>

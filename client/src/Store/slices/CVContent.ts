@@ -6,7 +6,6 @@ import {
     ProficiencyLanguageLevel,
     Skill,
     WorkExperience,
-    SkillLevel, 
     Education, 
     CustomSection,
     Project
@@ -49,7 +48,7 @@ export const createContentSlice = (set: {
         const newSkill: Skill = {
             id: skill.id || uuidv4(),
             name: skill.name || '',
-            level: skill.level || SkillLevel.INTERMEDIATE
+            level: skill.level || null
         }
 
         return set((state: CVContentSliceAttributes) => ({
@@ -75,7 +74,7 @@ export const createContentSlice = (set: {
 
         return set((state: CVContentSliceAttributes) => ({
             workExperience: state.workExperience.concat(newWorkExperience).sort((a, b) => 
-                new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+                new Date(a.startDate).getTime() - new Date(b.startDate).getTime() // sorting workExperience by startDate
             )
         }))
     },
@@ -91,22 +90,26 @@ export const createContentSlice = (set: {
     addEducation: (education: Partial<Education>) => {
         const newEducation: Education = {
             id: education.id || uuidv4(),
-            institution: education.institution || 'Untitled',
+            institution: education.institution || '',
             degree: education.degree || '',
-            startDate: education.startDate || null,
-            endDate: education.endDate || null,
+            startDate: education.startDate || new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
+            endDate: education.endDate || new Date(),
             description: education.description || ''
         }
 
         return set((state: CVContentSliceAttributes) => ({
-            education: state.education.concat(newEducation)
+            education: state.education.concat(newEducation).sort((a, b) => 
+                new Date(a.startDate).getTime() - new Date(b.startDate).getTime() // sorting workExperience by startDate
+            )
         }))
     },
     removeEducation: (id: string) => set((state: CVContentSliceAttributes) => ({
         education: state.education.filter((edu) => edu.id !== id)
     })),
     updateEducation: (id: string, education: Partial<Education>) => set((state: CVContentSliceAttributes) => ({
-        education: state.education.map((edu) => edu.id === id ? { ...edu, ...education} : edu)
+        education: state.education.map((edu) => edu.id === id ? { ...edu, ...education} : edu).sort((a, b) => 
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        )
     })),
 
     addProject: (project: Partial<Project>) => {

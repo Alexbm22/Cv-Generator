@@ -19,7 +19,7 @@ const TextInputField: React.FC<InputFieldProps> = ({id, label, placeholder, valu
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
-                className="w-full font-medium text-gray-600 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="w-full h-11 font-medium text-gray-600 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
             />
         </div>
     )
