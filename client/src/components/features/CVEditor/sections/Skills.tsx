@@ -15,10 +15,10 @@ const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
     const { updateSkill } = useCvStore();
 
     const SkillMap = {
-        [SkillLevel.BEGINNER]: { index: 0, color: '#ff8e8e'},
-        [SkillLevel.INTERMEDIATE]:  { index: 1, color: '#ffc65c'},
-        [SkillLevel.ADVANCED]:  { index: 2, color: '#b2dc82'},
-        [SkillLevel.EXPERT]:  { index: 3, color: '#72d964'}
+        [SkillLevel.BEGINNER]: { index: 0, color: '#da4500'},
+        [SkillLevel.INTERMEDIATE]:  { index: 1, color: '#ffd413'},
+        [SkillLevel.ADVANCED]:  { index: 2, color: '#5cd41c'},
+        [SkillLevel.EXPERT]:  { index: 3, color: '#41bc00'}
     }
 
     return (
@@ -51,7 +51,7 @@ const SkillMain:React.FC = () => {
         <div className="mt-5">
             <h2 className="text-xl text-gray-600 font-bold">Skills</h2>
             <p className="text-sm text-gray-500 mb-4">Your know-how (technical) and interpersonal skills</p>
-            <div className="flex flex-col content-start gap-x-8 gap-y-5 mt-3">
+            <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                 {
                     skills.map((skill) => (
                         <div key={skill.id} >
@@ -64,7 +64,7 @@ const SkillMain:React.FC = () => {
                     ))
                 }
                 <button onClick={() => addSkill({})} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    + Add New Skill
+                    + Add Skill
                 </button>
             </div>
         </div>

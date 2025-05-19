@@ -4,7 +4,10 @@ import {
     ProfessionalSummary,
     WorkExperience,
     Education,
-    Skill
+    Skill,
+    Language,
+    Projects,
+    CustomSection
 } from "./sections";
 
 const CVEditorForm: React.FC = () => {
@@ -15,6 +18,9 @@ const CVEditorForm: React.FC = () => {
             <WorkExperience/>
             <Education/>
             <Skill/>
+            <Language/>
+            <Projects/>
+            <CustomSection/>
         </div>  
     );
 }

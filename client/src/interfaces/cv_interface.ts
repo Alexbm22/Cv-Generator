@@ -1,7 +1,9 @@
+import React from "react"
+
 export interface Language {
     id: string,
     name: string,
-    level: ProficiencyLanguageLevel
+    level: ProficiencyLanguageLevel | null
 } 
 
 export interface Skill {
@@ -31,19 +33,23 @@ export interface Education {
 export interface Project {
     id: string,
     name: string,
-    description: string,
     url: string,
-    technologies: string[]
+    description: string,
+    startDate: Date,
+    endDate: Date,
 }
 
-// to do - adjust the Custom Sections content structure
-export interface CustomSection {
+export interface CustomSectionAttributes {
     id: string,
     title: string,
-    content: {
-        title: string,
-        description: string
-    }[]
+    startDate: Date,
+    endDate: Date,
+    description: string,
+}
+
+export interface CustomSection {
+    title: string,
+    content: CustomSectionAttributes[]
 }
 
 export interface SocialLink {
@@ -53,11 +59,12 @@ export interface SocialLink {
 }
 
 export enum ProficiencyLanguageLevel {
-    BEGINNER = 'BEGINNER',
-    INTERMEDIATE = 'INTERMEDIATE',
-    ADVANCED = 'ADVANCED',
-    FLUENT = 'FLUENT',
-    NATIVE = 'NATIVE'
+    A1 = 'A1 - Beginner',
+    A2 = 'A2 - Elementary',
+    B1 = 'B1 - Intermediate',
+    B2 = 'B2 - Upper Intermediate',
+    C1 = 'C1 - Advanced',
+    C2 = 'C2 - Proficient'
 }
 
 export enum SkillLevel {
@@ -67,10 +74,18 @@ export enum SkillLevel {
     EXPERT = 'Expert'
 }
 
+export enum CVTemplate {
+    CASTOR = 'castor',
+    HERMES = 'hermes',
+    HERCULES = 'hercules',
+    HADES = 'hades',
+    HEPHAESTUS = 'hephaestus',
+}
+
 export interface CVMetadataAttributes {
     id: string | undefined;
     title: string;
-    template: string;
+    template: CVTemplate;
     sectionsOrder: string[];
 }
 
@@ -82,7 +97,7 @@ export interface CVContentAttributes {
     workExperience: WorkExperience[],
     education: Education[],
     projects: Project[],
-    customSections: CustomSection[]
+    customSections: CustomSection
 }
 
 export interface CVPersonalInfoAttributes {
@@ -126,13 +141,14 @@ export interface CVContentActions {
     removeProject: (id: string) => void;
     updateProject: (id: string, project: Partial<Project>) => void;
 
-    addCustomSection: (customSection: Partial<CustomSection>) => void;
-    removeCustomSection: (id: string) => void;
-    updateCustomSection: (id: string, customSection: Partial<CustomSection>) => void;
+    setCustomSectionTitle: (title: string) => void;
+    addCustomSectionAttributes: (customSection: Partial<CustomSectionAttributes>) => void;
+    removeCustomSectionAttributes: (id: string) => void;
+    updateCustomSectionAttributes: (id: string, customSection: Partial<CustomSectionAttributes>) => void;
 }
 
 export interface CVPersonalInfoActions {
-    setPhoto: (photo: string) => void;
+    setPhoto: (event: React.ChangeEvent<HTMLInputElement>) => void;
     setFirstName: (firstName: string) => void;
     setLastName: (lastName: string) => void;
     setEmail: (email: string) => void;

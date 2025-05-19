@@ -68,7 +68,7 @@ const EducationMain:React.FC = () => {
         <div className="mt-5">
             <h2 className="text-xl text-gray-600 font-bold">Education</h2>
             <p className="text-sm text-gray-500 mb-4">Indicate the exact title of the degree or training, specifying if obtained and the distinction (most recent only).</p>
-            <div className="flex flex-col content-start gap-x-8 gap-y-5 mt-3">
+            <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                 {
                     education.map((edu) => (
                         <div key={edu.id} >

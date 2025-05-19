@@ -5,6 +5,7 @@ import TextInputField from "../../../UI/textInputField";
 const PersonalInfos: React.FC = () => {
 
     const {
+        photo,
         firstName,
         lastName,
         email,
@@ -12,6 +13,7 @@ const PersonalInfos: React.FC = () => {
         address,
         birthDate,
         socialLinks,
+        setPhoto,
         setFirstName,
         setLastName,
         setEmail,
@@ -26,23 +28,40 @@ const PersonalInfos: React.FC = () => {
     return (
         <>
             <div className="font-sans w-auto">
-                <h2 className="text-xl text-gray-600 font-bold mb-6">Personal Information</h2>
-                <div className="flex flex-col gap-x-8 gap-y-5 md:grid grid-cols-2">
+                <h2 className="text-xl text-gray-600 font-bold mb-2">Personal Information</h2>
+                <div className="flex flex-col gap-x-8 gap-y-4 md:grid grid-cols-2">
         
-                    <TextInputField 
-                        id="firstName" 
-                        label="First Name:" 
-                        value={firstName} 
-                        onChange={(e) => setFirstName(e.target.value)} 
-                        placeholder="e.g. John" 
-                    />
-                    
-                    <TextInputField 
-                        id="lastName" 
-                        label="Last Name:" 
-                        value={lastName} onChange={(e) => setLastName(e.target.value)} 
-                        placeholder="e.g. Doe" 
-                    />
+                    <div className="flex flex-col gap-x-8 gap-y-3">
+                        <TextInputField 
+                            id="firstName" 
+                            label="First Name:" 
+                            value={firstName} 
+                            onChange={(e) => setFirstName(e.target.value)} 
+                            placeholder="e.g. John" 
+                        />
+                        
+                        <TextInputField 
+                            id="lastName" 
+                            label="Last Name:" 
+                            value={lastName} onChange={(e) => setLastName(e.target.value)} 
+                            placeholder="e.g. Doe" 
+                        />
+                    </div>
+
+                    <div className="flex flex-row gap-x-4 justify-start items-end">
+                        <img className="max-w-50 max-h-20 object-contain rounded-lg border-gray-300 shadow-sm" src={photo ? photo : "/Images/anonymous_Picture.png"} alt="Profile" />
+                        <div>
+                            <input 
+                                id="photo" 
+                                className="hidden" 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={setPhoto} 
+                            />
+
+                            <label htmlFor="photo" className="font-medium text-md text-blue-600 w-fit cursor-pointer">+ Add Photo</label>
+                        </div>
+                    </div>
 
                     <TextInputField 
                         id="email" 
@@ -80,7 +99,7 @@ const PersonalInfos: React.FC = () => {
                     <div className="col-span-2 flex flex-col space-y1 w-full mt-2">
                         <label className="text-lg text-gray-600 font-bold">Social Links</label>
                         <p className="text-sm text-gray-500 mb-4e">Add your social media links (e.g. LinkedIn, GitHub, etc.)</p>
-                        <div className="flex flex-col content-start gap-x-8 gap-y-5 mt-3">
+                        <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                             {
                                 socialLinks.map((link) => (
                                     <div key={link.id} className="border rounded-lg p-5 border-gray-300 shadow-sm flex flex-col gap-x-8 gap-y-3 font-sans md:grid grid-cols-2">

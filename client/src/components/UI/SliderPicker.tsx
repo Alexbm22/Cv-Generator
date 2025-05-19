@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 
 interface SliderPickerProps {
-    LevelsMap: { [key: string]: { index: number, color: string } };
+    LevelsMap: { [key: string]: { index: number, color: string, displayedVal?: string } };
     selectedLevel: string | null;
     sectionId: string;
     onLevelChange: any;
@@ -25,7 +25,7 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
             const levelInfo = LevelsMap[selectedLevel];
 
             if (levelInfo.index >= 0) {
-                sliderRef.current.style.opacity = '1';
+                sliderRef.current.style.opacity = '0.7';
                 sliderRef.current.style.width = `${buttonWidth}px`;
 
                 sliderRef.current.style.backgroundColor = levelInfo.color;
@@ -57,7 +57,11 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
         <div className='flex flex-col space-y-2 w-full'>   
             <div className='flex flex-row '>
                 <label className="text-base text-gray-600 font-bold">Level: </label>
-                <p className='ml-3'> {selectedLevel || 'Choose a level'}</p>
+                <p 
+                    className='ml-3 font-semibold' 
+                    style={{ color: selectedLevel ? LevelsMap[selectedLevel].color : '#4a5565' }}>
+                    {selectedLevel || 'Choose a level'}
+                </p>
             </div>
 
             <div ref={containerRef} className=' relative flex divide-x divide-gray-300 flex-row border border-gray-300 shadow-sm h-11 overflow-hidden rounded-md '>
@@ -69,9 +73,10 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
                     return (
                         <button
                             key={level}
-                            className='w-full cursor-pointer'
+                            className='w-full cursor-pointer z-10 font-semibold'
+                            style={{ color: '#494949' }}
                             onClick={() => handleButtonClick(level)}
-                        ></button>
+                        > {LevelsMap[level].displayedVal} </button>
                     );
                 })}
             </div>

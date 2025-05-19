@@ -3,12 +3,11 @@ import {
     CVContentSliceAttributes, 
     CVStore,
     Language, 
-    ProficiencyLanguageLevel,
     Skill,
     WorkExperience,
     Education, 
-    CustomSection,
-    Project
+    Project,
+    CustomSectionAttributes
 } from '../../interfaces/cv_interface'; // Adjust the import path as necessary
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
@@ -22,7 +21,10 @@ export const createContentSlice = (set: {
     workExperience: [],
     education: [],
     projects: [],
-    customSections: [],
+    customSections: {
+        title: '',
+        content: [],
+    },
 
     setProfessionalSummary: (summary: string) => set({professionalSummary: sanitizeHtml(summary)}),
 
@@ -30,7 +32,7 @@ export const createContentSlice = (set: {
         const newLanguage: Language = {
             id: language.id || uuidv4(),
             name: language.name || '',
-            level: language.level || ProficiencyLanguageLevel.INTERMEDIATE
+            level: language.level || null
         }
 
         return set((state: CVContentSliceAttributes) => ({
@@ -99,7 +101,7 @@ export const createContentSlice = (set: {
 
         return set((state: CVContentSliceAttributes) => ({
             education: state.education.concat(newEducation).sort((a, b) => 
-                new Date(a.startDate).getTime() - new Date(b.startDate).getTime() // sorting workExperience by startDate
+                new Date(a.startDate).getTime() - new Date(b.startDate).getTime() // sorting education by startDate
             )
         }))
     },
@@ -116,37 +118,64 @@ export const createContentSlice = (set: {
         const newProject: Project = {
             id: project.id || uuidv4(),
             name: project.name || '',
-            description: project.description || '',
             url: project.url || '',
-            technologies: project.technologies || []
+            startDate: project.startDate || new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
+            endDate: project.endDate || new Date(),
+            description: project.description || '',
         }
 
         return set((state: CVContentSliceAttributes) => ({
-            projects: state.projects.concat(newProject)
+            projects: state.projects.concat(newProject).sort((a, b) => 
+                new Date(a.startDate).getTime() - new Date(b.startDate).getTime() // sorting projects by startDate
+            )
         }))
     },
     removeProject: (id: string) => set((state: CVContentSliceAttributes) => ({
         projects: state.projects.filter((proj) => proj.id !== id)
     })),
     updateProject: (id: string, project: Partial<Project>) => set((state: CVContentSliceAttributes) => ({
-        projects: state.projects.map((proj) => proj.id === id ? { ...proj, ...project} : proj)
+        projects: state.projects.map((proj) => proj.id === id ? { ...proj, ...project} : proj).sort((a, b) => 
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        )
     })),
 
-    addCustomSection: (section: Partial<CustomSection>) => {
-        const newSection: CustomSection = {
-            id: section.id || uuidv4(),
+    // Custom sections
+    setCustomSectionTitle: (title: string) => set((state: CVContentSliceAttributes) => ({
+        customSections: {
+            ...state.customSections,
+            title: title
+        }
+    })),
+    addCustomSectionAttributes: (section: Partial<CustomSectionAttributes>) => {
+        const newSection: CustomSectionAttributes = {
+            id: section.id || uuidv4(), 
             title: section.title || '',
-            content: section.content || []
+            startDate: section.startDate || new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
+            endDate: section.endDate || new Date(),
+            description: section.description || '',
         }
 
         return set((state: CVContentSliceAttributes) => ({
-            customSections: state.customSections.concat(newSection)
+            customSections:{ 
+                ...state.customSections,
+                content: state.customSections.content.concat(newSection).sort((a, b) =>
+                    new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+                )
+            }
         }))
     },
-    removeCustomSection: (id: string) => set((state: CVContentSliceAttributes) => ({
-        customSections: state.customSections.filter((section) => section.id !== id)
+    removeCustomSectionAttributes: (id: string) => set((state: CVContentSliceAttributes) => ({
+        customSections: {
+            ...state.customSections,
+            content: state.customSections.content.filter((section) => section.id !== id)
+        }
     })),
-    updateCustomSection: (id: string, section: Partial<CustomSection>) => set((state: CVContentSliceAttributes) => ({
-        customSections: state.customSections.map((sec) => sec.id === id ? { ...sec, ...section} : sec)
+    updateCustomSectionAttributes: (id: string, section: Partial<CustomSectionAttributes>) => set((state: CVContentSliceAttributes) => ({
+        customSections: {
+            ...state.customSections,
+            content: state.customSections.content.map((sec) => sec.id === id ? { ...sec, ...section} : sec).sort((a, b) => 
+                new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+            )
+        }
     }))
 })
