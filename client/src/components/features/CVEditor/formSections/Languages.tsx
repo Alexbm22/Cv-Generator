@@ -1,3 +1,4 @@
+import React from 'react';
 import { useCvStore } from '../../../../Store';
 import { Language, ProficiencyLanguageLevel } from '../../../../interfaces/cv_interface';
 import {
@@ -5,7 +6,8 @@ import {
     TextInputField,
     SliderPicker
 } from '../../../UI';
-import React from 'react';
+import { LanguageLevelsMap } from '../../../../config/proficiency';
+import { CVEditContent } from '../../../../config/content';
 
 interface ComponentProps {
     language: Language
@@ -13,23 +15,15 @@ interface ComponentProps {
 
 const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
     const { updateLanguage } = useCvStore();
-
-    const LanguageLevelsMap = {
-        [ProficiencyLanguageLevel.A1]: { index: 0, color: '#da4500', displayedVal: 'A1'},
-        [ProficiencyLanguageLevel.A2]:  { index: 1, color: '#ffac33', displayedVal: 'A2'},
-        [ProficiencyLanguageLevel.B1]:  { index: 2, color: '#ffd413', displayedVal: 'B1'},
-        [ProficiencyLanguageLevel.B2]:  { index: 3, color: '#7ad96d', displayedVal: 'B2'},
-        [ProficiencyLanguageLevel.C1]:  { index: 4, color: '#5cd41c', displayedVal: 'C1'},
-        [ProficiencyLanguageLevel.C2]:  { index: 5, color: '#41bc00', displayedVal: 'C2'}
-    }
+    const { fields } = CVEditContent.formSections.languages;
 
     return (
         <div className='p-0.5'>
-            <div className='flex flex-col gap-x-8 gap-y-3 font-sans md:grid grid-cols-2 mb-5 mt-4'>
+            <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
                 <TextInputField
                     id={`language-${language.id}`}
-                    label="Language:"
-                    placeholder="e.g. English"
+                    label={fields.language.label}
+                    placeholder={fields.language.placeholder}
                     value={language.name}
                     onChange={(e) => updateLanguage(language.id, { name: e.target.value })}
                 />
@@ -48,11 +42,12 @@ const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
 
 const LanguageMain:React.FC = () => {
     const { languages, addLanguage, removeLanguage } = useCvStore();
+    const { languages: languagesContent } = CVEditContent.formSections;
 
     return (
         <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">Languages</h2>
-            <p className="text-sm text-gray-500 mb-4">Your know-how (technical) and interpersonal skills</p>
+            <h2 className="text-xl text-gray-600 font-bold">{languagesContent.title}</h2>
+            <p className="text-sm text-gray-500 mb-4">{languagesContent.description}</p>
             <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                 {
                     languages.map((language) => (
@@ -66,7 +61,7 @@ const LanguageMain:React.FC = () => {
                     ))
                 }
                 <button onClick={() => addLanguage({})} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    + Add Language
+                    {languagesContent.addText}
                 </button>
             </div>
         </div>

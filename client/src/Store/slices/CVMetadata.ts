@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { 
     CVStore,
-    CVMetadataSliceAttributes
+    CVMetadataSliceAttributes,
+    CVTemplates,
  } from '../../interfaces/cv_interface';
 
 export const createMetadataSlice = (set: {
@@ -10,10 +11,10 @@ export const createMetadataSlice = (set: {
     }): CVMetadataSliceAttributes => ({
     id: '',
     title: 'Untitled',
-    template: 'castor',
+    template: CVTemplates.CASTOR,
     sectionsOrder: [],
     setId: (id: string | undefined) => set({ id: id || uuidv4() }),
-    setTemplate: (template: string) => set({ template }),
+    setTemplate: (template: CVTemplates) => set({ template }),
     setTitle: (title: string) => set({ title }),
     setSectionsOrder: (sectionsOrder: string[]) => set({ sectionsOrder }),
 })

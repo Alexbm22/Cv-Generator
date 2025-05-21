@@ -1,3 +1,4 @@
+import React from 'react';
 import { useCvStore } from '../../../../Store';
 import { Skill, SkillLevel } from '../../../../interfaces/cv_interface';
 import {
@@ -5,7 +6,8 @@ import {
     TextInputField,
     SliderPicker
 } from '../../../UI';
-import React from 'react';
+import { SkillsLevelsMap } from '../../../../config/proficiency';
+import { CVEditContent } from '../../../../config/content';
 
 interface ComponentProps {
     skill: Skill
@@ -13,27 +15,22 @@ interface ComponentProps {
 
 const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
     const { updateSkill } = useCvStore();
-
-    const SkillMap = {
-        [SkillLevel.BEGINNER]: { index: 0, color: '#da4500'},
-        [SkillLevel.INTERMEDIATE]:  { index: 1, color: '#ffd413'},
-        [SkillLevel.ADVANCED]:  { index: 2, color: '#5cd41c'},
-        [SkillLevel.EXPERT]:  { index: 3, color: '#41bc00'}
-    }
+    const { skills: skillsContent } = CVEditContent.formSections;
+    const { fields } = skillsContent;
 
     return (
         <div className='p-0.5'>
-            <div className='flex flex-col gap-x-8 gap-y-3 font-sans md:grid grid-cols-2 mb-5 mt-4'>
+            <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
                 <TextInputField
                     id={`skill-${skill.id}`}
-                    label="Skill:"
-                    placeholder="e.g. JavaScript"
+                    label={fields.skill.label}
+                    placeholder={fields.skill.placeholder}
                     value={skill.name}
                     onChange={(e) => updateSkill(skill.id, { name: e.target.value })}
                 />
 
                 <SliderPicker
-                    LevelsMap={SkillMap}
+                    LevelsMap={SkillsLevelsMap}
                     selectedLevel={skill.level}
                     sectionId={skill.id}
                     onLevelChange={(id: string, level: SkillLevel) => updateSkill(id, { level })}
@@ -46,25 +43,26 @@ const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
 
 const SkillMain:React.FC = () => {
     const { skills, addSkill, removeSkill } = useCvStore();
+    const { skills: skillsContent } = CVEditContent.formSections;
 
     return (
         <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">Skills</h2>
-            <p className="text-sm text-gray-500 mb-4">Your know-how (technical) and interpersonal skills</p>
+            <h2 className="text-xl text-gray-600 font-bold">{skillsContent.title}</h2>
+            <p className="text-sm text-gray-500 mb-4">{skillsContent.description}</p>
             <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                 {
                     skills.map((skill) => (
                         <div key={skill.id} >
-                            <Collapsable 
-                                title={skill.name ? skill.name : "Untitled"} 
-                                children={<SkillComponent skill={skill}/>} 
+                            <Collapsable
+                                title={skill.name ? skill.name : "Untitled"}
+                                children={<SkillComponent skill={skill} />}
                                 onDelete={() => removeSkill(skill.id)}
                             />
                         </div>
                     ))
                 }
                 <button onClick={() => addSkill({})} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    + Add Skill
+                    {skillsContent.addText}
                 </button>
             </div>
         </div>

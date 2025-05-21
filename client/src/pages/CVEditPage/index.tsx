@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCvStore, useUserStore } from "../../Store";
 import { CVAttributes } from "../../interfaces/cv_interface";
 import CVEditorForm  from "../../components/features/CVEditor/CVForm";
+import CVPreview from "../../components/features/CVEditor/CVPreview";
 
 const CVEditPage: React.FC = () => {
     
@@ -25,9 +26,10 @@ const CVEditPage: React.FC = () => {
     }, [CV, navigate]);
 
     return (
-        <>
+        <div className="flex flex-column w-full h-full relative">
             <CVEditorForm/>
-        </>
+            <CVPreview/>
+        </div>
     );
 }
 

@@ -74,7 +74,7 @@ export enum SkillLevel {
     EXPERT = 'Expert'
 }
 
-export enum CVTemplate {
+export enum CVTemplates {
     CASTOR = 'castor',
     HERMES = 'hermes',
     HERCULES = 'hercules',
@@ -85,7 +85,7 @@ export enum CVTemplate {
 export interface CVMetadataAttributes {
     id: string | undefined;
     title: string;
-    template: CVTemplate;
+    template: CVTemplates;
     sectionsOrder: string[];
 }
 
@@ -112,7 +112,7 @@ export interface CVPersonalInfoAttributes {
 }
 
 export interface CVMetadataActions {
-    setTemplate: (template: string) => void;
+    setTemplate: (template: CVTemplates) => void;
     setTitle: (title: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
     setId: (id: string | undefined) => void;

@@ -1,19 +1,21 @@
 import { useCvStore } from '../../../../Store';
 import Editor from '../../../UI/TextEditor/EditorComponent'
 import React from 'react';
+import { CVEditContent } from '../../../../config/content';
 
 const ProfessionalSummary: React.FC= () => {
 
   const { setProfessionalSummary, professionalSummary } = useCvStore();
+  const { professionalSummary: summaryContent } = CVEditContent.formSections;
 
   return (
     <div className="mt-5">
-      <h2 className="text-xl text-gray-600 font-bold">Professional Summary</h2>
-      <p className="text-sm text-gray-500 mb-4">Add your social media links (e.g. LinkedIn, GitHub, etc.)</p>
+      <h2 className="text-xl text-gray-600 font-bold">{summaryContent.title}</h2>
+      <p className="text-sm text-gray-500 mb-4">{summaryContent.description}</p>
       <Editor 
         onHtmlChange={(html) => setProfessionalSummary(html)}
         htmlContent={professionalSummary}
-        placeholder="Write a brief summary about yourself, your skills, and your career goals. This is your chance to make a strong first impression on potential employers."
+        placeholder={summaryContent.summaryPlaceholder}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import Collapsable from '../../../UI/Collapsable';
 import TextInputField from '../../../UI/textInputField';
 import { sanitizeHtml } from '../../../../utils';
 import { WorkExperience } from '../../../../interfaces/cv_interface';
+import { CVEditContent } from '../../../../config/content';
 
 interface ComponentProps {
     work: WorkExperience
@@ -13,22 +14,24 @@ interface ComponentProps {
 const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
 
     const { updateWorkExperience } = useCvStore();
+    const { workExperience } = CVEditContent.formSections;
+    const { fields } = workExperience;
 
     return (
         <div className='p-0.5'>
-            <div className='flex flex-col gap-x-8 gap-y-3 font-sans md:grid grid-cols-2 mb-5 mt-4'>
+            <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
                 <TextInputField
                     id={`title-${work.id}`}
-                    label="Job Title:"
-                    placeholder="e.g. Software Engineer"
+                    label={fields.jobTitle.label}
+                    placeholder={fields.jobTitle.placeholder}
                     value={work.jobTitle}
                     onChange={(e) => updateWorkExperience(work.id, { jobTitle: e.target.value })}
                 />
 
                 <TextInputField
                     id={`company-${work.id}`}
-                    label="Company:"
-                    placeholder="Company Name"
+                    label={fields.companyName.label}
+                    placeholder={fields.companyName.placeholder}
                     value={work.company}
                     onChange={(e) => updateWorkExperience(work.id, { company: e.target.value })}
                 />
@@ -36,8 +39,8 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
                 <TextInputField
                     type='date'
                     id={`startDate-${work.id}`}
-                    label="Start Date:"
-                    placeholder=''
+                    label={fields.startDate.label}
+                    placeholder={fields.startDate.placeholder}
                     value={new Date(work.startDate).toISOString().slice(0, 10)}
                     onChange={(e) => updateWorkExperience(work.id, { startDate: new Date(e.target.value) })}
                 />
@@ -45,17 +48,17 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
                 <TextInputField
                     type='date'
                     id={`endDate-${work.id}`}
-                    placeholder=''
-                    label="End Date:"
+                    placeholder={fields.endDate.placeholder}
+                    label={fields.endDate.label}
                     value={new Date(work.endDate).toISOString().slice(0, 10)}
                     onChange={(e) => updateWorkExperience(work.id, { endDate: new Date(e.target.value) })}
                 />
             </div>
 
-            <Editor 
-                htmlContent={work.description} 
-                onHtmlChange={(html) => updateWorkExperience(work.id, { description: sanitizeHtml(html) })} 
-                placeholder="Write a brief description of your responsibilities and achievements in this role."
+            <Editor
+                htmlContent={work.description}
+                onHtmlChange={(html) => updateWorkExperience(work.id, { description: sanitizeHtml(html) })}
+                placeholder={fields.description.placeholder}
             />
         </div>
     )
@@ -68,27 +71,28 @@ const WorkExperienceMain: React.FC = () => {
         addWorkExperience,
         removeWorkExperience,
     } = useCvStore();
+    const { workExperience: workExperienceContent } = CVEditContent.formSections;
 
     return (
         <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">Work Experience</h2>
-            <p className="text-sm text-gray-500 mb-4">Add your work experience details here.</p>
+            <h2 className="text-xl text-gray-600 font-bold">{workExperienceContent.title}</h2>
+            <p className="text-sm text-gray-500 mb-4">{workExperienceContent.description}</p>
             <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
-                            {
-                                workExperience.map((work) => (
-                                    <div key={work.id} >
-                                        <Collapsable 
-                                            title={work.jobTitle ? work.jobTitle : "Untitled"} 
-                                            children={<WorkExperienceComponent work={work}/>} 
-                                            onDelete={() => removeWorkExperience(work.id)}
-                                        />
-                                    </div>
-                                ))
-                            }
-                            <button onClick={() => addWorkExperience({})} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                                + Add Work Experience
-                            </button>
+                {
+                    workExperience.map((work) => (
+                        <div key={work.id} >
+                            <Collapsable 
+                                title={work.jobTitle ? work.jobTitle : "Untitled"} 
+                                children={<WorkExperienceComponent work={work}/>} 
+                                onDelete={() => removeWorkExperience(work.id)}
+                            />
                         </div>
+                    ))
+                }
+                <button onClick={() => addWorkExperience({})} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
+                    {workExperienceContent.addText}
+                </button>
+            </div>
         </div>
     );
 }

@@ -5,6 +5,7 @@ import Collapsable from '../../../UI/Collapsable';
 import TextInputField from '../../../UI/textInputField';
 import { sanitizeHtml } from '../../../../utils';
 import { Project } from '../../../../interfaces/cv_interface';
+import { CVEditContent } from '../../../../config/content';
 
 interface ComponentProps {
     project: Project
@@ -13,40 +14,41 @@ interface ComponentProps {
 const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
 
     const { updateProject } = useCvStore();
+    const { fields } = CVEditContent.formSections.projects;
 
     return (
         <div className='p-0.5'>
-            <div className='flex flex-col gap-x-8 gap-y-3 font-sans md:grid grid-cols-2 mb-5 mt-4'>
+            <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
                 <TextInputField
                     id={`title-${project.id}`}
-                    label="Title:"
-                    placeholder="e.g. Project Title"
+                    label={fields.projectName.label}
+                    placeholder={fields.projectName.placeholder}
                     value={project.name}
                     onChange={(e) => updateProject(project.id, { name: e.target.value })}
                 />
 
                 <TextInputField
                     id={`URL-${project.id}`}
-                    label="URL:"
-                    placeholder="Enter the URL of the project"
+                    label={fields.url.label}
+                    placeholder={fields.url.placeholder}
                     value={project.url}
                     onChange={(e) => updateProject(project.id, { url: e.target.value })}
                 />
 
                 <TextInputField
-                    type='date'
+                    type={fields.startDate.type}
                     id={`startDate-${project.id}`}
-                    label="Start Date:"
-                    placeholder=''
+                    label={fields.startDate.label}
+                    placeholder={fields.startDate.placeholder}
                     value={new Date(project.startDate).toISOString().slice(0, 10)}
                     onChange={(e) => updateProject(project.id, { startDate: new Date(e.target.value) })}
                 />
 
                 <TextInputField
-                    type='date'
+                    type={fields.endDate.type}
                     id={`endDate-${project.id}`}
-                    placeholder=''
-                    label="End Date:"
+                    placeholder={fields.endDate.placeholder}
+                    label={fields.endDate.label}
                     value={new Date(project.endDate).toISOString().slice(0, 10)}
                     onChange={(e) => updateProject(project.id, { endDate: new Date(e.target.value) })}
                 />
@@ -55,7 +57,7 @@ const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
             <Editor
                 htmlContent={project.description}
                 onHtmlChange={(html) => updateProject(project.id, { description: sanitizeHtml(html) })}
-                placeholder="Write a brief description of your project."
+                placeholder={fields.description.placeholder}
             />
         </div>
     )
@@ -63,11 +65,12 @@ const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
 
 const EducationMain:React.FC = () => {
     const { projects, addProject, removeProject } = useCvStore();
+    const { projects: projectsContent } = CVEditContent.formSections;
 
     return (
         <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">Projects</h2>
-            <p className="text-sm text-gray-500 mb-4">Indicate the exact title of the project, specifying if completed and any relevant details (most recent only).</p>
+            <h2 className="text-xl text-gray-600 font-bold">{projectsContent.title}</h2>
+            <p className="text-sm text-gray-500 mb-4">{projectsContent.description}</p>
             <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                 {
                     projects.map((proj) => (
@@ -81,7 +84,7 @@ const EducationMain:React.FC = () => {
                     ))
                 }
                 <button onClick={() => addProject({})} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    + Add Project
+                    {projectsContent.addText}
                 </button>
             </div>
         </div>
