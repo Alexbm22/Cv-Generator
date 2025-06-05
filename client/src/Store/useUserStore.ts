@@ -14,13 +14,16 @@ export const useUserStore = create<UserStore>()(
             userProfilePicture: null,
             userAuthProvider: null,
             userisAuthenticated: false,
+            isLoadingAuth: false,
             CVs: [],
+            
             setUserName: (userName: string) => set({ userName }),
             setUserEmail: (userEmail: string) => set({ userEmail }),
             setUserId: (userId: number) => set({ userId }),
             setUserProfilePicture: (userProfilePicture: string) => set({ userProfilePicture }),
             setUserAuthProvider: (userAuthProvider: 'local' | 'google') => set({ userAuthProvider }),
             setUserisAuthenticated: (userisAuthenticated: boolean) => set({ userisAuthenticated }),
+            setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
 
             addCV: (CV: CVAttributes) => set((state) => ({ CVs: state.CVs.concat(CV) })),
             removeCV: (id: string) => set((state) => ({ CVs: state.CVs.filter((cv) => cv.id !== id) })),
@@ -36,6 +39,9 @@ export const useUserStore = create<UserStore>()(
             partialize: (state) => ({
                 CVs: state.CVs,
             }),
-        })
+        }), {
+            name: 'UserStore', // Name of the slice in the Redux DevTools
+            enabled: import.meta.env.VITE_NODE_ENV === 'development',
+        }
     )
 )

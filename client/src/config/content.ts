@@ -219,5 +219,8 @@ export const CVPreviewContent = {
         skills: {
             title: 'Skills',
         },
+        languages: {
+            title: 'Languages',
+        }
     }
 }

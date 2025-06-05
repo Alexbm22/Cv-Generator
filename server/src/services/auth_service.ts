@@ -9,8 +9,9 @@ import {
 import { User } from '../models';
 import { Response, Request } from 'express';
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
-dotenv.config()
+import { config } from 'dotenv'
+
+config()
 
 export class AuthServices {
     private readonly JWT_SECRET: string;
@@ -27,8 +28,9 @@ export class AuthServices {
 
     async register(data: registerDto, res: Response): Promise<AuthResponse> {
         const { username, email, password } = data;
-        const existingUserByEmail = await User.findOne({ where: { email } });
 
+        // verifying if the email is used
+        const existingUserByEmail = await User.findOne({ where: { email } });
         if (existingUserByEmail) {
             return {
                 success: false,
@@ -36,8 +38,8 @@ export class AuthServices {
             };
         }
 
+        // verifying if the username is used
         const existingUserByUsername = await User.findOne({ where: { username } });
-        
         if (existingUserByUsername) {
             return {
                 success: false,
@@ -54,7 +56,7 @@ export class AuthServices {
             isActive: true,
         });
         
-        const tokens = this.generateTokens(newUser);
+        const tokens = this.generateTokens(newUser); // generating the access and refresh tokens
         
         // Set the refresh token in the client cookies
         this.setRefreshToken(tokens.refreshToken, res);
@@ -115,9 +117,9 @@ export class AuthServices {
             };
         }
 
-        const tokens = this.generateTokens(user);
+        const tokens = this.generateTokens(user); // generating the access and refresh tokens
 
-        this.setRefreshToken(tokens.refreshToken, res);
+        this.setRefreshToken(tokens.refreshToken, res); // Set the refresh token in the client cookies
 
         const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
 
@@ -168,7 +170,8 @@ export class AuthServices {
         };
     }
 
-    async refreshToken(req: Request, res: Response): Promise<AuthResponse> {
+
+    async refreshToken(req: Request, res: Response): Promise<AuthResponse> { // refreshing user tokens
         const token = req.cookies.refreshToken;
         if (!token) {
             return {

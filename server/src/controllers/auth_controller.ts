@@ -21,7 +21,7 @@ export class AuthController{
         const registrationResult: AuthResponse = await this.authServices.register(registerDto, res);
 
         if(!registrationResult.success) {
-            return next(new AppError(registrationResult.message, 401));
+            return next(new AppError(registrationResult?.message, 401));
         }
 
         return res.status(201).json({ registrationResult: registrationResult});
@@ -33,7 +33,7 @@ export class AuthController{
         const loginResult: AuthResponse = await this.authServices.login(loginDto, res);
 
         if (!loginResult.success){
-            return next(new AppError(loginResult.message, 401));
+            return next(new AppError(loginResult?.message, 401));
         }
 
         return res.status(200).json({ loginResult: loginResult});
@@ -49,7 +49,7 @@ export class AuthController{
         const logoutResult: AuthResponse = await this.authServices.logout(user, res);
 
         if (!logoutResult.success) {
-            return next(new AppError(logoutResult.message, 401));
+            return next(new AppError(logoutResult?.message, 401));
         }
 
         return res.status(200).json({ logoutResult: logoutResult});

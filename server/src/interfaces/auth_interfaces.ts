@@ -1,14 +1,18 @@
 import { Request } from 'express';
+import { ClientCVAttributes } from './cv_interface';
+import { ApiResponse } from './api_interface';
 
 export interface loginDto {
     email: string;
-    password: string;   
+    password: string;
+    CVs?: ClientCVAttributes[]   
 }
 
 export interface registerDto {
     username: string;
     email: string;
     password: string;
+    CVs?: ClientCVAttributes[]
 }
 
 export interface GoogleUserInfo {
@@ -19,14 +23,12 @@ export interface GoogleUserInfo {
     email_verified?: boolean; // Add email verification status
   }
 
-export interface AuthResponse{
-    success: boolean;
-    message: string;
-    data?: {
-        user: UserData
-        tokens: TokenClientData
-    };
+export interface AuthResponseData {
+    user: UserData
+    tokens: TokenClientData
 }
+
+export interface AuthResponse extends ApiResponse<AuthResponseData> {}
 
 export interface UserData { 
     id: number;

@@ -3,13 +3,18 @@ import {
     CVAttributes,
     CVStore,
     CVStoreActions,
+    SyncState,
  } from '../../interfaces/cv_interface';
 
 export const createStoreActionsSlice = (set: {
     (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;
     (state: CVStore | ((state: CVStore) => CVStore), replace: true): void;
 },get: () => CVStore): CVStoreActions => ({
-    getCVObject: () => {
+
+    syncState: SyncState.SYNCED,
+    setSyncState: (syncState: SyncState) => set({syncState}), 
+
+    getCVObject: () => { 
         const CV = get();
         const CVObject = {
             id: CV.id,
@@ -41,7 +46,6 @@ export const createStoreActionsSlice = (set: {
         const { updateCV } = useUserStore.getState();
         updateCV(CV);
     },
-
     setCV: (CV: CVAttributes) => {
         set((state) => ({
             ...state,

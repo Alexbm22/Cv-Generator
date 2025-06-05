@@ -4,16 +4,19 @@ import { encrypt, decrypt } from '../utils/encryption';
 import {
     CVAttributes, 
     CVContentAttributes, 
-    PersonalDataAttributes }
+    PersonalDataAttributes,
+    CVTemplates
+}
 from '../interfaces/cv_interface';
 
 interface CVCreationAttributes extends Optional<CVAttributes, 'id' | 'encryptedPersonalData' | 'createdAt' | 'updatedAt'> {}
 
 class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttributes {
     public id!: number;
+    public public_id!: string;
     public userId!: number;
     public title!: string;
-    public template!: string;
+    public template!: CVTemplates;
     public content!: CVContentAttributes;
     public encryptedPersonalData!: string;
     public personalData?: PersonalDataAttributes | null;
@@ -38,6 +41,10 @@ CV.init({
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
         primaryKey: true
+    },
+    public_id: {
+        type: DataTypes.STRING(255),
+        allowNull: false
     },
     userId: {
         type: DataTypes.INTEGER.UNSIGNED,

@@ -1,15 +1,30 @@
 import { debounce } from 'lodash';
 import { StoreApi } from 'zustand';
-import { CVStore } from '../../interfaces/cv_interface';
+import { CVStore, SyncState } from '../../interfaces/cv_interface';
+import { useSyncCV } from '../../hooks/useCV';
+import { useEffect } from 'react';
 
 export const storeConfig = {
     middlewareOptions: {
         debouncedCVAutoSave : {
             // to do: type config
             autoSaveCV: debounce((api: StoreApi<CVStore>)=> {
-                const { saveCV } = api.getState();
-                saveCV();
-            }, 3000), // 3 seconds debounce
+                const { saveCV, setSyncState, getCVObject } = api.getState();
+                const SyncCV = useSyncCV()
+
+                saveCV(); // saving the CV to the main user cv list
+
+                const { mutate, isSuccess, isError, isPending } = SyncCV;
+
+                useEffect(() => {
+                    if(isPending) setSyncState(SyncState.SYNCING)
+                    if(isSuccess) setSyncState(SyncState.SYNCED)
+                    if(isError) setSyncState(SyncState.ERROR)
+                }, [isSuccess, isError, isPending])
+
+                mutate(getCVObject())
+
+            }, 1000), // 3 seconds debounce
             excludedActions: ['getCVObject', 'saveCV'], // Actions that should not trigger the auto-save
         }
     }

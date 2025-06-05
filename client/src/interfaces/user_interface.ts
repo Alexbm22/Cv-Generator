@@ -7,6 +7,7 @@ export interface UserState {
     userProfilePicture: string | null;
     userAuthProvider: 'local' | 'google' | null;
     userisAuthenticated: boolean;
+    isLoadingAuth: boolean;
     CVs: CVAttributes[];
 }
 
@@ -17,6 +18,7 @@ export interface UserActions {
     setUserProfilePicture: (userProfilePicture: string) => void;
     setUserAuthProvider: (userAuthProvider: 'local' | 'google') => void;
     setUserisAuthenticated: (userisAuthenticated: boolean) => void;
+    setIsLoadingAuth: (isLoadingAuth: boolean) =>void;
 
     addCV: (CV: CVAttributes) => void;
     removeCV: (id: string) => void;

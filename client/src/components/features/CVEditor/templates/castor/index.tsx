@@ -4,13 +4,19 @@ import {
     AboutMe,
     Skills,
     SocialLinks,
-    GeneralInfos
+    GeneralInfos,
+    Languages,
+    WorkExperience
 } from "../components";
 
-const CastorTemplate: React.FC = () => {
+interface TemplateProps {
+    templateClassName: string
+}
+
+const CastorTemplate: React.FC<TemplateProps> = ({templateClassName}) => {
 
     return (
-        <div className="flex flex-row bg-white w-[calc(100vw*0.4)] h-[calc(100vw*0.6)] max-w-[620px] max-h-[877px] shadow-lg">
+        <div className={templateClassName}>
             <div className="flex flex-col h-full w-38/100 bg-gray-600 p-7 items-center leading-relaxed">
                 <CVPhoto className="rounded-full w-6/10 h-auto mb-6" />
 
@@ -41,12 +47,25 @@ const CastorTemplate: React.FC = () => {
                     skillLevelBarBackgroundClassName="w-full relative rounded-full bg-gray-400 h-1"
                     skillLevelBarClassName="absolute top-0 left-0 h-full rounded-full bg-white"
                 />
+
+                <Languages 
+                    componentClassName="mt-6 text-left start w-full"
+                    titleClassName="text-left text-sm font-semibold text-white w-full"
+                    LanguageNameClassName="text-xs text-white font-semibold"
+                    LanguageLevelClassName="text-xs text-gray-200 font-medium"
+                    LanguageLevelBarBackgroundClassName="w-full relative rounded-full bg-gray-400 h-1"
+                    LanguageLevelBarClassName="absolute top-0 left-0 h-full rounded-full bg-white"
+                />
+                
             </div>
             <div className="p-5">
                 <AboutMe 
                     componentClassName="mb-4"
                     titleClassName="text-sm font-semibold text-left text-gray-700 w-full" 
                     contentClassName="text-[10px] text-left text-gray-700 w-full" 
+                />
+                <WorkExperience
+                    componentClassName=""
                 />
             </div>
         </div>

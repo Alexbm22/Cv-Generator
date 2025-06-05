@@ -76,10 +76,12 @@ export enum SkillLevel {
 
 export enum CVTemplates {
     CASTOR = 'castor',
-    HERMES = 'hermes',
-    HERCULES = 'hercules',
-    HADES = 'hades',
-    HEPHAESTUS = 'hephaestus',
+}
+
+export enum SyncState {
+    SYNCING = 'Syncing',
+    SYNCED = '',
+    ERROR = 'Error'
 }
 
 export interface CVMetadataAttributes {
@@ -89,7 +91,6 @@ export interface CVMetadataAttributes {
     sectionsOrder: string[];
 }
 
-// to do - adjust the attributes optional fields
 export interface CVContentAttributes {
     professionalSummary: string,
     languages: Language[],
@@ -163,6 +164,9 @@ export interface CVPersonalInfoActions {
 
 
 export interface CVStoreActions {
+    syncState: SyncState
+    
+    setSyncState: (syncState: SyncState) => void
     getCVObject: () => CVAttributes;
     saveCV: () => void;
     setCV: (CV: CVAttributes) => void;

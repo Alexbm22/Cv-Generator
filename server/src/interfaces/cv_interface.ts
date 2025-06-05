@@ -1,21 +1,22 @@
+
 export interface Language {
     id: string,
     name: string,
-    level: ProficiencyLanguageLevel
+    level: ProficiencyLanguageLevel | null
 } 
 
 export interface Skill {
     id: string,
     name: string,
-    level: SkillLevel
+    level: SkillLevel | null
 }
 
 export interface WorkExperience {
     id: string,
     jobTitle: string,
     company: string,
-    startDate: Date | null,
-    endDate: Date | null,
+    startDate: Date,
+    endDate: Date,
     description: string
 }
 
@@ -23,27 +24,31 @@ export interface Education {
     id: string,
     degree: string,
     institution: string,
-    startDate: Date | null,
-    endDate: Date | null,
+    startDate: Date,
+    endDate: Date,
     description: string
 }
 
 export interface Project {
     id: string,
     name: string,
-    description: string,
     url: string,
-    technologies: string[]
+    description: string,
+    startDate: Date,
+    endDate: Date,
 }
 
-// to do - adjust the Custom Sections content structure
-export interface CustomSection {
+export interface CustomSectionAttributes {
     id: string,
     title: string,
-    content: {
-        title: string,
-        description: string
-    }[]
+    startDate: Date,
+    endDate: Date,
+    description: string,
+}
+
+export interface CustomSection {
+    title: string,
+    content: CustomSectionAttributes[]
 }
 
 export interface SocialLink {
@@ -53,18 +58,23 @@ export interface SocialLink {
 }
 
 export enum ProficiencyLanguageLevel {
-    BEGINNER = 'BEGINNER',
-    INTERMEDIATE = 'INTERMEDIATE',
-    ADVANCED = 'ADVANCED',
-    FLUENT = 'FLUENT',
-    NATIVE = 'NATIVE'
+    A1 = 'A1 - Beginner',
+    A2 = 'A2 - Elementary',
+    B1 = 'B1 - Intermediate',
+    B2 = 'B2 - Upper Intermediate',
+    C1 = 'C1 - Advanced',
+    C2 = 'C2 - Proficient'
 }
 
 export enum SkillLevel {
-    BEGINNER = 'BEGINNER',
-    INTERMEDIATE = 'INTERMEDIATE',
-    ADVANCED = 'ADVANCED',
-    EXPERT = 'EXPERT'
+    BEGINNER = 'Begginer',
+    INTERMEDIATE = 'Intermediate',
+    ADVANCED = 'Advanced',
+    EXPERT = 'Expert'
+}
+
+export enum CVTemplates {
+    CASTOR = 'castor',
 }
 
 export interface CVContentAttributes {
@@ -74,7 +84,8 @@ export interface CVContentAttributes {
     workExperience: WorkExperience[],
     education: Education[],
     projects: Project[],
-    customSections: CustomSection[]
+    customSections: CustomSection,
+    sectionsOrder: string[];
 }
 
 export interface PersonalDataAttributes {
@@ -84,15 +95,25 @@ export interface PersonalDataAttributes {
     email: string,
     phoneNumber: string,
     address: string,
-    birthDate: Date | null,
+    birthDate: Date,
     socialLinks: SocialLink[]
 }
 
+export interface CVMetadataAttributes {
+    id: string | undefined;
+    title: string;
+    template: CVTemplates;
+    sectionsOrder: string[];
+}
+
+export interface ClientCVAttributes extends CVContentAttributes, CVMetadataAttributes, PersonalDataAttributes {}
+
 export interface CVAttributes {
     id: number,
+    public_id:string,
     title: string,
     userId: number,
-    template: string,
+    template: CVTemplates;
     personalData?: PersonalDataAttributes | null,
     encryptedPersonalData: string
     content: CVContentAttributes

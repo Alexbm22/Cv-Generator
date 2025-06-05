@@ -3,6 +3,7 @@ import {
     CVStore,
     CVMetadataSliceAttributes,
     CVTemplates,
+    SyncState,
  } from '../../interfaces/cv_interface';
 
 export const createMetadataSlice = (set: {
@@ -13,6 +14,7 @@ export const createMetadataSlice = (set: {
     title: 'Untitled',
     template: CVTemplates.CASTOR,
     sectionsOrder: [],
+
     setId: (id: string | undefined) => set({ id: id || uuidv4() }),
     setTemplate: (template: CVTemplates) => set({ template }),
     setTitle: (title: string) => set({ title }),

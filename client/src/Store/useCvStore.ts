@@ -26,7 +26,7 @@ export const useCvStore = create<CVStore>()(
             })
         ), {
             name: 'CVStore', // Name of the slice in the Redux DevTools
-            enabled: import.meta.env.NODE_ENV === 'development',
+            enabled: import.meta.env.VITE_NODE_ENV === 'development',
             serialize: (state: StoreApi<CVStore>) => JSON.stringify(state), // Serialize the state for better readability in DevTools
         }
     )

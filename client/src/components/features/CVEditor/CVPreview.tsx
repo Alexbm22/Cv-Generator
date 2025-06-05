@@ -14,7 +14,9 @@ const CVPreview:React.FC = () => {
     return (
         <div className="hidden bg-gray-100 p-5 pt-10 w-full max-w-[calc(100vw*0.45)] h-auto max-h-screen justify-center md:flex sticky top-0 ">
            <Suspense fallback={<div>Loading template...</div>}>
-                <Template/>
+                <Template 
+                    templateClassName="flex flex-row bg-white w-[calc(100vw*0.4)] h-[calc(100vw*0.6)] max-w-[620px] max-h-[877px] shadow-lg"
+                />
            </Suspense>
         </div>
     )
