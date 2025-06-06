@@ -1,4 +1,4 @@
-import { ApiResponse, ApiUserData, TokenClientData } from "./api_interface";
+import { ApiResponse, ApiUserData } from "./api_interface";
 
 export interface loginDto {
     email: string;
@@ -13,7 +13,27 @@ export interface registerDto {
 
 export interface AuthResponseData {
     user: ApiUserData
-    tokens: TokenClientData
+    token: TokenClientData
+}
+
+export interface TokenClientData {
+    accessToken: string;
+    tokenExpiry: Date;
 }
 
 export interface AuthResponse extends ApiResponse<AuthResponseData> {}
+
+export interface AuthStoreAttributes {
+    isAuthenticated: boolean,
+    isLoadingAuth: boolean,
+    token: TokenClientData | null
+}
+
+export interface AuthStoreActions {
+    setIsLoadingAuth: (isLoadingAuth: boolean) => void,
+    setAuthState: (token: string, tokenExpiry: Date) => void
+    clearAuth: () => void,
+    isTokenExpired: () => boolean
+}
+
+export interface AuthStore extends AuthStoreActions, AuthStoreAttributes {}

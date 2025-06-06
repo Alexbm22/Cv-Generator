@@ -7,12 +7,37 @@ import {
 } from '../interfaces/auth_interfaces';
 import { AuthServices } from '../services/auth_service';
 import { AppError } from '../middleware/error_middleware';
+import { IdTokenClient } from 'google-auth-library';
 
-export class AuthController{
+export class AuthController {
     private authServices: AuthServices;
 
     constructor() {
         this.authServices = new AuthServices();
+    }
+    
+    async login(req: Request, res: Response, next: NextFunction) {
+        const loginDto: loginDto = req.body;
+
+        const loginResult: AuthResponse = await this.authServices.login(loginDto, res);
+
+        if (!loginResult.success){
+            return next(new AppError(loginResult?.message, 401));
+        }
+
+        return res.status(200).json(loginResult);
+    }
+
+    async googleLogin(req: Request, res: Response, next: NextFunction) {
+        const IdToken: string = req.body.credential;
+
+        const loginResult: AuthResponse = await this.authServices.googleLogin(IdToken, res);
+
+        if (!loginResult.success){
+            return next(new AppError(loginResult?.message, 401));
+        }
+
+        return res.status(200).json(loginResult);
     }
 
     async register(req: Request, res: Response, next:NextFunction){
@@ -24,19 +49,7 @@ export class AuthController{
             return next(new AppError(registrationResult?.message, 401));
         }
 
-        return res.status(201).json({ registrationResult: registrationResult});
-    }
-
-    async login(req: Request, res: Response, next: NextFunction) {
-        const loginDto: loginDto = req.body;
-
-        const loginResult: AuthResponse = await this.authServices.login(loginDto, res);
-
-        if (!loginResult.success){
-            return next(new AppError(loginResult?.message, 401));
-        }
-
-        return res.status(200).json({ loginResult: loginResult});
+        return res.status(201).json(registrationResult);
     }
 
     async logout(req: AuthRequest, res: Response, next: NextFunction) {
@@ -52,7 +65,7 @@ export class AuthController{
             return next(new AppError(logoutResult?.message, 401));
         }
 
-        return res.status(200).json({ logoutResult: logoutResult});
+        return res.status(200).json(logoutResult);
     }
 
     async refreshToken(req: AuthRequest, res: Response, next: NextFunction){
@@ -62,7 +75,6 @@ export class AuthController{
             return next(new AppError(refreshResult.message, 401));
         }
 
-        return res.status(200).json({ refreshResult: refreshResult});
+        return res.status(200).json(refreshResult);
     }
-
 }

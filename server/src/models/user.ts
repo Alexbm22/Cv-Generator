@@ -1,6 +1,9 @@
 import { Model, DataTypes, Optional} from 'sequelize';
 import sequelize from '../config/database_config';
 import bcrypt from 'bcrypt';
+import { AuthProvider } from '../interfaces/auth_interfaces';
+import { AppError } from '../middleware/error_middleware';
+import crypto from 'crypto';
 
 interface UserAttributes {
     id: number;
@@ -10,7 +13,7 @@ interface UserAttributes {
     refreshToken: string | null;
     googleId: string | null;
     profilePicture: string | null;
-    authProvider: 'local' | 'google';
+    authProvider: AuthProvider;
     isActive: boolean;
     lastLogin: Date | null;
     createdAt?: Date;
@@ -27,15 +30,28 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public refreshToken!: string | null;
     public googleId!: string | null;
     public profilePicture!: string | null;
-    public authProvider!: 'local' | 'google';
+    public authProvider!: AuthProvider;
     public isActive!: boolean;
     public lastLogin!: Date | null;
-    public password!: string;
+    public password!: string | null;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
-    public async comparePasswords(ComparedPassword: string): Promise<boolean> {
-        return await bcrypt.compare(ComparedPassword, this.get('password'));
+    public async comparePasswords(comparedPassword: string): Promise<boolean> {
+        const currentPassword = this.get('password');
+    
+        // Check if password exists and user is not using Google auth
+        if (!currentPassword || this.get('authProvider') === AuthProvider.GOOGLE) {
+            return false;
+        }
+        
+        return await bcrypt.compare(comparedPassword, currentPassword);
+    }
+
+    public compareGoogleId(comparedGoogleId: string): boolean {
+        const currentID = this.get('googleId');
+        const hashedID = this.hashGoogleId(comparedGoogleId);
+        return currentID === hashedID;
     }
 
     public safeUser(): Omit<UserAttributes, 'password' | 'refreshToken'> {
@@ -48,6 +64,15 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
 
         return safeUser;
     }
+
+    public hashGoogleId(googleId: string): string {
+        const GOOGLE_ID_SALT =  process.env.GOOGLE_ID_SALT || 'salt_google';
+
+        return crypto.createHash('sha256')
+            .update(googleId + GOOGLE_ID_SALT)
+            .digest('hex');
+    }
+
 }
 
 User.init({
@@ -77,7 +102,14 @@ User.init({
     },
     password: {
         type: DataTypes.STRING(255),
-        allowNull: false
+        allowNull: true,
+        validate: {
+            customValidator(value: string | null) {
+                if (this.authProvider === AuthProvider.LOCAL && !value) {
+                    throw new AppError('Password is required for local authentication', 400);
+                }
+            }
+        }
     },
     refreshToken: {
         type: DataTypes.STRING(255),
@@ -114,6 +146,12 @@ User.init({
     hooks: {
         beforeCreate: async (user: User) => {
             const password = user.get('password');
+            const google_id = user.get('googleId');
+
+            if(google_id){
+                user.set('googleId', user.hashGoogleId(google_id));
+            }
+
             if(password){
                 const salt = await bcrypt.genSalt(10);
                 user.set('password', await bcrypt.hash(password, salt));
@@ -123,8 +161,10 @@ User.init({
         beforeUpdate: async (user: User) => {
             if(user.changed('password')){
                 const password = user.get('password');
-                const salt = await bcrypt.genSalt(10);
-                user.set('password', await bcrypt.hash(password, salt));
+                if(password){
+                    const salt = await bcrypt.genSalt(10);
+                    user.set('password', await bcrypt.hash(password, salt));
+                }
             }
         }
     }

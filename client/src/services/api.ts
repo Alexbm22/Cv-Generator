@@ -9,6 +9,7 @@ class ApiService {
     this.client = axios.create({
       baseURL: API_BASE_URL,
       timeout: 10000,
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -21,10 +22,10 @@ class ApiService {
     // Request interceptor for auth tokens
     this.client.interceptors.request.use(
       (config) => {
-        // const token = localStorage.getItem('token');
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
       },
       (error) => Promise.reject(error)

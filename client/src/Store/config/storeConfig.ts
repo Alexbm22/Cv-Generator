@@ -10,11 +10,9 @@ export const storeConfig = {
             // to do: type config
             autoSaveCV: debounce((api: StoreApi<CVStore>)=> {
                 const { saveCV, setSyncState, getCVObject } = api.getState();
-                const SyncCV = useSyncCV()
+                const { mutate, isSuccess, isError, isPending } = useSyncCV()
 
                 saveCV(); // saving the CV to the main user cv list
-
-                const { mutate, isSuccess, isError, isPending } = SyncCV;
 
                 useEffect(() => {
                     if(isPending) setSyncState(SyncState.SYNCING)

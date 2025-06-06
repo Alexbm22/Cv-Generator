@@ -3,27 +3,29 @@ import { persist, devtools } from 'zustand/middleware';
 import { 
     CVAttributes,
 } from '../interfaces/cv_interface';
-import { UserStore } from '../interfaces/user_interface';
+import { useAuthStore } from './useAuthStore';
+import { UserStore, UserObj } from '../interfaces/user_interface';
 
 export const useUserStore = create<UserStore>()(
     devtools(
         persist((set, get) => ({
-            userName: null,
-            userEmail: null,
-            userId: null,
-            userProfilePicture: null,
-            userAuthProvider: null,
-            userisAuthenticated: false,
-            isLoadingAuth: false,
+            username: null,
+            email: null,
+            profilePicture: null,
             CVs: [],
             
-            setUserName: (userName: string) => set({ userName }),
-            setUserEmail: (userEmail: string) => set({ userEmail }),
-            setUserId: (userId: number) => set({ userId }),
-            setUserProfilePicture: (userProfilePicture: string) => set({ userProfilePicture }),
-            setUserAuthProvider: (userAuthProvider: 'local' | 'google') => set({ userAuthProvider }),
-            setUserisAuthenticated: (userisAuthenticated: boolean) => set({ userisAuthenticated }),
-            setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
+            setUserName: (username: string) => set({ username }),
+            setUserEmail: (email: string) => set({ email }),
+            setProfilePicture: (profilePicture: string) => set({ profilePicture }),
+            setUserData: (userData: UserObj) => set((state) => ({
+                ...state,
+                ...userData
+            })),
+            clearUserData: () => set({
+                username: null,
+                email: null,
+                profilePicture: null
+            }),
 
             addCV: (CV: CVAttributes) => set((state) => ({ CVs: state.CVs.concat(CV) })),
             removeCV: (id: string) => set((state) => ({ CVs: state.CVs.filter((cv) => cv.id !== id) })),
@@ -36,9 +38,11 @@ export const useUserStore = create<UserStore>()(
             }
         }), {
             name: 'resumes',
-            partialize: (state) => ({
-                CVs: state.CVs,
-            }),
+            partialize: (state) => {
+                // Only persist CVs if user is NOT authenticated
+                const isAuthenticated = useAuthStore.getState().isAuthenticated;
+                return isAuthenticated ? {} : { CVs: state.CVs };
+            },
         }), {
             name: 'UserStore', // Name of the slice in the Redux DevTools
             enabled: import.meta.env.VITE_NODE_ENV === 'development',

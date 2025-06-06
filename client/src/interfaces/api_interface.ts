@@ -9,11 +9,4 @@ export interface ApiUserData {
     username: string;
     email: string;
     profilePicture?: string | null;
-    authProvider: 'local' | 'google';
-    isActive: boolean;
-}
-
-export interface TokenClientData {
-    accessToken: string;
-    expiresIn: Date;
 }

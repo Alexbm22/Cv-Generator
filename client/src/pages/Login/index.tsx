@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useLogin } from "../../hooks/useAuth";
 import { useUserStore } from '../../Store/useUserStore'
+import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
 
 const Login: React.FC = () =>{
 
@@ -17,6 +18,7 @@ const Login: React.FC = () =>{
 
     return (
         <>
+            <GoogleLoginBtn/>
             <button onClick={() => {
                 mutate({
                     email: 'alexandrub687@gmail.com',

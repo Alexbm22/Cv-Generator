@@ -1,28 +1,25 @@
 import { CVAttributes } from './cv_interface';
 
-export interface UserState {
-    userName: string | null;
-    userEmail: string | null;
-    userId: number | null;
-    userProfilePicture: string | null;
-    userAuthProvider: 'local' | 'google' | null;
-    userisAuthenticated: boolean;
-    isLoadingAuth: boolean;
+export interface UserObj {
+    username: string | null;
+    email: string | null;
+    profilePicture: string | null;
+}
+
+export interface UserStoreAttributes extends UserObj {
     CVs: CVAttributes[];
 }
 
-export interface UserActions {
-    setUserName: (userName: string) => void;
-    setUserEmail: (userEmail: string) => void;
-    setUserId: (userId: number) => void;
-    setUserProfilePicture: (userProfilePicture: string) => void;
-    setUserAuthProvider: (userAuthProvider: 'local' | 'google') => void;
-    setUserisAuthenticated: (userisAuthenticated: boolean) => void;
-    setIsLoadingAuth: (isLoadingAuth: boolean) =>void;
+export interface UserStoreActions {
+    setUserName: (username: string) => void;
+    setUserEmail: (email: string) => void;
+    setProfilePicture: (profilePicture: string) => void;
+    setUserData: (userData: UserObj) => void;
+    clearUserData: (userData: UserObj) => void,
 
     addCV: (CV: CVAttributes) => void;
     removeCV: (id: string) => void;
     updateCV: (updatedCV: CVAttributes) => void;
 }
 
-export interface UserStore extends UserState, UserActions {}
+export interface UserStore extends UserStoreAttributes, UserStoreActions {}

@@ -15,27 +15,33 @@ export interface registerDto {
     CVs?: ClientCVAttributes[]
 }
 
-export interface GoogleUserInfo {
-    id: string;
-    email: string;
-    name: string;
+export interface GoogleUserPayload {
+    google_id: string;
+    given_name: string;
+    family_name: string;
     picture?: string;
-    email_verified?: boolean; // Add email verification status
-  }
+    email: string;
+    email_verified?: boolean; 
+}
 
 export interface AuthResponseData {
     user: UserData
-    tokens: TokenClientData
+    token: TokenClientData
 }
 
 export interface AuthResponse extends ApiResponse<AuthResponseData> {}
+
+export enum AuthProvider {
+    LOCAL = 'local',
+    GOOGLE = 'google'
+}
 
 export interface UserData { 
     id: number;
     username: string;
     email: string;
     profilePicture?: string | null;
-    authProvider: 'local' | 'google';
+    authProvider: AuthProvider;
     isActive: boolean;
 }
 

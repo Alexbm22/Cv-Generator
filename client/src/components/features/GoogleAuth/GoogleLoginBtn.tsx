@@ -29,6 +29,9 @@ const GoogleLoginBtn: React.FC = () => {
         <>
             <GoogleLogin
                 onSuccess={handleSuccess}
+                onError={() => {
+                    console.log("fasfsa")
+                }}
             />
         </>
     )

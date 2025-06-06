@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // creezi o instanță de QueryClient
 const queryClient = new QueryClient();
-const GOOGLE_CLIENT_ID = import.meta.env.GOOGLE_CLIENT_ID
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

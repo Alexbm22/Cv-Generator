@@ -3,83 +3,89 @@ import {
     registerDto,
     AuthResponse,
     UserData,
-    TokenData,
-    TokenPayload
+    TokenPayload,
+    AuthProvider,
 } from '../interfaces/auth_interfaces';
 import { User } from '../models';
 import { Response, Request } from 'express';
-import jwt from 'jsonwebtoken'
 import { config } from 'dotenv'
+import { TokenServices } from './token_service';
+import { GoogleServices } from './google_services';
+import { UserServices } from './user_service';
 
 config()
 
 export class AuthServices {
-    private readonly JWT_SECRET: string;
-    private readonly JWT_REFRESH_SECRET: string;
-    private readonly JWT_EXPIRATION: string;
-    private readonly JWT_REFRESH_EXPIRATION: string;
+    private googleServices: GoogleServices;
+    private userServices: UserServices;
+    private tokenServices: TokenServices;
 
     constructor() {
-        this.JWT_SECRET = process.env.JWT_SECRET || 'secret';
-        this.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'refresh_secret';
-        this.JWT_EXPIRATION = process.env.JWT_EXPIRATION || '1h';
-        this.JWT_REFRESH_EXPIRATION = process.env.JWT_REFRESH_EXPIRATION || '7d';
+        this.googleServices = new GoogleServices();
+        this.userServices = new UserServices();
+        this.tokenServices = new TokenServices();
     }
 
-    async register(data: registerDto, res: Response): Promise<AuthResponse> {
-        const { username, email, password } = data;
+    async googleLogin(IdToken: string, res: Response): Promise<AuthResponse> {
+        const TokenPayload = await this.googleServices.verifyGoogleToken(IdToken);
 
-        // verifying if the email is used
-        const existingUserByEmail = await User.findOne({ where: { email } });
-        if (existingUserByEmail) {
-            return {
-                success: false,
-                message: 'Email already exists',
-            };
+        console.log(TokenPayload);
+
+        let user = await User.findOne({ where: { email: TokenPayload.email }});
+
+        if (!user) { // Registering the new Google account
+            const {
+                given_name,
+                family_name,
+                email,
+                picture,
+                google_id
+            } = TokenPayload;
+
+            const username = await this.userServices.generateUsername(given_name, family_name)
+
+            user = await User.create({
+                username: username,
+                email: email,
+                authProvider: AuthProvider.GOOGLE,
+                lastLogin: new Date(),
+                googleId: google_id,
+                isActive: true,
+                profilePicture: picture
+            });
+        }
+        else {
+            if (!user.get('isActive')) {
+                return {
+                    success: false,
+                    message: `This account is inactive. Please contact support.`
+                };
+            }
+
+            if(!user.compareGoogleId(TokenPayload.google_id)) {
+                return {
+                    success: false,
+                    message: 'Invalid credentials'
+                }
+            }
+
+            await User.update({
+                    lastLogin: new Date(),
+                }, {
+                    where: { 
+                        id: user.id
+                },
+            });
         }
 
-        // verifying if the username is used
-        const existingUserByUsername = await User.findOne({ where: { username } });
-        if (existingUserByUsername) {
-            return {
-                success: false,
-                message: 'Username is already taken',
-            };
-        }
-        
-        const newUser = await User.create({
-            username: username,
-            email: email,
-            password: password,
-            authProvider: 'local',
-            lastLogin: new Date(),
-            isActive: true,
-        });
-        
-        const tokens = this.generateTokens(newUser); // generating the access and refresh tokens
-        
-        // Set the refresh token in the client cookies
-        this.setRefreshToken(tokens.refreshToken, res);
-        
-        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
-        
-        await User.update({
-            refreshToken: tokens.refreshToken,
-        }, {
-            where: { 
-                id: newUser.id
-            },
-        })
+        const accessToken = await this.tokenServices.setTokens(user, res); 
 
         return {
             success: true,
-            message: 'User registered successfully',
+            message: 'Login successfully',
             data: {
-                user: newUser.safeUser() as UserData,
-                tokens: {
-                    accessToken: tokens.accessToken,
-                    expiresIn: accessExpirationDate
-                }
+                user: user.safeUser() as UserData,
+                token: accessToken
             }
         };
     }
@@ -117,32 +123,66 @@ export class AuthServices {
             };
         }
 
-        const tokens = this.generateTokens(user); // generating the access and refresh tokens
-
-        this.setRefreshToken(tokens.refreshToken, res); // Set the refresh token in the client cookies
-
-        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
-
         await User.update({
-            refreshToken: tokens.refreshToken,
+            lastLogin: new Date(),
         }, {
             where: { 
-                id: user.get('id')
+                id: user.id
             },
-        })
+        });
+
+        const accessToken = await this.tokenServices.setTokens(user, res);
 
         return {
             success: true,
             message: 'Login successfully',
             data: {
                 user: user.safeUser() as UserData,
-                tokens: {
-                    accessToken: tokens.accessToken,
-                    expiresIn: accessExpirationDate
-                }
+                token: accessToken
             }
         };
+    }
 
+    async register(data: registerDto, res: Response): Promise<AuthResponse> {
+        const { username, email, password } = data;
+
+        // verifying if the email is used
+        const existingUserByEmail = await User.findOne({ where: { email } });
+        if (existingUserByEmail) {
+            return {
+                success: false,
+                message: 'Email already exists',
+            };
+        }
+
+        // verifying if the username is used
+        const existingUserByUsername = await User.findOne({ where: { username } });
+        if (existingUserByUsername) {
+            return {
+                success: false,
+                message: 'Username is already taken',
+            };
+        }
+        
+        const newUser = await User.create({
+            username: username,
+            email: email,
+            password: password,
+            authProvider: AuthProvider.LOCAL,
+            lastLogin: new Date(),
+            isActive: true,
+        });
+        
+        const accessToken = await this.tokenServices.setTokens(newUser, res);
+
+        return {
+            success: true,
+            message: 'User registered successfully',
+            data: {
+                user: newUser.safeUser() as UserData,
+                token: accessToken
+            }
+        };
     }
 
     async logout(user: UserData, res: Response): Promise<AuthResponse> {
@@ -170,33 +210,13 @@ export class AuthServices {
         };
     }
 
-
     async refreshToken(req: Request, res: Response): Promise<AuthResponse> { // refreshing user tokens
-        const token = req.cookies.refreshToken;
-        if (!token) {
-            return {
-                success: false,
-                message: 'Refresh token not found'
-            };
-        }
-
-        let decodedToken: TokenPayload;
-        try {
-            decodedToken = jwt.verify(
-                token,
-                this.JWT_REFRESH_SECRET as string
-            ) as TokenPayload;
-        } catch (error) {
-            return {
-                success: false,
-                message: 'Invalid refresh token'
-            };
-        }
+        const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
 
         const user = await User.findOne({
             where: {
                 id: decodedToken.id,
-                refreshToken: token
+                refreshToken: req.cookies.refreshToken
             }
         })
 
@@ -207,83 +227,16 @@ export class AuthServices {
             };
         } 
 
-        const tokens = this.generateTokens(user);
-        this.setRefreshToken(tokens.refreshToken, res);
-
-        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
-
-        await User.update({
-            refreshToken: tokens.refreshToken,
-        }, {
-            where: { 
-                id: user.get('id')
-            },
-        })
+        const accessToken = await this.tokenServices.setTokens(user, res);
 
         return {
             success: true,
             message: 'Refreshed Tokens successfully',
             data: {
                 user: user.safeUser() as UserData,
-                tokens: {
-                    accessToken: tokens.accessToken,
-                    expiresIn: accessExpirationDate
-                }
+                token: accessToken
             }
         };
 
     }
-
-    private generateTokens(user: User): TokenData {
-        const payload = {
-            id: user.get('id') ? user.get('id') : user.id,
-        } as TokenPayload
-
-        const accessToken = jwt.sign(payload, this.JWT_SECRET as jwt.Secret, {
-            expiresIn: this.JWT_EXPIRATION as any
-        })
-
-        const refreshToken = jwt.sign(payload, this.JWT_REFRESH_SECRET as jwt.Secret, {
-            expiresIn: this.JWT_REFRESH_EXPIRATION as any
-        })
-
-        return {
-            accessToken,
-            refreshToken
-        }
-    }
-
-    private setRefreshToken(token: string, res: Response): void{
-        res.cookie('refreshToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: this.getExpirationInSeconds(this.JWT_REFRESH_EXPIRATION) * 1000,
-        })
-    }
-
-    private getExpirationInSeconds(expiration: string | number): number {
-        if (typeof expiration === 'number') return expiration;
-        
-        // Parse string like '1h', '7d', etc.
-        const match = expiration.match(/^(\d+)([smhd])$/);
-        if (!match) return 3600; // Default to 1 hour
-        
-        const value = parseInt(match[1]);
-        const unit = match[2];
-        
-        switch (unit) {
-          case 's': return value;
-          case 'm': return value * 60;
-          case 'h': return value * 60 * 60;
-          case 'd': return value * 24 * 60 * 60;
-          default: return 3600;
-        }
-    }
-
-    getExpirationDate(expiration: string): Date {
-        const expiresIn = this.getExpirationInSeconds(expiration);
-        return new Date(Date.now() + expiresIn * 1000);
-    }
-
 }

@@ -11,6 +11,12 @@ const router = express.Router();
 const authController = new AuthController();
 
 router.post(
+    '/google_login',
+    RateLimitMiddleware.loginLimit,
+    catchAsync(authController.googleLogin.bind(authController))
+)
+
+router.post(
     '/login',
     RateLimitMiddleware.loginLimit,
     Validate(loginRules),
