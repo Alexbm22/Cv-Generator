@@ -4,9 +4,3 @@ export interface ApiResponse<T> {
     data?: T,
     errors?: string[]
 }
-
-export interface ApiUserData { 
-    username: string;
-    email: string;
-    profilePicture?: string | null;
-}

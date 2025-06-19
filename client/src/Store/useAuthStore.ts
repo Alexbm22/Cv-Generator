@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from "zustand/middleware";
-import { AuthStore } from '../interfaces/auth_interface'
+import { AuthStore, TokenClientData } from '../interfaces/auth_interface'
 
 export const useAuthStore = create<AuthStore>()(
     devtools<AuthStore>((set, get) => ({
@@ -9,10 +9,10 @@ export const useAuthStore = create<AuthStore>()(
         token: null,
 
         setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
-        setAuthState: (token: string, tokenExpiry: Date) => set({  
+        setAuthState: (token: TokenClientData) => set({  
             token: {
-                accessToken: token,
-                tokenExpiry: tokenExpiry
+                accessToken: token.accessToken,
+                tokenExpiry: token.tokenExpiry
             },
             isAuthenticated: true, 
             isLoadingAuth: false 

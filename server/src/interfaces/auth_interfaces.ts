@@ -52,7 +52,7 @@ export interface TokenPayload {
 
 export interface TokenClientData {
     accessToken: string;
-    expiresIn: Date;
+    tokenExpiry: Date;
 }
 
 export interface TokenData {

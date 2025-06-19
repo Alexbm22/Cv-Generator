@@ -15,7 +15,7 @@ export interface UserStoreActions {
     setUserEmail: (email: string) => void;
     setProfilePicture: (profilePicture: string) => void;
     setUserData: (userData: UserObj) => void;
-    clearUserData: (userData: UserObj) => void,
+    clearUserData: () => void,
 
     addCV: (CV: CVAttributes) => void;
     removeCV: (id: string) => void;

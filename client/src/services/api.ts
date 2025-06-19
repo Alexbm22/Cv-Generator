@@ -1,14 +1,34 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
+import { useAuthStore } from '../Store/useAuthStore';
+import { TokenClientData } from '../interfaces/auth_interface';
+import { useUserStore } from '../Store';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL
+interface RetryableRequestConfig extends AxiosRequestConfig {
+  _retry?: boolean;
+  headers: {
+    Authorization?: string;
+    [key: string]: string | undefined;
+  };
+}
 
 class ApiService {
   private client: AxiosInstance;
+  private API_BASE_URL: string;
+  
+  private DEFAULT_TIMEOUT: number;
+  private REFRESH_TOKEN_TIMEOUT: number;
+
+  private refreshingPromise?: Promise<TokenClientData>;
 
   constructor() {
+    this.API_BASE_URL = import.meta.env.VITE_API_URL;
+
+    this.DEFAULT_TIMEOUT = parseInt(import.meta.env.VITE_API_DEFAULT_TIMEOUT || '5000', 10);
+    this.REFRESH_TOKEN_TIMEOUT = parseInt(import.meta.env.VITE_API_REFRESH_TOKEN_TIMEOUT || '5000', 10);
+
     this.client = axios.create({
-      baseURL: API_BASE_URL,
-      timeout: 10000,
+      baseURL: this.API_BASE_URL,
+      timeout: this.DEFAULT_TIMEOUT,
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
@@ -21,11 +41,36 @@ class ApiService {
   private setupInterceptors() {
     // Request interceptor for auth tokens
     this.client.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+      async (config) => {
+
+        if (config.url?.includes('/auth/refresh_token')) {
+          return config
         }
+
+        const { token, isTokenExpired, clearAuth } = useAuthStore.getState()
+
+        if(isTokenExpired() || !token){
+          try {
+            const newToken: TokenClientData = await this.refreshToken()
+
+            if (typeof newToken.accessToken !== 'string' || !newToken) {
+              throw new Error('Invalid token received from refresh endpoint');
+            }
+
+            const { setAuthState } = useAuthStore.getState();
+            setAuthState(newToken);
+
+            config.headers.Authorization = `Bearer ${newToken.accessToken}`;
+
+          } catch (error) {
+            const { clearUserData } = useUserStore();
+            clearAuth();
+            clearUserData()
+          }
+        } else  {
+          config.headers.Authorization = `Bearer ${token.accessToken}`;
+        }
+
         return config;
       },
       (error) => Promise.reject(error)
@@ -34,35 +79,120 @@ class ApiService {
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
-      (error: AxiosError) => {
-        // if (error.response?.status === 401) {
-        //   localStorage.removeItem('token');
-        //   window.location.href = '/login';
-        // }
+      async (error: AxiosError) => {
+
+        if (!error.config) {
+          return Promise.reject(error);
+        }
+
+        const originalRequest = error.config as RetryableRequestConfig;
+
+        // refreshing the tokens if there is an authorization error
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true; // to prevent infinite loops
+
+          try {
+            const newToken = await this.refreshTokenOnce().finally(() =>{
+              this.refreshingPromise = undefined; // Reset the promise after refresh
+            });
+
+            if (!newToken || typeof newToken.accessToken !== 'string') {
+              throw new Error('Invalid token received from refresh endpoint');
+            }
+
+            const { setAuthState } = useAuthStore.getState();
+            setAuthState(newToken);
+
+            originalRequest.headers.Authorization = `Bearer ${newToken.accessToken}`;
+
+            return this.client(originalRequest);
+          } catch (refreshError) {
+            const { clearAuth } = useAuthStore.getState();
+            const { clearUserData } = useUserStore();
+            clearAuth();
+            clearUserData();
+
+            if (typeof window !== 'undefined') {
+              window.location.href = '/login';
+            }
+          }
+        }
+
         return Promise.reject(error);
       }
     );
   }
 
+  private async refreshTokenOnce(): Promise<TokenClientData> {
+    if (!this.refreshingPromise) {
+      this.refreshingPromise = this.refreshToken();
+    }
+    return this.refreshingPromise;
+  }
+
+  private async refreshToken(): Promise<TokenClientData> {
+    try {
+      // Create separate instance to avoid interceptor loops
+      const refreshClient = axios.create({
+        baseURL: this.API_BASE_URL,
+        timeout: this.REFRESH_TOKEN_TIMEOUT,
+        withCredentials: true,
+      });
+
+      const response = await refreshClient.post('/auth/refresh_token', {}, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      // Validate response structure
+      if (!response.data?.token?.accessToken) {
+        throw new Error('Invalid token structure received from server');
+      }
+
+      const newToken: TokenClientData = response.data.token;
+      return newToken;
+    } catch (error) {
+
+      // to improve error handling 
+
+      if (axios.isAxiosError(error)) {
+        // Handle specific axios errors
+        throw new Error(`Failed to refresh token: ${error.message}`);
+      }
+        // Handle other errors
+        throw new Error('An unexpected error occurred while refreshing token');
+    }
+  }
+
   async get<T>(url: string): Promise<T> {
-    const response = await this.client.get<T>(url);
-    return response.data;
+    try {
+      const response = await this.client.get<T>(url);
+      return response.data;
+    } catch (error) {
+      console.error(`GET ${url} failed:`, error);
+      throw error;
+    }
   }
 
   async post<T, D = any>(url: string, data?: D): Promise<T> {
-    const response = await this.client.post<T>(url, data);
-    return response.data;
+    try {
+      const response = await this.client.post<T>(url, data);
+      return response.data;
+    } catch (error) {
+      console.error(`POST ${url} failed:`, error);
+      throw error;
+    }
   }
 
   async put<T, D = any>(url: string, data?: D): Promise<T> {
-    const response = await this.client.put<T>(url, data);
-    return response.data;
-  }
-
-  async delete<T>(url: string): Promise<T> {
-    const response = await this.client.delete<T>(url);
-    return response.data;
+    try {
+      const response = await this.client.put<T>(url, data);
+      return response.data;
+    } catch (error) {
+      console.error(`PUT ${url} failed:`, error);
+      throw error;
+    }
   }
 }
 
+// Export singleton instance
 export const apiService = new ApiService();

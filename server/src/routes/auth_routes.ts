@@ -38,7 +38,7 @@ router.post(
 )
 
 router.post(
-    '/refresh-token',
+    '/refresh_token',
     RateLimitMiddleware.refreshTokenLimit,
     catchAsync(authController.refreshToken.bind(authController))
 )

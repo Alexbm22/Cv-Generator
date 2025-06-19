@@ -3,17 +3,24 @@ import { loginDto, registerDto, AuthResponse } from '../interfaces/auth_interfac
 import { CredentialResponse } from '@react-oauth/google';
 import { apiService } from '../services/api';
 import { AxiosError } from 'axios';
-
+import { useAuthStore } from '../Store/useAuthStore';
+import { useUserStore } from '../Store';
 
 export const useGoogleLogin = () => {
     return useMutation<AuthResponse, AxiosError, CredentialResponse>({
-        mutationFn: (googleResponse: CredentialResponse) => 
-            apiService.post<AuthResponse, CredentialResponse>('/auth/google_login', googleResponse), // sending the id token to the server
-        onSuccess: (reponse: AuthResponse) => {
-            const token = reponse.data?.token.accessToken;
+        mutationFn: async (googleResponse: CredentialResponse) => 
+            await apiService.post<AuthResponse, CredentialResponse>('/auth/google_login', googleResponse), // sending the id token to the server
+        onSuccess: (response: AuthResponse) => {
+            if(!response.data) return;
 
-            if(!token){
-                return;
+           const { setAuthState } = useAuthStore.getState();
+            const { setUserData } = useUserStore.getState();
+            const token = response.data?.token;
+            const userData = response.data?.user;
+
+            if(token && userData) {
+              setAuthState(token);
+              setUserData(userData)
             }
         },
         onError: (error) => {
@@ -25,8 +32,8 @@ export const useGoogleLogin = () => {
 
 export const useLogin = () => {
     return useMutation<AuthResponse, AxiosError, loginDto>({
-        mutationFn: (loginDto: loginDto) => 
-            apiService.post<AuthResponse, loginDto>('/auth/login', loginDto),
+        mutationFn: async (loginDto: loginDto) => 
+            await apiService.post<AuthResponse, loginDto>('/auth/login', loginDto),
         onSuccess: (reponse: AuthResponse) => {
             const token = reponse.data?.token.accessToken
             if(!token){
@@ -44,8 +51,8 @@ export const useLogin = () => {
 
 export const useRegistration = () => {
     return useMutation<AuthResponse, AxiosError, registerDto>({
-        mutationFn: (registerDto: registerDto) => 
-            apiService.post<AuthResponse, registerDto>('/auth/register', registerDto),
+        mutationFn: async (registerDto: registerDto) => 
+            await apiService.post<AuthResponse, registerDto>('/auth/register', registerDto),
         onSuccess: (reponse: AuthResponse) => {
             const token = reponse.data?.token.accessToken
             if(!token){

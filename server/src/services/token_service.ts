@@ -38,7 +38,7 @@ export class TokenServices {
 
         return {
             accessToken: tokens.accessToken,
-            expiresIn: accessExpirationDate
+            tokenExpiry: accessExpirationDate
         }
     }
 
