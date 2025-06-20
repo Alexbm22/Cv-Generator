@@ -34,7 +34,8 @@ export interface AuthStoreActions {
     setIsLoadingAuth: (isLoadingAuth: boolean) => void,
     setAuthState: (token: TokenClientData) => void
     clearAuth: () => void,
-    isTokenExpired: () => boolean
+    isTokenExpired: () => boolean,
+    logout: () => void,
 }
 
 export interface AuthStore extends AuthStoreActions, AuthStoreAttributes {}

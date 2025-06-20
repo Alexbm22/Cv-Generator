@@ -26,7 +26,7 @@ export interface Education {
     institution: string,
     startDate: Date,
     endDate: Date,
-    description: string
+    description: string,
 }
 
 export interface Project {

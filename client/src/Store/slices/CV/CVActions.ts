@@ -1,10 +1,10 @@
-import { useUserStore } from '../useUserStore';
+import { useUserStore } from '../../useUserStore';
 import { 
     CVAttributes,
     CVStore,
     CVStoreActions,
     SyncState,
- } from '../../interfaces/cv_interface';
+ } from '../../../interfaces/cv_interface';
 
 export const createStoreActionsSlice = (set: {
     (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;

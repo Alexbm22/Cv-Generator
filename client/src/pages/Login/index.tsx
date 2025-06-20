@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { useLogin } from "../../hooks/useAuth";
-import { useUserStore } from '../../Store/useUserStore'
+import { useAuthStore } from '../../Store'
 import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
 
 const Login: React.FC = () =>{
 
     const { mutate, isPending } = useLogin();
-    const { setIsLoadingAuth } = useUserStore();
+    const { setIsLoadingAuth } = useAuthStore();
 
     useEffect(() => {
         if (isPending) {

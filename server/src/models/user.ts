@@ -54,15 +54,17 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
         return currentID === hashedID;
     }
 
-    public safeUser(): Omit<UserAttributes, 'password' | 'refreshToken'> {
-        const {password, refreshToken, ...safeUser} = this.get() as UserAttributes;
+    public safeUser(): Omit<
+        UserAttributes, 
+        'id' | 'password' | 'refreshToken' | 'googleId' | 'authProvider' | 'isActive' | 'lastLogin' | 'createdAt' | 'updatedAt'> {
+        const { username, email, profilePicture } = this.get() as UserAttributes;
         
-        // this is a workaround to ensure that the id is always present in the safeUser object
-        if(this.id) {
-            safeUser.id = this.id;
+        return {
+            username,
+            email,
+            profilePicture
         }
-
-        return safeUser;
+        
     }
 
     public hashGoogleId(googleId: string): string {

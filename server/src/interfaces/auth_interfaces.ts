@@ -36,13 +36,10 @@ export enum AuthProvider {
     GOOGLE = 'google'
 }
 
-export interface UserData { 
-    id: number;
+export interface UserData {
     username: string;
     email: string;
     profilePicture?: string | null;
-    authProvider: AuthProvider;
-    isActive: boolean;
 }
 
 export interface TokenPayload {

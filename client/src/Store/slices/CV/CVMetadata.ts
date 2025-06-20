@@ -4,7 +4,7 @@ import {
     CVMetadataSliceAttributes,
     CVTemplates,
     SyncState,
- } from '../../interfaces/cv_interface';
+ } from '../../../interfaces/cv_interface';
 
 export const createMetadataSlice = (set: {
         (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;

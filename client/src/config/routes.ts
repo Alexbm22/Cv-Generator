@@ -9,14 +9,14 @@ import {
 
 
 export const routes = [
-    { path: '/', element: HomePage},
-    { path: '/login', element: Login},
-    { path: '/signup', element: SignUp},
+    { path: '/', element: HomePage, protected: false},
+    { path: '/login', element: Login, protected: false},
+    { path: '/signup', element: SignUp, protected: false},
     
-    { path: '/resumes', element: CVsPage},
-    { path: '/resumes/edit/:id', element: CVEditPage},
+    { path: '/resumes', element: CVsPage, protected: false},
+    { path: '/resumes/edit/:id', element: CVEditPage, protected: false},
 
-    { path: '*', element: NotFoundPage} // 404 page
+    { path: '*', element: NotFoundPage, protected: false} // 404 page
 
     // Add more routes here as needed
 ]

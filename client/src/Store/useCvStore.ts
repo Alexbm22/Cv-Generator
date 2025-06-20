@@ -7,7 +7,7 @@ import  {
     createContentSlice,
     createPersonalInfoSlice,
     createStoreActionsSlice,
-} from './slices';
+} from './slices/CV';
 import { withFunctionCallExcept } from './middleware/withFunctionCallExcept';
 import { devtools } from 'zustand/middleware';
 import { storeConfig } from './config/storeConfig';

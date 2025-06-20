@@ -7,11 +7,13 @@ import {
     AuthProvider,
 } from '../interfaces/auth_interfaces';
 import { User } from '../models';
-import { Response, Request } from 'express';
+import { Response, Request, NextFunction } from 'express';
 import { config } from 'dotenv'
 import { TokenServices } from './token_service';
 import { GoogleServices } from './google_services';
 import { UserServices } from './user_service';
+import { AppError } from '../middleware/error_middleware';
+import { ErrorTypes } from '../interfaces/error_interface';
 
 config()
 
@@ -26,10 +28,8 @@ export class AuthServices {
         this.tokenServices = new TokenServices();
     }
 
-    async googleLogin(IdToken: string, res: Response): Promise<AuthResponse> {
+    async googleLogin(IdToken: string, res: Response, next: NextFunction): Promise<AuthResponse | void> {
         const TokenPayload = await this.googleServices.verifyGoogleToken(IdToken);
-
-        console.log(TokenPayload);
 
         let user = await User.findOne({ where: { email: TokenPayload.email }});
 
@@ -56,17 +56,11 @@ export class AuthServices {
         }
         else {
             if (!user.get('isActive')) {
-                return {
-                    success: false,
-                    message: `This account is inactive. Please contact support.`
-                };
+                return next( new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED));
             }
 
             if(!user.compareGoogleId(TokenPayload.google_id)) {
-                return {
-                    success: false,
-                    message: 'Invalid credentials'
-                }
+                return next( new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS));
             }
 
             await User.update({
@@ -90,37 +84,25 @@ export class AuthServices {
         };
     }
 
-    async login(data: loginDto, res: Response): Promise<AuthResponse> {
+    async login(data: loginDto, res: Response, next: NextFunction): Promise<AuthResponse | void> {
         const { email, password } = data;
 
         const user = await User.findOne({ where: { email }});
         if (!user) {
-            return {
-              success: false,
-              message: 'Invalid credentials'
-            };
+            return next( new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS));
         }
 
         if (!user.get('isActive')) {
-            return {
-              success: false,
-              message: `This account is inactive. Please contact support.`
-            };
+            return next( new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED));
         }
 
         if (user.get('authProvider') !== 'local') {
-            return {
-              success: false,
-              message: `Please use ${user.get('authProvider')} login for this account`
-            };
+            return next( new AppError(`Please use ${user.get('authProvider')} login for this account`, 403, ErrorTypes.UNAUTHORIZED));
         }
 
         const isPasswordValid = await user.comparePasswords(password);
         if(!isPasswordValid){
-            return {
-                success: false,
-                message: 'Invalid credentials'
-            };
+            return next( new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS));
         }
 
         await User.update({
@@ -143,25 +125,23 @@ export class AuthServices {
         };
     }
 
-    async register(data: registerDto, res: Response): Promise<AuthResponse> {
+    async register(data: registerDto, res: Response, next: NextFunction): Promise<AuthResponse | void> {
         const { username, email, password } = data;
 
         // verifying if the email is used
         const existingUserByEmail = await User.findOne({ where: { email } });
         if (existingUserByEmail) {
-            return {
-                success: false,
-                message: 'Email already exists',
-            };
+            return next( new AppError('Email already exists', 409, ErrorTypes.VALIDATION_ERR, {
+                email: 'Email is already registered'
+            }));
         }
 
         // verifying if the username is used
         const existingUserByUsername = await User.findOne({ where: { username } });
         if (existingUserByUsername) {
-            return {
-                success: false,
-                message: 'Username is already taken',
-            };
+            return next( new AppError('Username is already taken', 409, ErrorTypes.VALIDATION_ERR, {
+                username: 'Username is already taken'
+            }));
         }
         
         const newUser = await User.create({
@@ -185,13 +165,10 @@ export class AuthServices {
         };
     }
 
-    async logout(user: UserData, res: Response): Promise<AuthResponse> {
-        const userToLogout = await User.findOne({ where: { id: user.id, email: user.email } });
+    async logout(user: UserData, res: Response, next: NextFunction): Promise<AuthResponse | void> {
+        const userToLogout = await User.findOne({ where: { email: user.email } });
         if (!userToLogout) {
-            return {
-                success: false,
-                message: 'User not found'
-            };
+            return next(new AppError('User not found', 404, ErrorTypes.NOT_FOUND));
         }
 
         await User.update({
@@ -210,7 +187,7 @@ export class AuthServices {
         };
     }
 
-    async refreshToken(req: Request, res: Response): Promise<AuthResponse> { // refreshing user tokens
+    async refreshToken(req: Request, res: Response, next: NextFunction): Promise<AuthResponse | void> { // refreshing user tokens
         const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
 
         const user = await User.findOne({
@@ -221,11 +198,8 @@ export class AuthServices {
         })
 
         if (!user) {
-            return {
-                success: false,
-                message: 'User not found'
-            };
-        } 
+            return next(new AppError('User not found', 404, ErrorTypes.NOT_FOUND));
+        }
 
         const accessToken = await this.tokenServices.setTokens(user, res);
 

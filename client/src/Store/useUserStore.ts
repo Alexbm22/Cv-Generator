@@ -26,6 +26,13 @@ export const useUserStore = create<UserStore>()(
                 email: null,
                 profilePicture: null
             }),
+            getUserObj: () => {
+                return {
+                    username: get().username,
+                    email: get().email,
+                    profilePicture: get().profilePicture
+                }
+            },
 
             addCV: (CV: CVAttributes) => set((state) => ({ CVs: state.CVs.concat(CV) })),
             removeCV: (id: string) => set((state) => ({ CVs: state.CVs.filter((cv) => cv.id !== id) })),

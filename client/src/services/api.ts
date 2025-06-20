@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../Store/useAuthStore';
 import { TokenClientData } from '../interfaces/auth_interface';
-import { useUserStore } from '../Store';
+import { useErrorStore, useUserStore } from '../Store';
+import { APIError } from '../interfaces/api_interface';
 
 interface RetryableRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
@@ -47,14 +48,21 @@ class ApiService {
           return config
         }
 
-        const { token, isTokenExpired, clearAuth } = useAuthStore.getState()
+        if(!config.url?.includes('/protected')){
+          return config;
+        }
+
+        const { token, isTokenExpired, clearAuth } = useAuthStore.getState();
 
         if(isTokenExpired() || !token){
           try {
-            const newToken: TokenClientData = await this.refreshToken()
+            const newToken: TokenClientData =  await this.refreshTokenOnce().finally(() =>{
+              this.refreshingPromise = undefined; // Reset the promise after refresh
+            });
 
             if (typeof newToken.accessToken !== 'string' || !newToken) {
-              throw new Error('Invalid token received from refresh endpoint');
+              // to implement logging error handling 
+              console.error('Invalid token structure received from server');
             }
 
             const { setAuthState } = useAuthStore.getState();
@@ -63,7 +71,7 @@ class ApiService {
             config.headers.Authorization = `Bearer ${newToken.accessToken}`;
 
           } catch (error) {
-            const { clearUserData } = useUserStore();
+            const { clearUserData } = useUserStore.getState();
             clearAuth();
             clearUserData()
           }
@@ -85,20 +93,23 @@ class ApiService {
           return Promise.reject(error);
         }
 
+        if(error.config.url?.includes('/login') || error.config.url?.includes('/signup')) {
+          return Promise.reject(error);
+        }
+
         const originalRequest = error.config as RetryableRequestConfig;
 
         // refreshing the tokens if there is an authorization error
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true; // to prevent infinite loops
 
+          const { logout } = useAuthStore();
+          const { handleAPIError } = useErrorStore.getState();
+
           try {
             const newToken = await this.refreshTokenOnce().finally(() =>{
               this.refreshingPromise = undefined; // Reset the promise after refresh
             });
-
-            if (!newToken || typeof newToken.accessToken !== 'string') {
-              throw new Error('Invalid token received from refresh endpoint');
-            }
 
             const { setAuthState } = useAuthStore.getState();
             setAuthState(newToken);
@@ -107,14 +118,8 @@ class ApiService {
 
             return this.client(originalRequest);
           } catch (refreshError) {
-            const { clearAuth } = useAuthStore.getState();
-            const { clearUserData } = useUserStore();
-            clearAuth();
-            clearUserData();
-
-            if (typeof window !== 'undefined') {
-              window.location.href = '/login';
-            }
+            logout(); // Clear auth state on refresh failure
+            handleAPIError(refreshError as APIError)
           }
         }
 
@@ -151,9 +156,6 @@ class ApiService {
       const newToken: TokenClientData = response.data.token;
       return newToken;
     } catch (error) {
-
-      // to improve error handling 
-
       if (axios.isAxiosError(error)) {
         // Handle specific axios errors
         throw new Error(`Failed to refresh token: ${error.message}`);
@@ -168,7 +170,6 @@ class ApiService {
       const response = await this.client.get<T>(url);
       return response.data;
     } catch (error) {
-      console.error(`GET ${url} failed:`, error);
       throw error;
     }
   }
@@ -178,7 +179,6 @@ class ApiService {
       const response = await this.client.post<T>(url, data);
       return response.data;
     } catch (error) {
-      console.error(`POST ${url} failed:`, error);
       throw error;
     }
   }

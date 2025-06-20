@@ -1,12 +1,12 @@
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
 import { useGoogleLogin } from '../../../hooks/useAuth'
-import { useUserStore } from '../../../Store'
+import { useAuthStore } from '../../../Store'
 import { useEffect } from 'react'
 
 const GoogleLoginBtn: React.FC = () => {
 
     const { mutate, isPending } = useGoogleLogin();
-    const { setIsLoadingAuth } = useUserStore();
+    const { setIsLoadingAuth } = useAuthStore();
 
     const handleSuccess = (googleResponse: CredentialResponse) => {
         if(!googleResponse.credential){

@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { useRegistration } from "../../hooks/useAuth";
-import { useUserStore } from '../../Store/useUserStore'
+import { useAuthStore } from '../../Store'
 
 const SignUp: React.FC = () =>{
 
     const { mutate, isPending } = useRegistration();
-    const { setIsLoadingAuth } = useUserStore();
+    const { setIsLoadingAuth } = useAuthStore.getState();
 
     useEffect(() => {
         if (isPending) {
@@ -19,11 +19,11 @@ const SignUp: React.FC = () =>{
         <>
             <button onClick={() => {
                 mutate({
-                    username: 'alex',
-                    email: 'alexandrub687@gmail.com',
+                    username: 'john',
+                    email: 'johnDe@gmail.com',
                     password: 'C@,s22eva.2',
                 })
-            }}>Apasa</button>
+            }}>Click</button>
         </>
     )
 }
