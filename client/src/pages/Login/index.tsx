@@ -6,14 +6,10 @@ import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn"
 const Login: React.FC = () =>{
 
     const { mutate, isPending } = useLogin();
-    const { setIsLoadingAuth } = useAuthStore();
+    const { setIsLoadingAuth } = useAuthStore.getState();
 
     useEffect(() => {
-        if (isPending) {
-            setIsLoadingAuth(true);
-        } else {
-            setIsLoadingAuth(false);
-        }
+        setIsLoadingAuth(isPending);
     }, [isPending]);
 
     return (

@@ -53,7 +53,24 @@ export class AuthController {
     }
 
     async refreshToken(req: AuthRequest, res: Response, next: NextFunction){
-        const refreshResult = await this.authServices.refreshToken(req, res, next);
-        return res.status(200).json(refreshResult);
+        try {
+            const refreshResult = await this.authServices.refreshToken(req, res, next);   
+            if (refreshResult) {
+                return res.status(200).json(refreshResult);
+            }
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async checkAuth(req: AuthRequest, res: Response, next: NextFunction){
+        try {
+            const refreshResult = await this.authServices.refreshToken(req, res, next);   
+            if (refreshResult) {
+                return res.status(200).json(refreshResult);
+            }
+        } catch (error) {
+            next(error);
+        }
     }
 }

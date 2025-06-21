@@ -8,11 +8,7 @@ const SignUp: React.FC = () =>{
     const { setIsLoadingAuth } = useAuthStore.getState();
 
     useEffect(() => {
-        if (isPending) {
-            setIsLoadingAuth(true);
-        } else {
-            setIsLoadingAuth(false);
-        }
+        setIsLoadingAuth(isPending);
     }, [isPending]);
 
     return (

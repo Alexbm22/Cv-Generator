@@ -188,17 +188,23 @@ export class AuthServices {
     }
 
     async refreshToken(req: Request, res: Response, next: NextFunction): Promise<AuthResponse | void> { // refreshing user tokens
+        // extract the user id from the refresh token
         const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
+
+        if(!decodedToken){
+            res.clearCookie('refreshToken');
+            return next(new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN));
+        }
 
         const user = await User.findOne({
             where: {
                 id: decodedToken.id,
-                refreshToken: req.cookies.refreshToken
             }
         })
 
         if (!user) {
-            return next(new AppError('User not found', 404, ErrorTypes.NOT_FOUND));
+            res.clearCookie('refreshToken');
+            return next(new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED));
         }
 
         const accessToken = await this.tokenServices.setTokens(user, res);
@@ -211,6 +217,31 @@ export class AuthServices {
                 token: accessToken
             }
         };
+    }
 
+    async checkAuth(req: Request, res: Response, next: NextFunction): Promise<AuthResponse | void> {
+        const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
+
+        if (!decodedToken) {
+            return next(new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN));
+        }
+
+        const user = await User.findOne({
+            where: {
+                id: decodedToken.id,
+            }
+        });
+
+        if (!user) {
+            return next(new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED));
+        }
+
+        return {
+            success: true,
+            message: 'User is authenticated',
+            data: {
+                user: user.safeUser() as UserData
+            }
+        };
     }
 }

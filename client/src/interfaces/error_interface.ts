@@ -1,7 +1,5 @@
-import { APIError } from './api_interface';
-import { AppError } from '../services/Error/Errors';
-
 export enum ErrorTypes {
+    TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS",
     VALIDATION_ERR = "VALIDATION_ERR",
     INVALID_CREDENTIALS = "INVALID_CREDENTIALS",
     MISSING_TOKEN = "MISSING_TOKEN",
@@ -10,10 +8,6 @@ export enum ErrorTypes {
     UNAUTHORIZED = "UNAUTHORIZED",
     NOT_FOUND = "NOT_FOUND",
     INTERNAL_ERR = "INTERNAL_ERR"
-}
-
-export interface ErrorHandlersMap {
-    [statusCode: number]: (error: AppError) => void;
 }
 
 export interface ErrorData {
@@ -35,7 +29,6 @@ export interface ErrorStoreActions {
     addError: (error: ErrorObj) => void;
     clearErrors: () => void;
     removeError: (index: number) => void;
-    handleAPIError: (error: APIError) => void
 }
 
 export interface ErrorStore extends ErrorStoreActions, ErrorStoreAttributes {}

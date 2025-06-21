@@ -9,23 +9,24 @@ import { AuthController } from '../controllers/auth_controller';
 const router = express.Router();
 
 const authController = new AuthController();
+const RateLimitInstance = new RateLimitMiddleware();
 
 router.post(
     '/google_login',
-    RateLimitMiddleware.loginLimit,
+    RateLimitInstance.loginLimit(),
     catchAsync(authController.googleLogin.bind(authController))
 )
 
 router.post(
     '/login',
-    RateLimitMiddleware.loginLimit,
+    RateLimitInstance.loginLimit(),
     Validate('Login' ,loginRules),
     catchAsync(authController.login.bind(authController))
 )
 
 router.post(
     '/register',
-    RateLimitMiddleware.registerLimit,
+    RateLimitInstance.registerLimit(),
     Validate('Register', registrationRules),
     catchAsync(authController.register.bind(authController))
 )
@@ -33,14 +34,20 @@ router.post(
 router.post(
     '/logout',
     authMiddleware,
-    RateLimitMiddleware.logoutLimit,
+    RateLimitInstance.logoutLimit(),
     catchAsync(authController.logout.bind(authController))
 )
 
-router.post(
+router.get(
     '/refresh_token',
-    RateLimitMiddleware.refreshTokenLimit,
+    RateLimitInstance.refreshTokenLimit(),
     catchAsync(authController.refreshToken.bind(authController))
+)
+
+router.get(
+    '/check_auth',
+    RateLimitInstance.checkAuthLimit(),
+    catchAsync(authController.checkAuth.bind(authController))
 )
 
 export default router;

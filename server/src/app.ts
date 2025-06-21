@@ -18,7 +18,8 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(RateLimitMiddleware.globalRateLimit);
+const RateLimitMiddlewareInstance = new RateLimitMiddleware();
+app.use(RateLimitMiddlewareInstance.globalRateLimit());
 
 app.use('/api', Routes);
 

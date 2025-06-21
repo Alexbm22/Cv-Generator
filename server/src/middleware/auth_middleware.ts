@@ -3,16 +3,17 @@ import { AppError, catchAsync } from './error_middleware';
 import { AuthRequest, TokenPayload, UserData } from '../interfaces/auth_interfaces';
 import jwt from 'jsonwebtoken';
 import { User } from '../models';
+import { ErrorTypes } from '../interfaces/error_interface';
 
 export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction)=> {
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader) {
-        return next(new AppError('Authorization header is missing', 401));
+        return next(new AppError('Authorization header is missing', 401, ErrorTypes.UNAUTHORIZED));
     }
 
     const accessToken = authorizationHeader.split(' ')[1];
     if (!accessToken) {
-        return next(new AppError('Token is missing', 401));
+        return next(new AppError('Token is missing', 401, ErrorTypes.UNAUTHORIZED));
     }
 
     let decodedToken: TokenPayload;
@@ -22,7 +23,7 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
             process.env.JWT_SECRET as string
         ) as TokenPayload;
     } catch(error: any) {
-        return next(new AppError('Invalid token', 401));
+        return next(new AppError('Invalid token', 401, ErrorTypes.UNAUTHORIZED));
     }
 
     const user = await User.findOne({
@@ -31,7 +32,7 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
         }
     });
     if (!user) {
-        return next(new AppError('User not found', 401));
+        return next(new AppError('User not found', 401, ErrorTypes.UNAUTHORIZED));
     }   
 
     req.user = user.get() as UserData;

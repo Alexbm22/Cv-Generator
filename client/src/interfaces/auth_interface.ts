@@ -1,3 +1,4 @@
+import { CredentialResponse } from "@react-oauth/google";
 import { ApiResponse } from "./api_interface";
 import { UserObj } from "./user_interface";
 
@@ -35,7 +36,12 @@ export interface AuthStoreActions {
     setAuthState: (token: TokenClientData) => void
     clearAuth: () => void,
     isTokenExpired: () => boolean,
-    logout: () => void,
+    googleLogin: (googleResponse: CredentialResponse) => Promise<AuthResponse>,
+    login: (loginDto: loginDto) => Promise<AuthResponse>,
+    register: (registerDto: registerDto) => Promise<AuthResponse>,
+    logout: () => Promise<AuthResponse>,
+    forceLogout: () => void,
+    checkAuth: () => Promise<AuthResponse> 
 }
 
 export interface AuthStore extends AuthStoreActions, AuthStoreAttributes {}

@@ -32,7 +32,7 @@ export class TokenServices {
             refreshToken: tokens.refreshToken,
         }, {
             where: { 
-                id: user.id
+                id: user.get('id') ? user.get('id') : user.id
             },
         })
 

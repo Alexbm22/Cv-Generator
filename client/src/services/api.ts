@@ -1,8 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../Store/useAuthStore';
 import { TokenClientData } from '../interfaces/auth_interface';
-import { useErrorStore, useUserStore } from '../Store';
+import { useErrorStore } from '../Store';
 import { APIError } from '../interfaces/api_interface';
+import { ErrorTypes } from '../interfaces/error_interface';
 
 interface RetryableRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
@@ -39,6 +40,7 @@ class ApiService {
     this.setupInterceptors();
   }
 
+  
   private setupInterceptors() {
     // Request interceptor for auth tokens
     this.client.interceptors.request.use(
@@ -52,10 +54,11 @@ class ApiService {
           return config;
         }
 
-        const { token, isTokenExpired, clearAuth } = useAuthStore.getState();
+        const { token, isTokenExpired, setIsLoadingAuth, forceLogout } = useAuthStore.getState();
 
         if(isTokenExpired() || !token){
           try {
+            setIsLoadingAuth(true); // Set loading state
             const newToken: TokenClientData =  await this.refreshTokenOnce().finally(() =>{
               this.refreshingPromise = undefined; // Reset the promise after refresh
             });
@@ -71,9 +74,12 @@ class ApiService {
             config.headers.Authorization = `Bearer ${newToken.accessToken}`;
 
           } catch (error) {
-            const { clearUserData } = useUserStore.getState();
-            clearAuth();
-            clearUserData()
+            this.handleAPIError(error as APIError);
+            forceLogout();
+            Promise.reject(error);
+          }
+          finally{
+            setIsLoadingAuth(false); // Reset loading state
           }
         } else  {
           config.headers.Authorization = `Bearer ${token.accessToken}`;
@@ -90,10 +96,22 @@ class ApiService {
       async (error: AxiosError) => {
 
         if (!error.config) {
+          this.handleAPIError(error as APIError)
           return Promise.reject(error);
         }
 
-        if(error.config.url?.includes('/login') || error.config.url?.includes('/signup')) {
+        if (error.config.url?.includes('/check_auth')){
+          // If the request is to check_auth, we don't want to handle it as an error
+          return Promise.reject(error);
+        }
+
+        if(
+          error.config.url?.includes('/login') || 
+          error.config.url?.includes('/register') || 
+          error.config.url?.includes('/google_login') ||
+          error.config.url?.includes('/refresh_token')
+        ) {
+          this.handleAPIError(error as APIError)
           return Promise.reject(error);
         }
 
@@ -103,10 +121,11 @@ class ApiService {
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true; // to prevent infinite loops
 
-          const { logout } = useAuthStore();
-          const { handleAPIError } = useErrorStore.getState();
+          const { forceLogout, setIsLoadingAuth } = useAuthStore.getState();
 
           try {
+            setIsLoadingAuth(true); // Set loading state
+
             const newToken = await this.refreshTokenOnce().finally(() =>{
               this.refreshingPromise = undefined; // Reset the promise after refresh
             });
@@ -118,23 +137,27 @@ class ApiService {
 
             return this.client(originalRequest);
           } catch (refreshError) {
-            logout(); // Clear auth state on refresh failure
-            handleAPIError(refreshError as APIError)
+            forceLogout(); // Clear auth state on refresh failure
+            this.handleAPIError(refreshError as APIError)
+          }
+          finally{
+            setIsLoadingAuth(false); // Reset loading state
           }
         }
-
+        
         return Promise.reject(error);
       }
     );
   }
 
+  // Ensure only one token refresh request is in-flight at a time
   private async refreshTokenOnce(): Promise<TokenClientData> {
     if (!this.refreshingPromise) {
       this.refreshingPromise = this.refreshToken();
     }
     return this.refreshingPromise;
   }
-
+  
   private async refreshToken(): Promise<TokenClientData> {
     try {
       // Create separate instance to avoid interceptor loops
@@ -164,33 +187,37 @@ class ApiService {
         throw new Error('An unexpected error occurred while refreshing token');
     }
   }
+  
+  private handleAPIError (error: APIError) {
+    console.error('API Error:', error);
+    const statusCode = error.response?.status || 500;
+    const message = error.response?.data?.message || 'An unexpected error occurred';
+    const errors = error.response?.data?.errors;
+    const errType = error.response?.data?.errType || ErrorTypes.INTERNAL_ERR;
+  
+    const errorObj = {
+        statusCode,
+        message,
+        errors,
+        errType
+    };
+  
+    useErrorStore.getState().addError(errorObj);
+  }
 
   async get<T>(url: string): Promise<T> {
-    try {
-      const response = await this.client.get<T>(url);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.client.get<T>(url);
+    return response.data;
   }
 
   async post<T, D = any>(url: string, data?: D): Promise<T> {
-    try {
-      const response = await this.client.post<T>(url, data);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await this.client.post<T>(url, data);
+    return response.data;
   }
 
   async put<T, D = any>(url: string, data?: D): Promise<T> {
-    try {
-      const response = await this.client.put<T>(url, data);
-      return response.data;
-    } catch (error) {
-      console.error(`PUT ${url} failed:`, error);
-      throw error;
-    }
+    const response = await this.client.put<T>(url, data);
+    return response.data;
   }
 }
 

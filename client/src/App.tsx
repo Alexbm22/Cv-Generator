@@ -1,15 +1,26 @@
 import { BrowserRouter as Router, Routes, Route  } from 'react-router-dom'
 import { routes } from './config/routes'
+import { useCheckAuth } from './hooks/useAuth';
+import { useAuthStore } from './Store';
+import { useEffect } from 'react';
 
 function App() {
+
+  const { mutate, isPending } = useCheckAuth();
+  const { setIsLoadingAuth } = useAuthStore.getState();
+
+  useEffect(()=>{
+    mutate();
+    setIsLoadingAuth(isPending);
+  },[])
 
   return (
     <>
       <Router>
         <Routes>
           {
-            routes.map((route) => (
-              <Route path={route.path} element={<route.element />} />
+            Object.entries(routes).map(([key, config]) => (
+              <Route key={key} path={config.path} element={<config.element />} />
             ))
           }
         </Routes>

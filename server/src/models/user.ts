@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { AuthProvider } from '../interfaces/auth_interfaces';
 import { AppError } from '../middleware/error_middleware';
 import crypto from 'crypto';
+import { ErrorTypes } from '../interfaces/error_interface';
 
 interface UserAttributes {
     id: number;
@@ -108,7 +109,7 @@ User.init({
         validate: {
             customValidator(value: string | null) {
                 if (this.authProvider === AuthProvider.LOCAL && !value) {
-                    throw new AppError('Password is required for local authentication', 400);
+                    throw new AppError('Password is required for local authentication', 400, ErrorTypes.VALIDATION_ERR);
                 }
             }
         }
