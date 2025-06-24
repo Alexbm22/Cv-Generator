@@ -1,5 +1,5 @@
 import React from "react";
-import { useCvStore } from "../../../../../Store";
+import { useCvEditStore } from "../../../../../Store";
 import { CVPreviewContent } from "../../../../../config/content";
 import { ProficiencyLanguageLevel } from "../../../../../interfaces/cv_interface";
 import { LanguageLevelsMap } from "../../../../../config/proficiency";
@@ -23,7 +23,7 @@ const Languages: React.FC<LanguagesProps> = ({
 }) => {
 
     const { languages: languagesContent } = CVPreviewContent.sections;
-    const { languages } = useCvStore();
+    const languages = useCvEditStore((state) => state.languages);
 
     return (
         <>

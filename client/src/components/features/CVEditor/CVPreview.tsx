@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { CVTemplates } from "../../../interfaces/cv_interface";
-import { useCvStore } from "../../../Store";
+import { useCvEditStore } from "../../../Store";
 
 const TemplateMap = {
     [CVTemplates.CASTOR]: React.lazy(() => import("./templates/castor")),
@@ -8,7 +8,7 @@ const TemplateMap = {
 
 const CVPreview:React.FC = () => {
 
-    const { template } = useCvStore();
+    const template = useCvEditStore((state) => state.template);
     const Template = TemplateMap[template];
 
     return (

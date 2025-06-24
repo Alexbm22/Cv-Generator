@@ -67,7 +67,7 @@ export const useRegistration = () => {
               setUserData(userData)
             }
 
-            navigate(routes.editResume.path, { replace: true });
+            navigate(routes.resumes.path, { replace: true });
         },
     })
 }

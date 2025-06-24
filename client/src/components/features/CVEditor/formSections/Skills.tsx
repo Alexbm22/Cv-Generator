@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCvStore } from '../../../../Store';
+import { useCvEditStore } from '../../../../Store';
 import { Skill, SkillLevel } from '../../../../interfaces/cv_interface';
 import {
     Collapsable,
@@ -14,7 +14,7 @@ interface ComponentProps {
 }
 
 const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
-    const { updateSkill } = useCvStore();
+    const updateSkill = useCvEditStore((state) => state.updateSkill);
     const { skills: skillsContent } = CVEditContent.formSections;
     const { fields } = skillsContent;
 
@@ -42,7 +42,11 @@ const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
 }
 
 const SkillMain:React.FC = () => {
-    const { skills, addSkill, removeSkill } = useCvStore();
+
+    const addSkill = useCvEditStore((state) => state.addSkill);
+    const removeSkill = useCvEditStore((state) => state.removeSkill);
+    const skills = useCvEditStore((state) => state.skills);
+
     const { skills: skillsContent } = CVEditContent.formSections;
 
     return (

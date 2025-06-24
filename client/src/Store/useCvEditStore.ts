@@ -1,24 +1,24 @@
 import { create, StoreApi } from 'zustand';
 import { 
-    CVStore,
+    CVEditStore,
 } from '../interfaces/cv_interface';
 import  {
     createMetadataSlice,
     createContentSlice,
     createPersonalInfoSlice,
     createStoreActionsSlice,
-} from './slices/CV';
+} from './slices/CVEdit';
 import { withFunctionCallExcept } from './middleware/withFunctionCallExcept';
 import { devtools } from 'zustand/middleware';
 import { storeConfig } from './config/storeConfig';
 
-export const useCvStore = create<CVStore>()(
+export const useCvEditStore = create<CVEditStore>()(
     devtools(    
-        withFunctionCallExcept<CVStore>(
+        withFunctionCallExcept<CVEditStore>(
             storeConfig.middlewareOptions.debouncedCVAutoSave.autoSaveCV, 
             storeConfig.middlewareOptions.debouncedCVAutoSave.excludedActions
         )(
-            (set, get): CVStore => ({
+            (set, get): CVEditStore => ({
                 ...createMetadataSlice(set),
                 ...createContentSlice(set),
                 ...createPersonalInfoSlice(set),
@@ -27,7 +27,7 @@ export const useCvStore = create<CVStore>()(
         ), {
             name: 'CVStore', // Name of the slice in the Redux DevTools
             enabled: import.meta.env.VITE_NODE_ENV === 'development',
-            serialize: (state: StoreApi<CVStore>) => JSON.stringify(state), // Serialize the state for better readability in DevTools
+            serialize: (state: StoreApi<CVEditStore>) => JSON.stringify(state), // Serialize the state for better readability in DevTools
         }
     )
 )

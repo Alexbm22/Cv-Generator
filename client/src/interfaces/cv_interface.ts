@@ -85,7 +85,7 @@ export enum SyncState {
 }
 
 export interface CVMetadataAttributes {
-    id: string | undefined;
+    id: string;
     title: string;
     template: CVTemplates;
     sectionsOrder: string[];
@@ -102,7 +102,7 @@ export interface CVContentAttributes {
 }
 
 export interface CVPersonalInfoAttributes {
-    photo: string,
+    photo: string | null,
     firstName: string,
     lastName: string,
     email: string,
@@ -116,7 +116,6 @@ export interface CVMetadataActions {
     setTemplate: (template: CVTemplates) => void;
     setTitle: (title: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
-    setId: (id: string | undefined) => void;
 }
 
 export interface CVContentActions {
@@ -162,10 +161,7 @@ export interface CVPersonalInfoActions {
     updateSocialLink: (id: string, socialLink: Partial<SocialLink>) => void;
 }
 
-
-export interface CVStoreActions {
-    syncState: SyncState
-    
+export interface CVEditStoreActions {
     setSyncState: (syncState: SyncState) => void
     getCVObject: () => CVAttributes;
     saveCV: () => void;
@@ -178,4 +174,14 @@ export interface CVMetadataSliceAttributes extends CVMetadataAttributes, CVMetad
 export interface CVContentSliceAttributes extends CVContentAttributes, CVContentActions {}
 export interface CVPersonalInfoSliceAttributes extends CVPersonalInfoAttributes, CVPersonalInfoActions {}
 
-export interface CVStore extends CVMetadataSliceAttributes, CVContentSliceAttributes, CVPersonalInfoSliceAttributes, CVStoreActions {}
+export interface CVEditStore extends CVMetadataSliceAttributes, CVContentSliceAttributes, CVPersonalInfoSliceAttributes, CVEditStoreActions {}
+
+export interface CVStore {
+    CVs: CVAttributes[];
+    dbHydrated: boolean;
+    setdbHydrated: (dbHydrated: boolean) => void;
+    addCV: (CV: CVAttributes) => void;
+    removeCV: (id: string) => void;
+    updateCV: (updatedCV: CVAttributes) => void;
+    setCVs: (CVs: CVAttributes[]) => void;
+}

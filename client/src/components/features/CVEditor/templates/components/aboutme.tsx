@@ -1,5 +1,5 @@
 import React from "react";
-import { useCvStore } from "../../../../../Store";
+import { useCvEditStore } from "../../../../../Store";
 import { CVPreviewContent } from "../../../../../config/content";
 
 interface AboutMeProps {
@@ -16,7 +16,7 @@ const AboutMe: React.FC<AboutMeProps> = ({
 
   const { aboutme } = CVPreviewContent.sections;
 
-  const { professionalSummary } = useCvStore();
+  const professionalSummary = useCvEditStore((state) => state.professionalSummary);
   const content = professionalSummary === '<p><br></p>' ? aboutme.defaultContent : professionalSummary; // Check if the content is empty and set it to defaultContent
 
   return (

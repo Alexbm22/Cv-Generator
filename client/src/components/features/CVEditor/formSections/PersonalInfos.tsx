@@ -1,15 +1,27 @@
 import React from "react";
-import { useCvStore } from "../../../../Store";
+import { useCvEditStore } from "../../../../Store";
 import TextInputField from "../../../UI/textInputField";
 import { CVEditContent } from "../../../../config/content";
 import { SocialLink } from "../../../../interfaces/cv_interface";
 
 const PersonalInfos: React.FC = () => {
-    const {
-        photo, firstName, lastName, email, phoneNumber, address, birthDate, 
-        socialLinks, setPhoto, setFirstName, setLastName, setEmail, 
-        setPhoneNumber, setAddress, setBirthDate, addSocialLink,
-    } = useCvStore();
+
+    const photo = useCvEditStore((state) => state.photo);
+    const firstName  = useCvEditStore((state) => state.firstName);
+    const lastName  = useCvEditStore((state) => state.lastName);
+    const email  = useCvEditStore((state) => state.email);
+    const phoneNumber = useCvEditStore((state) => state.phoneNumber);
+    const address  = useCvEditStore((state) => state.address);
+    const birthDate  = useCvEditStore((state) => state.birthDate);
+    const socialLinks = useCvEditStore((state) => state.socialLinks);
+    const setPhoto  = useCvEditStore((state) => state.setPhoto);
+    const setFirstName = useCvEditStore((state) => state.setFirstName);
+    const setLastName = useCvEditStore((state) => state.setLastName);
+    const setEmail = useCvEditStore((state) => state.setEmail);
+    const setPhoneNumber = useCvEditStore((state) => state.setPhoneNumber);
+    const setAddress = useCvEditStore((state) => state.setAddress);
+    const setBirthDate = useCvEditStore((state) => state.setBirthDate);
+    const addSocialLink = useCvEditStore((state) => state.addSocialLink);
 
     const { personalInfos } = CVEditContent.formSections;
     const { fields } = personalInfos;
@@ -39,7 +51,7 @@ const PersonalInfos: React.FC = () => {
                     </div>
 
                     <div className="flex flex-row gap-x-4 justify-start items-end">
-                        <img className="max-w-50 max-h-20 object-contain rounded-lg border-gray-300 shadow-sm" src={photo ? photo : "/Images/anonymous_Picture.png"} alt="Image" />
+                        <img className="max-w-50 max-h-20 object-contain rounded-lg border-gray-300 shadow-sm" src={photo ?? "/Images/anonymous_Picture.png"} alt="Image" />
                         <div>
                             <input 
                                 id="photo" 
@@ -116,7 +128,9 @@ interface ComponentProps {
 
 const SocialLinkComponent: React.FC<ComponentProps> = ({ socialLink }) => {
 
-    const { removeSocialLink, updateSocialLink } = useCvStore();
+    const removeSocialLink = useCvEditStore((state) => state.removeSocialLink);
+    const updateSocialLink = useCvEditStore((state) => state.updateSocialLink);
+
     const { fields } = CVEditContent.formSections.personalInfos;
 
     return (

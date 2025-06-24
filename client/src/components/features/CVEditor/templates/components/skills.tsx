@@ -1,5 +1,5 @@
 import React from "react";
-import { useCvStore } from "../../../../../Store";
+import { useCvEditStore } from "../../../../../Store";
 import { CVPreviewContent } from "../../../../../config/content";
 import { SkillLevel } from "../../../../../interfaces/cv_interface";
 import { SkillsLevelsMap } from "../../../../../config/proficiency";
@@ -23,7 +23,7 @@ const Skills: React.FC<SkillsProps> = ({
 }) => {
 
     const { skills: skillsContent } = CVPreviewContent.sections;
-    const { skills } = useCvStore();
+    const skills = useCvEditStore((state) => state.skills);
 
     return (
         <>

@@ -1,13 +1,13 @@
 import { 
     CVPersonalInfoSliceAttributes, 
     SocialLink, 
-    CVStore } from '../../../interfaces/cv_interface';
+    CVEditStore } from '../../../interfaces/cv_interface';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 import { resizeBase64Image } from '../../../utils/resizeBase64Image'; 
 
 export const createPersonalInfoSlice = (set: {
-    (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;
-    (state: CVStore | ((state: CVStore) => CVStore), replace: true): void;
+    (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
+    (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
 }): CVPersonalInfoSliceAttributes => ({
     photo: '',
     firstName: '',

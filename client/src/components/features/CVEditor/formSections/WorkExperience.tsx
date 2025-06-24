@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCvStore } from '../../../../Store';
+import { useCvEditStore } from '../../../../Store';
 import Editor from '../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../UI/Collapsable';
 import TextInputField from '../../../UI/textInputField';
@@ -13,7 +13,7 @@ interface ComponentProps {
 
 const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
 
-    const { updateWorkExperience } = useCvStore();
+    const updateWorkExperience = useCvEditStore((state) => state.updateWorkExperience);
     const { workExperience } = CVEditContent.formSections;
     const { fields } = workExperience;
 
@@ -65,12 +65,11 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
 }
 
 const WorkExperienceMain: React.FC = () => {
+    
+    const workExperience = useCvEditStore((state) => state.workExperience);
+    const addWorkExperience = useCvEditStore((state) => state.addWorkExperience);
+    const removeWorkExperience = useCvEditStore((state) => state.removeWorkExperience);
 
-    const {
-        workExperience,
-        addWorkExperience,
-        removeWorkExperience,
-    } = useCvStore();
     const { workExperience: workExperienceContent } = CVEditContent.formSections;
 
     return (

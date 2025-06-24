@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCvStore } from '../../../../Store';
+import { useCvEditStore } from '../../../../Store';
 import { Language, ProficiencyLanguageLevel } from '../../../../interfaces/cv_interface';
 import {
     Collapsable,
@@ -14,7 +14,7 @@ interface ComponentProps {
 }
 
 const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
-    const { updateLanguage } = useCvStore();
+    const updateLanguage = useCvEditStore((state) => state.updateLanguage);
     const { fields } = CVEditContent.formSections.languages;
 
     return (
@@ -41,7 +41,12 @@ const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
 }
 
 const LanguageMain:React.FC = () => {
-    const { languages, addLanguage, removeLanguage } = useCvStore();
+
+    
+    const languages = useCvEditStore((state) => state.languages);
+    const addLanguage = useCvEditStore((state) => state.addLanguage);
+    const removeLanguage = useCvEditStore((state) => state.removeLanguage);
+
     const { languages: languagesContent } = CVEditContent.formSections;
 
     return (

@@ -1,5 +1,5 @@
 import React from "react";
-import { useCvStore } from "../../../../../Store";
+import { useCvEditStore } from "../../../../../Store";
 import { CVPreviewContent } from "../../../../../config/content";
 import {
     PhoneIcon,
@@ -32,7 +32,11 @@ const GeneralInfos: React.FC<GeneralInfosProps> = ({
     birthDateIconClassName,
 }) => {
 
-    const { phoneNumber, email, address, birthDate } = useCvStore();
+    const phoneNumber = useCvEditStore((state) => state.phoneNumber);
+    const email = useCvEditStore((state) => state.email);
+    const address = useCvEditStore((state) => state.address);
+    const birthDate = useCvEditStore((state) => state.birthDate);
+
     const { personalInfos } = CVPreviewContent.sections;
 
     const phoneNumVal = phoneNumber !== ''? phoneNumber : personalInfos.default.phoneNumber;

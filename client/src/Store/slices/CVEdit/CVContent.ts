@@ -1,7 +1,7 @@
 import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import { 
     CVContentSliceAttributes, 
-    CVStore,
+    CVEditStore,
     Language, 
     Skill,
     WorkExperience,
@@ -12,8 +12,8 @@ import {
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
 export const createContentSlice = (set: {
-    (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;
-    (state: CVStore | ((state: CVStore) => CVStore), replace: true): void;
+    (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
+    (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
 }): CVContentSliceAttributes => ({
     professionalSummary: '',
     languages: [],

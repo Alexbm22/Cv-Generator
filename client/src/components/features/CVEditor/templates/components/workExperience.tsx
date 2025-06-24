@@ -1,5 +1,5 @@
 import React from "react";
-import { useCvStore } from "../../../../../Store";
+import { useCvEditStore } from "../../../../../Store";
 
 interface ComponentProps {
     componentClassName: string
@@ -9,7 +9,7 @@ const WorkExperience: React.FC<ComponentProps> = ({
     componentClassName
 }) => {
 
-    const { workExperience } = useCvStore();
+    const workExperience = useCvEditStore((state) => state.workExperience);
 
     return (
         <div className={componentClassName}>

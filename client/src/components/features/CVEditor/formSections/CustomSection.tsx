@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCvStore } from '../../../../Store';
+import { useCvEditStore } from '../../../../Store';
 import Editor from '../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../UI/Collapsable';
 import TextInputField from '../../../UI/textInputField';
@@ -13,7 +13,7 @@ interface ComponentProps {
 
 const CustomSectionComponent:React.FC<ComponentProps> = ({ customSection }) => {
 
-    const { updateCustomSectionAttributes } = useCvStore();
+    const updateCustomSectionAttributes = useCvEditStore((state) => state.updateCustomSectionAttributes);
     const { fields } = CVEditContent.formSections.customSection;
 
     return (
@@ -59,12 +59,12 @@ const CustomSectionComponent:React.FC<ComponentProps> = ({ customSection }) => {
 
 const CustomSectionMain:React.FC = () => {
 
-    const { 
-        customSections,
-        addCustomSectionAttributes,
-        removeCustomSectionAttributes,
-        setCustomSectionTitle 
-    } = useCvStore();
+    
+    const customSections = useCvEditStore((state) => state.customSections);
+    const addCustomSectionAttributes = useCvEditStore((state) => state.addCustomSectionAttributes);
+    const removeCustomSectionAttributes = useCvEditStore((state) => state.removeCustomSectionAttributes);
+    const setCustomSectionTitle = useCvEditStore((state) => state.setCustomSectionTitle);
+    
     const { customSection } = CVEditContent.formSections;
 
     return (

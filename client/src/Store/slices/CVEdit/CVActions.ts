@@ -1,18 +1,17 @@
-import { useUserStore } from '../../useUserStore';
 import { 
     CVAttributes,
-    CVStore,
-    CVStoreActions,
+    CVEditStore,
+    CVEditStoreActions,
     SyncState,
  } from '../../../interfaces/cv_interface';
+import { useCVsStore } from '../../useCVsStore';
 
 export const createStoreActionsSlice = (set: {
-    (partial: CVStore | Partial<CVStore> | ((state: CVStore) => CVStore | Partial<CVStore>), replace?: false): void;
-    (state: CVStore | ((state: CVStore) => CVStore), replace: true): void;
-},get: () => CVStore): CVStoreActions => ({
+    (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
+    (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
+},get: () => CVEditStore): CVEditStoreActions => ({
 
-    syncState: SyncState.SYNCED,
-    setSyncState: (syncState: SyncState) => set({syncState}), 
+    setSyncState: (syncState: SyncState) => {}, 
 
     getCVObject: () => { 
         const CV = get();
@@ -40,10 +39,9 @@ export const createStoreActionsSlice = (set: {
         return CVObject;
     },
     saveCV: () => {
-        if (!get().id)  get().setId(undefined); // set id if not set
         const CV: CVAttributes = get().getCVObject(); 
 
-        const { updateCV } = useUserStore.getState();
+        const { updateCV } = useCVsStore.getState();
         updateCV(CV);
     },
     setCV: (CV: CVAttributes) => {

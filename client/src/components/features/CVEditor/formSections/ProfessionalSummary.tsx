@@ -1,11 +1,13 @@
-import { useCvStore } from '../../../../Store';
+import { useCvEditStore } from '../../../../Store';
 import Editor from '../../../UI/TextEditor/EditorComponent'
 import React from 'react';
 import { CVEditContent } from '../../../../config/content';
 
 const ProfessionalSummary: React.FC= () => {
 
-  const { setProfessionalSummary, professionalSummary } = useCvStore();
+  const setProfessionalSummary = useCvEditStore((state) => state.setProfessionalSummary);
+  const professionalSummary = useCvEditStore((state) => state.professionalSummary);
+
   const { professionalSummary: summaryContent } = CVEditContent.formSections;
 
   return (

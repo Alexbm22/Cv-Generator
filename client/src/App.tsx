@@ -1,18 +1,30 @@
 import { BrowserRouter as Router, Routes, Route  } from 'react-router-dom'
 import { routes } from './config/routes'
 import { useCheckAuth } from './hooks/useAuth';
+import { useHydrateCVs } from './hooks/useCVs';
 import { useAuthStore } from './Store';
 import { useEffect } from 'react';
+import './index.css';
 
 function App() {
 
-  const { mutate, isPending } = useCheckAuth();
-  const { setIsLoadingAuth } = useAuthStore.getState();
+  const { mutate: checkAuth, isPending: isPendingAuth } = useCheckAuth();
+  const { mutate: hydrateCVs} = useHydrateCVs();
+
+  const setIsLoadingAuth = useAuthStore((state) => state.setIsLoadingAuth);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(()=>{
-    mutate();
-    setIsLoadingAuth(isPending);
+    checkAuth();
+    setIsLoadingAuth(isPendingAuth);
   },[])
+
+  
+  useEffect(() => {
+    if(isAuthenticated) {
+      hydrateCVs();
+    }
+  }, [isAuthenticated])
 
   return (
     <>

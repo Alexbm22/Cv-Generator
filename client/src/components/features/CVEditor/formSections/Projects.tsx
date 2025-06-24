@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCvStore } from '../../../../Store';
+import { useCvEditStore } from '../../../../Store';
 import Editor from '../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../UI/Collapsable';
 import TextInputField from '../../../UI/textInputField';
@@ -13,7 +13,7 @@ interface ComponentProps {
 
 const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
 
-    const { updateProject } = useCvStore();
+    const updateProject = useCvEditStore((state) => state.updateProject);
     const { fields } = CVEditContent.formSections.projects;
 
     return (
@@ -64,7 +64,12 @@ const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
 }
 
 const EducationMain:React.FC = () => {
-    const { projects, addProject, removeProject } = useCvStore();
+
+    
+    const projects = useCvEditStore((state) => state.projects);
+    const addProject = useCvEditStore((state) => state.addProject);
+    const removeProject = useCvEditStore((state) => state.removeProject);
+
     const { projects: projectsContent } = CVEditContent.formSections;
 
     return (

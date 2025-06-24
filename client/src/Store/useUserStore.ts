@@ -1,14 +1,10 @@
 import { create } from 'zustand';
-import { persist, devtools } from 'zustand/middleware';
-import { 
-    CVAttributes,
-} from '../interfaces/cv_interface';
-import { useAuthStore } from './useAuthStore';
+import { devtools } from 'zustand/middleware';
 import { UserStore, UserObj } from '../interfaces/user_interface';
 
 export const useUserStore = create<UserStore>()(
     devtools(
-        persist((set, get) => ({
+        (set, get) => ({
             username: null,
             email: null,
             profilePicture: null,
@@ -32,23 +28,6 @@ export const useUserStore = create<UserStore>()(
                     email: get().email,
                     profilePicture: get().profilePicture
                 }
-            },
-
-            addCV: (CV: CVAttributes) => set((state) => ({ CVs: state.CVs.concat(CV) })),
-            removeCV: (id: string) => set((state) => ({ CVs: state.CVs.filter((cv) => cv.id !== id) })),
-            updateCV: (updatedCV: CVAttributes) => {
-                if (get().CVs.some((cv) => cv.id === updatedCV.id)) {
-                    set((state) => ({ CVs: state.CVs.map((cv) => (cv.id === updatedCV.id ? updatedCV : cv)) }))
-                } else { 
-                    get().addCV(updatedCV);
-                }
-            }
-        }), {
-            name: 'resumes',
-            partialize: (state) => {
-                // Only persist CVs if user is NOT authenticated
-                const isAuthenticated = useAuthStore.getState().isAuthenticated;
-                return isAuthenticated ? {} : { CVs: state.CVs };
             },
         }), {
             name: 'UserStore', // Name of the slice in the Redux DevTools

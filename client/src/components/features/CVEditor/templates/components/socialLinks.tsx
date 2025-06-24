@@ -1,5 +1,5 @@
 import React from "react";
-import { useCvStore } from "../../../../../Store";
+import { useCvEditStore } from "../../../../../Store";
 import { CVPreviewContent } from "../../../../../config/content";
 
 interface SocialLinksProps {
@@ -17,7 +17,7 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
 }) => {
 
     const { socialLinks: socialLinksContent } = CVPreviewContent.sections;
-    const { socialLinks } = useCvStore();
+    const socialLinks = useCvEditStore((state) => state.socialLinks);
 
     return (
         <>

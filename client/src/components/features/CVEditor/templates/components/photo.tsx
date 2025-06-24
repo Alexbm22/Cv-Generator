@@ -1,5 +1,5 @@
 import React from "react";
-import { useCvStore } from "../../../../../Store";
+import { useCvEditStore } from "../../../../../Store";
 
 interface CVPhotoProps {
   fallbackUrl?: string;
@@ -10,7 +10,7 @@ const CVPhoto: React.FC<CVPhotoProps> = ({
   fallbackUrl = "/Images/anonymous_Picture.png",
   className
 }) => {
-  const { photo } = useCvStore();
+  const photo = useCvEditStore((state) => state.photo);
   const currentPhoto =  photo ?? fallbackUrl;
 
   return (
