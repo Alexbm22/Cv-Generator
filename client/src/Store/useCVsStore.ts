@@ -7,13 +7,15 @@ import {
 } from '../interfaces/cv_interface';
 import { useAuthStore } from './useAuthStore';
 import { withFunctionCallExcept } from './middleware/withFunctionCallExcept';
-import { removeCVById , loadAllCVs  } from '../lib/indexedDB/cvStore';
+import { removeCVById , persistAllCVs  } from '../lib/indexedDB/cvStore';
+import { apiService } from '../services/api';
+import { ApiResponse } from '../interfaces/api_interface';
 
 export const useCVsStore = create<CVStore>()(
     devtools(
         persist( 
             withFunctionCallExcept<CVStore>(
-                loadAllCVs , // to do: resolve the saving error
+                persistAllCVs,
                 [ 'setCVs', 'setdbHydrated' ] // Exclude these actions from the middleware
             )(
                 (set, get) => ({
@@ -42,6 +44,39 @@ export const useCVsStore = create<CVStore>()(
                     },
 
                     setCVs: (CVs: CVAttributes[]) => set({ CVs }),
+
+                    syncToServer: async () => {
+                        return await apiService.post<ApiResponse<null>, CVAttributes[]>(
+                            '/protected/sync_CVs',
+                            get().CVs
+                        )
+                    },
+
+                    fetchFromServer: async () => {
+                        return await apiService.post<ApiResponse<null>>(
+                            '/protected/get_CVs'
+                        )
+                    },
+
+                    createNewCV: async () => {
+                        return await apiService.post<ApiResponse<CVAttributes>>(
+                            '/protected/create_CV'
+                        )
+                    },
+
+                    createCVs: async () => {
+                        return await apiService.post<ApiResponse<null>, CVAttributes[]>(
+                            '/protected/create_existing_CVs',
+                            get().CVs
+                        )
+                    },
+
+                    deleteCV: async (CVId: string) => {
+                        return await apiService.post<ApiResponse<null>, string>(
+                            '/protected/delete_CV',
+                            CVId
+                        )
+                    },
 
         })), {
             name: 'Resumes',

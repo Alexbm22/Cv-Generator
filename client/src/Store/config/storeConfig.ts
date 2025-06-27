@@ -27,6 +27,7 @@ export const storeConfig = {
             address: '',
             birthDate: new Date(),
             socialLinks: [],
+            updatedAt: null
         }
     },
     middlewareOptions: {

@@ -8,7 +8,19 @@ export {
 }
 
 export const initModels = async () => {
-    //Define Models Relationships here
+    User.hasMany(CV, {
+        foreignKey: 'userId',
+        as: 'cvs',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    CV.belongsTo(User, {
+        foreignKey: 'userId',
+        as: 'user',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
 
     switch (process.env.NODE_ENV) {
         case 'development':

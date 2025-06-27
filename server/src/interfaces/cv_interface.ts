@@ -89,7 +89,7 @@ export interface CVContentAttributes {
 }
 
 export interface PersonalDataAttributes {
-    photo: string,
+    photo: string | null,
     firstName: string,
     lastName: string,
     email: string,
@@ -103,13 +103,15 @@ export interface CVMetadataAttributes {
     id: string | undefined;
     title: string;
     template: CVTemplates;
-    sectionsOrder: string[];
+    updatedAt: number;
+    version?: number;
 }
 
 export interface ClientCVAttributes extends CVContentAttributes, CVMetadataAttributes, PersonalDataAttributes {}
 
 export interface CVAttributes {
     id: number,
+    version: number;
     public_id:string,
     title: string,
     userId: number,

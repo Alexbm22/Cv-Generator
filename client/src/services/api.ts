@@ -40,7 +40,6 @@ class ApiService {
     this.setupInterceptors();
   }
 
-  
   private setupInterceptors() {
     // Request interceptor for auth tokens
     this.client.interceptors.request.use(

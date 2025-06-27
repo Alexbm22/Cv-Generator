@@ -34,13 +34,15 @@ export const createStoreActionsSlice = (set: {
             phoneNumber: CV.phoneNumber,
             address: CV.address,
             birthDate: CV.birthDate,
-            socialLinks: CV.socialLinks
+            socialLinks: CV.socialLinks,
+            updatedAt: CV.updatedAt,
         }
         return CVObject;
     },
     saveCV: () => {
         const CV: CVAttributes = get().getCVObject(); 
 
+        console.log(new Date().getTime())
         const { updateCV } = useCVsStore.getState();
         updateCV(CV);
     },

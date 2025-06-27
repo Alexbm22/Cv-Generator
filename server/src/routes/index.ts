@@ -1,5 +1,6 @@
 import express from 'express';
-import auth_routes from './auth_routes'
+import auth_routes from './auth_routes';
+import cv_routes from './cv_routes';
 import { authMiddleware } from '../middleware/auth_middleware';
 
 const router = express.Router();
@@ -7,8 +8,7 @@ const router = express.Router();
 router.use('/auth', auth_routes);
 
 //to be added to all routes that need authentication
-router.use('/protected', authMiddleware, ); 
-
+router.use('/protected', authMiddleware, cv_routes); 
 
 export default router;
 

@@ -22,6 +22,8 @@ interface RateLimitEnvironmentConfig {
   REFRESH_TOKEN_LIMIT: number;
   CHECK_AUTH_WINDOW_MS: number;
   CHECK_AUTH_LIMIT: number;
+  CVS_WINDOW_MS: number;
+  CVS_LIMIT: number;
 }
 
 export class RateLimitMiddleware {
@@ -52,7 +54,9 @@ export class RateLimitMiddleware {
       REFRESH_TOKEN_WINDOW_MS: getEnvNumber('RATE_LIMIT_REFRESH_TOKEN_WINDOW_MS', 5 * 60 * 1000), // 5 minutes
       REFRESH_TOKEN_LIMIT: getEnvNumber('RATE_LIMIT_REFRESH_TOKEN_LIMIT', 5),
       CHECK_AUTH_WINDOW_MS: getEnvNumber('RATE_LIMIT_CHECK_AUTH_WINDOW_MS', 5 * 60 * 1000), // 5 minutes
-      CHECK_AUTH_LIMIT: getEnvNumber('RATE_LIMIT_CHECK_AUTH_LIMIT', 20)
+      CHECK_AUTH_LIMIT: getEnvNumber('RATE_LIMIT_CHECK_AUTH_LIMIT', 20),
+      CVS_WINDOW_MS: getEnvNumber('CVS_WINDOW_MS', 15 * 60 * 1000), // 15 minutes
+      CVS_LIMIT: getEnvNumber('CVS_LIMIT', 100),
     };
   }
 
@@ -85,6 +89,15 @@ export class RateLimitMiddleware {
             message: 'Too many requests from this IP, please try again later!',
         });
     }
+
+    public CVsRateLimit() {
+        return this.createRateLimit({
+            windowMs: this.config.DEFAULT_WINDOW_MS,
+            limit: this.config.DEFAULT_LIMIT,
+            message: 'Too many requests from this IP, please try again later!',
+        });
+    }
+
 
     public loginLimit() { 
         return this.createRateLimit({

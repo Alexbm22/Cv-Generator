@@ -89,6 +89,8 @@ export interface CVMetadataAttributes {
     title: string;
     template: CVTemplates;
     sectionsOrder: string[];
+    updatedAt: number | null;
+    version: number | null;
 }
 
 export interface CVContentAttributes {
@@ -116,6 +118,7 @@ export interface CVMetadataActions {
     setTemplate: (template: CVTemplates) => void;
     setTitle: (title: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
+    setUpdatedAt: (time: number) => void;
 }
 
 export interface CVContentActions {

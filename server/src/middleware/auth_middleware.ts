@@ -33,9 +33,9 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
     });
     if (!user) {
         return next(new AppError('User not found', 401, ErrorTypes.UNAUTHORIZED));
-    }   
+    }  
 
-    req.user = user.get() as UserData;
+    req.user = user.get();
 
     next();
 });

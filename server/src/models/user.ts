@@ -5,21 +5,8 @@ import { AuthProvider } from '../interfaces/auth_interfaces';
 import { AppError } from '../middleware/error_middleware';
 import crypto from 'crypto';
 import { ErrorTypes } from '../interfaces/error_interface';
+import { UserAttributes } from '../interfaces/user_interface'
 
-interface UserAttributes {
-    id: number;
-    username: string;
-    email: string;
-    password: string | null;
-    refreshToken: string | null;
-    googleId: string | null;
-    profilePicture: string | null;
-    authProvider: AuthProvider;
-    isActive: boolean;
-    lastLogin: Date | null;
-    createdAt?: Date;
-    updatedAt?: Date;
-}
 
 interface UserCreationAttributes extends Optional<UserAttributes, 
 'id' | 'refreshToken' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive'> {}

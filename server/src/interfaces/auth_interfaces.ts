@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { ClientCVAttributes } from './cv_interface';
 import { ApiResponse } from './api_interface';
+import { UserAttributes } from './user_interface';
 
 export interface loginDto {
     email: string;
@@ -58,5 +59,5 @@ export interface TokenData {
 }
 
 export interface AuthRequest extends Request {
-    user?: UserData;
+    user: UserAttributes;
 }

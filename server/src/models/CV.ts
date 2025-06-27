@@ -9,10 +9,11 @@ import {
 }
 from '../interfaces/cv_interface';
 
-interface CVCreationAttributes extends Optional<CVAttributes, 'id' | 'encryptedPersonalData' | 'createdAt' | 'updatedAt'> {}
+interface CVCreationAttributes extends Optional<CVAttributes, 'id' | 'encryptedPersonalData' | 'createdAt' | 'updatedAt' | 'version'> {}
 
 class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttributes {
     public id!: number;
+    public version!: number;
     public public_id!: string;
     public userId!: number;
     public title!: string;
@@ -28,6 +29,10 @@ class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttribut
         this.encryptedPersonalData = encrypt(JSON.stringify(data));
     }
 
+    public setVersion(version: number){
+        this.version = version;
+    }
+
     public getPersonalData(): PersonalDataAttributes | null {
         if (this.encryptedPersonalData) {
           return JSON.parse(decrypt(this.encryptedPersonalData));
@@ -41,6 +46,10 @@ CV.init({
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
         primaryKey: true
+    },
+    version : {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
     },
     public_id: {
         type: DataTypes.STRING(255),
@@ -84,6 +93,8 @@ CV.init({
             if (cv.personalData) {
                 cv.setPersonalData(cv.personalData);
             }
+
+            cv.setVersion(0);
         }, 
         beforeUpdate: (cv: CV) => {
             if (cv.personalData) {
