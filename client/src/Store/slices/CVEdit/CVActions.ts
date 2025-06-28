@@ -2,7 +2,6 @@ import {
     CVAttributes,
     CVEditStore,
     CVEditStoreActions,
-    SyncState,
  } from '../../../interfaces/cv_interface';
 import { useCVsStore } from '../../useCVsStore';
 
@@ -10,8 +9,6 @@ export const createStoreActionsSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
     (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
 },get: () => CVEditStore): CVEditStoreActions => ({
-
-    setSyncState: (syncState: SyncState) => {}, 
 
     getCVObject: () => { 
         const CV = get();
@@ -36,13 +33,13 @@ export const createStoreActionsSlice = (set: {
             birthDate: CV.birthDate,
             socialLinks: CV.socialLinks,
             updatedAt: CV.updatedAt,
+            version: CV.version
         }
         return CVObject;
     },
     saveCV: () => {
         const CV: CVAttributes = get().getCVObject(); 
 
-        console.log(new Date().getTime())
         const { updateCV } = useCVsStore.getState();
         updateCV(CV);
     },

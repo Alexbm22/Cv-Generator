@@ -1,17 +1,23 @@
-import { StoreApi } from "zustand";
 import { IndexedDBService } from "../../services/indexedDB";
-import { CVAttributes, CVStore } from "../../interfaces/cv_interface";
+import { CVAttributes } from "../../interfaces/cv_interface";
 
 const cvDB = new IndexedDBService('CV_Store');
 
 // Save all CVs from Zustand store to IndexedDB
-export const persistAllCVs = (api: StoreApi<CVStore>) => {
-    const CVs = api.getState().CVs;
+export const saveToIndexedDB = async (CVs: CVAttributes[]) => {
+    CVs.forEach((cv) => {
+        // encrypt CVs before saving
+        // the logic needs to be improved
 
-    // encrypt CVs before saving
-    // the logic needs to be improved
+        cvDB.set<CVAttributes>(cv.id, cv)
+    })
+}
+
+export const setIndexedDbCVs = (CVs: CVAttributes[]) => {
+    cvDB.clearStore();
 
     CVs.forEach((cv) => {
+        // encrypt CVs before saving
         cvDB.set<CVAttributes>(cv.id, cv)
     })
 }

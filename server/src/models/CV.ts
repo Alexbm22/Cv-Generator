@@ -25,8 +25,8 @@ class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttribut
     public updatedAt!: Date;
 
     public setPersonalData(data: PersonalDataAttributes):void {
-        this.personalData = data;
-        this.encryptedPersonalData = encrypt(JSON.stringify(data));
+        console.error(data)
+        this.setDataValue('encryptedPersonalData',  encrypt(JSON.stringify(data)));
     }
 
     public setVersion(version: number){
@@ -34,8 +34,9 @@ class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttribut
     }
 
     public getPersonalData(): PersonalDataAttributes | null {
-        if (this.encryptedPersonalData) {
-          return JSON.parse(decrypt(this.encryptedPersonalData));
+        const encryptedPersonalData = this.getDataValue('encryptedPersonalData')
+        if (encryptedPersonalData) {
+          return JSON.parse(decrypt(encryptedPersonalData));
         }
         return null;
     }
@@ -75,6 +76,17 @@ CV.init({
         type: DataTypes.JSON,
         allowNull: false
     },
+    personalData: {
+        type: DataTypes.VIRTUAL,
+        get() {
+            return this.getPersonalData()
+        },
+        set(value: PersonalDataAttributes) {
+            if (value) {
+                this.setDataValue('encryptedPersonalData', encrypt(JSON.stringify(value)));
+            }
+        }
+    },
     encryptedPersonalData: {
         type: DataTypes.TEXT('long'),
         allowNull: true
@@ -90,15 +102,17 @@ CV.init({
     tableName: 'cv',
     hooks: {
         beforeCreate: (cv: CV) => {
-            if (cv.personalData) {
-                cv.setPersonalData(cv.personalData);
+            const personalData = cv.getDataValue('personalData')
+            if (personalData) {
+                cv.setPersonalData(personalData);
             }
 
-            cv.setVersion(0);
+            console.error(personalData);
         }, 
         beforeUpdate: (cv: CV) => {
-            if (cv.personalData) {
-                cv.setPersonalData(cv.personalData);
+            const personalData = cv.getDataValue('personalData')
+            if (personalData) {
+                cv.setPersonalData(personalData);
             }
         },
         afterFind: (cv: CV | CV[] | null) => {

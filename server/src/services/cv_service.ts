@@ -35,6 +35,7 @@ export class CVsService {
             userId: userId,
             template: CVTemplates.CASTOR,
             public_id: publicId,
+            version: 0,
             personalData: {
                 firstName: '',
                 lastName: '',
@@ -69,18 +70,11 @@ export class CVsService {
 
     async getAllCVs(userId: number, next: NextFunction): Promise<ApiResponse<ClientCVAttributes[]>> {
 
-        const CVs = await CV.findAll({
-            where: {
-                userId: userId
-            },
-            order: [['updatedAt', 'DESC']],
-        })
-
-        const cvObjects = CVs.map((cv) => cv.get())        
-        const cvDTOs = cvObjects.map((cv) => this.toDTO(cv));
+        const cvDTOs = await this.getUserCVs(userId);
 
         return {
             success: true,
+            message: 'CVs fetched sucessfully!',
             data: cvDTOs
         }
     }
@@ -89,7 +83,7 @@ export class CVsService {
         userId: number, 
         incomingCVs: ClientCVAttributes[], 
         next: NextFunction
-    ): Promise<ApiResponse<null>> {
+    ): Promise<ApiResponse<ClientCVAttributes[]>> {
         // Transform DTOs to domain objects
         const candidateCVUpdates  = incomingCVs.map((cv) => this.fromDTO(cv, userId));
     
@@ -119,12 +113,14 @@ export class CVsService {
             const cvUpdate = updatesByPublicId.get(existingCV.public_id);
             if(!cvUpdate) return;
 
+            // manage version conflicts
             if(existingCV.version !== cvUpdate.version){
-                return next(new AppError(
-                    `Version conflict for cv: ${cvUpdate.public_id}`,
-                    406,
-                    ErrorTypes.VERSION_CONFLICT
-                ))
+                const currentCVsVersion = await this.getUserCVs(userId);
+                return {
+                    success: false,
+                    message: 'CV data conflicts',
+                    data: currentCVsVersion
+                }
             }
 
             // Calculate the changes
@@ -142,9 +138,13 @@ export class CVsService {
 
         await Promise.all(updatePromises);
 
+        // the updated list of CVs 
+        const updatedCVs = await this.getUserCVs(userId);
+
         return {
             success: true,
-            message: 'CVs synced successfully'
+            message: 'CVs synced successfully',
+            data: updatedCVs
         }
     }
 
@@ -174,6 +174,20 @@ export class CVsService {
         }
     }
 
+    private async getUserCVs(userId: number) {
+        const CVs = await CV.findAll({
+            where: {
+                userId: userId
+            },
+            order: [['updatedAt', 'DESC']],
+        })
+
+        const cvObjects = CVs.map((cv) => cv.get())        
+        const cvDTOs = cvObjects.map((cv) => this.toDTO(cv));
+
+        return cvDTOs;
+    }
+
     private calculateAttributeChanges<T extends object>(
         originalAttributes: T,
         updatedAttributes: Partial<T>
@@ -199,7 +213,6 @@ export class CVsService {
             title: cv.title,
             template: cv.template,
             version: cv.version ?? 0,
-            updatedAt: new Date(cv.updatedAt),
             userId: userId,
             personalData: {
                 photo: cv.photo,
@@ -238,7 +251,7 @@ export class CVsService {
             education: cv.content.education,
             projects: cv.content.projects,
             customSections: cv.content.customSections,
-            photo: cv.personalData!.photo,
+            photo: cv.personalData?.photo || null,
             firstName: cv.personalData!.firstName,
             lastName: cv.personalData!.lastName,
             email: cv.personalData!.email,

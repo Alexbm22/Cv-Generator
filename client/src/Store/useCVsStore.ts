@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { v4 as uuidv4 } from 'uuid';
 import { persist, devtools } from 'zustand/middleware';
 import { 
     CVAttributes,
@@ -7,24 +6,46 @@ import {
 } from '../interfaces/cv_interface';
 import { useAuthStore } from './useAuthStore';
 import { withFunctionCallExcept } from './middleware/withFunctionCallExcept';
-import { removeCVById , persistAllCVs  } from '../lib/indexedDB/cvStore';
-import { apiService } from '../services/api';
-import { ApiResponse } from '../interfaces/api_interface';
+import { removeCVById , setIndexedDbCVs  } from '../lib/indexedDB/cvStore';
+import { CVLocalService } from '../services/CVLocalService';
 
 export const useCVsStore = create<CVStore>()(
     devtools(
         persist( 
             withFunctionCallExcept<CVStore>(
-                persistAllCVs,
-                [ 'setCVs', 'setdbHydrated' ] // Exclude these actions from the middleware
+                CVLocalService.persistAllCVs,
+                [ 'setCVs', 'setdbHydrated', 'setFetchedCVs', 'setLastSynced', 'isSyncStale'] // Exclude these actions from the middleware
             )(
                 (set, get) => ({
                     CVs: [],
+                    lastSynced: null,
                     dbHydrated: false,
 
+                    setLastSynced: (time: number) => set({ lastSynced: time }),
+                    isSyncStale: () => {
+                        const now = new Date().getTime();
+                        const lastSynced = get().lastSynced;
+                        const maximumStalePeriod = 1 * 60 * 1000; // 1 minutes
+
+                        if(!lastSynced) return true;
+
+                        return (now - lastSynced) > maximumStalePeriod;
+                    },
+
                     setdbHydrated: (dbHydrated: boolean) => set({ dbHydrated: dbHydrated }),
+                    
+                    setCVs: (CVs: CVAttributes[]) => set({ CVs }),
+
+                    setFetchedCVs: (CVs: CVAttributes[]) => {
+                        const { setdbHydrated, setCVs, setLastSynced } = get();
+
+                        setLastSynced(new Date().getTime());
+                        setIndexedDbCVs(CVs); 
+                        setCVs(CVs);
+                        setdbHydrated(true);
+                    },
+
                     addCV: (CV: CVAttributes) => {
-                        CV.id = uuidv4();
                         set((state) => ({ CVs: state.CVs.concat(CV) }));
                     },
 
@@ -43,46 +64,16 @@ export const useCVsStore = create<CVStore>()(
                         }
                     },
 
-                    setCVs: (CVs: CVAttributes[]) => set({ CVs }),
-
-                    syncToServer: async () => {
-                        return await apiService.post<ApiResponse<null>, CVAttributes[]>(
-                            '/protected/sync_CVs',
-                            get().CVs
-                        )
-                    },
-
-                    fetchFromServer: async () => {
-                        return await apiService.post<ApiResponse<null>>(
-                            '/protected/get_CVs'
-                        )
-                    },
-
-                    createNewCV: async () => {
-                        return await apiService.post<ApiResponse<CVAttributes>>(
-                            '/protected/create_CV'
-                        )
-                    },
-
-                    createCVs: async () => {
-                        return await apiService.post<ApiResponse<null>, CVAttributes[]>(
-                            '/protected/create_existing_CVs',
-                            get().CVs
-                        )
-                    },
-
-                    deleteCV: async (CVId: string) => {
-                        return await apiService.post<ApiResponse<null>, string>(
-                            '/protected/delete_CV',
-                            CVId
-                        )
-                    },
-
         })), {
             name: 'Resumes',
             partialize: (state) => {
                 const { isAuthenticated } = useAuthStore.getState();
-                const persisted = isAuthenticated ? {} : { CVs: state.CVs } 
+
+                const persisted = isAuthenticated ? { lastSynced: state.lastSynced } : { 
+                    CVs: state.CVs,
+                    lastSynced: state.lastSynced
+                } 
+
                 return persisted;
             },
         }), {

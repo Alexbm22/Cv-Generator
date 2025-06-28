@@ -48,7 +48,6 @@ export const errorHandler = (
     } else {
         console.error("ERROR: ", err);
         return res.status(500).json({
-            status: "error",
             message: "Something went wrong",
             errType: ErrorTypes.INTERNAL_ERR,
         })

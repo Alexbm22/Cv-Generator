@@ -1,10 +1,10 @@
 import React from "react";
-import { useCVsStore } from "../../Store";
-import { storeConfig } from "../../Store/config/storeConfig";
+import { useCreateCV } from "../../hooks/useCVs";
 
 const CVsPage: React.FC = () => {
 
-  const addCV = useCVsStore.getState().addCV;
+  const { mutate: createNewCV } = useCreateCV();
+  
 
   return (
     <>
@@ -12,7 +12,7 @@ const CVsPage: React.FC = () => {
       <p>This is the CVs page.</p>
       <button
         onClick={() => {
-          addCV(storeConfig.defaultStates.CVObject)
+          createNewCV()
         }}
       >add cv</button>
     </>

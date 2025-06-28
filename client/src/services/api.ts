@@ -4,6 +4,7 @@ import { TokenClientData } from '../interfaces/auth_interface';
 import { useErrorStore } from '../Store';
 import { APIError } from '../interfaces/api_interface';
 import { ErrorTypes } from '../interfaces/error_interface';
+import { AppError } from './Errors';
 
 interface RetryableRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
@@ -104,12 +105,7 @@ class ApiService {
           return Promise.reject(error);
         }
 
-        if(
-          error.config.url?.includes('/login') || 
-          error.config.url?.includes('/register') || 
-          error.config.url?.includes('/google_login') ||
-          error.config.url?.includes('/refresh_token')
-        ) {
+        if(error.config.url?.includes('/refresh_token')) {
           this.handleAPIError(error as APIError)
           return Promise.reject(error);
         }
@@ -194,12 +190,12 @@ class ApiService {
     const errors = error.response?.data?.errors;
     const errType = error.response?.data?.errType || ErrorTypes.INTERNAL_ERR;
   
-    const errorObj = {
-        statusCode,
-        message,
-        errors,
-        errType
-    };
+    const errorObj = new AppError(
+      message,
+      statusCode,
+      errType,
+      errors
+    )
   
     useErrorStore.getState().addError(errorObj);
   }

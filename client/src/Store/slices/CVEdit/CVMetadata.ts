@@ -13,6 +13,7 @@ export const createMetadataSlice = (set: {
     template: CVTemplates.CASTOR,
     sectionsOrder: [],
     updatedAt: null,
+    version: null,
 
     setTemplate: (template: CVTemplates) => set({ template }),
     setTitle: (title: string) => set({ title }),

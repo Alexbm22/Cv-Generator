@@ -38,6 +38,4 @@ router.post(
     catchAsync(CVsControllerInstance.deleteCV.bind(CVsControllerInstance))
 )
 
-
-
 export default router;

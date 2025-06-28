@@ -78,11 +78,6 @@ export enum CVTemplates {
     CASTOR = 'castor',
 }
 
-export enum SyncState {
-    SYNCING = 'Syncing',
-    SYNCED = '',
-    ERROR = 'Error'
-}
 
 export interface CVMetadataAttributes {
     id: string;
@@ -165,7 +160,6 @@ export interface CVPersonalInfoActions {
 }
 
 export interface CVEditStoreActions {
-    setSyncState: (syncState: SyncState) => void
     getCVObject: () => CVAttributes;
     saveCV: () => void;
     setCV: (CV: CVAttributes) => void;
@@ -181,8 +175,12 @@ export interface CVEditStore extends CVMetadataSliceAttributes, CVContentSliceAt
 
 export interface CVStore {
     CVs: CVAttributes[];
+    lastSynced: number | null;
     dbHydrated: boolean;
+    setLastSynced: (time: number) => void;
+    isSyncStale: () => boolean;
     setdbHydrated: (dbHydrated: boolean) => void;
+    setFetchedCVs: (CVs: CVAttributes[]) => void;
     addCV: (CV: CVAttributes) => void;
     removeCV: (id: string) => void;
     updateCV: (updatedCV: CVAttributes) => void;

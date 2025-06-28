@@ -1,3 +1,6 @@
+import { AxiosError } from "axios";
+import { AppError } from "../services/Errors";
+
 export enum ErrorTypes {
     TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS",
     VALIDATION_ERR = "VALIDATION_ERR",
@@ -7,7 +10,9 @@ export enum ErrorTypes {
     ACCOUNT_LOCKED = "ACCOUNT_LOCKED",
     UNAUTHORIZED = "UNAUTHORIZED",
     NOT_FOUND = "NOT_FOUND",
-    INTERNAL_ERR = "INTERNAL_ERR"
+    INTERNAL_ERR = "INTERNAL_ERR",
+    VERSION_CONFLICT = "VERSION_CONFLICT",
+    BAD_REQUEST = "BAD_REQUEST",
 }
 
 export interface ErrorData {
@@ -15,18 +20,20 @@ export interface ErrorData {
     param: string;
 }
 
-interface ErrorObj {
-    statusCode: number;
-    message: string,
-    errors?: ErrorData[]
+export interface ErrorStoreAttributes {
+    errors: AppError[];
 }
 
-export interface ErrorStoreAttributes {
-    errors: ErrorObj[];
+export interface ApiErrorResponse {
+    message: string;
+    errType: ErrorTypes;
+    errors?: ErrorData[]; 
 }
+
+export interface ApiError extends AxiosError<ApiErrorResponse> {}
 
 export interface ErrorStoreActions {
-    addError: (error: ErrorObj) => void;
+    addError: (error: AppError) => void;
     clearErrors: () => void;
     removeError: (index: number) => void;
 }
