@@ -1,74 +1,56 @@
 import { useMutation } from '@tanstack/react-query';
-import { CredentialResponse } from '@react-oauth/google';
-import { useUserStore, useAuthStore } from '../Store';
-import { loginDto, registerDto, AuthResponse } from '../interfaces/auth_interface';
+import { useAuthStore, useCVsStore } from '../Store';
+import { AuthResponse, AuthCredentials } from '../interfaces/auth_interface';
 import { APIError } from '../interfaces/api_interface';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../config/routes';
+import { CVServerService } from '../services/CVServer';
 
-export const useGoogleLogin = () => {
-    
-    const navigate = useNavigate();
-
-    return useMutation<AuthResponse, APIError, CredentialResponse>({
-        mutationFn: async (googleResponse: CredentialResponse) => await useAuthStore.getState().googleLogin(googleResponse),
-        onSuccess: (response: AuthResponse) => {
-            const { setAuthState } = useAuthStore.getState();
-            const { setUserData } = useUserStore.getState();
-            const token = response.data?.token;
-            const userData = response.data?.user;
-
-            if(token && userData) {
-              setAuthState(token);
-              setUserData(userData)
-            }
-
-            navigate(routes.editResume.path, { replace: true });
+// to do an initial data sync with all user settings
+export const useInitialDataSync = () => {
+    return useMutation({
+        mutationFn: async () => {
+            const { CVs } = useCVsStore.getState();
+            return (await CVServerService.createCVs(CVs)).data ?? [];
+        },
+        onSuccess: (CVs) => {
+            const { setFetchedCVs } = useCVsStore.getState();
+            setFetchedCVs(CVs);
         },
     })
 }
 
-export const useLogin = () => {
+export const useAuthAndSync =  <T extends AuthCredentials>(
+    authFunction: (authCredentials: T) => Promise<AuthResponse>
+) => {
+
+    const { mutate: mutateSync } = useInitialDataSync();  
+    const { handleAuthSuccess, setToken } = useAuthStore.getState();
 
     const navigate = useNavigate();
 
-    return useMutation<AuthResponse, APIError, loginDto>({
-        mutationFn: async (loginDto: loginDto) => await useAuthStore.getState().login(loginDto),
-        onSuccess: (response: AuthResponse) => {
-            const { setAuthState } = useAuthStore.getState();
-            const { setUserData } = useUserStore.getState();
-            const token = response.data?.token;
-            const userData = response.data?.user;
+    return useMutation<void, APIError, T>({
+        mutationFn: async (authCredentials: T) => {
+            // authenticate the user on the server side 
+            const authResponse = await authFunction(authCredentials);
+            setToken(authResponse.data?.token!);
 
-            if(token && userData) {
-              setAuthState(token);
-              setUserData(userData)
+            if(authResponse.data?.firstAuth) {                
+                // sync the user data 
+                await new Promise<void>((resolve, reject) => {
+                    mutateSync(undefined, {
+                        onSuccess: () => resolve(),
+                        onError: (error) => reject(error)
+                    });
+                });
             }
 
-            navigate(routes.editResume.path, { replace: true });
+            // handle auth after syncing data 
+            handleAuthSuccess(authResponse);
         },
-    })
-}
-
-export const useRegistration = () => {
-
-    const navigate = useNavigate();
-
-    return useMutation<AuthResponse, APIError, registerDto>({
-        mutationFn: async (registerDto: registerDto) => await useAuthStore.getState().register(registerDto),
-        onSuccess: (response: AuthResponse) => {
-            const { setAuthState } = useAuthStore.getState();
-            const { setUserData } = useUserStore.getState();
-            const token = response.data?.token;
-            const userData = response.data?.user;
-
-            if(token && userData) {
-              setAuthState(token);
-              setUserData(userData)
-            }
-
+        onSuccess: () => {
             navigate(routes.resumes.path, { replace: true });
-        },
+        }
     })
 }
 
@@ -88,15 +70,8 @@ export const useCheckAuth = () => {
     return useMutation<AuthResponse, APIError>({
         mutationFn: async () => await useAuthStore.getState().checkAuth(),
         onSuccess: (response) => {
-            const { setAuthState } = useAuthStore.getState();
-            const { setUserData } = useUserStore.getState();
-            const token = response.data?.token;
-            const userData = response.data?.user;
-
-            if(token && userData) {
-              setAuthState(token);
-              setUserData(userData)
-            }
+            const { handleAuthSuccess } = useAuthStore.getState();
+            handleAuthSuccess(response);
         }
     })
 }

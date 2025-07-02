@@ -16,18 +16,15 @@ function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const setIsLoadingAuth = useAuthStore((state) => state.setIsLoadingAuth);
   
-  const lastSynced = useCVsStore((state) => state.lastSynced);
-  
   useEffect(()=>{
-
     checkAuth();
     setIsLoadingAuth(isPendingAuth);
   },[checkAuth])
   
-  
   useEffect(() => {
-    if(isAuthenticated) {
+    const { lastSynced } = useCVsStore.getState();
 
+    if(isAuthenticated) {
       if (!lastSynced) {
         fetchCVs();
       } else {

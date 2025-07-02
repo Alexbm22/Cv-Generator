@@ -8,7 +8,6 @@ export const useUserStore = create<UserStore>()(
             username: null,
             email: null,
             profilePicture: null,
-            CVs: [],
             
             setUserName: (username: string) => set({ username }),
             setUserEmail: (email: string) => set({ email }),

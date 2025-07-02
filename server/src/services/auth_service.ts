@@ -160,7 +160,8 @@ export class AuthServices {
             message: 'User registered successfully',
             data: {
                 user: newUser.safeUser() as UserData,
-                token: accessToken
+                token: accessToken,
+                firstAuth: true
             }
         };
     }

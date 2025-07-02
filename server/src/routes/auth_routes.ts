@@ -1,6 +1,6 @@
 import express from 'express';
 import { catchAsync } from '../middleware/error_middleware';
-import { RateLimitMiddleware } from '../middleware/rate_limit_middleware';
+import RateLimitInstance from '../middleware/rate_limit_middleware';
 import { authMiddleware } from '../middleware/auth_middleware';
 import { Validate } from '../middleware/validation_middleware';
 import { registrationRules, loginRules } from '../validators/auth_validators';
@@ -9,7 +9,6 @@ import { AuthController } from '../controllers/auth_controller';
 const router = express.Router();
 
 const authController = new AuthController();
-const RateLimitInstance = new RateLimitMiddleware();
 
 router.post(
     '/google_login',

@@ -1,18 +1,22 @@
 import { useMutation } from "@tanstack/react-query"
 import { loadAllCVs } from "../lib/indexedDB/cvStore";
-import { useCVsStore, useErrorStore } from "../Store";
+import { useAuthStore, useCVsStore, useErrorStore } from "../Store";
 import { CVAttributes } from "../interfaces/cv_interface";
 import { AppError } from "../services/Errors";
 import { ApiError, ErrorTypes } from "../interfaces/error_interface";
-import CVServerService from "../services/CVServerService";
+import { CVServerService } from "../services/CVServer";
+import { storeConfig } from "../Store/config/storeConfig";
 
 export const useCreateCV = () => {
+    const addCV = useCVsStore(state => state.addCV);
+    const defaultCVData = storeConfig.defaultStates.CVObject()
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
     return useMutation<CVAttributes, ApiError>({
         mutationFn: async () => {
-            return (await CVServerService.createNewCV()).data!
+            return isAuthenticated ? (await CVServerService.createNewCV()).data! : defaultCVData;
         },
         onSuccess: (cv) => {
-            const { addCV } = useCVsStore.getState();
             addCV(cv);
         }
     })
@@ -30,7 +34,10 @@ export const useHydrateCVs = () => {
 export const useSyncToServer = () => {
     return useMutation<CVAttributes[], ApiError>({
         mutationFn: async () => {
-            return (await CVServerService.syncToServer()).data ?? [];
+            const { getChangedCVs } = useCVsStore.getState();
+            const changedCVs = getChangedCVs(); // syncing just the updated CVs
+
+            return (await CVServerService.syncToServer(changedCVs)).data ?? [];
         },
         onSuccess: (CVs) => {
             const { setFetchedCVs } = useCVsStore.getState();

@@ -138,6 +138,8 @@ export class RateLimitMiddleware {
             message: `Too many refresh token attempts, try again later! ${this.config.CHECK_AUTH_WINDOW_MS}`
         })
     }
-
-
 }
+
+const RateLimitInstance = new RateLimitMiddleware();
+
+export default RateLimitInstance;

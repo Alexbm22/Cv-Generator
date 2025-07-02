@@ -14,7 +14,7 @@ export class CVsService {
         userId: number, 
         CVs: ClientCVAttributes[], 
         next: NextFunction
-    ): Promise<ApiResponse<null>> {
+    ): Promise<ApiResponse<ClientCVAttributes[]>> {
         const candidateCVs = CVs.map((cv) => this.fromDTO(cv, userId)) as CVAttributes[];
 
         CV.bulkCreate(candidateCVs,{
@@ -24,6 +24,7 @@ export class CVsService {
         return {
             success: true,
             message: 'CVs created successfully',
+            data: CVs,
         };
     } 
 
@@ -92,11 +93,17 @@ export class CVsService {
             .filter((id): id is string => typeof id === 'string'); // filter out undefined; 
 
         if(cvsPublicIDs.length == 0){
-            return {
-                success: false,
-                message: 'No CVs passed'
-            };
+            const currentCVs = await this.getUserCVs(userId);
+                return {
+                    success: false,
+                    message: 'No CVs passed',
+                    data: currentCVs
+                }
         }
+        
+        const updatesByPublicId = new Map(
+            candidateCVUpdates.map((cvUpdate) => [cvUpdate.public_id, cvUpdate])
+        );
 
         const existingCVs = await CV.findAll({
             where: {
@@ -105,46 +112,48 @@ export class CVsService {
             }
         })
 
-        const updatesByPublicId = new Map(
-            candidateCVUpdates.map((cvUpdate) => [cvUpdate.public_id, cvUpdate])
-        );
 
         const updatePromises = existingCVs.map(async (existingCV) => {
-            const cvUpdate = updatesByPublicId.get(existingCV.public_id);
-            if(!cvUpdate) return;
+
+            const existingCVAttributes = existingCV.get()
+            const cvUpdate = updatesByPublicId.get(existingCVAttributes.public_id); // get the cv updated verion
+            if(!cvUpdate){
+                return existingCV;
+            } 
 
             // manage version conflicts
-            if(existingCV.version !== cvUpdate.version){
-                const currentCVsVersion = await this.getUserCVs(userId);
-                return {
-                    success: false,
-                    message: 'CV data conflicts',
-                    data: currentCVsVersion
-                }
+            if(existingCVAttributes.version !== cvUpdate.version){
+                return existingCV // returns the db version in this case
             }
 
-            // Calculate the changes
+            // getting just the updated fields 
             const fieldsToUpdate = this.calculateAttributeChanges<CVAttributes>(
-                existingCV.get(),
+                existingCVAttributes,
                 cvUpdate
             )
 
             // Only update if there are actual changes
             if(Object.keys(fieldsToUpdate).length > 0){
-                Object.assign(existingCV, fieldsToUpdate);
+                existingCV.set(fieldsToUpdate);
                 await existingCV.save();
+                return existingCV
             }
+
+            return existingCV;
         })
 
-        await Promise.all(updatePromises);
+        const updatedCVObjects = await Promise.all(updatePromises);
+        const updatedCVs = updatedCVObjects.map((cv) => this.toDTO(cv.get())); 
+        const userCVs = await this.getUserCVs(userId);
 
-        // the updated list of CVs 
-        const updatedCVs = await this.getUserCVs(userId);
+        const updatedCVMap = new Map(updatedCVs.map(cv => [cv.id, cv]));
+
+        const userUpdatedCVs = userCVs.map(cv => updatedCVMap.get(cv.id) ?? cv);
 
         return {
             success: true,
             message: 'CVs synced successfully',
-            data: updatedCVs
+            data: userUpdatedCVs
         }
     }
 

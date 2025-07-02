@@ -1,11 +1,12 @@
 import { debounce } from 'lodash';
-import { StoreApi } from 'zustand';
+import { StoreApi } from 'zustand'; 
+import { v4 as uuid } from 'uuid';
 import { CVEditStore, CVTemplates } from '../../interfaces/cv_interface';
 
 export const storeConfig = {
     defaultStates: {
-        CVObject: {
-            id: '',
+        CVObject: () => ({
+            id: uuid(),
             title: '',
             template: CVTemplates.CASTOR,
             professionalSummary: '',
@@ -27,8 +28,9 @@ export const storeConfig = {
             address: '',
             birthDate: new Date(),
             socialLinks: [],
-            updatedAt: null
-        }
+            updatedAt: null,
+            version: 0,
+        })
     },
     middlewareOptions: {
         debouncedCVAutoSave : {

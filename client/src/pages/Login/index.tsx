@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
-import { useLogin } from "../../hooks/useAuth";
+import { useAuthAndSync } from "../../hooks/useAuth";
 import { useAuthStore } from '../../Store'
 import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
 
 const Login: React.FC = () =>{
 
-    const { mutate, isPending } = useLogin();
-    const { setIsLoadingAuth } = useAuthStore.getState();
+    const { setIsLoadingAuth, login } = useAuthStore.getState();
+    const { mutate: mutateLogin, isPending } = useAuthAndSync(login);
 
     useEffect(() => {
         setIsLoadingAuth(isPending);
@@ -16,7 +16,7 @@ const Login: React.FC = () =>{
         <>
             <GoogleLoginBtn/>
             <button onClick={() => {
-                mutate({
+                mutateLogin({
                     email: 'alexandrub687@gmail.com',
                     password: 'C@,s22eva.2',
                 })

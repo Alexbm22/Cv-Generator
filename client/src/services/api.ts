@@ -59,9 +59,7 @@ class ApiService {
         if(isTokenExpired() || !token){
           try {
             setIsLoadingAuth(true); // Set loading state
-            const newToken: TokenClientData =  await this.refreshTokenOnce().finally(() =>{
-              this.refreshingPromise = undefined; // Reset the promise after refresh
-            });
+            const newToken: TokenClientData =  await this.refreshTokenOnce()
 
             if (typeof newToken.accessToken !== 'string' || !newToken) {
               // to implement logging error handling 
@@ -80,6 +78,7 @@ class ApiService {
           }
           finally{
             setIsLoadingAuth(false); // Reset loading state
+            this.refreshingPromise = undefined; // Reset the promise after refresh
           }
         } else  {
           config.headers.Authorization = `Bearer ${token.accessToken}`;
@@ -121,9 +120,7 @@ class ApiService {
           try {
             setIsLoadingAuth(true); // Set loading state
 
-            const newToken = await this.refreshTokenOnce().finally(() =>{
-              this.refreshingPromise = undefined; // Reset the promise after refresh
-            });
+            const newToken = await this.refreshTokenOnce();
 
             const { setAuthState } = useAuthStore.getState();
             setAuthState(newToken);
@@ -137,6 +134,7 @@ class ApiService {
           }
           finally{
             setIsLoadingAuth(false); // Reset loading state
+            this.refreshingPromise = undefined; // Reset the promise after refresh
           }
         }
         
@@ -162,9 +160,7 @@ class ApiService {
         withCredentials: true,
       });
 
-      const response = await refreshClient.post('/auth/refresh_token', {}, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await refreshClient.get('/auth/refresh_token');
 
       // Validate response structure
       if (!response.data?.token?.accessToken) {

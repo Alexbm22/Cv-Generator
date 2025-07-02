@@ -1,13 +1,13 @@
 import { StoreApi } from "zustand";
 import { CVStore } from "../interfaces/cv_interface";
 import { useAuthStore, useCVsStore, useErrorStore } from "../Store";
-import CVServerService from "./CVServerService";
+import { CVServerService } from "./CVServer";
 import { AppError } from "./Errors";
 import { ErrorTypes } from "../interfaces/error_interface";
 import { saveToIndexedDB } from "../lib/indexedDB/cvStore";
 
 export class CVLocalService {
-    private static isProcessing= false;
+    private static isProcessing = false;
 
     public static async persistAllCVs(api: StoreApi<CVStore>) {    
 
@@ -23,11 +23,9 @@ export class CVLocalService {
         if(!isAuthenticated) return;
 
         if(isSyncStale()) {
-
-            console.log("last sync a expirat");
-
             try {
-                const res = await CVServerService.syncToServer();
+                const { CVs } = useCVsStore.getState();
+                const res = await CVServerService.syncToServer(CVs);
                 if(res.data){
                     const { setFetchedCVs } = api.getState();
                     setFetchedCVs(res.data);

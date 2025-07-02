@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { useRegistration } from "../../hooks/useAuth";
+import { useAuthAndSync } from "../../hooks/useAuth";
 import { useAuthStore } from '../../Store'
 
 const SignUp: React.FC = () =>{
 
-    const { mutate, isPending } = useRegistration();
-    const { setIsLoadingAuth } = useAuthStore.getState();
+    const { setIsLoadingAuth, register } = useAuthStore.getState();
+    const { mutate: mutateRegister, isPending } = useAuthAndSync(register);
 
     useEffect(() => {
         setIsLoadingAuth(isPending);
@@ -14,7 +14,7 @@ const SignUp: React.FC = () =>{
     return (
         <>
             <button onClick={() => {
-                mutate({
+                mutateRegister({
                     username: 'john',
                     email: 'johnDe@gmail.com',
                     password: 'C@,s22eva.2',

@@ -1,11 +1,10 @@
 import { create } from 'zustand';
 import { devtools } from "zustand/middleware";
 import { AuthResponse, AuthStore, loginDto, registerDto, TokenClientData } from '../interfaces/auth_interface'
-import { UserObj } from '../interfaces/user_interface';
-import { apiService } from '../services/api';
 import { useUserStore } from './useUserStore';
 import { CredentialResponse } from '@react-oauth/google';
 import { routes } from '../config/routes';
+import { AuthService } from '../services/auth';
 
 export const useAuthStore = create<AuthStore>()(
     devtools<AuthStore>((set, get) => ({
@@ -28,24 +27,35 @@ export const useAuthStore = create<AuthStore>()(
             token: null, 
         }),
 
+        handleAuthSuccess(authResponse: AuthResponse) {
+            const setAuthState = get().setAuthState;
+            const { setUserData } = useUserStore.getState();
+            const token = authResponse.data?.token;
+            const userData = authResponse.data?.user;
+
+            if(token && userData) {
+              setAuthState(token);
+              setUserData(userData)
+            }
+        },
+
+        setToken: (token: TokenClientData) => set({token: token}),
+
         isTokenExpired: () => {
             const { token } = get();
             return token ? new Date() >= token.tokenExpiry : true;
         },
 
         googleLogin: async (googleResponse: CredentialResponse): Promise<AuthResponse> => {
-            return await apiService.post<AuthResponse, CredentialResponse>(
-                '/auth/google_login', 
-                googleResponse
-            ) // sending the id token to the server
+            return await AuthService.googleLogin(googleResponse);
         },
 
         login: async (loginDto: loginDto): Promise<AuthResponse> => {
-            return await apiService.post<AuthResponse, loginDto>('/auth/login', loginDto);
+            return await AuthService.login(loginDto);
         },
 
         register: async (registerDto: registerDto): Promise<AuthResponse> => {
-            return await apiService.post<AuthResponse, registerDto>('/auth/register', registerDto);
+            return await AuthService.register(registerDto);
         },
 
         logout: async (): Promise<AuthResponse> => {
@@ -54,7 +64,7 @@ export const useAuthStore = create<AuthStore>()(
             get().clearAuth();
             clearUserData(); 
 
-            return await apiService.post<AuthResponse, UserObj>('/auth/logout', getUserObj());
+            return await AuthService.logout(getUserObj());
         },
 
         forceLogout: async () => {
@@ -66,7 +76,7 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         checkAuth: async (): Promise<AuthResponse> => {
-            return await apiService.get<AuthResponse>('/auth/check_auth');
+            return await AuthService.checkAuth();
         }
 
     }), { 

@@ -13,9 +13,12 @@ export interface registerDto {
     password: string;
 }
 
+export type AuthCredentials = registerDto | loginDto | CredentialResponse;
+
 export interface AuthResponseData {
-    user: UserObj
-    token: TokenClientData
+    user: UserObj;
+    token?: TokenClientData;
+    firstAuth?: boolean;
 }
 
 export interface TokenClientData {
@@ -35,7 +38,9 @@ export interface AuthStoreActions {
     setIsLoadingAuth: (isLoadingAuth: boolean) => void,
     setAuthState: (token: TokenClientData) => void
     clearAuth: () => void,
+    setToken: (token: TokenClientData) => void,
     isTokenExpired: () => boolean,
+    handleAuthSuccess: (authResponse: AuthResponse) => void;
     googleLogin: (googleResponse: CredentialResponse) => Promise<AuthResponse>,
     login: (loginDto: loginDto) => Promise<AuthResponse>,
     register: (registerDto: registerDto) => Promise<AuthResponse>,

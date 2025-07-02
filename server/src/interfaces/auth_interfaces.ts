@@ -26,8 +26,9 @@ export interface GoogleUserPayload {
 }
 
 export interface AuthResponseData {
-    user?: UserData
-    token?: TokenClientData
+    user: UserData
+    token?: TokenClientData,
+    firstAuth?: boolean, 
 }
 
 export interface AuthResponse extends ApiResponse<AuthResponseData> {}
