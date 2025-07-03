@@ -1,19 +1,26 @@
-import { ErrorData, ErrorTypes } from "../interfaces/error_interface";
+import { ErrorTypes } from "../interfaces/error_interface";
 
 export class AppError extends Error{
     public statusCode: number;
-    public errors?: ErrorData[];
+    public field?: string;
     public errType: ErrorTypes;
+    public message: string;
 
     constructor(
         message: string,
         statusCode: number,
         errType: ErrorTypes,
-        errors?: ErrorData[]
+        field?: string
     ) {
-        super(message);
+        super(message)
+        this.message = message
         this.errType = errType;
         this.statusCode = statusCode;
-        this.errors = errors; 
+        this.field = field; 
     }
+
+    static validation(message: string, field: string): AppError {
+        return new AppError(message, 400, ErrorTypes.VALIDATION_ERR, field);
+    }
+
 }

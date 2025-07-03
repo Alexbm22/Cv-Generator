@@ -138,6 +138,7 @@ class ApiService {
           }
         }
         
+        this.handleAPIError(error as APIError)
         return Promise.reject(error);
       }
     );
@@ -180,20 +181,26 @@ class ApiService {
   }
   
   private handleAPIError (error: APIError) {
-    console.error('API Error:', error);
     const statusCode = error.response?.status || 500;
     const message = error.response?.data?.message || 'An unexpected error occurred';
-    const errors = error.response?.data?.errors;
     const errType = error.response?.data?.errType || ErrorTypes.INTERNAL_ERR;
+    const errors = error.response?.data?.errors;
+
+    if(errors){
+      errors.forEach((err) => {
+        const errorObj = AppError.validation(err.message, err.param);
+        useErrorStore.getState().addError(errorObj);
+      })
+    } else {
+      const errorObj = new AppError(
+        message,
+        statusCode,
+        errType
+      )
+
+      useErrorStore.getState().addError(errorObj);
+    }
   
-    const errorObj = new AppError(
-      message,
-      statusCode,
-      errType,
-      errors
-    )
-  
-    useErrorStore.getState().addError(errorObj);
   }
 
   async get<T>(url: string): Promise<T> {

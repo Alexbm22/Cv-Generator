@@ -3,7 +3,7 @@ import { devtools } from "zustand/middleware";
 import { AuthResponse, AuthStore, loginDto, registerDto, TokenClientData } from '../interfaces/auth_interface'
 import { useUserStore } from './useUserStore';
 import { CredentialResponse } from '@react-oauth/google';
-import { routes } from '../config/routes';
+import { routes } from '../router/routes';
 import { AuthService } from '../services/auth';
 
 export const useAuthStore = create<AuthStore>()(

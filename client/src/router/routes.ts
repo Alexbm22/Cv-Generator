@@ -16,3 +16,9 @@ export const routes = {
     editResume: { path: '/resumes/edit/:id', element: CVEditPage, protected: false },
     notFound: { path: '*', element: NotFoundPage, protected: false },
 };
+
+export interface route {
+    path: string;
+    element: React.FC<{}>;
+    protected: boolean;
+}

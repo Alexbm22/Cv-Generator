@@ -1,7 +1,10 @@
-import React, { useEffect } from "react";
-import { useAuthAndSync } from "../../hooks/useAuth";
+import React, { useEffect, useState } from "react";
+import { useAuthAndSync, useFormSubmission } from "../../hooks/useAuth";
 import { useAuthStore } from '../../Store'
 import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
+import { TextInputField } from "../../components/UI";
+import { loginSchema } from "../../utils/validations";
+import { loginDto } from "../../interfaces/auth_interface";
 
 const Login: React.FC = () =>{
 
@@ -12,15 +15,66 @@ const Login: React.FC = () =>{
         setIsLoadingAuth(isPending);
     }, [isPending]);
 
+    const [ showPassword, setShowPassword ] = useState(false);
+    const toggleShowPassword = () => {
+        setShowPassword((showPassword) => !showPassword)
+    }
+
+    const [ formData, setFormData ] = useState<loginDto>({
+        email: '',
+        password: ''
+    })
+
+    const handleSubmit = useFormSubmission(
+        loginSchema,
+        mutateLogin,
+        (data: loginDto)=> ({
+            ...data,
+            email: data.email.trim().toLowerCase()
+        })
+    )
+
     return (
         <>
+            <form onSubmit={(e) => {
+                handleSubmit(formData)(e)
+            }}>
+
+                <TextInputField 
+                    name="email" 
+                    type="email"
+                    id="email"
+                    label="email"
+                    placeholder="yourEmail@gmail.com"
+                    value={formData.email}
+                    onChange={(e) => {
+                        setFormData((formData) => ({
+                            ...formData,
+                            [e.target.name]: e.target.value
+                        }))
+                    }}
+                />
+
+                <TextInputField 
+                    name="password" 
+                    type={ showPassword ? 'text' : "password" } 
+                    id="password"
+                    label="password"
+                    placeholder="your password"
+                    value={formData.password}
+                    onChange={(e) => {
+                        setFormData((formData) => ({
+                            ...formData,
+                            [e.target.name]: e.target.value
+                        }))
+                    }}
+                />
+
+                <button onClick={toggleShowPassword}>view</button>
+                <button type="submit">Submit</button>
+            </form>
+
             <GoogleLoginBtn/>
-            <button onClick={() => {
-                mutateLogin({
-                    email: 'alexandrub687@gmail.com',
-                    password: 'C@,s22eva.2',
-                })
-            }}>Apasa</button>
         </>
     )
 }

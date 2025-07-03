@@ -1,10 +1,10 @@
-import { BrowserRouter as Router, Routes, Route  } from 'react-router-dom'
-import { routes } from './config/routes'
 import { useCheckAuth } from './hooks/useAuth';
 import { useHydrateCVs, useFetchCVs } from './hooks/useCVs';
 import { useAuthStore, useCVsStore } from './Store';
 import { useEffect } from 'react';
+
 import './index.css';
+import AppRoutes from './router/AppRoutes';
 
 function App() {
 
@@ -34,17 +34,7 @@ function App() {
   }, [isAuthenticated])
 
   return (
-    <>
-      <Router>
-        <Routes>
-          {
-            Object.entries(routes).map(([key, config]) => (
-              <Route key={key} path={config.path} element={<config.element />} />
-            ))
-          }
-        </Routes>
-      </Router>
-    </>
+    <AppRoutes/>
   )
 }
 

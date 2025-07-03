@@ -1,10 +1,28 @@
 import { useMutation } from '@tanstack/react-query';
-import { useAuthStore, useCVsStore } from '../Store';
+import { useAuthStore, useCVsStore, useErrorStore } from '../Store';
 import { AuthResponse, AuthCredentials } from '../interfaces/auth_interface';
 import { APIError } from '../interfaces/api_interface';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '../config/routes';
+import { routes } from '../router/routes';
 import { CVServerService } from '../services/CVServer';
+import * as yup from 'yup';
+
+export const useFormSubmission = <T>(
+    schema: yup.ObjectSchema<{}, T, {}, "">,
+    onSubmit: (formData: T) => void,
+    sanitizeData: (data: T) => T
+) => {
+    return (formData: T) => (e: React.FormEvent<HTMLElement>) => {
+        e.preventDefault();
+        try {
+            schema.validateSync(formData, { abortEarly: false })
+            const processedData = sanitizeData ? sanitizeData(formData) : formData
+            onSubmit(processedData)
+        } catch (error) {
+            useErrorStore.getState().handleValidationError(error);
+        }
+    }
+}
 
 // to do an initial data sync with all user settings
 export const useInitialDataSync = () => {

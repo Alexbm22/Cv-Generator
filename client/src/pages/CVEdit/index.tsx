@@ -4,7 +4,7 @@ import { useCvEditStore, useCVsStore } from "../../Store";
 import { CVAttributes } from "../../interfaces/cv_interface";
 import CVEditorForm  from "../../components/features/CVEditor/CVForm";
 import CVPreview from "../../components/features/CVEditor/CVPreview";
-import { routes } from "../../config/routes";
+import { routes } from "../../router/routes";
 
 const CVEditPage: React.FC = () => {
     

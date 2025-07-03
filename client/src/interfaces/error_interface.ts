@@ -15,11 +15,6 @@ export enum ErrorTypes {
     BAD_REQUEST = "BAD_REQUEST",
 }
 
-export interface ErrorData {
-    message: string;
-    param: string;
-}
-
 export interface ErrorStoreAttributes {
     errors: AppError[];
 }
@@ -27,7 +22,7 @@ export interface ErrorStoreAttributes {
 export interface ApiErrorResponse {
     message: string;
     errType: ErrorTypes;
-    errors?: ErrorData[]; 
+    field?: string;
 }
 
 export interface ApiError extends AxiosError<ApiErrorResponse> {}
@@ -36,6 +31,13 @@ export interface ErrorStoreActions {
     addError: (error: AppError) => void;
     clearErrors: () => void;
     removeError: (index: number) => void;
+    removeFieldError: (field: string) => void;
+    handleValidationError: (error: unknown) => void;
 }
 
 export interface ErrorStore extends ErrorStoreActions, ErrorStoreAttributes {}
+
+export interface ErrorData {
+    message: string;
+    param: string;
+}
