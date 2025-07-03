@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { ErrorData, ErrorTypes } from './error_interface';
+import { ApiErrorData, ErrorTypes } from './error_interface';
 
 export interface ApiResponse<T> {
     success: boolean,
@@ -7,10 +7,10 @@ export interface ApiResponse<T> {
     data?: T,
 }
 
-export interface ApiErrorData {
-    errors?: ErrorData[],
+export interface ApiErrorObject {
+    errors?: ApiErrorData[],
     message: string,
     errType: ErrorTypes;
 }
 
-export interface APIError extends AxiosError<ApiErrorData> {}
+export interface APIError extends AxiosError<ApiErrorObject> {}

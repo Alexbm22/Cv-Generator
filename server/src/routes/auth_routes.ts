@@ -19,14 +19,14 @@ router.post(
 router.post(
     '/login',
     RateLimitInstance.loginLimit(),
-    Validate('Login' ,loginRules),
+    Validate('login' ,loginRules),
     catchAsync(authController.login.bind(authController))
 )
 
 router.post(
     '/register',
     RateLimitInstance.registerLimit(),
-    Validate('Register', registrationRules),
+    Validate('register', registrationRules),
     catchAsync(authController.register.bind(authController))
 )
 

@@ -14,12 +14,14 @@ export const useFormSubmission = <T>(
 ) => {
     return (formData: T) => (e: React.FormEvent<HTMLElement>) => {
         e.preventDefault();
+
         try {
             schema.validateSync(formData, { abortEarly: false })
             const processedData = sanitizeData ? sanitizeData(formData) : formData
             onSubmit(processedData)
         } catch (error) {
-            useErrorStore.getState().handleValidationError(error);
+            const form = e.target as HTMLFormElement;
+            useErrorStore.getState().handleValidationError(error, form.name!);
         }
     }
 }

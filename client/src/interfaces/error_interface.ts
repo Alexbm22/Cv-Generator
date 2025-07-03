@@ -22,7 +22,12 @@ export interface ErrorStoreAttributes {
 export interface ApiErrorResponse {
     message: string;
     errType: ErrorTypes;
-    field?: string;
+    field?: FieldError;
+}
+
+export interface FieldError {
+    param: string;
+    formOrigin: string;
 }
 
 export interface ApiError extends AxiosError<ApiErrorResponse> {}
@@ -31,13 +36,14 @@ export interface ErrorStoreActions {
     addError: (error: AppError) => void;
     clearErrors: () => void;
     removeError: (index: number) => void;
-    removeFieldError: (field: string) => void;
-    handleValidationError: (error: unknown) => void;
+    removeFieldError: (field: FieldError) => void;
+    handleValidationError: (error: unknown, formOrigin: string) => void;
 }
 
 export interface ErrorStore extends ErrorStoreActions, ErrorStoreAttributes {}
 
-export interface ErrorData {
+export interface ApiErrorData {
     message: string;
     param: string;
+    formOrigin: string;
 }

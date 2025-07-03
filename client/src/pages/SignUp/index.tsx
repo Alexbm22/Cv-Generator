@@ -37,19 +37,18 @@ const SignUp: React.FC = () =>{
 
     return (
         <>
-            <form onSubmit={(e) => {
+            <form name="register" onSubmit={(e) => {
                 handleSubmit(formData)(e)
             }}>
 
                 <Field 
                     name="username" 
                     type="input"
-                    id="username"
+                    formOrigin="register"
                     label="Username"
                     placeholder="your username"
                     value={formData.username}
                     onChange={(e) => {
-                        
                         setFormData((formData) => ({
                             ...formData,
                             [e.target.name]: e.target.value
@@ -60,7 +59,7 @@ const SignUp: React.FC = () =>{
                 <Field 
                     name="email" 
                     type="email"
-                    id="email"
+                    formOrigin="register"
                     label="email"
                     placeholder="yourEmail@gmail.com"
                     value={formData.email}
@@ -75,7 +74,7 @@ const SignUp: React.FC = () =>{
                 <Field 
                     name="password" 
                     type={ showPassword ? 'text' : "password" } 
-                    id="password"
+                    formOrigin="register"
                     label="password"
                     placeholder="your password"
                     value={formData.password}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuthAndSync, useFormSubmission } from "../../hooks/useAuth";
 import { useAuthStore } from '../../Store'
 import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
-import { TextInputField } from "../../components/UI";
+import Field from '../../components/features/AuthForm/formField'
 import { loginSchema } from "../../utils/validations";
 import { loginDto } from "../../interfaces/auth_interface";
 
@@ -36,14 +36,14 @@ const Login: React.FC = () =>{
 
     return (
         <>
-            <form onSubmit={(e) => {
+            <form name='login' onSubmit={(e) => {
                 handleSubmit(formData)(e)
             }}>
 
-                <TextInputField 
+                <Field 
                     name="email" 
                     type="email"
-                    id="email"
+                    formOrigin="login"
                     label="email"
                     placeholder="yourEmail@gmail.com"
                     value={formData.email}
@@ -55,10 +55,10 @@ const Login: React.FC = () =>{
                     }}
                 />
 
-                <TextInputField 
+                <Field 
                     name="password" 
                     type={ showPassword ? 'text' : "password" } 
-                    id="password"
+                    formOrigin="login"
                     label="password"
                     placeholder="your password"
                     value={formData.password}

@@ -1,8 +1,8 @@
-import { ErrorTypes } from "../interfaces/error_interface";
+import { ErrorTypes, FieldError } from "../interfaces/error_interface";
 
 export class AppError extends Error{
     public statusCode: number;
-    public field?: string;
+    public field?: FieldError;
     public errType: ErrorTypes;
     public message: string;
 
@@ -10,7 +10,7 @@ export class AppError extends Error{
         message: string,
         statusCode: number,
         errType: ErrorTypes,
-        field?: string
+        field?: FieldError
     ) {
         super(message)
         this.message = message
@@ -19,8 +19,8 @@ export class AppError extends Error{
         this.field = field; 
     }
 
-    static validation(message: string, field: string): AppError {
-        return new AppError(message, 400, ErrorTypes.VALIDATION_ERR, field);
+    static validation(message: string, param: string, formOrigin: string): AppError {
+        return new AppError(message, 400, ErrorTypes.VALIDATION_ERR, {param, formOrigin});
     }
 
 }
