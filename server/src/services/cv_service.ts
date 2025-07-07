@@ -10,7 +10,7 @@ import { randomUUID } from "crypto";
 
 export class CVsService {
 
-    async createCVs(
+    static async createCVs(
         userId: number, 
         CVs: ClientCVAttributes[], 
         next: NextFunction
@@ -28,7 +28,7 @@ export class CVsService {
         };
     } 
 
-    async createDefaultCV(userId: number): Promise<ApiResponse<ClientCVAttributes>> {
+    static async createDefaultCV(userId: number): Promise<ApiResponse<ClientCVAttributes>> {
         const publicId = randomUUID();
 
         const createdCV = await CV.create({
@@ -69,7 +69,7 @@ export class CVsService {
         };
     }
 
-    async getAllCVs(userId: number, next: NextFunction): Promise<ApiResponse<ClientCVAttributes[]>> {
+    static async getAllCVs(userId: number, next: NextFunction): Promise<ApiResponse<ClientCVAttributes[]>> {
 
         const cvDTOs = await this.getUserCVs(userId);
 
@@ -80,27 +80,26 @@ export class CVsService {
         }
     }
 
-    async syncCVs(
+    static async syncCVs(
         userId: number, 
         incomingCVs: ClientCVAttributes[], 
         next: NextFunction
     ): Promise<ApiResponse<ClientCVAttributes[]>> {
+
+        if(incomingCVs.length == 0){
+            return {
+                success: true,
+                message: 'No CVs passed',
+            }
+        }
+        
         // Transform DTOs to domain objects
-        const candidateCVUpdates  = incomingCVs.map((cv) => this.fromDTO(cv, userId));
+        const candidateCVUpdates = incomingCVs.map((cv) => this.fromDTO(cv, userId));
     
         const cvsPublicIDs = candidateCVUpdates 
             .map((cv) => cv.public_id) 
             .filter((id): id is string => typeof id === 'string'); // filter out undefined; 
 
-        if(cvsPublicIDs.length == 0){
-            const currentCVs = await this.getUserCVs(userId);
-                return {
-                    success: false,
-                    message: 'No CVs passed',
-                    data: currentCVs
-                }
-        }
-        
         const updatesByPublicId = new Map(
             candidateCVUpdates.map((cvUpdate) => [cvUpdate.public_id, cvUpdate])
         );
@@ -112,24 +111,23 @@ export class CVsService {
             }
         })
 
+        if(this.hasVersionConflicts(existingCVs, updatesByPublicId)) {
+            const userCVs = await this.getUserCVs(userId);
+            return {
+                success: false,
+                message: "CVs version conflicts detected!",
+                data: userCVs // return db CVs current version
+            }
+        }
 
         const updatePromises = existingCVs.map(async (existingCV) => {
-
-            const existingCVAttributes = existingCV.get()
+            const existingCVAttributes = existingCV.get();
             const cvUpdate = updatesByPublicId.get(existingCVAttributes.public_id); // get the cv updated verion
-            if(!cvUpdate){
-                return existingCV;
-            } 
-
-            // manage version conflicts
-            if(existingCVAttributes.version !== cvUpdate.version){
-                return existingCV // returns the db version in this case
-            }
 
             // getting just the updated fields 
             const fieldsToUpdate = this.calculateAttributeChanges<CVAttributes>(
                 existingCVAttributes,
-                cvUpdate
+                cvUpdate!
             )
 
             // Only update if there are actual changes
@@ -143,21 +141,14 @@ export class CVsService {
         })
 
         const updatedCVObjects = await Promise.all(updatePromises);
-        const updatedCVs = updatedCVObjects.map((cv) => this.toDTO(cv.get())); 
-        const userCVs = await this.getUserCVs(userId);
-
-        const updatedCVMap = new Map(updatedCVs.map(cv => [cv.id, cv]));
-
-        const userUpdatedCVs = userCVs.map(cv => updatedCVMap.get(cv.id) ?? cv);
-
+        
         return {
             success: true,
-            message: 'CVs synced successfully',
-            data: userUpdatedCVs
+            message: 'CVs synced successfully'
         }
     }
 
-    async deleteCV(
+    static async deleteCV(
         user: UserAttributes, 
         cvId: string, 
         next: NextFunction
@@ -183,7 +174,7 @@ export class CVsService {
         }
     }
 
-    private async getUserCVs(userId: number) {
+    private static async getUserCVs(userId: number) {
         const CVs = await CV.findAll({
             where: {
                 userId: userId
@@ -197,7 +188,7 @@ export class CVsService {
         return cvDTOs;
     }
 
-    private calculateAttributeChanges<T extends object>(
+    private static calculateAttributeChanges<T extends object>(
         originalAttributes: T,
         updatedAttributes: Partial<T>
     ): Partial<T> {
@@ -216,7 +207,21 @@ export class CVsService {
         return changedAttributes;
     }
 
-    private fromDTO(cv: ClientCVAttributes, userId: number): Partial<CVAttributes> {
+    private static hasVersionConflicts(
+        dbCVs: CV[],
+        updatesByPublicId: Map<string | undefined, Partial<CVAttributes>>
+    ) {
+        const hasVersionConflicts = dbCVs.find((existingCV) => {
+            const existingCVAttributes = existingCV.get();
+            const cvUpdate = updatesByPublicId.get(existingCVAttributes.public_id);
+
+            return existingCV.version !== cvUpdate?.version;
+        })
+
+        return hasVersionConflicts;
+    }
+
+    private static fromDTO(cv: ClientCVAttributes, userId: number): Partial<CVAttributes> {
         return {
             public_id: cv.id ?? randomUUID(),
             title: cv.title,
@@ -246,7 +251,7 @@ export class CVsService {
         }
     }
 
-    private toDTO(cv: CVAttributes): ClientCVAttributes {
+    private static toDTO(cv: CVAttributes): ClientCVAttributes {
         return {
             id: cv.public_id,
             title: cv.title,

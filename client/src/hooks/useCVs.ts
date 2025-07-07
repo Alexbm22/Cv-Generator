@@ -6,6 +6,7 @@ import { AppError } from "../services/Errors";
 import { ApiError, ErrorTypes } from "../interfaces/error_interface";
 import { CVServerService } from "../services/CVServer";
 import { storeConfig } from "../Store/config/storeConfig";
+import { ApiResponse } from "../interfaces/api_interface";
 
 export const useCreateCV = () => {
     const addCV = useCVsStore(state => state.addCV);
@@ -32,16 +33,20 @@ export const useHydrateCVs = () => {
 }
 
 export const useSyncToServer = () => {
-    return useMutation<CVAttributes[], ApiError>({
+    return useMutation<ApiResponse<CVAttributes[] | null>, ApiError>({
         mutationFn: async () => {
             const { getChangedCVs } = useCVsStore.getState();
             const changedCVs = getChangedCVs(); // syncing just the updated CVs
 
-            return (await CVServerService.syncToServer(changedCVs)).data ?? [];
+            return await CVServerService.syncToServer(changedCVs);
         },
-        onSuccess: (CVs) => {
-            const { setFetchedCVs } = useCVsStore.getState();
-            setFetchedCVs(CVs);
+        onSuccess: (syncRes) => {
+            if(!syncRes.success && syncRes.data) {
+                const CVs = syncRes.data;
+                
+                const { setFetchedCVs } = useCVsStore.getState();
+                setFetchedCVs(CVs);
+            }
         },
         onError: (error) => {
             const err = new AppError(

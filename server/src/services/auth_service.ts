@@ -32,6 +32,7 @@ export class AuthServices {
         const TokenPayload = await this.googleServices.verifyGoogleToken(IdToken);
 
         let user = await User.findOne({ where: { email: TokenPayload.email }});
+        const isNewUser = !user;
 
         if (!user) { // Registering the new Google account
             const {
@@ -79,7 +80,8 @@ export class AuthServices {
             message: 'Login successfully',
             data: {
                 user: user.safeUser() as UserData,
-                token: accessToken
+                token: accessToken,
+                firstAuth: isNewUser
             }
         };
     }
@@ -167,6 +169,10 @@ export class AuthServices {
     }
 
     async logout(user: UserData, res: Response, next: NextFunction): Promise<AuthResponse | void> {
+        if (!user) {
+            return next(new AppError('User not provided', 401, ErrorTypes.UNAUTHORIZED));
+        }
+
         const userToLogout = await User.findOne({ where: { email: user.email } });
         if (!userToLogout) {
             return next(new AppError('User not found', 404, ErrorTypes.NOT_FOUND));

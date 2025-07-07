@@ -1,57 +1,64 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { CVsService } from "../services/cv_service";
-import { ClientCVAttributes, CVAttributes } from '../interfaces/cv_interface';
+import { ClientCVAttributes } from '../interfaces/cv_interface';
 import { AuthRequest } from '../interfaces/auth_interfaces';
 import { AppError } from '../middleware/error_middleware';
-import { ErrorTypes } from '@/interfaces/error_interface';
+import { ErrorTypes } from '../interfaces/error_interface';
 
 
 export class CVsController {
-    private CVsService: CVsService;
 
-    constructor() {
-        this.CVsService = new CVsService();
-    }
-
-    async createCVs(req: AuthRequest, res: Response, next: NextFunction) {
+    static async import(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
-        const CVs: ClientCVAttributes[] = req.body;
+        const cvs: ClientCVAttributes[] = req.body;
 
-        const createCVsResult = await this.CVsService.createCVs(user.id, CVs, next);
+        if (!Array.isArray(cvs)) {
+            return next(new AppError('Invalid CV data format.', 400, ErrorTypes.BAD_REQUEST));
+        }
+
+        const createCVsResult = await CVsService.createCVs(user.id, cvs, next);
 
         return res.status(200).json(createCVsResult);
     }
 
-    async createNewCV(req: AuthRequest, res: Response, next: NextFunction) {
+    static async create(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
 
-        const createCVResult = await this.CVsService.createDefaultCV(user.id);
+        const createCVResult = await CVsService.createDefaultCV(user.id);
 
         return res.status(200).json(createCVResult)
     }
 
-    async getCVs(req: AuthRequest, res: Response, next: NextFunction) {
+    static async getAll(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
 
-        const CVs = await this.CVsService.getAllCVs(user.id, next);
+        const CVs = await CVsService.getAllCVs(user.id, next);
 
         return res.status(200).json(CVs)
     }
 
-    async syncCVs(req: AuthRequest, res: Response, next: NextFunction) {
+    static async sync(req: AuthRequest, res: Response, next: NextFunction) {
         const clientCVs: ClientCVAttributes[] = req.body;
         const user = req.user;
 
-        const syncingResult = await this.CVsService.syncCVs(user.id, clientCVs, next);
+         if (!Array.isArray(clientCVs)) {
+            return next(new AppError('Invalid CV data format.', 400, ErrorTypes.BAD_REQUEST));
+        }
+
+        const syncingResult = await CVsService.syncCVs(user.id, clientCVs, next);
 
         return res.status(200).json(syncingResult);
     }
 
-    async deleteCV(req: AuthRequest, res: Response, next: NextFunction) {
-        const cvId = req.body;
+    static async delete(req: AuthRequest, res: Response, next: NextFunction) {
+        const cvId = req.params.id;
         const user = req.user;
 
-        const deleteResult = await this.CVsService.deleteCV(user, cvId, next);
+        if(!cvId) {
+            return next(new AppError("CV id is required!", 400, ErrorTypes.BAD_REQUEST))
+        }
+
+        const deleteResult = await CVsService.deleteCV(user, cvId, next);
 
         return res.status(200).json(deleteResult);
     }

@@ -25,12 +25,11 @@ class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttribut
     public updatedAt!: Date;
 
     public setPersonalData(data: PersonalDataAttributes):void {
-        console.error(data)
         this.setDataValue('encryptedPersonalData',  encrypt(JSON.stringify(data)));
     }
 
     public setVersion(version: number){
-        this.version = version;
+        this.setDataValue('version', version);
     }
 
     public getPersonalData(): PersonalDataAttributes | null {
@@ -113,6 +112,11 @@ CV.init({
             const personalData = cv.getDataValue('personalData')
             if (personalData) {
                 cv.setPersonalData(personalData);
+            }
+
+            const version = cv.getDataValue('version');
+            if(version) {
+                cv.setVersion(version + 1);
             }
         },
         afterFind: (cv: CV | CV[] | null) => {

@@ -6,8 +6,6 @@ import {
     registerDto
 } from '../interfaces/auth_interfaces';
 import { AuthServices } from '../services/auth_service';
-import { AppError } from '../middleware/error_middleware';
-import { ErrorTypes } from '../interfaces/error_interface';
 
 export class AuthController {
     private authServices: AuthServices;
@@ -42,10 +40,6 @@ export class AuthController {
 
     async logout(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
-
-        if (!user) {
-            return next(new AppError('User not provided', 401, ErrorTypes.UNAUTHORIZED));
-        }
 
         const logoutResult = await this.authServices.logout(user, res, next);
 

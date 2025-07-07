@@ -5,36 +5,34 @@ import { CVsController } from '../controllers/cv_controller';
 
 const router = express.Router();
 
-const CVsControllerInstance = new CVsController();
-
 router.get(
-    '/get_CVs',
+    '/cvs',
     RateLimitInstance.CVsRateLimit(),
-    catchAsync(CVsControllerInstance.getCVs.bind(CVsControllerInstance))
+    catchAsync(CVsController.getAll)
+)
+
+router.put(
+    '/cvs/sync',
+    RateLimitInstance.CVsRateLimit(),
+    catchAsync(CVsController.sync)
 )
 
 router.post(
-    '/sync_CVs',
+    '/cvs',
     RateLimitInstance.CVsRateLimit(),
-    catchAsync(CVsControllerInstance.syncCVs.bind(CVsControllerInstance))
+    catchAsync(CVsController.create)
 )
 
 router.post(
-    '/create_CV',
+    '/cvs/import',
     RateLimitInstance.CVsRateLimit(),
-    catchAsync(CVsControllerInstance.createNewCV.bind(CVsControllerInstance))
+    catchAsync(CVsController.import)
 )
 
-router.post(
-    '/create_existing_CVs',
+router.delete(
+    '/cvs/:id',
     RateLimitInstance.CVsRateLimit(),
-    catchAsync(CVsControllerInstance.createCVs.bind(CVsControllerInstance))
-)
-
-router.post(
-    '/delete_CV',
-    RateLimitInstance.CVsRateLimit(),
-    catchAsync(CVsControllerInstance.deleteCV.bind(CVsControllerInstance))
+    catchAsync(CVsController.delete)
 )
 
 export default router;

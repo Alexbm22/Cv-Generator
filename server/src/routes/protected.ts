@@ -3,6 +3,6 @@ import express from 'express';
 
 const router = express.Router();
 
-router.use('/cv', cv_routes);
+router.use(cv_routes);
 
 export default router;
