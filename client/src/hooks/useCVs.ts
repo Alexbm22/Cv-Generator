@@ -23,29 +23,22 @@ export const useCreateCV = () => {
     })
 }
 
-export const useHydrateCVs = () => {
-    const { isSyncStale } = useCVsStore.getState();
-    if(isSyncStale()) {
-        return useSyncToServer();
-    } else {
-        return useIndexedDBHydrate();
-    }
-}
-
 export const useSyncToServer = () => {
-    return useMutation<ApiResponse<CVAttributes[] | null>, ApiError>({
+    return useMutation<ApiResponse<CVAttributes[] | null> | null, ApiError>({
         mutationFn: async () => {
             const { getChangedCVs } = useCVsStore.getState();
             const changedCVs = getChangedCVs(); // syncing just the updated CVs
 
-            return await CVServerService.syncToServer(changedCVs);
+            return (changedCVs.length > 0 ? await CVServerService.syncToServer(changedCVs) : null)
         },
         onSuccess: (syncRes) => {
-            if(!syncRes.success && syncRes.data) {
+            if(!syncRes?.success && syncRes?.data) {
                 const CVs = syncRes.data;
                 
                 const { setFetchedCVs } = useCVsStore.getState();
                 setFetchedCVs(CVs);
+            } else {
+                useCVsStore.getState().setLastSynced(new Date().getTime());
             }
         },
         onError: (error) => {
@@ -73,13 +66,12 @@ export const useIndexedDBHydrate = () => {
             setdbHydrated(true);
         },
         onError: (error) => {
-                const err = new AppError(
-                error.response?.data.message || "Something went wrong!",
+            const err = new AppError(
+                error.response?.data.message || "Something went wrong!dfsfsdfsd",
                 error.response?.status || 500,
                 error.response?.data.errType || ErrorTypes.INTERNAL_ERR
             )
             useErrorStore.getState().addError(err);
-            useCVsStore.getState().setCVs([]);
         }
     })
 }

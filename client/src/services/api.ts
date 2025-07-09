@@ -100,7 +100,6 @@ class ApiService {
         }
 
         if (error.config.url?.includes('/check_auth')){
-          // If the request is to check_auth, we don't want to handle it as an error
           return Promise.reject(error);
         }
 

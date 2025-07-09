@@ -1,6 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { GoogleUserPayload } from '../interfaces/auth_interfaces'
 import { AppError } from "../middleware/error_middleware";
+import { ErrorTypes } from "../interfaces/error_interface";
 
 export class GoogleServices {
     private readonly CLIENT_ID: string;
@@ -18,17 +19,29 @@ export class GoogleServices {
         })
 
         if(!ticket) {
-            throw new AppError('Google ticket is null', 400)
+            throw new AppError(
+                'Google ticket is null', 
+                400,
+                ErrorTypes.INVALID_CREDENTIALS
+            )
         }
         
         const payload = ticket.getPayload();
 
         if(!payload) {
-            throw new AppError('Google ticket payload is null', 400)
+            throw new AppError(
+                'Google ticket payload is null',                
+                400,
+                ErrorTypes.INVALID_CREDENTIALS
+            )
         }
 
         if(!payload.email_verified) {
-            throw new AppError('Google account email not verified', 400)
+            throw new AppError(
+                'Google account email not verified', 
+                400,
+                ErrorTypes.INVALID_CREDENTIALS
+            )
         }
 
         const {

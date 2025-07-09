@@ -4,7 +4,7 @@ import RateLimitInstance from '../middleware/rate_limit_middleware';
 import { authMiddleware } from '../middleware/auth_middleware';
 import { Validate } from '../middleware/validation_middleware';
 import { registrationRules, loginRules } from '../validators/auth_validators';
-import { AuthController } from '../controllers/auth_controller';
+import { AuthController } from '../controllers/auth';
 import { AuthRequest } from '../interfaces/auth_interfaces';
 
 const router = express.Router();

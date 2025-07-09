@@ -118,7 +118,7 @@ export interface CVAttributes {
     template: CVTemplates;
     personalData?: PersonalDataAttributes | null,
     encryptedPersonalData: string
-    content: CVContentAttributes
+    content: CVContentAttributes,
     createdAt: Date,
     updatedAt: Date
 }

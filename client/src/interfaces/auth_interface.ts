@@ -35,6 +35,7 @@ export interface AuthStoreAttributes {
 }
 
 export interface AuthStoreActions {
+    clearAuthenticatedUser: () => void;
     setIsLoadingAuth: (isLoadingAuth: boolean) => void,
     setAuthState: (token: TokenClientData) => void
     clearAuth: () => void,

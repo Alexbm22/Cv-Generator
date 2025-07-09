@@ -5,12 +5,22 @@ import { useUserStore } from './useUserStore';
 import { CredentialResponse } from '@react-oauth/google';
 import { routes } from '../router/routes';
 import { AuthService } from '../services/auth';
+import { useCVsStore } from './useCVsStore';
 
 export const useAuthStore = create<AuthStore>()(
     devtools<AuthStore>((set, get) => ({
         isAuthenticated: false,
         isLoadingAuth: false,
         token: null,
+
+        clearAuthenticatedUser: () => {
+            const { clearUserData } = useUserStore.getState();
+            const { clearCVsData } = useCVsStore.getState();
+
+            get().clearAuth();
+            clearUserData(); 
+            clearCVsData();
+        },
 
         setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
 
@@ -59,16 +69,13 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         logout: async (): Promise<AuthResponse> => {
-            const { getUserObj, clearUserData } = useUserStore.getState();
-
-            get().clearAuth();
-            clearUserData(); 
-
+            const { getUserObj } = useUserStore.getState();
             return await AuthService.logout(getUserObj());
         },
 
         forceLogout: async () => {
             await get().logout();
+            get().clearAuthenticatedUser();
 
             if(window.location !== undefined){
                 window.location.href = routes.login.path; // Redirect to login page

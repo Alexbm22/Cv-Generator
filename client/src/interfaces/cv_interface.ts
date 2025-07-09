@@ -177,6 +177,7 @@ export interface CVStore {
     CVs: CVAttributes[];
     lastSynced: number | null;
     dbHydrated: boolean;
+    clearCVsData: () => void;
     setLastSynced: (time: number) => void;
     isSyncStale: () => boolean;
     getChangedCVs: () => CVAttributes[];

@@ -9,9 +9,9 @@ import {
 import { User } from '../models';
 import { Response, Request, NextFunction } from 'express';
 import { config } from 'dotenv'
-import { TokenServices } from './token_service';
-import { GoogleServices } from './google_services';
-import { UserServices } from './user_service';
+import { TokenServices } from './token';
+import { GoogleServices } from './google';
+import { UserServices } from './user';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error_interface';
 
@@ -29,82 +29,86 @@ export class AuthServices {
     }
 
     async googleLogin(IdToken: string, res: Response, next: NextFunction): Promise<AuthResponse | void> {
-        const TokenPayload = await this.googleServices.verifyGoogleToken(IdToken);
-
-        let user = await User.findOne({ where: { email: TokenPayload.email }});
-        const isNewUser = !user;
-
-        if (!user) { // Registering the new Google account
-            const {
-                given_name,
-                family_name,
-                email,
-                picture,
-                google_id
-            } = TokenPayload;
-
-            const username = await this.userServices.generateUsername(given_name, family_name)
-
-            user = await User.create({
-                username: username,
-                email: email,
-                authProvider: AuthProvider.GOOGLE,
-                lastLogin: new Date(),
-                googleId: google_id,
-                isActive: true,
-                profilePicture: picture
-            });
-        }
-        else {
-            if (!user.get('isActive')) {
-                return next( new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED));
-            }
-
-            if(!user.compareGoogleId(TokenPayload.google_id)) {
-                return next( new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS));
-            }
-
-            await User.update({
+        try {
+            const TokenPayload = await this.googleServices.verifyGoogleToken(IdToken);
+    
+            let user = await User.findOne({ where: { email: TokenPayload.email }});
+            const isNewUser = !user;
+    
+            if (!user) { // Registering the new Google account
+                const {
+                    given_name,
+                    family_name,
+                    email,
+                    picture,
+                    google_id
+                } = TokenPayload;
+    
+                const username = await this.userServices.generateUsername(given_name, family_name)
+    
+                user = await User.create({
+                    username: username,
+                    email: email,
+                    authProvider: AuthProvider.GOOGLE,
                     lastLogin: new Date(),
-                }, {
-                    where: { 
-                        id: user.id
-                },
-            });
-        }
-
-        const accessToken = await this.tokenServices.setTokens(user, res); 
-
-        return {
-            success: true,
-            message: 'Login successfully',
-            data: {
-                user: user.safeUser() as UserData,
-                token: accessToken,
-                firstAuth: isNewUser
+                    googleId: google_id,
+                    isActive: true,
+                    profilePicture: picture
+                });
             }
-        };
+            else {
+                if (!user.get('isActive')) {
+                    return next( new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED));
+                }
+    
+                if(!user.compareGoogleId(TokenPayload.google_id)) {
+                    return next( new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS));
+                }
+    
+                await User.update({
+                        lastLogin: new Date(),
+                    }, {
+                        where: { 
+                            id: user.id
+                    },
+                });
+            }
+    
+            const accessToken = await this.tokenServices.setTokens(user, res); 
+    
+            return {
+                success: true,
+                message: 'Login successfully',
+                data: {
+                    user: user.safeUser() as UserData,
+                    token: accessToken,
+                    firstAuth: isNewUser
+                }
+            };
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async login(data: loginDto, res: Response, next: NextFunction): Promise<AuthResponse | void> {
+    async login(data: loginDto, res: Response): Promise<AuthResponse | void> {
         const { email, password } = data;
 
         const user = await User.findOne({ where: { email }});
         if (!user) {
-            return next( new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS));
+            throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
         }
 
         if (!user.get('isActive')) {
-            return next( new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED));
+            throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
         }
 
         if (user.get('authProvider') !== 'local') {
-            return next( new AppError(`Please use ${user.get('authProvider')} login for this account`, 403, ErrorTypes.UNAUTHORIZED));
+            throw new AppError(`Please use ${user.get('authProvider')} login for this account`, 403, ErrorTypes.UNAUTHORIZED);
         }
 
         const isPasswordValid = await user.comparePasswords(password);
         if(!isPasswordValid){
-            return next( new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS));
+            throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
         }
 
         await User.update({
@@ -127,23 +131,23 @@ export class AuthServices {
         };
     }
 
-    async register(data: registerDto, res: Response, next: NextFunction): Promise<AuthResponse | void> {
+    async register(data: registerDto, res: Response): Promise<AuthResponse | void> {
         const { username, email, password } = data;
 
         // verifying if the email is used
         const existingUserByEmail = await User.findOne({ where: { email } });
         if (existingUserByEmail) {
-            return next( new AppError('Email already exists', 409, ErrorTypes.VALIDATION_ERR, {
+            throw new AppError('Email already exists', 409, ErrorTypes.VALIDATION_ERR, {
                 email: 'Email is already registered'
-            }));
+            });
         }
 
         // verifying if the username is used
         const existingUserByUsername = await User.findOne({ where: { username } });
         if (existingUserByUsername) {
-            return next( new AppError('Username is already taken', 409, ErrorTypes.VALIDATION_ERR, {
+            throw new AppError('Username is already taken', 409, ErrorTypes.VALIDATION_ERR, {
                 username: 'Username is already taken'
-            }));
+            });
         }
         
         const newUser = await User.create({
@@ -168,14 +172,14 @@ export class AuthServices {
         };
     }
 
-    async logout(user: UserData, res: Response, next: NextFunction): Promise<AuthResponse | void> {
+    async logout(user: UserData, res: Response): Promise<AuthResponse | void> {
         if (!user) {
-            return next(new AppError('User not provided', 401, ErrorTypes.UNAUTHORIZED));
+            throw new AppError('User not provided', 401, ErrorTypes.UNAUTHORIZED);
         }
 
         const userToLogout = await User.findOne({ where: { email: user.email } });
         if (!userToLogout) {
-            return next(new AppError('User not found', 404, ErrorTypes.NOT_FOUND));
+            throw new AppError('User not found', 404, ErrorTypes.NOT_FOUND);
         }
 
         await User.update({
@@ -194,13 +198,13 @@ export class AuthServices {
         };
     }
 
-    async refreshToken(req: Request, res: Response, next: NextFunction): Promise<AuthResponse | void> { // refreshing user tokens
+    async refreshToken(req: Request, res: Response): Promise<AuthResponse | void> { // refreshing user tokens
         // extract the user id from the refresh token
         const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
 
         if(!decodedToken){
             res.clearCookie('refreshToken');
-            return next(new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN));
+            throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
         const user = await User.findOne({
@@ -211,7 +215,7 @@ export class AuthServices {
 
         if (!user) {
             res.clearCookie('refreshToken');
-            return next(new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED));
+            throw new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED);
         }
 
         const accessToken = await this.tokenServices.setTokens(user, res);
@@ -226,11 +230,11 @@ export class AuthServices {
         };
     }
 
-    async checkAuth(req: Request, res: Response, next: NextFunction): Promise<AuthResponse | void> {
+    async checkAuth(req: Request, res: Response): Promise<AuthResponse | void> {
         const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
 
         if (!decodedToken) {
-            return next(new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN));
+            throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
         const user = await User.findOne({
@@ -240,7 +244,7 @@ export class AuthServices {
         });
 
         if (!user) {
-            return next(new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED));
+            throw new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED);
         }
 
         return {

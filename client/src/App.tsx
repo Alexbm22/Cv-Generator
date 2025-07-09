@@ -1,5 +1,5 @@
 import { useCheckAuth } from './hooks/useAuth';
-import { useHydrateCVs, useFetchCVs } from './hooks/useCVs';
+import { useIndexedDBHydrate, useFetchCVs, useSyncToServer } from './hooks/useCVs';
 import { useAuthStore, useCVsStore } from './Store';
 import { useEffect } from 'react';
 
@@ -10,7 +10,12 @@ function App() {
 
   const { mutate: checkAuth, isPending: isPendingAuth } = useCheckAuth();
 
-  const { mutate: hydrateCVs } = useHydrateCVs();
+  const { 
+    mutate: hydrateCVs,
+    isSuccess,
+    isError 
+  } = useIndexedDBHydrate();
+  const { mutate: mutateSyncCVs } = useSyncToServer()
   const { mutate: fetchCVs } = useFetchCVs();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -22,16 +27,26 @@ function App() {
   },[checkAuth])
   
   useEffect(() => {
-    const { lastSynced } = useCVsStore.getState();
-
     if(isAuthenticated) {
+
+      const { lastSynced, isSyncStale } = useCVsStore.getState();
       if (!lastSynced) {
         fetchCVs();
       } else {
-        hydrateCVs();
+        if(isSuccess) {
+          if(isSyncStale()){
+
+            console.log(isSyncStale())
+            mutateSyncCVs()
+          } 
+        } else if(isError){
+          fetchCVs();
+        } else {
+          hydrateCVs();
+        }
       }
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated, isSuccess, isError])
 
   return (
     <AppRoutes/>

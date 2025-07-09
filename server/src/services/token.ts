@@ -1,3 +1,4 @@
+import { AppError } from '../middleware/error_middleware';
 import {
     TokenData,
     TokenPayload,
@@ -6,6 +7,7 @@ import {
 import { User } from '../models';
 import { Response, Request } from 'express';
 import jwt from 'jsonwebtoken'
+import { ErrorTypes } from '../interfaces/error_interface';
 
 export class TokenServices {
     private readonly JWT_SECRET: string;
@@ -25,7 +27,7 @@ export class TokenServices {
         
         // Set the refresh token in the client cookies
         this.setRefreshToken(tokens.refreshToken, res);
-        
+
         const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
         
         await User.update({

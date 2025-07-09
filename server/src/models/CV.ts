@@ -105,8 +105,6 @@ CV.init({
             if (personalData) {
                 cv.setPersonalData(personalData);
             }
-
-            console.error(personalData);
         }, 
         beforeUpdate: (cv: CV) => {
             const personalData = cv.getDataValue('personalData')

@@ -13,7 +13,6 @@ export class CVsService {
     static async createCVs(
         userId: number, 
         CVs: ClientCVAttributes[], 
-        next: NextFunction
     ): Promise<ApiResponse<ClientCVAttributes[]>> {
         const candidateCVs = CVs.map((cv) => this.fromDTO(cv, userId)) as CVAttributes[];
 
@@ -69,7 +68,7 @@ export class CVsService {
         };
     }
 
-    static async getAllCVs(userId: number, next: NextFunction): Promise<ApiResponse<ClientCVAttributes[]>> {
+    static async getAllCVs(userId: number): Promise<ApiResponse<ClientCVAttributes[]>> {
 
         const cvDTOs = await this.getUserCVs(userId);
 
@@ -82,8 +81,7 @@ export class CVsService {
 
     static async syncCVs(
         userId: number, 
-        incomingCVs: ClientCVAttributes[], 
-        next: NextFunction
+        incomingCVs: ClientCVAttributes[]
     ): Promise<ApiResponse<ClientCVAttributes[]>> {
 
         if(incomingCVs.length == 0){
@@ -140,7 +138,7 @@ export class CVsService {
             return existingCV;
         })
 
-        const updatedCVObjects = await Promise.all(updatePromises);
+        await Promise.all(updatePromises);
         
         return {
             success: true,
@@ -151,7 +149,6 @@ export class CVsService {
     static async deleteCV(
         user: UserAttributes, 
         cvId: string, 
-        next: NextFunction
     ): Promise<ApiResponse<null> | void > {
         const deleteCount = await CV.destroy({
             where: {
@@ -161,11 +158,11 @@ export class CVsService {
         })
 
         if(deleteCount <= 0) {
-            return next(new AppError(
+            throw new AppError(
                 'Something went wrong. Please contact support.',
                 400,
                 ErrorTypes.BAD_REQUEST
-            ))
+            );
         }
 
         return {
@@ -215,7 +212,7 @@ export class CVsService {
             const existingCVAttributes = existingCV.get();
             const cvUpdate = updatesByPublicId.get(existingCVAttributes.public_id);
 
-            return existingCV.version !== cvUpdate?.version;
+            return existingCVAttributes.version !== cvUpdate?.version;
         })
 
         return hasVersionConflicts;

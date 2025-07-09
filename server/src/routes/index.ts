@@ -1,5 +1,5 @@
 import express from 'express';
-import auth_routes from './auth_routes';
+import auth_routes from './auth';
 import protectedRoutes from './protected';
 import { authMiddleware } from '../middleware/auth_middleware';
 

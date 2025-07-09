@@ -5,7 +5,7 @@ import {
     loginDto,
     registerDto
 } from '../interfaces/auth_interfaces';
-import { AuthServices } from '../services/auth_service';
+import { AuthServices } from '../services/auth';
 
 export class AuthController {
     private authServices: AuthServices;
@@ -17,54 +17,65 @@ export class AuthController {
     async login(req: Request, res: Response, next: NextFunction) {
         const loginDto: loginDto = req.body;
 
-        const loginResult = await this.authServices.login(loginDto, res, next);
-
-        return res.status(200).json(loginResult);
+        try {
+            const loginResult = await this.authServices.login(loginDto, res);
+            return res.status(200).json(loginResult);
+        } catch (error) {
+            return next(error)
+        }
     }
 
     async googleLogin(req: Request, res: Response, next: NextFunction) {
         const IdToken: string = req.body.credential;
 
-        const loginResult = await this.authServices.googleLogin(IdToken, res, next);
-
-        return res.status(200).json(loginResult);
+        try {
+            const loginResult = await this.authServices.googleLogin(IdToken, res, next);
+            return res.status(200).json(loginResult);
+        } catch (error) {
+            return next(error)
+        }
     }
 
     async register(req: Request, res: Response, next:NextFunction){
         const registerDto: registerDto = req.body;
 
-        const registrationResult = await this.authServices.register(registerDto, res, next);
-
-        return res.status(201).json(registrationResult);
+        try {
+            const registrationResult = await this.authServices.register(registerDto, res);
+            return res.status(201).json(registrationResult);
+        } catch (error) {
+            return next(error)
+        }
     }
 
     async logout(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
-
-        const logoutResult = await this.authServices.logout(user, res, next);
-
-        return res.status(200).json(logoutResult);
+        try {
+            const logoutResult = await this.authServices.logout(user, res);
+            return res.status(200).json(logoutResult);
+        } catch (error) {
+            return next(error)
+        }
     }
 
     async refreshToken(req: AuthRequest, res: Response, next: NextFunction){
         try {
-            const refreshResult = await this.authServices.refreshToken(req, res, next);   
+            const refreshResult = await this.authServices.refreshToken(req, res);   
             if (refreshResult) {
                 return res.status(200).json(refreshResult);
             }
         } catch (error) {
-            next(error);
+            return next(error);
         }
     }
 
     async checkAuth(req: AuthRequest, res: Response, next: NextFunction){
         try {
-            const refreshResult = await this.authServices.refreshToken(req, res, next);   
+            const refreshResult = await this.authServices.refreshToken(req, res);   
             if (refreshResult) {
                 return res.status(200).json(refreshResult);
             }
         } catch (error) {
-            next(error);
+            return next(error);
         }
     }
 }

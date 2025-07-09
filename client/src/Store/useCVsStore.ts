@@ -21,6 +21,13 @@ export const useCVsStore = create<CVStore>()(
                     lastSynced: null,
                     dbHydrated: false,
 
+                    clearCVsData: () => {
+                        set({
+                            CVs: [],
+                            lastSynced: null,
+                            dbHydrated: false
+                        })
+                    },
                     setLastSynced: (time: number) => set({ lastSynced: time }),
                     isSyncStale: () => {
                         const now = new Date().getTime();

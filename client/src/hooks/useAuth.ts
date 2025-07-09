@@ -82,6 +82,9 @@ export const useLogout = () => {
         mutationFn: async () => await useAuthStore.getState().logout(),
         onSuccess: () => {
             navigate(routes.login.path, { replace: true });
+        },
+        onSettled: () => {
+            useAuthStore.getState().clearAuthenticatedUser();
         }
     })
 }
@@ -92,6 +95,9 @@ export const useCheckAuth = () => {
         onSuccess: (response) => {
             const { handleAuthSuccess } = useAuthStore.getState();
             handleAuthSuccess(response);
+        }, 
+        onError: () => {
+            useAuthStore.getState().clearAuthenticatedUser();
         }
     })
 }

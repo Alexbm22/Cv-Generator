@@ -7,7 +7,6 @@ const PORT: number = Number(process.env.PORT) || 5001;
 const startServer = async () => {
     try {
         await sequelize.authenticate();
-
         await initModels();
 
         app.listen(PORT, () => {
