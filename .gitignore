@@ -28,6 +28,8 @@ dist-ssr/
 
 # Environment variables
 .env
+localhost+2-key.pem
+localhost+2.pem
 
 # TypeScript
 *.tsbuildinfo
