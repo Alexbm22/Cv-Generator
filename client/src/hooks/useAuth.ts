@@ -45,32 +45,23 @@ export const useAuthAndSync =  <T extends AuthCredentials>(
 ) => {
 
     const { mutate: mutateSync } = useInitialDataSync();  
-    const { handleAuthSuccess, setToken } = useAuthStore.getState();
-
-    const navigate = useNavigate();
+    const { handleAuthSuccess, setToken, setIsLoadingAuth } = useAuthStore.getState();
 
     return useMutation<void, APIError, T>({
         mutationFn: async (authCredentials: T) => {
-            // authenticate the user on the server side 
+            // authenticate the user on the server side
+            setIsLoadingAuth(true); 
             const authResponse = await authFunction(authCredentials);
             setToken(authResponse.data?.token!);
 
             if(authResponse.data?.firstAuth) {                
                 // sync the user data 
-                await new Promise<void>((resolve, reject) => {
-                    mutateSync(undefined, {
-                        onSuccess: () => resolve(),
-                        onError: (error) => reject(error)
-                    });
-                });
+                mutateSync();
             }
-
             // handle auth after syncing data 
             handleAuthSuccess(authResponse);
         },
-        onSuccess: () => {
-            navigate(routes.resumes.path, { replace: true });
-        }
+        onSettled: () => setIsLoadingAuth(false),
     })
 }
 
@@ -91,13 +82,19 @@ export const useLogout = () => {
 
 export const useCheckAuth = () => {
     return useMutation<AuthResponse, APIError>({
-        mutationFn: async () => await useAuthStore.getState().checkAuth(),
+        mutationFn: async () => {
+            useAuthStore.getState().setIsLoadingAuth(true);
+            return await useAuthStore.getState().checkAuth()
+        },
         onSuccess: (response) => {
             const { handleAuthSuccess } = useAuthStore.getState();
             handleAuthSuccess(response);
         }, 
         onError: () => {
             useAuthStore.getState().clearAuthenticatedUser();
+        },
+        onSettled: () => {
+            useAuthStore.getState().setIsLoadingAuth(false);
         }
     })
 }

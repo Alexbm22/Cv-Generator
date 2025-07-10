@@ -3,9 +3,10 @@ import Stripe from 'stripe';
 import { StripePrice, StripeProduct } from '../interfaces/stripe';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error_interface';
+import { ApiResponse } from '../interfaces/api_interface';
 
 export class StripeService {
-    static async getStripeProducts() {
+    static async getStripeProducts(): Promise<ApiResponse<StripeProduct>> {
         const StripePrices = await stripe.prices.list({ expand: [`data.product`] });
         const products = this.mapStripeToProductModel(StripePrices.data)
         if(!products) {
@@ -16,10 +17,17 @@ export class StripeService {
             )
         }
 
-        return products;
+        return {
+            success: true,
+            message: 'Products fetched successfully',
+            data: products[0]
+        };
     }
 
-    static async createPaymentIntent(priceId: string, userId: number) {
+    static async createPaymentIntent(
+        priceId: string, 
+        userId: number
+    ): Promise<ApiResponse<string | null>> {
         const price = await stripe.prices.retrieve(priceId)
 
         if((!price.active) || price.deleted) {
@@ -39,7 +47,11 @@ export class StripeService {
             }
         })
 
-        return paymentIntent.client_secret
+        return {
+            success: true,
+            message: 'Products fetched successfully',
+            data: paymentIntent.client_secret
+        };
     }
 
     private static mapStripeToProductModel(stripePrices: Stripe.Price[]): StripeProduct[] {

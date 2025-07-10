@@ -5,16 +5,16 @@ import { catchAsync } from '../middleware/error_middleware';
 
 const router = express.Router();
 
-router.get(
+router.post(
     '/create_payment_intent',
     RateLimitInstance.globalRateLimit(),
     catchAsync(StripeController.createPaymentIntent)
 )
 
 router.get(
-    '/products',
+    '/prices',
     RateLimitInstance.globalRateLimit(),
-    catchAsync(StripeController.getProucts)
+    catchAsync(StripeController.getPricingPlans)
 )
 
 export default router

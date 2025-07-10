@@ -138,6 +138,7 @@ class ApiService {
         }
         
         this.handleAPIError(error as APIError)
+        console.log(error)
         return Promise.reject(error);
       }
     );

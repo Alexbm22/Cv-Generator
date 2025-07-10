@@ -2,8 +2,7 @@ import { useMutation } from "@tanstack/react-query"
 import { loadAllCVs } from "../lib/indexedDB/cvStore";
 import { useAuthStore, useCVsStore, useErrorStore } from "../Store";
 import { CVAttributes } from "../interfaces/cv_interface";
-import { AppError } from "../services/Errors";
-import { ApiError, ErrorTypes } from "../interfaces/error_interface";
+import { ApiError } from "../interfaces/error_interface";
 import { CVServerService } from "../services/CVServer";
 import { storeConfig } from "../Store/config/storeConfig";
 import { ApiResponse } from "../interfaces/api_interface";
@@ -42,12 +41,7 @@ export const useSyncToServer = () => {
             }
         },
         onError: (error) => {
-            const err = new AppError(
-                error.response?.data.message || "Something went wrong!",
-                error.response?.status || 500,
-                error.response?.data.errType || ErrorTypes.INTERNAL_ERR
-            )
-            useErrorStore.getState().addError(err);
+            useErrorStore.getState().creeateError(error);
             useCVsStore.getState().setCVs([]);
         }
     })
@@ -66,12 +60,7 @@ export const useIndexedDBHydrate = () => {
             setdbHydrated(true);
         },
         onError: (error) => {
-            const err = new AppError(
-                error.response?.data.message || "Something went wrong!dfsfsdfsd",
-                error.response?.status || 500,
-                error.response?.data.errType || ErrorTypes.INTERNAL_ERR
-            )
-            useErrorStore.getState().addError(err);
+            useErrorStore.getState().creeateError(error);
         }
     })
 }
@@ -86,12 +75,7 @@ export const useFetchCVs = () => {
             setFetchedCVs(CVs);
         },
         onError: (error) => {
-            const err = new AppError(
-                error.response?.data.message || "Something went wrong!",
-                error.response?.status || 500,
-                error.response?.data.errType || ErrorTypes.INTERNAL_ERR
-            )
-            useErrorStore.getState().addError(err);
+            useErrorStore.getState().creeateError(error);
             useCVsStore.getState().setCVs([]);
         }
     })

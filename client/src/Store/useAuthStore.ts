@@ -10,7 +10,7 @@ import { useCVsStore } from './useCVsStore';
 export const useAuthStore = create<AuthStore>()(
     devtools<AuthStore>((set, get) => ({
         isAuthenticated: false,
-        isLoadingAuth: false,
+        isLoadingAuth: true,
         token: null,
 
         clearAuthenticatedUser: () => {

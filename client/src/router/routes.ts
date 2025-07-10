@@ -4,9 +4,10 @@ import {
     CVEditPage,
     NotFoundPage,
     Login,
-    SignUp
+    SignUp,
+    Prices,
+    Checkout,
 } from '../pages/index'
-
 
 export const routes = {
     home: { path: '/', element: HomePage, protected: false },
@@ -14,6 +15,8 @@ export const routes = {
     signup: { path: '/signup', element: SignUp, protected: false },
     resumes: { path: '/resumes', element: CVsPage, protected: false },
     editResume: { path: '/resumes/edit/:id', element: CVEditPage, protected: false },
+    prices: { path: '/prices', element: Prices, protected: true },
+    checkout: { path: '/checkout/:priceId', element: Checkout, protected: true },
     notFound: { path: '*', element: NotFoundPage, protected: false },
 };
 

@@ -5,7 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import Stripe from 'stripe';
 import helmet from 'helmet';
-import { AppError, errorHandler, notFound } from './middleware/error_middleware';
+import { AppError, catchAsync, errorHandler, notFound } from './middleware/error_middleware';
 import RateLimitInstance from './middleware/rate_limit_middleware';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -17,19 +17,23 @@ app.use(cors({
     credentials: true
 }));
 
-app.use('/webhook', express.raw({ type: 'application/json' }));
-app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(RateLimitInstance.globalRateLimit());
 
+app.use(
+    '/webhook', 
+    express.raw({ type: 'application/json' }), 
+    stripeWebHook
+);
+
+app.use(express.json());
 app.use('/api', Routes);
-app.use('/webhook', stripeWebHook());
 
 app.use(notFound);
-app.use((err: Error | AppError, req: Request, res: Response, next: NextFunction ) => {
+app.use((err: AppError, req: Request, res: Response, next: NextFunction ) => {
     errorHandler(err, req, res, next);
 });
 

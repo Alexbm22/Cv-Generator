@@ -8,7 +8,7 @@ import AppRoutes from './router/AppRoutes';
 
 function App() {
 
-  const { mutate: checkAuth, isPending: isPendingAuth } = useCheckAuth();
+  const { mutate: checkAuth } = useCheckAuth();
 
   const { 
     mutate: hydrateCVs,
@@ -19,11 +19,9 @@ function App() {
   const { mutate: fetchCVs } = useFetchCVs();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const setIsLoadingAuth = useAuthStore((state) => state.setIsLoadingAuth);
   
   useEffect(()=>{
     checkAuth();
-    setIsLoadingAuth(isPendingAuth);
   },[checkAuth])
   
   useEffect(() => {
@@ -35,8 +33,6 @@ function App() {
       } else {
         if(isSuccess) {
           if(isSyncStale()){
-
-            console.log(isSyncStale())
             mutateSyncCVs()
           } 
         } else if(isError){

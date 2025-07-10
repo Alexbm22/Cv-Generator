@@ -4,24 +4,24 @@ import { NextFunction, Response } from "express"
 
 export class StripeController {
 
-    static async getProucts(req: AuthRequest, res: Response, next: NextFunction) {
+    static async getPricingPlans(req: AuthRequest, res: Response, next: NextFunction) {
         try {
-            const products = await StripeService.getStripeProducts();
-            return res.status(200).json(products)
+            const response = await StripeService.getStripeProducts();
+            return res.status(200).json(response)
         } catch (error) {
             next(error)
         }
     }
 
     static async createPaymentIntent(req: AuthRequest, res: Response, next: NextFunction) {
+        const { priceId } = req.body;
         const userId = req.user.id;
-        const priceId = req.body;
 
         try {
             const paymentIntentRes = await StripeService.createPaymentIntent(priceId, userId);
-            res.status(200).json(paymentIntentRes);
+            return res.status(200).json(paymentIntentRes);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     }
 }

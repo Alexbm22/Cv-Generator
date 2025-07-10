@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAuthAndSync, useFormSubmission } from "../../hooks/useAuth";
 import { useAuthStore } from '../../Store'
 import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
@@ -8,12 +8,8 @@ import { loginDto } from "../../interfaces/auth_interface";
 
 const Login: React.FC = () =>{
 
-    const { setIsLoadingAuth, login } = useAuthStore.getState();
-    const { mutate: mutateLogin, isPending } = useAuthAndSync(login);
-
-    useEffect(() => {
-        setIsLoadingAuth(isPending);
-    }, [isPending]);
+    const { login } = useAuthStore.getState();
+    const { mutate: mutateLogin } = useAuthAndSync(login);
 
     const [ showPassword, setShowPassword ] = useState(false);
     const toggleShowPassword = () => {

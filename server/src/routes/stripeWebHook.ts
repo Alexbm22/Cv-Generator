@@ -1,29 +1,31 @@
 import { Request, Response, NextFunction } from "express";
 import { stripe } from '../app';
-import { AppError, catchAsync } from "../middleware/error_middleware";
-import { ErrorTypes } from "../interfaces/error_interface";
 
-export default () => catchAsync((req: Request, res: Response, next: NextFunction) => {
-    const sig = req.headers['stripe-signature'] as string;
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-    try {
-        const event = stripe.webhooks.constructEvent(
-            req.body,
-            sig,
-            process.env.STRIPE_WEBHOOK_SECRET!
-        );
-
-        // to do: handle the payment event
-        switch(event.type) {
-            case 'payment_intent.succeeded':
-                break
+export default (req: Request, res: Response) => {
+    const signature = req.headers['stripe-signature'] as string;
+    let event = req.body;
+    
+    if(endpointSecret){
+        try {
+            event = stripe.webhooks.constructEvent(
+                req.body,
+                signature,
+                endpointSecret
+            );
+        } catch (error) {
+            console.log(`⚠️  Webhook signature verification failed.`, error);
+            res.sendStatus(400);
         }
-    } catch (error) {
-        next(new AppError(
-            `Webhook signature verification failed.`,
-            400,
-            ErrorTypes.BAD_REQUEST
-        ))
+        
     }
 
-})
+    // to do: handle the payment event
+    // switch(event.type) {
+    //     case 'payment_intent.succeeded':
+    //         break
+    // }
+
+    res.json({received: true});
+}

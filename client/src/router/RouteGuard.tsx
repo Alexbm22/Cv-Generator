@@ -15,21 +15,23 @@ const RouteGuard:React.FC<componentProps> = ({children, route}: componentProps )
 
     const location = useLocation();
 
-    if(
-        isAuthenticated && 
-        (route.path === routes.login.path ||
-        route.path === routes.signup.path)
-    ) {
+    if(isLoadingAuth) {
+        return <>Loading...</>
+    } else if (!isAuthenticated && route.protected) {
         return <Navigate 
-            to={routes.resumes.path} 
+            to={routes.login.path} 
             state={{ from: location }} 
             replace 
         />;
-    }
-
-    if (!isAuthenticated && route.protected) {
+    } else if(
+        isAuthenticated && 
+        (
+            route.path === routes.login.path ||
+            route.path === routes.signup.path
+        )
+    ) {
         return <Navigate 
-            to={routes.login.path} 
+            to={routes.resumes.path} 
             state={{ from: location }} 
             replace 
         />;

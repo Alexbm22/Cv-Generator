@@ -1,12 +1,11 @@
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
 import { useAuthAndSync } from '../../../hooks/useAuth'
-import { useAuthStore } from '../../../Store'
-import { useEffect } from 'react'
+import { useAuthStore } from '../../../Store';
 
 const GoogleLoginBtn: React.FC = () => {
 
-    const { setIsLoadingAuth, googleLogin } = useAuthStore.getState();
-    const { mutate: mutateGoogleLogin, isPending } = useAuthAndSync(googleLogin);
+    const { googleLogin } = useAuthStore.getState();
+    const { mutate: mutateGoogleLogin } = useAuthAndSync(googleLogin);
 
     const handleSuccess = (googleResponse: CredentialResponse) => {
         if(!googleResponse.credential){
@@ -16,14 +15,6 @@ const GoogleLoginBtn: React.FC = () => {
             mutateGoogleLogin(googleResponse);
         }
     }
-
-    useEffect(() => {
-        if (isPending) {
-            setIsLoadingAuth(true);
-        } else {
-            setIsLoadingAuth(false);
-        }
-    }, [isPending]);
 
     return (
         <>

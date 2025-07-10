@@ -1,11 +1,11 @@
 import { create } from 'zustand';
 import { devtools } from "zustand/middleware";
-import { ErrorStore, FieldError } from '../interfaces/error_interface';
+import { ErrorStore, ErrorTypes, FieldError } from '../interfaces/error_interface';
 import * as yup from'yup'
 import { AppError } from "../services/Errors"
 
 export const useErrorStore = create<ErrorStore>()(
-    devtools<ErrorStore>((set) => ({
+    devtools<ErrorStore>((set, get) => ({
         errors: [],
 
         addError: (error) => set((state: ErrorStore) => ({ errors: [...state.errors, error] })),
@@ -13,6 +13,15 @@ export const useErrorStore = create<ErrorStore>()(
         removeError: (index) => set((state: ErrorStore) => ({
             errors: state.errors.filter((_, i) => i !== index)
         })),
+
+        creeateError: (error: any) => {
+            const err = new AppError(
+                error.response?.data.message || "Something went wrong!dfsfsdfsd",
+                error.response?.status || 500,
+                error.response?.data.errType || ErrorTypes.INTERNAL_ERR
+            )
+            get().addError(err);
+        },
 
         removeFieldError: (field: FieldError) => {
             set((state) => ({

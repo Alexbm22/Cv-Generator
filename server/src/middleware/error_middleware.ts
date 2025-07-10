@@ -19,15 +19,15 @@ export class AppError extends Error {
 }
 
 export const errorHandler = (
-    err: Error | AppError,
+    err: AppError,
     req: Request,
     res: Response,
     next: NextFunction
 ): Response | void => {
-    const statusCode = "statusCode" in err ? err.statusCode : 500;
-    const isOperational = "isOperational" in err ? err.isOperational : false;
-    const errType = "errorType" in err ? err.errorType : ErrorTypes.INTERNAL_ERR;
-    const errors = "data" in err ? err.data : undefined;
+    const statusCode = err.statusCode ?? 500;
+    const isOperational = err.isOperational ?? false;
+    const errType = err.errorType ?? ErrorTypes.INTERNAL_ERR;
+    const errors = err.data ?? undefined;
     
     if(process.env.NODE_ENV === "development"){
         return res.status(statusCode).json({
