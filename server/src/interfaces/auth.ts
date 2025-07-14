@@ -1,7 +1,7 @@
 import { Request } from 'express';
-import { ClientCVAttributes } from './cv_interface';
-import { ApiResponse } from './api_interface';
-import { UserAttributes } from './user_interface';
+import { ClientCVAttributes } from './cv';
+import { ApiResponse } from './api';
+import { UserAttributes } from './user';
 
 export interface loginDto {
     email: string;

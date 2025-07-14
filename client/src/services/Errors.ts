@@ -1,4 +1,4 @@
-import { ErrorTypes, FieldError } from "../interfaces/error_interface";
+import { ErrorTypes, FieldError } from "../interfaces/error";
 
 export class AppError extends Error{
     public statusCode: number;

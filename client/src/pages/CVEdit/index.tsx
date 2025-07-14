@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCvEditStore, useCVsStore } from "../../Store";
-import { CVAttributes } from "../../interfaces/cv_interface";
+import { CVAttributes } from "../../interfaces/cv";
 import CVEditorForm  from "../../components/features/CVEditor/CVForm";
 import CVPreview from "../../components/features/CVEditor/CVPreview";
 import { routes } from "../../router/routes";

@@ -111,10 +111,10 @@ export interface ClientCVAttributes extends CVContentAttributes, CVMetadataAttri
 
 export interface CVAttributes {
     id: number,
-    version: number;
     public_id:string,
+    user_id: number,
+    version: number;
     title: string,
-    userId: number,
     template: CVTemplates;
     personalData?: PersonalDataAttributes | null,
     encryptedPersonalData: string

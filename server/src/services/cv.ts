@@ -1,10 +1,9 @@
-import { ApiResponse } from "../interfaces/api_interface";
-import { ClientCVAttributes, CVAttributes, CVTemplates } from "../interfaces/cv_interface";
-import { ErrorTypes } from "../interfaces/error_interface";
-import { UserAttributes } from "../interfaces/user_interface";
+import { ApiResponse } from "../interfaces/api";
+import { ClientCVAttributes, CVAttributes, CVTemplates } from "../interfaces/cv";
+import { ErrorTypes } from "../interfaces/error";
+import { UserAttributes } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
 import { CV } from "../models";
-import { NextFunction } from "express";
 import { Op } from "sequelize";
 import { randomUUID } from "crypto";
 
@@ -32,7 +31,7 @@ export class CVsService {
 
         const createdCV = await CV.create({
             title: '',
-            userId: userId,
+            user_id: userId,
             template: CVTemplates.CASTOR,
             public_id: publicId,
             version: 0,
@@ -104,7 +103,7 @@ export class CVsService {
 
         const existingCVs = await CV.findAll({
             where: {
-                userId: userId,
+                user_id: userId,
                 public_id: { [Op.in]: cvsPublicIDs }
             }
         })
@@ -152,7 +151,7 @@ export class CVsService {
     ): Promise<ApiResponse<null> | void > {
         const deleteCount = await CV.destroy({
             where: {
-                userId: user.id,
+                user_id: user.id,
                 public_id: cvId
             }
         })
@@ -174,7 +173,7 @@ export class CVsService {
     private static async getUserCVs(userId: number) {
         const CVs = await CV.findAll({
             where: {
-                userId: userId
+                user_id: userId
             },
             order: [['updatedAt', 'DESC']],
         })
@@ -224,7 +223,7 @@ export class CVsService {
             title: cv.title,
             template: cv.template,
             version: cv.version ?? 0,
-            userId: userId,
+            user_id: userId,
             personalData: {
                 photo: cv.photo,
                 phoneNumber: cv.phoneNumber,

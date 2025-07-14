@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { ValidationChain, validationResult } from 'express-validator';
-import { ErrorTypes } from '../interfaces/error_interface'; 
+import { ErrorTypes } from '../interfaces/error'; 
 import { AppError } from './error_middleware';
 
 export const Validate = (origin: string, validations : ValidationChain[]) => {

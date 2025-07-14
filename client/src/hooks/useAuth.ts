@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore, useCVsStore, useErrorStore } from '../Store';
-import { AuthResponse, AuthCredentials } from '../interfaces/auth_interface';
-import { APIError } from '../interfaces/api_interface';
+import { AuthResponse, AuthCredentials } from '../interfaces/auth';
+import { APIError } from '../interfaces/api';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../router/routes';
 import { CVServerService } from '../services/CVServer';

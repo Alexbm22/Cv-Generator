@@ -3,7 +3,7 @@ import { persist, devtools } from 'zustand/middleware';
 import { 
     CVAttributes,
     CVStore,
-} from '../interfaces/cv_interface';
+} from '../interfaces/cv';
 import { useAuthStore } from './useAuthStore';
 import { withFunctionCallExcept } from './middleware/withFunctionCallExcept';
 import { removeCVById , setIndexedDbCVs  } from '../lib/indexedDB/cvStore';

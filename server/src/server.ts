@@ -1,5 +1,5 @@
 import app from './app';
-import sequelize from './config/database_config';
+import sequelize from './config/DB/database_config';
 import https from 'https';
 import fs from 'fs';
 import { initModels } from './models';

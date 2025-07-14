@@ -1,7 +1,7 @@
 import { debounce } from 'lodash';
 import { StoreApi } from 'zustand'; 
 import { v4 as uuid } from 'uuid';
-import { CVEditStore, CVTemplates } from '../../interfaces/cv_interface';
+import { CVEditStore, CVTemplates } from '../../interfaces/cv';
 
 export const storeConfig = {
     defaultStates: {

@@ -1,4 +1,4 @@
-import { AuthRequest } from "../interfaces/auth_interfaces";
+import { AuthRequest } from "../interfaces/auth";
 import { StripeService } from "../services/stripe"
 import { NextFunction, Response } from "express"
 

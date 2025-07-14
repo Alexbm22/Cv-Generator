@@ -1,7 +1,7 @@
 import { 
     CVPersonalInfoSliceAttributes, 
     SocialLink, 
-    CVEditStore } from '../../../interfaces/cv_interface';
+    CVEditStore } from '../../../interfaces/cv';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 import { resizeBase64Image } from '../../../utils/resizeBase64Image'; 
 

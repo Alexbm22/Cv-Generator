@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { ApiError } from "../interfaces/error_interface"
+import { ApiError } from "../interfaces/error"
 import { StripeService } from "../services/stripe"
 import { useErrorStore } from "../Store"
 

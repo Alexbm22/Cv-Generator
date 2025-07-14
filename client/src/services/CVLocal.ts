@@ -1,9 +1,9 @@
 import { StoreApi } from "zustand";
-import { CVStore } from "../interfaces/cv_interface";
+import { CVStore } from "../interfaces/cv";
 import { useAuthStore, useCVsStore, useErrorStore } from "../Store";
 import { CVServerService } from "./CVServer";
 import { AppError } from "./Errors";
-import { ErrorTypes } from "../interfaces/error_interface";
+import { ErrorTypes } from "../interfaces/error";
 import { saveToIndexedDB } from "../lib/indexedDB/cvStore";
 
 export class CVLocalService {

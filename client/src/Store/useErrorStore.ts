@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from "zustand/middleware";
-import { ErrorStore, ErrorTypes, FieldError } from '../interfaces/error_interface';
+import { ErrorStore, ErrorTypes, FieldError } from '../interfaces/error';
 import * as yup from'yup'
 import { AppError } from "../services/Errors"
 

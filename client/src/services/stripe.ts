@@ -1,7 +1,7 @@
 import { loadStripe } from '@stripe/stripe-js';
 import { apiService } from './api';
 import { StripeProduct } from '../interfaces/stripe';
-import { ApiResponse } from '../interfaces/api_interface';
+import { ApiResponse } from '../interfaces/api';
 
 export const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 

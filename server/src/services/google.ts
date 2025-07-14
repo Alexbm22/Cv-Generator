@@ -1,7 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
-import { GoogleUserPayload } from '../interfaces/auth_interfaces'
+import { GoogleUserPayload } from '../interfaces/auth'
 import { AppError } from "../middleware/error_middleware";
-import { ErrorTypes } from "../interfaces/error_interface";
+import { ErrorTypes } from "../interfaces/error";
 
 export class GoogleServices {
     private readonly CLIENT_ID: string;

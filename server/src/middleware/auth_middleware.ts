@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError, catchAsync } from './error_middleware';
-import { AuthRequest, TokenPayload, UserData } from '../interfaces/auth_interfaces';
+import { AuthRequest, TokenPayload, UserData } from '../interfaces/auth';
 import jwt from 'jsonwebtoken';
 import { User } from '../models';
-import { ErrorTypes } from '../interfaces/error_interface';
+import { ErrorTypes } from '../interfaces/error';
 
 export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction)=> {
     const authorizationHeader = req.headers.authorization;

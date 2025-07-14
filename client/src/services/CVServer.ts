@@ -1,5 +1,5 @@
-import { ApiResponse } from "../interfaces/api_interface";
-import { CVAttributes } from "../interfaces/cv_interface";
+import { ApiResponse } from "../interfaces/api";
+import { CVAttributes } from "../interfaces/cv";
 import { apiService } from "./api";
 
 export class CVServerService {

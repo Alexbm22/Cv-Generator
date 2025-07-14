@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { UserStore, UserObj } from '../interfaces/user_interface';
+import { UserStore, UserObj } from '../interfaces/user';
 
 export const useUserStore = create<UserStore>()(
     devtools(

@@ -1,4 +1,4 @@
-import { AuthProvider } from './auth_interfaces';
+import { AuthProvider } from './auth';
 
 export interface UserAttributes {
     id: number;

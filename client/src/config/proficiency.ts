@@ -1,4 +1,4 @@
-import { SkillLevel, ProficiencyLanguageLevel } from '../interfaces/cv_interface';
+import { SkillLevel, ProficiencyLanguageLevel } from '../interfaces/cv';
 
 export const SkillsLevelsMap = {
     [SkillLevel.BEGINNER]: { index: 0, color: '#da4500'},

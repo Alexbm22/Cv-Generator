@@ -1,7 +1,7 @@
 import { create, StoreApi } from 'zustand';
 import { 
     CVEditStore,
-} from '../interfaces/cv_interface';
+} from '../interfaces/cv';
 import  {
     createMetadataSlice,
     createContentSlice,

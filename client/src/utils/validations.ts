@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { loginDto, registerDto } from '../interfaces/auth_interface';
+import { loginDto, registerDto } from '../interfaces/auth';
 
 export const registrationSchema = yup.object<registerDto>({
     username: yup

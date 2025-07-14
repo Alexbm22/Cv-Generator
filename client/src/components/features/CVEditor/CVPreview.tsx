@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { CVTemplates } from "../../../interfaces/cv_interface";
+import { CVTemplates } from "../../../interfaces/cv";
 import { useCvEditStore } from "../../../Store";
 
 const TemplateMap = {

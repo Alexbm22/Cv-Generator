@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { CVsService } from "../services/cv";
-import { ClientCVAttributes } from '../interfaces/cv_interface';
-import { AuthRequest } from '../interfaces/auth_interfaces';
+import { ClientCVAttributes } from '../interfaces/cv';
+import { AuthRequest } from '../interfaces/auth';
 import { AppError } from '../middleware/error_middleware';
-import { ErrorTypes } from '../interfaces/error_interface';
+import { ErrorTypes } from '../interfaces/error';
 
 
 export class CVsController {

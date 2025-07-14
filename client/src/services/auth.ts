@@ -1,7 +1,7 @@
 import { CredentialResponse } from "@react-oauth/google";
-import { AuthResponse, loginDto, registerDto } from "../interfaces/auth_interface";
+import { AuthResponse, loginDto, registerDto } from "../interfaces/auth";
 import { apiService } from "./api";
-import { UserObj } from "../interfaces/user_interface";
+import { UserObj } from "../interfaces/user";
 
 export class AuthService {
     private static apiUrl = '/auth/';

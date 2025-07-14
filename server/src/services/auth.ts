@@ -5,7 +5,7 @@ import {
     UserData,
     TokenPayload,
     AuthProvider,
-} from '../interfaces/auth_interfaces';
+} from '../interfaces/auth';
 import { User } from '../models';
 import { Response, Request, NextFunction } from 'express';
 import { config } from 'dotenv'
@@ -13,7 +13,7 @@ import { TokenServices } from './token';
 import { GoogleServices } from './google';
 import { UserServices } from './user';
 import { AppError } from '../middleware/error_middleware';
-import { ErrorTypes } from '../interfaces/error_interface';
+import { ErrorTypes } from '../interfaces/error';
 
 config()
 

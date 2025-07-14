@@ -4,7 +4,7 @@ import {
     AuthResponse,
     loginDto,
     registerDto
-} from '../interfaces/auth_interfaces';
+} from '../interfaces/auth';
 import { AuthServices } from '../services/auth';
 
 export class AuthController {

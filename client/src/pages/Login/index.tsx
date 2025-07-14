@@ -4,7 +4,7 @@ import { useAuthStore } from '../../Store'
 import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
 import Field from '../../components/features/AuthForm/formField'
 import { loginSchema } from "../../utils/validations";
-import { loginDto } from "../../interfaces/auth_interface";
+import { loginDto } from "../../interfaces/auth";
 
 const Login: React.FC = () =>{
 

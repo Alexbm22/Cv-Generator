@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthAndSync, useFormSubmission } from "../../hooks/useAuth";
 import { useAuthStore } from '../../Store'
-import { registerDto } from "../../interfaces/auth_interface";
+import { registerDto } from "../../interfaces/auth";
 import Field from '../../components/features/AuthForm/formField'
 import { registrationSchema } from "../../utils/validations";
 

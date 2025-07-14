@@ -2,7 +2,7 @@ import React from "react";
 import { useCvEditStore } from "../../../../Store";
 import TextInputField from "../../../UI/textInputField";
 import { CVEditContent } from "../../../../config/content";
-import { SocialLink } from "../../../../interfaces/cv_interface";
+import { SocialLink } from "../../../../interfaces/cv";
 
 const PersonalInfos: React.FC = () => {
 

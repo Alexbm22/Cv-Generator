@@ -1,21 +1,22 @@
 import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from '../config/database_config';
+import sequelize from '../config/DB/database_config';
 import { encrypt, decrypt } from '../utils/encryption';
 import {
     CVAttributes, 
     CVContentAttributes, 
     PersonalDataAttributes,
     CVTemplates
-}
-from '../interfaces/cv_interface';
+} from '../interfaces/cv';
 
-interface CVCreationAttributes extends Optional<CVAttributes, 'id' | 'encryptedPersonalData' | 'createdAt' | 'updatedAt' | 'version'> {}
+interface CVCreationAttributes extends Optional<CVAttributes, 
+    'id' | 'encryptedPersonalData' | 'createdAt' | 'updatedAt' | 'version'
+> {}
 
 class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttributes {
     public id!: number;
-    public version!: number;
     public public_id!: string;
-    public userId!: number;
+    public user_id!: number;
+    public version!: number;
     public title!: string;
     public template!: CVTemplates;
     public content!: CVContentAttributes;
@@ -45,7 +46,8 @@ CV.init({
     id: {
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
+        allowNull: false,
     },
     version : {
         type: DataTypes.INTEGER.UNSIGNED,
@@ -55,7 +57,7 @@ CV.init({
         type: DataTypes.STRING(255),
         allowNull: false
     },
-    userId: {
+    user_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
@@ -68,7 +70,7 @@ CV.init({
         allowNull: false
     },
     template: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.ENUM(...Object.values(CVTemplates)),
         allowNull: false
     },
     content: {
@@ -98,7 +100,9 @@ CV.init({
     }
 }, {
     sequelize,
-    tableName: 'cv',
+    tableName: 'CV',
+    timestamps: true,
+    underscored: true,
     hooks: {
         beforeCreate: (cv: CV) => {
             const personalData = cv.getDataValue('personalData')

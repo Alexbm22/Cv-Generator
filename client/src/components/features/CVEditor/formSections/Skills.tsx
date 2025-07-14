@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCvEditStore } from '../../../../Store';
-import { Skill, SkillLevel } from '../../../../interfaces/cv_interface';
+import { Skill, SkillLevel } from '../../../../interfaces/cv';
 import {
     Collapsable,
     TextInputField,

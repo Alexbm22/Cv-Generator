@@ -1,6 +1,6 @@
 import { CredentialResponse } from "@react-oauth/google";
-import { ApiResponse } from "./api_interface";
-import { UserObj } from "./user_interface";
+import { ApiResponse } from "./api";
+import { UserObj } from "./user";
 
 export interface loginDto {
     email: string;

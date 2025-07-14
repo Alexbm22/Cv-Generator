@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction} from 'express';
 import { AppError } from './error_middleware';
 import rateLimit from 'express-rate-limit';
-import { ErrorTypes } from '../interfaces/error_interface';
+import { ErrorTypes } from '../interfaces/error';
 
 interface EnvConfig {
     [key: string]: number;

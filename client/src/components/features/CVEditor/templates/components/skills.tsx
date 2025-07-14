@@ -1,7 +1,7 @@
 import React from "react";
 import { useCvEditStore } from "../../../../../Store";
 import { CVPreviewContent } from "../../../../../config/content";
-import { SkillLevel } from "../../../../../interfaces/cv_interface";
+import { SkillLevel } from "../../../../../interfaces/cv";
 import { SkillsLevelsMap } from "../../../../../config/proficiency";
 
 interface SkillsProps {

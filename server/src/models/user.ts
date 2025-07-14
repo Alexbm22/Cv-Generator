@@ -1,12 +1,12 @@
 import { Model, DataTypes, Optional} from 'sequelize';
-import sequelize from '../config/database_config';
+import sequelize from '../config/DB/database_config';
 import bcrypt from 'bcrypt';
-import { AuthProvider } from '../interfaces/auth_interfaces';
+import { AuthProvider } from '../interfaces/auth';
 import { AppError } from '../middleware/error_middleware';
 import crypto from 'crypto';
-import { ErrorTypes } from '../interfaces/error_interface';
-import { UserAttributes } from '../interfaces/user_interface'
-
+import { ErrorTypes } from '../interfaces/error';
+import { UserAttributes } from '../interfaces/user'
+import DownloadCredits from './Download_credits';
 
 interface UserCreationAttributes extends Optional<UserAttributes, 
 'id' | 'refreshToken' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive'> {}
@@ -52,7 +52,6 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
             email,
             profilePicture
         }
-        
     }
 
     public hashGoogleId(googleId: string): string {
@@ -62,7 +61,6 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
             .update(googleId + GOOGLE_ID_SALT)
             .digest('hex');
     }
-
 }
 
 User.init({
@@ -115,7 +113,7 @@ User.init({
         allowNull: true,
     },
     authProvider: {
-        type: DataTypes.ENUM('local', 'google'),
+        type: DataTypes.ENUM(...Object.values(AuthProvider)),
         allowNull: false,
         defaultValue: 'local',
     },
@@ -132,8 +130,24 @@ User.init({
     updatedAt: DataTypes.DATE
 }, {
     sequelize,
-    tableName: 'User',
+    tableName: 'user',
+    timestamps: true,
+    underscored: true,
     hooks: {
+        afterCreate: async (user: User) => {
+            const user_id = user.id;   
+
+            try {
+                // Create initial download credits for the user
+                const userDownloadCredits = await DownloadCredits.create({
+                    user_id
+                })
+
+            } catch (error) {
+                console.error('Error creating initial download credits:', error);
+                throw new AppError('Failed to create initial download credits', 500, ErrorTypes.INTERNAL_ERR);
+            }
+        },
         beforeCreate: async (user: User) => {
             const password = user.get('password');
             const google_id = user.get('googleId');

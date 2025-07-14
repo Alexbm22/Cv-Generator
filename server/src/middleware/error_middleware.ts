@@ -1,4 +1,4 @@
-import { ErrorTypes } from '../interfaces/error_interface';
+import { ErrorTypes } from '../interfaces/error';
 import { Request, Response, NextFunction } from 'express';
 
 export class AppError extends Error {

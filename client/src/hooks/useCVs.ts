@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query"
 import { loadAllCVs } from "../lib/indexedDB/cvStore";
 import { useAuthStore, useCVsStore, useErrorStore } from "../Store";
-import { CVAttributes } from "../interfaces/cv_interface";
-import { ApiError } from "../interfaces/error_interface";
+import { CVAttributes } from "../interfaces/cv";
+import { ApiError } from "../interfaces/error";
 import { CVServerService } from "../services/CVServer";
 import { storeConfig } from "../Store/config/storeConfig";
-import { ApiResponse } from "../interfaces/api_interface";
+import { ApiResponse } from "../interfaces/api";
 
 export const useCreateCV = () => {
     const addCV = useCVsStore(state => state.addCV);

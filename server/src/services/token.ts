@@ -3,11 +3,11 @@ import {
     TokenData,
     TokenPayload,
     TokenClientData,
-} from '../interfaces/auth_interfaces';
+} from '../interfaces/auth';
 import { User } from '../models';
 import { Response, Request } from 'express';
 import jwt from 'jsonwebtoken'
-import { ErrorTypes } from '../interfaces/error_interface';
+import { ErrorTypes } from '../interfaces/error';
 
 export class TokenServices {
     private readonly JWT_SECRET: string;

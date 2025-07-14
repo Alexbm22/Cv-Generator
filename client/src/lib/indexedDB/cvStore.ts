@@ -1,5 +1,5 @@
 import { IndexedDBService } from "../../services/indexedDB";
-import { CVAttributes } from "../../interfaces/cv_interface";
+import { CVAttributes } from "../../interfaces/cv";
 
 const cvDB = new IndexedDBService('CV_Store');
 

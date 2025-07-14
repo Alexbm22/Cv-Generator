@@ -2,7 +2,7 @@ import {
     CVAttributes,
     CVEditStore,
     CVEditStoreActions,
- } from '../../../interfaces/cv_interface';
+ } from '../../../interfaces/cv';
 import { useCVsStore } from '../../useCVsStore';
 
 export const createStoreActionsSlice = (set: {

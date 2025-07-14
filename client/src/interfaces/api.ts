@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { ApiErrorData, ErrorTypes } from './error_interface';
+import { ApiErrorData, ErrorTypes } from './error';
 
 export interface ApiResponse<T> {
     success: boolean,

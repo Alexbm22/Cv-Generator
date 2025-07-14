@@ -1,4 +1,4 @@
-import { CVAttributes } from './cv_interface';
+import { CVAttributes } from './cv';
 
 export interface UserObj {
     username: string | null;

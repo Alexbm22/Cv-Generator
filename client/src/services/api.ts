@@ -1,9 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../Store/useAuthStore';
-import { TokenClientData } from '../interfaces/auth_interface';
+import { TokenClientData } from '../interfaces/auth';
 import { useErrorStore } from '../Store';
-import { APIError } from '../interfaces/api_interface';
-import { ErrorTypes } from '../interfaces/error_interface';
+import { APIError } from '../interfaces/api';
+import { ErrorTypes } from '../interfaces/error';
 import { AppError } from './Errors';
 
 interface RetryableRequestConfig extends AxiosRequestConfig {

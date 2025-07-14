@@ -4,7 +4,7 @@ import Editor from '../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../UI/Collapsable';
 import TextInputField from '../../../UI/textInputField';
 import { sanitizeHtml } from '../../../../utils';
-import { WorkExperience } from '../../../../interfaces/cv_interface';
+import { WorkExperience } from '../../../../interfaces/cv';
 import { CVEditContent } from '../../../../config/content';
 
 interface ComponentProps {

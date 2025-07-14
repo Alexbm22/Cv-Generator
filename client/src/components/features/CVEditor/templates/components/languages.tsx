@@ -1,7 +1,7 @@
 import React from "react";
 import { useCvEditStore } from "../../../../../Store";
 import { CVPreviewContent } from "../../../../../config/content";
-import { ProficiencyLanguageLevel } from "../../../../../interfaces/cv_interface";
+import { ProficiencyLanguageLevel } from "../../../../../interfaces/cv";
 import { LanguageLevelsMap } from "../../../../../config/proficiency";
 
 interface LanguagesProps {

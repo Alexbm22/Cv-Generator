@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from "zustand/middleware";
-import { AuthResponse, AuthStore, loginDto, registerDto, TokenClientData } from '../interfaces/auth_interface'
+import { AuthResponse, AuthStore, loginDto, registerDto, TokenClientData } from '../interfaces/auth'
 import { useUserStore } from './useUserStore';
 import { CredentialResponse } from '@react-oauth/google';
 import { routes } from '../router/routes';

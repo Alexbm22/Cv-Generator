@@ -8,7 +8,7 @@ import {
     Education, 
     Project,
     CustomSectionAttributes
-} from '../../../interfaces/cv_interface'; // Adjust the import path as necessary
+} from '../../../interfaces/cv'; // Adjust the import path as necessary
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 
 export const createContentSlice = (set: {

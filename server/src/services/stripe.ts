@@ -2,8 +2,8 @@ import { stripe } from '../app';
 import Stripe from 'stripe';
 import { StripePrice, StripeProduct } from '../interfaces/stripe';
 import { AppError } from '../middleware/error_middleware';
-import { ErrorTypes } from '../interfaces/error_interface';
-import { ApiResponse } from '../interfaces/api_interface';
+import { ErrorTypes } from '../interfaces/error';
+import { ApiResponse } from '../interfaces/api';
 
 export class StripeService {
     static async getStripeProducts(): Promise<ApiResponse<StripeProduct>> {
