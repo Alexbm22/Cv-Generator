@@ -1,4 +1,3 @@
-import { AppError } from '../middleware/error_middleware';
 import {
     TokenData,
     TokenPayload,
@@ -7,7 +6,7 @@ import {
 import { User } from '../models';
 import { Response, Request } from 'express';
 import jwt from 'jsonwebtoken'
-import { ErrorTypes } from '../interfaces/error';
+import { parseDurationToSeconds } from '../utils/date_utils/parseDurationToSeconds';
 
 export class TokenServices {
     private readonly JWT_SECRET: string;
@@ -87,31 +86,12 @@ export class TokenServices {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: this.getExpirationInSeconds(this.JWT_REFRESH_EXPIRATION) * 1000,
+            maxAge: parseDurationToSeconds(this.JWT_REFRESH_EXPIRATION) * 1000,
         })
     }
 
-    public getExpirationInSeconds(expiration: string | number): number {
-        if (typeof expiration === 'number') return expiration;
-        
-        // Parse string like '1h', '7d', etc.
-        const match = expiration.match(/^(\d+)([smhd])$/);
-        if (!match) return 3600; // Default to 1 hour
-        
-        const value = parseInt(match[1]);
-        const unit = match[2];
-        
-        switch (unit) {
-          case 's': return value;
-          case 'm': return value * 60;
-          case 'h': return value * 60 * 60;
-          case 'd': return value * 24 * 60 * 60;
-          default: return 3600;
-        }
-    }
-
     public getExpirationDate(expiration: string): Date {
-        const expiresIn = this.getExpirationInSeconds(expiration);
+        const expiresIn = parseDurationToSeconds(expiration);
         return new Date(Date.now() + expiresIn * 1000);
     }
 }

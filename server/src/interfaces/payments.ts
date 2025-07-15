@@ -1,3 +1,5 @@
+import Stripe from "stripe";
+import { StripePrice } from "./stripe";
 
 export enum PaymentStatus {
     CANCELED = 'canceled',
@@ -11,13 +13,15 @@ export enum PaymentStatus {
 
 export interface PaymentAttributes {
     payment_id: string;
-    user_id: string;
-    customer_id: string;
+    user_id: number;
+    customer_id: string | null;
     amount: number;
+    amount_received?: number;
+    quantity?: number;
     currency: string;
-    status: PaymentStatus;
-    payment_method_type: string;
-    description?: string;
+    status: Stripe.PaymentIntent.Status;
+    payment_method_type?: string;
+    price: StripePrice;
     failure_message?: string;
     receipt_url?: string;
     createdAt: Date;

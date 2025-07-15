@@ -3,8 +3,15 @@ export interface StripePrice {
   type: 'recurring' | 'one_time';
   amount: number; 
   currency: string;
-  interval: 'day' | 'week' | 'month' | 'year' | null;
-  isDefault: boolean;
+  interval?: Payment_Interval;
+  interval_count?: number;
+}
+
+export enum Payment_Interval {
+  day = 'day',
+  week = 'week',
+  month = 'month',
+  year = 'year',
 }
 
 export interface StripeProduct {

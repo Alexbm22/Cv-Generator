@@ -1,16 +1,10 @@
+import { Payment_Interval } from "./stripe";
 
 export enum SubscriptionStatus {
     ACTIVE = 'Active',
     CANCELED = 'Canceled',
     PAUSED = 'Paused',
     EXPIRED = 'Expired',
-}
-
-export enum BillingInterval {
-    DAY = 'day',
-    WEEK = 'week',
-    MONTH = 'month',
-    YEAR = 'year',
 }
 
 export interface SubscriptionAttributes {
@@ -21,9 +15,8 @@ export interface SubscriptionAttributes {
     status: SubscriptionStatus;
     current_period_start: Date;
     current_period_end: Date;
-    billing_interval: BillingInterval;
+    billing_interval: Payment_Interval;
     billing_interval_count: number;
-    next_billing_date: Date;
     auto_renew: boolean;
     createdAt: Date;
     updatedAt: Date;

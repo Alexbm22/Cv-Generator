@@ -14,11 +14,11 @@ export class StripeController {
     }
 
     static async createPaymentIntent(req: AuthRequest, res: Response, next: NextFunction) {
-        const { priceId } = req.body;
+        const { priceId, quantity } = req.body;
         const userId = req.user.id;
 
         try {
-            const paymentIntentRes = await StripeService.createPaymentIntent(priceId, userId);
+            const paymentIntentRes = await StripeService.createPaymentIntent(priceId, userId, quantity);
             return res.status(200).json(paymentIntentRes);
         } catch (error) {
             return next(error);

@@ -2,12 +2,12 @@ import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/DB/database_config';
 import {
     SubscriptionAttributes,
-    BillingInterval,
     SubscriptionStatus
 } from '../interfaces/subscriptions'; 
+import { Payment_Interval } from '../interfaces/stripe';
 
 interface SubscriptionCreationAttributs extends Optional<SubscriptionAttributes,
-    'subscription_id' | 'createdAt' | 'updatedAt'
+    'subscription_id'| 'auto_renew' | 'createdAt' | 'updatedAt'
 > {}
 
 class Subscriptions extends Model<SubscriptionAttributes, SubscriptionCreationAttributs> implements SubscriptionAttributes{
@@ -18,9 +18,8 @@ class Subscriptions extends Model<SubscriptionAttributes, SubscriptionCreationAt
     public status!: SubscriptionStatus;
     public current_period_start!: Date;
     public current_period_end!: Date;
-    public billing_interval!: BillingInterval;
+    public billing_interval!: Payment_Interval;
     public billing_interval_count!: number;
-    public next_billing_date!: Date;
     public auto_renew!: boolean;
     public createdAt!: Date;
     public updatedAt!: Date;
@@ -64,15 +63,11 @@ Subscriptions.init({
         allowNull: false,
     },
     billing_interval: {
-        type: DataTypes.ENUM(...Object.values(BillingInterval)),
+        type: DataTypes.ENUM(...Object.values(Payment_Interval)),
         allowNull: false,
     },
     billing_interval_count: {
         type: DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
-    },
-    next_billing_date: {
-        type: DataTypes.DATE,
         allowNull: false,
     },
     auto_renew: {

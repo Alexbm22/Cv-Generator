@@ -32,6 +32,7 @@ const PricingPage: React.FC = () => {
         <div key={price.id}>
           <button onClick={() => {
             setSelectedPlan(price.id)
+            console.log(prices)
           }}>
             { price.id }
           </button>

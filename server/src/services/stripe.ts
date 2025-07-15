@@ -1,6 +1,6 @@
 import { stripe } from '../app';
 import Stripe from 'stripe';
-import { StripePrice, StripeProduct } from '../interfaces/stripe';
+import { Payment_Interval, StripePrice, StripeProduct } from '../interfaces/stripe';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
 import { ApiResponse } from '../interfaces/api';
@@ -26,9 +26,30 @@ export class StripeService {
 
     static async createPaymentIntent(
         priceId: string, 
-        userId: number
+        userId: number,
+        quantity?: number
     ): Promise<ApiResponse<string | null>> {
-        const price = await stripe.prices.retrieve(priceId)
+        const price = await stripe.prices.retrieve(priceId);
+
+        if(!price) {
+            throw new AppError(
+                'The selected price does not exist.',
+                404,
+                ErrorTypes.NOT_FOUND
+            )
+        }
+
+        // Validate price type and quantity
+        if(
+            (price.type === 'one_time' && !quantity) ||
+            (price.type === 'recurring' && quantity)
+        ) {
+            throw new AppError(
+                'Invalid request: Quantity is required for one-time prices and should not be provided for recurring prices.',
+                400,
+                ErrorTypes.BAD_REQUEST
+            )
+        }
 
         if((!price.active) || price.deleted) {
             throw new AppError(
@@ -43,13 +64,15 @@ export class StripeService {
             currency: price.currency,
             payment_method_types: ['card'],
             metadata: {
-                userId: userId
+                userId: userId,
+                priceId: price.id,
+                quantity: quantity || null
             }
-        })
+        });
 
         return {
             success: true,
-            message: 'Products fetched successfully',
+            message: 'Payment intent created successfully',
             data: paymentIntent.client_secret
         };
     }
@@ -73,18 +96,23 @@ export class StripeService {
             }
 
             const productEntry = productMap.get(product.id)!;
+            const convertedPrice = this.toStripePrice(price);
 
             // adding the price to the product obj
-            productEntry.prices.push({
-                id: price.id,
-                type: price.type,
-                amount: price.unit_amount! / 100,
-                currency: price.currency.toUpperCase(),
-                interval: price.recurring?.interval ?? null,
-                isDefault: product.default_price === price.id,
-            })
+            productEntry.prices.push(convertedPrice);
         }
 
         return Array.from(productMap.values());
+    }
+
+    public static toStripePrice(price: Stripe.Price): StripePrice {
+        return {
+            id: price.id,
+            type: price.type,
+            amount: price.unit_amount! / 100,
+            currency: price.currency.toUpperCase(),
+            interval: price.recurring?.interval ? Payment_Interval[price.recurring?.interval] : undefined,
+            interval_count: price.recurring?.interval_count ?? 1
+        };
     }
 }
