@@ -5,7 +5,7 @@ import { AuthProvider } from '../interfaces/auth';
 import { AppError } from '../middleware/error_middleware';
 import crypto from 'crypto';
 import { ErrorTypes } from '../interfaces/error';
-import { UserAttributes } from '../interfaces/user'
+import { UserAttributes, UserAccountData } from '../interfaces/user'
 import DownloadCredits from './Download_credits';
 
 interface UserCreationAttributes extends Optional<UserAttributes, 
@@ -42,9 +42,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
         return currentID === hashedID;
     }
 
-    public safeUser(): Omit<
-        UserAttributes, 
-        'id' | 'password' | 'refreshToken' | 'googleId' | 'authProvider' | 'isActive' | 'lastLogin' | 'createdAt' | 'updatedAt'> {
+    public toSafeUser(): UserAccountData {
         const { username, email, profilePicture } = this.get() as UserAttributes;
         
         return {

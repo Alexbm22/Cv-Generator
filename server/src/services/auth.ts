@@ -2,7 +2,6 @@ import {
     loginDto,
     registerDto,
     AuthResponse,
-    UserData,
     TokenPayload,
     AuthProvider,
 } from '../interfaces/auth';
@@ -28,69 +27,60 @@ export class AuthServices {
         this.tokenServices = new TokenServices();
     }
 
-    async googleLogin(IdToken: string, res: Response, next: NextFunction): Promise<AuthResponse | void> {
-        try {
-            const TokenPayload = await this.googleServices.verifyGoogleToken(IdToken);
-    
-            let user = await User.findOne({ where: { email: TokenPayload.email }});
-            const isNewUser = !user;
-    
-            if (!user) { // Registering the new Google account
-                const {
-                    given_name,
-                    family_name,
-                    email,
-                    picture,
-                    google_id
-                } = TokenPayload;
-    
-                const username = await this.userServices.generateUsername(given_name, family_name)
-    
-                user = await User.create({
-                    username: username,
-                    email: email,
-                    authProvider: AuthProvider.GOOGLE,
+    async googleLogin(IdToken: string, res: Response, next: NextFunction): Promise<AuthResponse> {
+        const TokenPayload = await this.googleServices.verifyGoogleToken(IdToken);
+
+        let user = await User.findOne({ where: { email: TokenPayload.email }});
+        const isNewUser = !user;
+
+        if (!user) { // Registering the new Google account
+            const {
+                given_name,
+                family_name,
+                email,
+                picture,
+                google_id
+            } = TokenPayload;
+
+            const username = await this.userServices.generateUsername(given_name, family_name)
+
+            user = await User.create({
+                username: username,
+                email: email,
+                authProvider: AuthProvider.GOOGLE,
+                lastLogin: new Date(),
+                googleId: google_id,
+                isActive: true,
+                profilePicture: picture
+            });
+            
+        } else {
+            if (!user.get('isActive')) {
+                throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
+            }
+
+            if(!user.compareGoogleId(TokenPayload.google_id)) {
+                throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
+            }
+
+            await User.update({
                     lastLogin: new Date(),
-                    googleId: google_id,
-                    isActive: true,
-                    profilePicture: picture
-                });
-            }
-            else {
-                if (!user.get('isActive')) {
-                    return next( new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED));
-                }
-    
-                if(!user.compareGoogleId(TokenPayload.google_id)) {
-                    return next( new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS));
-                }
-    
-                await User.update({
-                        lastLogin: new Date(),
-                    }, {
-                        where: { 
-                            id: user.id
-                    },
-                });
-            }
-    
-            const accessToken = await this.tokenServices.setTokens(user, res); 
-    
-            return {
-                success: true,
-                message: 'Login successfully',
-                data: {
-                    user: user.safeUser() as UserData,
-                    token: accessToken,
-                    firstAuth: isNewUser
-                }
-            };
-        } catch (error) {
-            next(error);
+                }, {
+                    where: { 
+                        id: user.id
+                },
+            });
         }
+
+        const accessToken = await this.tokenServices.setTokens(user, res); 
+
+        return {
+            token: accessToken,
+            firstAuth: isNewUser
+        };
     }
 
-    async login(data: loginDto, res: Response): Promise<AuthResponse | void> {
+    async login(data: loginDto, res: Response): Promise<AuthResponse> {
         const { email, password } = data;
 
         const user = await User.findOne({ where: { email }});
@@ -122,16 +112,11 @@ export class AuthServices {
         const accessToken = await this.tokenServices.setTokens(user, res);
 
         return {
-            success: true,
-            message: 'Login successfully',
-            data: {
-                user: user.safeUser() as UserData,
-                token: accessToken
-            }
+            token: accessToken
         };
     }
 
-    async register(data: registerDto, res: Response): Promise<AuthResponse | void> {
+    async register(data: registerDto, res: Response): Promise<AuthResponse> {
         const { username, email, password } = data;
 
         // verifying if the email is used
@@ -162,43 +147,24 @@ export class AuthServices {
         const accessToken = await this.tokenServices.setTokens(newUser, res);
 
         return {
-            success: true,
-            message: 'User registered successfully',
-            data: {
-                user: newUser.safeUser() as UserData,
-                token: accessToken,
-                firstAuth: true
-            }
+            token: accessToken,
+            firstAuth: true
         };
     }
 
-    async logout(user: UserData, res: Response): Promise<AuthResponse | void> {
-        if (!user) {
-            throw new AppError('User not provided', 401, ErrorTypes.UNAUTHORIZED);
-        }
-
-        const userToLogout = await User.findOne({ where: { email: user.email } });
-        if (!userToLogout) {
-            throw new AppError('User not found', 404, ErrorTypes.NOT_FOUND);
-        }
-
+    async logout(user: User, res: Response): Promise<void> {
         await User.update({
             refreshToken: null,
         }, {
             where: { 
-                id: userToLogout.get('id')
+                id: user.get('id')
             },
         })
 
         res.clearCookie('refreshToken');
-
-        return {
-            success: true,
-            message: 'Logout successfully'
-        };
     }
 
-    async refreshToken(req: Request, res: Response): Promise<AuthResponse | void> { // refreshing user tokens
+    async refreshToken(req: Request, res: Response): Promise<AuthResponse> { // refreshing user tokens
         // extract the user id from the refresh token
         const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
 
@@ -221,16 +187,11 @@ export class AuthServices {
         const accessToken = await this.tokenServices.setTokens(user, res);
 
         return {
-            success: true,
-            message: 'Refreshed Tokens successfully',
-            data: {
-                user: user.safeUser() as UserData,
-                token: accessToken
-            }
+            token: accessToken
         };
     }
 
-    async checkAuth(req: Request, res: Response): Promise<AuthResponse | void> {
+    async checkAuth(req: Request, res: Response): Promise<void> {
         const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
 
         if (!decodedToken) {
@@ -246,13 +207,5 @@ export class AuthServices {
         if (!user) {
             throw new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED);
         }
-
-        return {
-            success: true,
-            message: 'User is authenticated',
-            data: {
-                user: user.safeUser() as UserData
-            }
-        };
     }
 }

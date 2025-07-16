@@ -14,7 +14,7 @@ export const useErrorStore = create<ErrorStore>()(
             errors: state.errors.filter((_, i) => i !== index)
         })),
 
-        creeateError: (error: any) => {
+        createError: (error: any) => {
             const err = new AppError(
                 error.response?.data.message || "Something went wrong!dfsfsdfsd",
                 error.response?.status || 500,

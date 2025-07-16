@@ -1,6 +1,4 @@
 import { CredentialResponse } from "@react-oauth/google";
-import { ApiResponse } from "./api";
-import { UserObj } from "./user";
 
 export interface loginDto {
     email: string;
@@ -15,8 +13,7 @@ export interface registerDto {
 
 export type AuthCredentials = registerDto | loginDto | CredentialResponse;
 
-export interface AuthResponseData {
-    user: UserObj;
+export interface AuthResponse {
     token?: TokenClientData;
     firstAuth?: boolean;
 }
@@ -25,8 +22,6 @@ export interface TokenClientData {
     accessToken: string;
     tokenExpiry: Date;
 }
-
-export interface AuthResponse extends ApiResponse<AuthResponseData> {}
 
 export interface AuthStoreAttributes {
     isAuthenticated: boolean,

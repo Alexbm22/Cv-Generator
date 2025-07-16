@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import {
     AuthRequest,
-    AuthResponse,
     loginDto,
     registerDto
 } from '../interfaces/auth';
@@ -49,9 +48,10 @@ export class AuthController {
 
     async logout(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
+        
         try {
-            const logoutResult = await this.authServices.logout(user, res);
-            return res.status(200).json(logoutResult);
+            await this.authServices.logout(user, res);
+            return res.status(200);
         } catch (error) {
             return next(error)
         }
@@ -62,18 +62,18 @@ export class AuthController {
             const refreshResult = await this.authServices.refreshToken(req, res);   
             if (refreshResult) {
                 return res.status(200).json(refreshResult);
+            } else {
+                return res.status(200);
             }
         } catch (error) {
             return next(error);
         }
     }
 
-    async checkAuth(req: AuthRequest, res: Response, next: NextFunction){
+    async checkAuth(req: Request, res: Response, next: NextFunction){
         try {
-            const refreshResult = await this.authServices.refreshToken(req, res);   
-            if (refreshResult) {
-                return res.status(200).json(refreshResult);
-            }
+            await this.authServices.checkAuth(req, res);   
+            return res.status(200)
         } catch (error) {
             return next(error);
         }

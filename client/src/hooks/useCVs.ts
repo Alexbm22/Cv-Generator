@@ -5,7 +5,6 @@ import { CVAttributes } from "../interfaces/cv";
 import { ApiError } from "../interfaces/error";
 import { CVServerService } from "../services/CVServer";
 import { storeConfig } from "../Store/config/storeConfig";
-import { ApiResponse } from "../interfaces/api";
 
 export const useCreateCV = () => {
     const addCV = useCVsStore(state => state.addCV);
@@ -14,7 +13,7 @@ export const useCreateCV = () => {
 
     return useMutation<CVAttributes, ApiError>({
         mutationFn: async () => {
-            return isAuthenticated ? (await CVServerService.createNewCV()).data! : defaultCVData;
+            return isAuthenticated ? (await CVServerService.createNewCV()) : defaultCVData;
         },
         onSuccess: (cv) => {
             addCV(cv);
@@ -23,7 +22,7 @@ export const useCreateCV = () => {
 }
 
 export const useSyncToServer = () => {
-    return useMutation<ApiResponse<CVAttributes[] | null> | null, ApiError>({
+    return useMutation<CVAttributes[] | null, ApiError>({
         mutationFn: async () => {
             const { getChangedCVs } = useCVsStore.getState();
             const changedCVs = getChangedCVs(); // syncing just the updated CVs
@@ -31,8 +30,8 @@ export const useSyncToServer = () => {
             return (changedCVs.length > 0 ? await CVServerService.syncToServer(changedCVs) : null)
         },
         onSuccess: (syncRes) => {
-            if(!syncRes?.success && syncRes?.data) {
-                const CVs = syncRes.data;
+            if(syncRes) {
+                const CVs = syncRes;
                 
                 const { setFetchedCVs } = useCVsStore.getState();
                 setFetchedCVs(CVs);
@@ -41,7 +40,7 @@ export const useSyncToServer = () => {
             }
         },
         onError: (error) => {
-            useErrorStore.getState().creeateError(error);
+            useErrorStore.getState().createError(error);
             useCVsStore.getState().setCVs([]);
         }
     })
@@ -60,7 +59,7 @@ export const useIndexedDBHydrate = () => {
             setdbHydrated(true);
         },
         onError: (error) => {
-            useErrorStore.getState().creeateError(error);
+            useErrorStore.getState().createError(error);
         }
     })
 }
@@ -68,14 +67,14 @@ export const useIndexedDBHydrate = () => {
 export const useFetchCVs = () => {
     return useMutation<CVAttributes[], ApiError>({
         mutationFn: async () => {
-            return (await CVServerService.fetchFromServer()).data ?? [];
+            return (await CVServerService.fetchFromServer()) ?? [];
         },
         onSuccess: (CVs) => {
             const { setFetchedCVs } = useCVsStore.getState();
             setFetchedCVs(CVs);
         },
         onError: (error) => {
-            useErrorStore.getState().creeateError(error);
+            useErrorStore.getState().createError(error);
             useCVsStore.getState().setCVs([]);
         }
     })

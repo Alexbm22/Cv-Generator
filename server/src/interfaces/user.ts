@@ -1,4 +1,18 @@
 import { AuthProvider } from './auth';
+import { PaymentAttributes, PublicPaymentData } from './payments';
+import { PublicSubscriptionData, SubscriptionAttributes } from './subscriptions';
+
+export interface UserAccountData {
+    username: string;
+    email: string;
+    profilePicture?: string | null;
+}
+
+export interface UserProfile extends UserAccountData {
+    subscription: PublicSubscriptionData | null,
+    credits: number,
+    payments: PublicPaymentData[]
+}
 
 export interface UserAttributes {
     id: number;

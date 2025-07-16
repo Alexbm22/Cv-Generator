@@ -1,7 +1,7 @@
 import {
     TokenData,
     TokenPayload,
-    TokenClientData,
+    PublicTokenData,
 } from '../interfaces/auth';
 import { User } from '../models';
 import { Response, Request } from 'express';
@@ -21,7 +21,7 @@ export class TokenServices {
         this.JWT_REFRESH_EXPIRATION = process.env.JWT_REFRESH_EXPIRATION || '7d';
     }
 
-    async setTokens(user: User, res: Response): Promise<TokenClientData>{ // Generating and setting the tokens
+    async setTokens(user: User, res: Response): Promise<PublicTokenData>{ // Generating and setting the tokens
         const tokens = this.generateTokens(user); // generating the access and refresh tokens
         
         // Set the refresh token in the client cookies

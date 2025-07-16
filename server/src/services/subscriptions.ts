@@ -1,11 +1,22 @@
 import { Subscriptions } from "../models";
-import { SubscriptionStatus } from "../interfaces/subscriptions";
+import { PublicSubscriptionData, SubscriptionStatus } from "../interfaces/subscriptions";
 import { PaymentAttributes } from "../interfaces/payments";
 import { getFutureDate } from "../utils/date_utils/getFutureDate";
 import { AppError } from "../middleware/error_middleware";
 import { ErrorTypes } from "../interfaces/error";
 
 export class SubscriptionService {
+
+    static async getUserSubscription(userId: number): Promise<PublicSubscriptionData | null> {
+        const activeSubscription = await Subscriptions.findOne({
+            where: {
+                user_id: userId,
+                status: SubscriptionStatus.ACTIVE
+            }
+        })
+        return activeSubscription ? activeSubscription?.toSafeSubscription() : null;
+    }
+
     static async createSubscription (paymentObj: PaymentAttributes) {
         try {
             const subscription_end_date = getFutureDate(paymentObj.price.interval!, paymentObj.price.interval_count ?? 1)

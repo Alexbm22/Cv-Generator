@@ -1,5 +1,5 @@
 import { ApiResponse } from "../interfaces/api";
-import { ClientCVAttributes, CVAttributes, CVTemplates } from "../interfaces/cv";
+import { PublicCVAttributes, CVAttributes, CVTemplates } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
 import { UserAttributes } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
@@ -11,22 +11,18 @@ export class CVsService {
 
     static async createCVs(
         userId: number, 
-        CVs: ClientCVAttributes[], 
-    ): Promise<ApiResponse<ClientCVAttributes[]>> {
+        CVs: PublicCVAttributes[], 
+    ): Promise<PublicCVAttributes[]> {
         const candidateCVs = CVs.map((cv) => this.fromDTO(cv, userId)) as CVAttributes[];
 
         CV.bulkCreate(candidateCVs,{
             validate: true
         })
 
-        return {
-            success: true,
-            message: 'CVs created successfully',
-            data: CVs,
-        };
+        return CVs
     } 
 
-    static async createDefaultCV(userId: number): Promise<ApiResponse<ClientCVAttributes>> {
+    static async createDefaultCV(userId: number): Promise<PublicCVAttributes> {
         const publicId = randomUUID();
 
         const createdCV = await CV.create({
@@ -60,34 +56,20 @@ export class CVsService {
             }
         })
 
-        return {
-            success: true,
-            message: 'CV created successfully',
-            data: this.toDTO(createdCV.get()),
-        };
+        return this.toDTO(createdCV.get());
     }
 
-    static async getAllCVs(userId: number): Promise<ApiResponse<ClientCVAttributes[]>> {
-
-        const cvDTOs = await this.getUserCVs(userId);
-
-        return {
-            success: true,
-            message: 'CVs fetched sucessfully!',
-            data: cvDTOs
-        }
+    static async getAllCVs(userId: number): Promise<PublicCVAttributes[]> {
+        return await this.getUserCVs(userId);
     }
 
     static async syncCVs(
         userId: number, 
-        incomingCVs: ClientCVAttributes[]
-    ): Promise<ApiResponse<ClientCVAttributes[]>> {
+        incomingCVs: PublicCVAttributes[]
+    ): Promise<PublicCVAttributes[] | null> {
 
         if(incomingCVs.length == 0){
-            return {
-                success: true,
-                message: 'No CVs passed',
-            }
+            return null;
         }
         
         // Transform DTOs to domain objects
@@ -109,12 +91,7 @@ export class CVsService {
         })
 
         if(this.hasVersionConflicts(existingCVs, updatesByPublicId)) {
-            const userCVs = await this.getUserCVs(userId);
-            return {
-                success: false,
-                message: "CVs version conflicts detected!",
-                data: userCVs // return db CVs current version
-            }
+            return await this.getUserCVs(userId);
         }
 
         const updatePromises = existingCVs.map(async (existingCV) => {
@@ -139,16 +116,13 @@ export class CVsService {
 
         await Promise.all(updatePromises);
         
-        return {
-            success: true,
-            message: 'CVs synced successfully'
-        }
+        return null
     }
 
     static async deleteCV(
         user: UserAttributes, 
         cvId: string, 
-    ): Promise<ApiResponse<null> | void > {
+    ): Promise<void> {
         const deleteCount = await CV.destroy({
             where: {
                 user_id: user.id,
@@ -162,12 +136,7 @@ export class CVsService {
                 400,
                 ErrorTypes.BAD_REQUEST
             );
-        }
-
-        return {
-            success: true,
-            message: "CV deleted successfully!"
-        }
+        }   
     }
 
     private static async getUserCVs(userId: number) {
@@ -217,7 +186,7 @@ export class CVsService {
         return hasVersionConflicts;
     }
 
-    private static fromDTO(cv: ClientCVAttributes, userId: number): Partial<CVAttributes> {
+    private static fromDTO(cv: PublicCVAttributes, userId: number): Partial<CVAttributes> {
         return {
             public_id: cv.id ?? randomUUID(),
             title: cv.title,
@@ -247,7 +216,7 @@ export class CVsService {
         }
     }
 
-    private static toDTO(cv: CVAttributes): ClientCVAttributes {
+    private static toDTO(cv: CVAttributes): PublicCVAttributes {
         return {
             id: cv.public_id,
             title: cv.title,

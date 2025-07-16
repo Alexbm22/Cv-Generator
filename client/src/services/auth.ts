@@ -1,7 +1,6 @@
 import { CredentialResponse } from "@react-oauth/google";
 import { AuthResponse, loginDto, registerDto } from "../interfaces/auth";
 import { apiService } from "./api";
-import { UserObj } from "../interfaces/user";
 
 export class AuthService {
     private static apiUrl = '/auth/';
@@ -27,10 +26,9 @@ export class AuthService {
         );
     }
 
-    public static async logout(userObj: UserObj): Promise<AuthResponse> {
-        return await apiService.post<AuthResponse, UserObj>(
-            this.apiUrl + 'logout', 
-            userObj
+    public static async logout(): Promise<AuthResponse> {
+        return await apiService.post<AuthResponse>(
+            this.apiUrl + 'logout'
         );
     }
 

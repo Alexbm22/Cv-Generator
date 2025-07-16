@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError, catchAsync } from './error_middleware';
-import { AuthRequest, TokenPayload, UserData } from '../interfaces/auth';
+import { AuthRequest, TokenPayload } from '../interfaces/auth';
 import jwt from 'jsonwebtoken';
 import { User } from '../models';
 import { ErrorTypes } from '../interfaces/error';
@@ -35,7 +35,7 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
         return next(new AppError('User not found', 401, ErrorTypes.UNAUTHORIZED));
     }  
 
-    req.user = user.get();
+    req.user = user;
 
     next();
 });

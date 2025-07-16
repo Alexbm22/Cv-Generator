@@ -15,7 +15,7 @@ export class StripeController {
 
     static async createPaymentIntent(req: AuthRequest, res: Response, next: NextFunction) {
         const { priceId, quantity } = req.body;
-        const userId = req.user.id;
+        const userId = req.user.get().id;
 
         try {
             const paymentIntentRes = await StripeService.createPaymentIntent(priceId, userId, quantity);

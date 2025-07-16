@@ -63,4 +63,14 @@ export class PaymentService {
         }
     }
 
+    static async getUserPayments(user_id: number) {
+        const payments = await Payments.findAll({
+            where: {
+                user_id: user_id
+            }
+        })
+
+        return payments.map((payment) => payment.toSafePayment());
+    }
+
 }

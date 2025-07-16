@@ -1,11 +1,11 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/DB/database_config';
 import {
+    PublicSubscriptionData,
     SubscriptionAttributes,
     SubscriptionStatus
 } from '../interfaces/subscriptions'; 
-import { Payment_Interval } from '../interfaces/stripe';
-
+import { Payment_Interval } from '../interfaces/payments';
 interface SubscriptionCreationAttributs extends Optional<SubscriptionAttributes,
     'subscription_id'| 'auto_renew' | 'createdAt' | 'updatedAt'
 > {}
@@ -23,6 +23,30 @@ class Subscriptions extends Model<SubscriptionAttributes, SubscriptionCreationAt
     public auto_renew!: boolean;
     public createdAt!: Date;
     public updatedAt!: Date;
+
+    public toSafeSubscription(): PublicSubscriptionData {
+        const { 
+            subscription_id,
+            plan_id,
+            status,
+            current_period_start,
+            current_period_end,
+            billing_interval, 
+            billing_interval_count, 
+            auto_renew
+        } = this.get();
+        
+        return {
+            subscription_id,
+            plan_id,
+            status,
+            current_period_start,
+            current_period_end,
+            billing_interval, 
+            billing_interval_count, 
+            auto_renew
+        }
+    }
 }
 
 Subscriptions.init({

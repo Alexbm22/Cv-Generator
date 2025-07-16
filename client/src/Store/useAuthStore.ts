@@ -14,11 +14,11 @@ export const useAuthStore = create<AuthStore>()(
         token: null,
 
         clearAuthenticatedUser: () => {
-            const { clearUserData } = useUserStore.getState();
+            const { clearUserProfile } = useUserStore.getState();
             const { clearCVsData } = useCVsStore.getState();
 
             get().clearAuth();
-            clearUserData(); 
+            clearUserProfile(); 
             clearCVsData();
         },
 
@@ -39,13 +39,10 @@ export const useAuthStore = create<AuthStore>()(
 
         handleAuthSuccess(authResponse: AuthResponse) {
             const setAuthState = get().setAuthState;
-            const { setUserData } = useUserStore.getState();
             const token = authResponse.data?.token;
-            const userData = authResponse.data?.user;
 
-            if(token && userData) {
+            if(token) {
               setAuthState(token);
-              setUserData(userData)
             }
         },
 
@@ -69,8 +66,7 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         logout: async (): Promise<AuthResponse> => {
-            const { getUserObj } = useUserStore.getState();
-            return await AuthService.logout(getUserObj());
+            return await AuthService.logout();
         },
 
         forceLogout: async () => {

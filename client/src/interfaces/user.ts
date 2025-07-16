@@ -1,22 +1,22 @@
-import { CVAttributes } from './cv';
+import { PaymentAttributes } from "./payments";
+import { SubscriptionAttributes } from "./subscription";
 
-export interface UserObj {
+export interface UserAccount {
     username: string | null;
     email: string | null;
     profilePicture: string | null;
 }
 
-export interface UserStoreAttributes extends UserObj {
-    CVs: CVAttributes[];
+export interface UserProfile extends UserAccount {
+    subscription: SubscriptionAttributes | null;
+    credits: number;
+    payments: PaymentAttributes[];
 }
 
 export interface UserStoreActions {
-    setUserName: (username: string) => void;
-    setUserEmail: (email: string) => void;
-    setProfilePicture: (profilePicture: string) => void;
-    setUserData: (userData: UserObj) => void;
-    clearUserData: () => void,
-    getUserObj: () => UserObj;
+    setUserProfile: (userData: UserProfile) => void;
+    clearUserProfile: () => void,
+    getUserProfile: () => UserProfile;
 }
 
-export interface UserStore extends UserStoreAttributes, UserStoreActions {}
+export interface UserStore extends UserProfile, UserStoreActions {}

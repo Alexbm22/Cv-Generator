@@ -26,7 +26,7 @@ const CheckoutForm: React.FC = () => {
         });
 
         if (stripeError) {
-            useErrorStore.getState().creeateError(stripeError);
+            useErrorStore.getState().createError(stripeError);
         }
 
         setProcessing(false);

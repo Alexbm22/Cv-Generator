@@ -33,7 +33,7 @@ export interface FieldError {
 export interface ApiError extends AxiosError<ApiErrorResponse> {}
 
 export interface ErrorStoreActions {
-    creeateError: (error: any) => void;
+    createError: (error: any) => void;
     addError: (error: AppError) => void;
     clearErrors: () => void;
     removeError: (index: number) => void;

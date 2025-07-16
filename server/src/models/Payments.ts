@@ -2,7 +2,8 @@ import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/DB/database_config';
 import { 
     PaymentAttributes, 
-    PaymentStatus
+    PaymentStatus,
+    PublicPaymentData
 } from '../interfaces/payments';
 import Stripe from 'stripe';
 import { StripePrice } from '../interfaces/stripe';
@@ -31,6 +32,32 @@ export class Payments extends Model<
     public receipt_url?: string;
     public createdAt!: Date;
     public updatedAt!: Date;
+
+    public toSafePayment(): PublicPaymentData {
+        const {
+            payment_id,
+            quantity,
+            amount,
+            currency,
+            status,
+            payment_method_type,
+            price,
+            failure_message,
+            receipt_url
+        } = this.get()
+
+        return {
+            payment_id,
+            quantity,
+            amount,
+            currency,
+            status,
+            payment_method_type,
+            price,
+            failure_message,
+            receipt_url
+        }
+    }
 }
 
 Payments.init({

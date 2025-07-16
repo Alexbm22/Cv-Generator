@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { UserStore, UserObj } from '../interfaces/user';
+import { UserProfile, UserStore } from '../interfaces/user';
 
 export const useUserStore = create<UserStore>()(
     devtools(
@@ -8,25 +8,29 @@ export const useUserStore = create<UserStore>()(
             username: null,
             email: null,
             profilePicture: null,
+            subscription: null,
+            credits: 0,
+            payments: [],
             
-            setUserName: (username: string) => set({ username }),
-            setUserEmail: (email: string) => set({ email }),
-            setProfilePicture: (profilePicture: string) => set({ profilePicture }),
-            setUserData: (userData: UserObj) => set((state) => ({
+            setUserProfile: (userProfileData) => set((state) => ({
                 ...state,
-                ...userData
+                ...userProfileData
             })),
-            clearUserData: () => set({
+            clearUserProfile: () => set({
                 username: null,
                 email: null,
-                profilePicture: null
+                profilePicture: null,
+                subscription: null,
+                credits: 0,
+                payments: [],
             }),
-            getUserObj: () => {
-                return {
-                    username: get().username,
-                    email: get().email,
-                    profilePicture: get().profilePicture
-                }
+            getUserProfile: () => {
+                const store = get();
+                const profileData = Object.fromEntries(
+                    Object.entries(store).filter(([_, value]) => typeof value !== 'function')
+                ) as UserProfile
+
+                return profileData;
             },
         }), {
             name: 'UserStore', // Name of the slice in the Redux DevTools

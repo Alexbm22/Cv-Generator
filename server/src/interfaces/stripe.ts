@@ -1,3 +1,5 @@
+import { Payment_Interval } from "./payments";
+
 export interface StripePrice {
   id: string;
   type: 'recurring' | 'one_time';
@@ -5,13 +7,6 @@ export interface StripePrice {
   currency: string;
   interval?: Payment_Interval;
   interval_count?: number;
-}
-
-export enum Payment_Interval {
-  day = 'day',
-  week = 'week',
-  month = 'month',
-  year = 'year',
 }
 
 export interface StripeProduct {

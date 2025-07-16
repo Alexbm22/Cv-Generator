@@ -11,31 +11,12 @@ export const createStoreActionsSlice = (set: {
 },get: () => CVEditStore): CVEditStoreActions => ({
 
     getCVObject: () => { 
-        const CV = get();
-        const CVObject = {
-            id: CV.id,
-            title: CV.title,
-            template: CV.template,
-            professionalSummary: CV.professionalSummary,
-            sectionsOrder: CV.sectionsOrder,
-            languages: CV.languages,
-            skills: CV.skills,
-            workExperience: CV.workExperience,
-            education: CV.education,
-            projects: CV.projects,
-            customSections: CV.customSections,
-            photo: CV.photo,
-            firstName: CV.firstName,
-            lastName: CV.lastName,
-            email: CV.email,
-            phoneNumber: CV.phoneNumber,
-            address: CV.address,
-            birthDate: CV.birthDate,
-            socialLinks: CV.socialLinks,
-            updatedAt: CV.updatedAt,
-            version: CV.version
-        }
-        return CVObject;
+        const store = get();
+        const CVObj = Object.fromEntries(
+            Object.entries(store).filter(([_, value]) => typeof value !== 'function')
+        ) as CVAttributes
+
+        return CVObj;
     },
     saveCV: () => {
         const CV: CVAttributes = get().getCVObject(); 

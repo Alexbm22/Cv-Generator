@@ -1,12 +1,12 @@
 import { stripe } from '../app';
 import Stripe from 'stripe';
-import { Payment_Interval, StripePrice, StripeProduct } from '../interfaces/stripe';
+import { StripePrice, StripeProduct } from '../interfaces/stripe';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
-import { ApiResponse } from '../interfaces/api';
+import { Payment_Interval } from '../interfaces/payments';
 
 export class StripeService {
-    static async getStripeProducts(): Promise<ApiResponse<StripeProduct>> {
+    static async getStripeProducts(): Promise<StripeProduct> {
         const StripePrices = await stripe.prices.list({ expand: [`data.product`] });
         const products = this.mapStripeToProductModel(StripePrices.data)
         if(!products) {
@@ -17,18 +17,14 @@ export class StripeService {
             )
         }
 
-        return {
-            success: true,
-            message: 'Products fetched successfully',
-            data: products[0]
-        };
+        return products[0];
     }
 
     static async createPaymentIntent(
         priceId: string, 
         userId: number,
         quantity?: number
-    ): Promise<ApiResponse<string | null>> {
+    ): Promise<string | null> {
         const price = await stripe.prices.retrieve(priceId);
 
         if(!price) {
@@ -70,11 +66,7 @@ export class StripeService {
             }
         });
 
-        return {
-            success: true,
-            message: 'Payment intent created successfully',
-            data: paymentIntent.client_secret
-        };
+        return paymentIntent.client_secret;
     }
 
     private static mapStripeToProductModel(stripePrices: Stripe.Price[]): StripeProduct[] {

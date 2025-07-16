@@ -6,10 +6,10 @@ import { useErrorStore } from "../Store"
 export const useCreatePaymentIntent = () => {
     return useMutation<string, ApiError, string>({
         mutationFn: async (priceId) => {
-            return (await StripeService.createPaymentIntent(priceId)).data!
+            return (await StripeService.createPaymentIntent(priceId))
         },
         onError: (error) => {
-            useErrorStore.getState().creeateError(error);
+            useErrorStore.getState().createError(error);
         }
     })
 }

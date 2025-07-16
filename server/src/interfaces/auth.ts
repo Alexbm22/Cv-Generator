@@ -1,19 +1,18 @@
 import { Request } from 'express';
-import { ClientCVAttributes } from './cv';
-import { ApiResponse } from './api';
-import { UserAttributes } from './user';
+import { PublicCVAttributes } from './cv';
+import { User } from '../models';
 
 export interface loginDto {
     email: string;
     password: string;
-    CVs?: ClientCVAttributes[]   
+    CVs?: PublicCVAttributes[]   
 }
 
 export interface registerDto {
     username: string;
     email: string;
     password: string;
-    CVs?: ClientCVAttributes[]
+    CVs?: PublicCVAttributes[]
 }
 
 export interface GoogleUserPayload {
@@ -25,23 +24,15 @@ export interface GoogleUserPayload {
     email_verified?: boolean; 
 }
 
-export interface AuthResponseData {
-    user: UserData
-    token?: TokenClientData,
+export interface AuthResponse {
+    token?: PublicTokenData,
     firstAuth?: boolean, 
 }
 
-export interface AuthResponse extends ApiResponse<AuthResponseData> {}
 
 export enum AuthProvider {
     LOCAL = 'local',
     GOOGLE = 'google'
-}
-
-export interface UserData {
-    username: string;
-    email: string;
-    profilePicture?: string | null;
 }
 
 export interface TokenPayload {
@@ -49,7 +40,7 @@ export interface TokenPayload {
     exp?: number;
 }
 
-export interface TokenClientData {
+export interface PublicTokenData {
     accessToken: string;
     tokenExpiry: Date;
 }
@@ -60,5 +51,5 @@ export interface TokenData {
 }
 
 export interface AuthRequest extends Request {
-    user: UserAttributes;
+    user: User;
 }

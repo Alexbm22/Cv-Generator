@@ -31,7 +31,7 @@ export const useInitialDataSync = () => {
     return useMutation({
         mutationFn: async () => {
             const { CVs } = useCVsStore.getState();
-            return (await CVServerService.createCVs(CVs)).data ?? [];
+            return (await CVServerService.createCVs(CVs)) ?? [];
         },
         onSuccess: (CVs) => {
             const { setFetchedCVs } = useCVsStore.getState();
@@ -52,9 +52,9 @@ export const useAuthAndSync =  <T extends AuthCredentials>(
             // authenticate the user on the server side
             setIsLoadingAuth(true); 
             const authResponse = await authFunction(authCredentials);
-            setToken(authResponse.data?.token!);
+            setToken(authResponse.token!);
 
-            if(authResponse.data?.firstAuth) {                
+            if(authResponse.firstAuth) {                
                 // sync the user data 
                 mutateSync();
             }

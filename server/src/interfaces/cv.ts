@@ -107,7 +107,7 @@ export interface CVMetadataAttributes {
     version?: number;
 }
 
-export interface ClientCVAttributes extends CVContentAttributes, CVMetadataAttributes, PersonalDataAttributes {}
+export interface PublicCVAttributes extends CVContentAttributes, CVMetadataAttributes, PersonalDataAttributes {}
 
 export interface CVAttributes {
     id: number,
