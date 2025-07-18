@@ -4,6 +4,7 @@ import {
     AuthResponse,
     TokenPayload,
     AuthProvider,
+    PublicTokenData,
 } from '../interfaces/auth';
 import { User } from '../models';
 import { Response, Request, NextFunction } from 'express';
@@ -191,7 +192,7 @@ export class AuthServices {
         };
     }
 
-    async checkAuth(req: Request, res: Response): Promise<void> {
+    async checkAuth(req: Request, res: Response): Promise<PublicTokenData> {
         const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
 
         if (!decodedToken) {
@@ -203,9 +204,10 @@ export class AuthServices {
                 id: decodedToken.id,
             }
         });
-
         if (!user) {
             throw new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED);
         }
+
+        return this.tokenServices.generateAccessToken(user);
     }
 }

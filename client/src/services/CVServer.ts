@@ -4,14 +4,14 @@ import { apiService } from "./api";
 export class CVServerService {
     private static apiUrl = '/protected/cvs';
 
-    public static async syncToServer(CVs: CVAttributes[]) {
-        return await apiService.put<CVAttributes[], CVAttributes[] | null>(
+    public static async sync(CVs: CVAttributes[]) {
+        return await apiService.put<CVAttributes[] | null, CVAttributes[]>(
             this.apiUrl + '/sync',
             CVs
         )
     }
 
-    public static async fetchFromServer() {
+    public static async fetch() {
         return await apiService.get<CVAttributes[]>(
             this.apiUrl
         )

@@ -1,11 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore, useCVsStore, useErrorStore } from '../Store';
-import { AuthResponse, AuthCredentials } from '../interfaces/auth';
+import { AuthResponse, AuthCredentials, TokenClientData } from '../interfaces/auth';
 import { APIError } from '../interfaces/api';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../router/routes';
 import { CVServerService } from '../services/CVServer';
 import * as yup from 'yup';
+import { AuthService } from '../services/auth';
 
 export const useFormSubmission = <T>(
     schema: yup.ObjectSchema<{}, T, {}, "">,
@@ -31,24 +32,24 @@ export const useInitialDataSync = () => {
     return useMutation({
         mutationFn: async () => {
             const { CVs } = useCVsStore.getState();
-            return (await CVServerService.createCVs(CVs)) ?? [];
+            return await CVServerService.createCVs(CVs);
         },
         onSuccess: (CVs) => {
-            const { setFetchedCVs } = useCVsStore.getState();
-            setFetchedCVs(CVs);
+            useCVsStore.getState().setCVs(CVs);
+            useCVsStore.getState().setlastFetched()
         },
     })
 }
 
-export const useAuthAndSync =  <T extends AuthCredentials>(
+export const useAuthAndSync = <T extends AuthCredentials>(
     authFunction: (authCredentials: T) => Promise<AuthResponse>
 ) => {
-
     const { mutate: mutateSync } = useInitialDataSync();  
-    const { handleAuthSuccess, setToken, setIsLoadingAuth } = useAuthStore.getState();
-
+    
     return useMutation<void, APIError, T>({
         mutationFn: async (authCredentials: T) => {
+            const { handleAuthSuccess, setToken, setIsLoadingAuth } = useAuthStore.getState();
+            
             // authenticate the user on the server side
             setIsLoadingAuth(true); 
             const authResponse = await authFunction(authCredentials);
@@ -58,19 +59,19 @@ export const useAuthAndSync =  <T extends AuthCredentials>(
                 // sync the user data 
                 mutateSync();
             }
+
             // handle auth after syncing data 
-            handleAuthSuccess(authResponse);
+            if(authResponse.token) handleAuthSuccess(authResponse.token);
         },
-        onSettled: () => setIsLoadingAuth(false),
+        onSettled: () => useAuthStore.getState().setIsLoadingAuth(false),
     })
 }
 
 export const useLogout = () => {
-
     const navigate = useNavigate();
 
-    return useMutation<AuthResponse, APIError>({
-        mutationFn: async () => await useAuthStore.getState().logout(),
+    return useMutation<void, APIError>({
+        mutationFn: async () => await AuthService.logout(),
         onSuccess: () => {
             navigate(routes.login.path, { replace: true });
         },
@@ -81,14 +82,14 @@ export const useLogout = () => {
 }
 
 export const useCheckAuth = () => {
-    return useMutation<AuthResponse, APIError>({
+    return useMutation<TokenClientData, APIError>({
         mutationFn: async () => {
             useAuthStore.getState().setIsLoadingAuth(true);
-            return await useAuthStore.getState().checkAuth()
+            return await AuthService.checkAuth();
         },
         onSuccess: (response) => {
             const { handleAuthSuccess } = useAuthStore.getState();
-            handleAuthSuccess(response);
+            handleAuthSuccess(response)
         }, 
         onError: () => {
             useAuthStore.getState().clearAuthenticatedUser();

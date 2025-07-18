@@ -1,95 +1,94 @@
 import { create } from 'zustand';
-import { persist, devtools } from 'zustand/middleware';
+import { persist, devtools, createJSONStorage } from 'zustand/middleware';
 import { 
-    CVAttributes,
     CVStore,
 } from '../interfaces/cv';
-import { useAuthStore } from './useAuthStore';
-import { withFunctionCallExcept } from './middleware/withFunctionCallExcept';
-import { removeCVById , setIndexedDbCVs  } from '../lib/indexedDB/cvStore';
+import { storage  } from '../lib/indexedDB/cvStore';
+import { triggerOnChange } from './middleware/triggerOnChange';
 import { CVLocalService } from '../services/CVLocal';
 
 export const useCVsStore = create<CVStore>()(
     devtools(
         persist( 
-            withFunctionCallExcept<CVStore>(
-                CVLocalService.persistAllCVs,
-                [ 'setCVs', 'setdbHydrated', 'setFetchedCVs', 'setLastSynced', 'isSyncStale'] // Exclude these actions from the middleware
-            )(
+            triggerOnChange<CVStore>({
+                callback: CVLocalService.handleCVHydration.bind(CVLocalService),
+                ignoredKeys: ['_hasHydrated', 'lastSynced', 'lastFetched'],
+            }) (
                 (set, get) => ({
                     CVs: [],
-                    lastSynced: null,
-                    dbHydrated: false,
 
-                    clearCVsData: () => {
-                        set({
-                            CVs: [],
-                            lastSynced: null,
-                            dbHydrated: false
-                        })
-                    },
-                    setLastSynced: (time: number) => set({ lastSynced: time }),
+                    _hasHydrated: false,
+                    lastSynced: null,
+                    lastFetched: null,
+                    
+                    setLastSynced: () => set({ lastSynced: new Date().getTime() }),
                     isSyncStale: () => {
                         const now = new Date().getTime();
                         const lastSynced = get().lastSynced;
                         const maximumStalePeriod = 0.5 * 60 * 1000; // 1 minutes
 
                         if(!lastSynced) return true;
-
+                        
                         return (now - lastSynced) > maximumStalePeriod;
                     },
+
+                    setlastFetched: () => set({ lastFetched: new Date().getTime() }),
+                    isFetchStale: () => {
+                        const now = new Date().getTime();
+                        const lastFetched = get().lastFetched;
+                        const maximumStalePeriod = 0.5 * 60 * 1000; // 1 minutes
+
+                        if(!lastFetched) return true;
+                        
+                        return (now - lastFetched) > maximumStalePeriod;
+                    },
+                    
+                    setHasHydrated: (hasHydrated) => set({ _hasHydrated: hasHydrated }),
+
+                    clearCVsData: () => {
+                        set({
+                            CVs: [],
+                            lastSynced: null,
+                            _hasHydrated: false
+                        })
+                    },
+                    
                     getChangedCVs: () => {
+                        // to be improved
                         const { lastSynced, CVs } = get();
                         
-                        const changedCVs = CVs.filter((cv) => 
+                        return CVs.filter((cv) => 
                             cv.updatedAt && cv.updatedAt > lastSynced!
                         )
-
-                        return changedCVs;
                     },
 
-                    setdbHydrated: (dbHydrated: boolean) => set({ dbHydrated: dbHydrated }),
-                    
-                    setFetchedCVs: (CVs: CVAttributes[]) => {
-                        const { setdbHydrated, setCVs, setLastSynced } = get();
-                        
-                        setLastSynced(new Date().getTime());
-                        setIndexedDbCVs(CVs); 
-                        setCVs(CVs);
-                        setdbHydrated(true);
-                    },
-                    
-                    setCVs: (CVs: CVAttributes[]) => set({ CVs }),
+                    setCVs: (CVs) => set({ CVs }),
 
-                    addCV: (CV: CVAttributes) => {
+                    addCV: (CV) => {
                         set((state) => ({ CVs: state.CVs.concat(CV) }));
                     },
 
                     removeCV: (id: string) => {
-                        if(useAuthStore.getState().isAuthenticated){
-                            removeCVById (id); // Delete from IndexedDB
-                        }
                         set((state) => ({ CVs: state.CVs.filter((cv) => cv.id !== id) }))
                     },
 
-                    updateCV: (updatedCV: CVAttributes) => {
+                    updateCV: (updatedCV) => {
                         if (get().CVs.some((cv) => cv.id === updatedCV.id)) {
                             set((state) => ({ CVs: state.CVs.map((cv) => (cv.id === updatedCV.id ? updatedCV : cv)) }))
                         } else { 
                             get().addCV(updatedCV);
                         }
                     },
-
-        })), {
+                })
+            ), 
+        {
             name: 'Resumes',
-            partialize: (state) => {
-                const { isAuthenticated } = useAuthStore.getState();
-
-                const persisted = isAuthenticated ? { lastSynced: state.lastSynced } : { 
-                    CVs: state.CVs
-                } 
-
-                return persisted;
+            storage: createJSONStorage(() => storage), // sau sessionStorage
+            partialize: (state) => ({
+                CVs: state.CVs
+            }),
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
             },
         }), {
             name: 'CVsStore', // Name of the slice in the Redux DevTools

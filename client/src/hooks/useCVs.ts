@@ -53,10 +53,9 @@ export const useIndexedDBHydrate = () => {
             return CVs ?? [];
         },
         onSuccess: (CVs) => {
-            const { setdbHydrated, setCVs } = useCVsStore.getState();
+            const { setCVs } = useCVsStore.getState();
 
             setCVs(CVs);
-            setdbHydrated(true);
         },
         onError: (error) => {
             useErrorStore.getState().createError(error);

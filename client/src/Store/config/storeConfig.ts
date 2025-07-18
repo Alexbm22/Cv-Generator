@@ -1,7 +1,7 @@
-import { debounce } from 'lodash';
 import { StoreApi } from 'zustand'; 
 import { v4 as uuid } from 'uuid';
 import { CVEditStore, CVTemplates } from '../../interfaces/cv';
+import { debounce } from 'lodash';
 
 export const storeConfig = {
     defaultStates: {
@@ -40,7 +40,7 @@ export const storeConfig = {
 
                 saveCV(); // saving the CV to the main user cv list
                 setUpdatedAt(new Date().getTime());
-            }, 1000), // 3 seconds debounce
+            }, 3000), // 3 seconds debounce
             excludedActions: ['getCVObject', 'saveCV', 'setUpdatedAt'], // Actions that should not trigger the auto-save
         }
     }

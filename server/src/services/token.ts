@@ -62,10 +62,28 @@ export class TokenServices {
         return decodedToken;
     }
 
-    public generateTokens(user: User): TokenData {
-        const payload = {
+    public generateTokenPayload(user: User): TokenPayload {
+        return {
             id: user.get('id') ? user.get('id') : user.id,
-        } as TokenPayload
+        };
+    }
+
+    public generateAccessToken(user: User): PublicTokenData {
+        const payload = this.generateTokenPayload(user);
+        const accessToken = jwt.sign(payload, this.JWT_SECRET as jwt.Secret, {
+            expiresIn: this.JWT_EXPIRATION as any
+        });
+
+        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
+
+        return {
+            accessToken,
+            tokenExpiry: accessExpirationDate
+        };
+    }
+
+    public generateTokens(user: User): TokenData {
+        const payload = this.generateTokenPayload(user);
 
         const accessToken = jwt.sign(payload, this.JWT_SECRET as jwt.Secret, {
             expiresIn: this.JWT_EXPIRATION as any

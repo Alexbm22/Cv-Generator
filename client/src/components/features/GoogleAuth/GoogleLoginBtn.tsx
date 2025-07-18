@@ -1,10 +1,10 @@
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
-import { useAuthAndSync } from '../../../hooks/useAuth'
-import { useAuthStore } from '../../../Store';
+import { useAuthAndSync } from '../../../hooks/useAuth';
+import { AuthService } from '../../../services/auth';
 
 const GoogleLoginBtn: React.FC = () => {
 
-    const { googleLogin } = useAuthStore.getState();
+    const googleLogin = AuthService.googleLogin.bind(AuthService);
     const { mutate: mutateGoogleLogin } = useAuthAndSync(googleLogin);
 
     const handleSuccess = (googleResponse: CredentialResponse) => {

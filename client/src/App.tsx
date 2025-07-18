@@ -11,14 +11,6 @@ function App() {
 
   const { mutate: checkAuth } = useCheckAuth();
 
-  const { 
-    mutate: hydrateCVs,
-    isSuccess: isHydrationSuccess,
-    isError: isHydrationError 
-  } = useIndexedDBHydrate();
-  const { mutate: mutateSyncCVs } = useSyncToServer()
-  const { mutate: fetchCVs } = useFetchCVs();
-
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const setUserProfile = useUserStore(state => state.setUserProfile);
@@ -45,26 +37,6 @@ function App() {
       checkAuth();
     }
   },[checkAuth])
-  
-  // to do improve the logic
-  useEffect(() => {
-    if(isAuthenticated) {
-      const { lastSynced, isSyncStale } = useCVsStore.getState();
-      if (!lastSynced) {
-        fetchCVs();
-      } else {
-        if(isHydrationSuccess) {
-          if(isSyncStale()){
-            mutateSyncCVs()
-          } 
-        } else if(isHydrationError){
-          fetchCVs();
-        } else {
-          hydrateCVs();
-        }
-      }
-    }
-  }, [isAuthenticated, isHydrationSuccess, isHydrationError])
 
   return (
     <AppRoutes/>

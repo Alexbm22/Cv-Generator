@@ -32,17 +32,9 @@ export interface AuthStoreAttributes {
 export interface AuthStoreActions {
     clearAuthenticatedUser: () => void;
     setIsLoadingAuth: (isLoadingAuth: boolean) => void,
-    setAuthState: (token: TokenClientData) => void
-    clearAuth: () => void,
     setToken: (token: TokenClientData) => void,
     isTokenExpired: () => boolean,
-    handleAuthSuccess: (authResponse: AuthResponse) => void;
-    googleLogin: (googleResponse: CredentialResponse) => Promise<AuthResponse>,
-    login: (loginDto: loginDto) => Promise<AuthResponse>,
-    register: (registerDto: registerDto) => Promise<AuthResponse>,
-    logout: () => Promise<AuthResponse>,
-    forceLogout: () => void,
-    checkAuth: () => Promise<AuthResponse> 
+    handleAuthSuccess: (token: TokenClientData) => void;
 }
 
 export interface AuthStore extends AuthStoreActions, AuthStoreAttributes {}

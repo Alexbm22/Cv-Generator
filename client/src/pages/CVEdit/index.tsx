@@ -12,7 +12,7 @@ const CVEditPage: React.FC = () => {
     const { id } = useParams<{id: string}>();
 
     const CVs = useCVsStore((state) => state.CVs);
-    const dbHydrated = useCVsStore((state) => state.dbHydrated);
+    const _hasHydrated = useCVsStore((state) => state._hasHydrated);
     const setCV = useCvEditStore((state) => state.setCV);
 
     useEffect(() => {
@@ -23,7 +23,7 @@ const CVEditPage: React.FC = () => {
         if(CV){
             setCV(CV);
         }
-    }, [dbHydrated]);
+    }, [_hasHydrated]);
 
     return (
         <div className="flex flex-column w-full h-full relative">

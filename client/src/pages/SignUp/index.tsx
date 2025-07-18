@@ -4,11 +4,13 @@ import { useAuthStore } from '../../Store'
 import { registerDto } from "../../interfaces/auth";
 import Field from '../../components/features/AuthForm/formField'
 import { registrationSchema } from "../../utils/validations";
-
+import { AuthService } from "../../services/auth";
 
 const SignUp: React.FC = () =>{
 
-    const { setIsLoadingAuth, register } = useAuthStore.getState();
+    const register = AuthService.register.bind(AuthService); 
+
+    const setIsLoadingAuth = useAuthStore(state => state.setIsLoadingAuth);
     const { mutate: mutateRegistration, isPending } = useAuthAndSync(register);
     
     useEffect(() => {

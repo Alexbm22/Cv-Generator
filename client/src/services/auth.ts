@@ -1,6 +1,8 @@
 import { CredentialResponse } from "@react-oauth/google";
-import { AuthResponse, loginDto, registerDto } from "../interfaces/auth";
+import { AuthResponse, loginDto, registerDto, TokenClientData } from "../interfaces/auth";
 import { apiService } from "./api";
+import { useAuthStore } from "../Store";
+import { routes } from "../router/routes";
 
 export class AuthService {
     private static apiUrl = '/auth/';
@@ -26,15 +28,24 @@ export class AuthService {
         );
     }
 
-    public static async logout(): Promise<AuthResponse> {
-        return await apiService.post<AuthResponse>(
+    public static async logout(): Promise<void> {
+        return await apiService.post<void>(
             this.apiUrl + 'logout'
         );
     }
 
-    public static async checkAuth(): Promise<AuthResponse>{
-        return await apiService.get<AuthResponse>(
+    public static async checkAuth(): Promise<TokenClientData>{
+        return await apiService.get<TokenClientData>(
             this.apiUrl + 'check_auth'
         );
+    }
+
+    public static async forceLogout(): Promise<void> {
+        await this.logout();
+        useAuthStore.getState().clearAuthenticatedUser();
+
+        if(window.location !== undefined){
+            window.location.href = routes.login.path; // Redirect to login page
+        }
     }
 }

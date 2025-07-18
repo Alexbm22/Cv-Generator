@@ -72,8 +72,8 @@ export class AuthController {
 
     async checkAuth(req: Request, res: Response, next: NextFunction){
         try {
-            await this.authServices.checkAuth(req, res);   
-            return res.status(200)
+            const tokenData = await this.authServices.checkAuth(req, res);   
+            return res.status(200).json(tokenData);
         } catch (error) {
             return next(error);
         }

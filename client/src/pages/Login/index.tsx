@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useAuthAndSync, useFormSubmission } from "../../hooks/useAuth";
-import { useAuthStore } from '../../Store'
 import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
 import Field from '../../components/features/AuthForm/formField'
 import { loginSchema } from "../../utils/validations";
 import { loginDto } from "../../interfaces/auth";
+import { AuthService } from "../../services/auth";
 
 const Login: React.FC = () =>{
 
-    const { login } = useAuthStore.getState();
+    const login = AuthService.login.bind(AuthService);
     const { mutate: mutateLogin } = useAuthAndSync(login);
 
     const [ showPassword, setShowPassword ] = useState(false);

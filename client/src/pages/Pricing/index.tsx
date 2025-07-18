@@ -18,7 +18,7 @@ const PricingPage: React.FC = () => {
     staleTime: 5 * 60 * 1000 // 5 minutes
   })
 
-  const product = data?.data;
+  const product = data;
   const prices = product?.prices
 
   if (isLoading) return <div>Loading...</div>

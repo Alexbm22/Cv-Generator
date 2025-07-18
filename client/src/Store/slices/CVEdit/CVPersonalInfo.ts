@@ -9,7 +9,7 @@ export const createPersonalInfoSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
     (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
 }): CVPersonalInfoSliceAttributes => ({
-    photo: '',
+    photo: null,
     firstName: '',
     lastName: '',
     email: '',
