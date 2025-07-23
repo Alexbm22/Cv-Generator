@@ -1,10 +1,14 @@
 import React from "react";
 import { useCreateCV } from "../../hooks/useCVs";
+import { useCVsStore } from "../../Store";
+import { useNavigate } from "react-router-dom";
+import { routes } from "../../router/routes";
 
 const CVsPage: React.FC = () => {
 
   const { mutate: createNewCV } = useCreateCV();
-  
+  const CVs = useCVsStore(state => state.CVs);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -15,6 +19,22 @@ const CVsPage: React.FC = () => {
           createNewCV()
         }}
       >add cv</button>
+      <div>
+        {
+          CVs.map((cv) => (
+            <div key={cv.id}>
+              {cv.id}
+              <button onClick={() => {
+                navigate(routes.editResume.path.replace(/:id$/, cv.id), {
+                  replace: true
+                })
+              }}>
+                edit
+              </button>
+            </div>
+          ))
+        }
+      </div>
     </>
   );
 }

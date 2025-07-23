@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../Store/useAuthStore';
 import { AuthResponse } from '../interfaces/auth';
 import { useErrorStore } from '../Store';
@@ -45,107 +45,114 @@ class ApiService {
   private setupInterceptors() {
     // Request interceptor for auth tokens
     this.client.interceptors.request.use(
-      async (config) => {
-
-        if (config.url?.includes('/auth/refresh_token')) {
-          return config
-        }
-
-        if(!config.url?.includes('/protected')){
-          return config;
-        }
-
-        const { token, isTokenExpired, setIsLoadingAuth } = useAuthStore.getState();
-
-        if(isTokenExpired() || !token){
-          try {
-            setIsLoadingAuth(true); // Set loading state
-            const response =  await this.refreshTokenOnce()
-
-            if (typeof response.token?.accessToken !== 'string' || !response.token) {
-              // to implement logging error handling 
-              throw new Error('Invalid token structure received from server');
-            }
-
-            const { handleAuthSuccess } = useAuthStore.getState();
-            handleAuthSuccess(response.token);
-
-            config.headers.Authorization = `Bearer ${response.token.accessToken}`;
-
-          } catch (error) {
-            this.handleAPIError(error as APIError);
-            await AuthService.forceLogout();
-            Promise.reject(error);
-          }
-          finally{
-            setIsLoadingAuth(false); // Reset loading state
-            this.refreshingPromise = undefined; // Reset the promise after refresh
-          }
-        } else  {
-          config.headers.Authorization = `Bearer ${token.accessToken}`;
-        }
-
-        return config;
-      },
+      this.requestInterceptor,
       (error) => Promise.reject(error)
     );
 
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
-      async (error: AxiosError) => {
-
-        if (!error.config) {
-          this.handleAPIError(error as APIError)
-          return Promise.reject(error);
-        }
-
-        if (error.config.url?.includes('/check_auth')){
-          return Promise.reject(error);
-        }
-
-        if(error.config.url?.includes('/refresh_token')) {
-          this.handleAPIError(error as APIError)
-          return Promise.reject(error);
-        }
-
-        const originalRequest = error.config as RetryableRequestConfig;
-
-        // refreshing the tokens if there is an authorization error
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true; // to prevent infinite loops
-
-          const { setIsLoadingAuth } = useAuthStore.getState();
-
-          try {
-            setIsLoadingAuth(true); // Set loading state
-
-            const response = await this.refreshTokenOnce();
-
-            if (typeof response.token?.accessToken !== 'string' || !response.token) {
-              throw new Error('Invalid token structure received from server');
-            }
-
-            const { handleAuthSuccess } = useAuthStore.getState();
-            handleAuthSuccess(response.token);
-
-            originalRequest.headers.Authorization = `Bearer ${response.token.accessToken}`;
-
-            return this.client(originalRequest);
-          } catch (refreshError) {
-            await AuthService.forceLogout();// Clear auth state on refresh failure
-            this.handleAPIError(refreshError as APIError)
-          }
-          finally{
-            setIsLoadingAuth(false); // Reset loading state
-            this.refreshingPromise = undefined; // Reset the promise after refresh
-          }
-        }
-        
-        this.handleAPIError(error as APIError)
-        return Promise.reject(error);
-      }
+      this.responseErrorInterceptor
     );
+      
+  }
+
+  private async requestInterceptor(config: InternalAxiosRequestConfig) {
+    if (config.url?.includes('/auth/refresh_token')) 
+      return config
+
+    if(!config.url?.includes('/protected'))
+      return config
+
+    const { 
+      token, 
+      isTokenExpired, 
+      setIsLoadingAuth, 
+      handleAuthSuccess
+     } = useAuthStore.getState();
+
+    if(isTokenExpired() || !token){
+      try {
+        setIsLoadingAuth(true); // Set loading state
+        const response =  await this.refreshTokenOnce()
+
+        if (typeof response.token?.accessToken !== 'string' || !response.token) {
+          // to implement logging error handling 
+          throw new Error('Invalid token structure received from server');
+        }
+
+        handleAuthSuccess(response.token);
+
+        config.headers.Authorization = `Bearer ${response.token.accessToken}`;
+
+      } catch (error) {
+        this.handleAPIError(error as APIError);
+        await AuthService.forceLogout();
+        Promise.reject(error);
+      }
+      finally{
+        setIsLoadingAuth(false); // Reset loading state
+        this.refreshingPromise = undefined; // Reset the promise after refresh
+      }
+    } else  {
+      config.headers.Authorization = `Bearer ${token.accessToken}`;
+    }
+
+    return config;
+  }
+
+  private async responseErrorInterceptor(error: AxiosError) {
+    if (!error.config) {
+      this.handleAPIError(error as APIError)
+      return Promise.reject(error);
+    }
+
+    if (error.config.url?.includes('/check_auth')){
+      return Promise.reject(error);
+    }
+
+    if(error.config.url?.includes('/refresh_token')) {
+      this.handleAPIError(error as APIError)
+      return Promise.reject(error);
+    }
+
+    const originalRequest = error.config as RetryableRequestConfig;
+
+    // refreshing the tokens if there is an authorization error
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true; // to prevent infinite loops
+
+      const { 
+        setIsLoadingAuth,
+        handleAuthSuccess
+      } = useAuthStore.getState();
+
+      try {
+        setIsLoadingAuth(true); // Set loading state
+
+        const response = await this.refreshTokenOnce();
+
+        if (typeof response.token?.accessToken !== 'string' || !response.token) {
+          throw new Error('Invalid token structure received from server');
+        }
+
+        handleAuthSuccess(response.token);
+
+        originalRequest.headers.Authorization = `Bearer ${response.token.accessToken}`;
+
+        return this.client(originalRequest);
+      } catch (refreshError) {
+        await AuthService.forceLogout();// Clear auth state on refresh failure
+        this.handleAPIError(refreshError as APIError)
+      }
+      finally{
+        setIsLoadingAuth(false); // Reset loading state
+        this.refreshingPromise = undefined; // Reset the promise after refresh
+      }
+    }
+    
+    this.handleAPIError(error as APIError)
+    return Promise.reject(error);
   }
 
   // Ensure only one token refresh request is in-flight at a time

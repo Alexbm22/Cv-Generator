@@ -11,7 +11,7 @@ export const useCVsStore = create<CVStore>()(
     devtools(
         persist( 
             triggerOnChange<CVStore>({
-                callback: CVLocalService.handleCVHydration.bind(CVLocalService),
+                callback: CVLocalService.handleCVsHydration.bind(CVLocalService),
                 ignoredKeys: ['_hasHydrated', 'lastSynced', 'lastFetched'],
             }) (
                 (set, get) => ({
@@ -85,7 +85,9 @@ export const useCVsStore = create<CVStore>()(
             name: 'Resumes',
             storage: createJSONStorage(() => storage), // sau sessionStorage
             partialize: (state) => ({
-                CVs: state.CVs
+                CVs: state.CVs,
+                lastSynced: state.lastSynced,
+                lastFetched: state.lastFetched,
             }),
             onRehydrateStorage: () => (state) => {
                 state?.setHasHydrated(true);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuthAndSync, useFormSubmission } from "../../hooks/useAuth";
-import GoogleLoginBtn from "../../components/features/GoogleAuth/GoogleLoginBtn";
+import GoogleLoginBtn from "./GoogleAuth/GoogleLoginBtn";
 import Field from '../../components/features/AuthForm/formField'
 import { loginSchema } from "../../utils/validations";
 import { loginDto } from "../../interfaces/auth";

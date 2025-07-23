@@ -1,7 +1,7 @@
 import { DownloadsService } from "../services/downloads";
 import { AuthRequest } from "../interfaces/auth";
 import { Response, NextFunction } from "express";
-import { PublicCVAttributes } from "@/interfaces/cv";
+import { PublicCVAttributes } from "../interfaces/cv";
 
 export class DownloadsController {
 
