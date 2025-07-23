@@ -7,55 +7,40 @@ export class CVLocalService {
     private static isProcessing = false;
 
     public static async syncCVs() {
-        const { getChangedCVs, setCVs, setLastSynced } = useCVsStore.getState();
+        const { getChangedCVs, setLastSynced } = useCVsStore.getState();
 
         try {
-            const res = await CVServerService.sync(getChangedCVs());
-    
-            // to do: separate the sync logic from the fetch logic
-            if(res){ // handling version conflicts
-                setCVs(res);
-            }
+            await CVServerService.sync(getChangedCVs());
         } catch (error) {
-            useErrorStore.getState().createError(error);
-            useCVsStore.getState().setCVs([]);
+            await this.fetchCVs();
         } finally {
             setLastSynced();
         }
     }
     
     public static async fetchCVs() {
-        const { setCVs, setlastFetched } = useCVsStore.getState();
+        const { setCVs } = useCVsStore.getState();
 
         try {
             const fetchedCVs = await CVServerService.fetch();
     
             setCVs(fetchedCVs);
-            setlastFetched();
         } catch (error) {
             useErrorStore.getState().createError(error);
             useCVsStore.getState().setCVs([]);
-        } finally {
-            setlastFetched();
         }
     }
 
-    // to do correct the hydration logic 
     public static async handleCVsHydration(api: StoreApi<CVStore>) {    
         if (CVLocalService.isProcessing) return;
         CVLocalService.isProcessing = true;
         
-        const { 
-            isSyncStale, 
-            isFetchStale
-        } = api.getState();
+        const { isSyncStale } = api.getState();
         const { isAuthenticated } = useAuthStore.getState();
         
         if(isAuthenticated){
             if(isSyncStale()) {
                 await this.syncCVs();
-            } else if(isFetchStale()) {
-                await this.fetchCVs();
             }
         }
 

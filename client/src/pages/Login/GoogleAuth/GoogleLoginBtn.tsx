@@ -1,5 +1,5 @@
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
-import { useAuthAndSync } from '../../../hooks/useAuth';
+import { useAuthAndSync } from '../../../hooks/Auth/useAuth';
 import { AuthService } from '../../../services/auth';
 
 const GoogleLoginBtn: React.FC = () => {

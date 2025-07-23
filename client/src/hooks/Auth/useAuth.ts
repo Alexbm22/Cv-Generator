@@ -1,12 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
-import { useAuthStore, useCVsStore, useErrorStore } from '../Store';
-import { AuthResponse, AuthCredentials, TokenClientData } from '../interfaces/auth';
-import { APIError } from '../interfaces/api';
+import { useAuthStore, useCVsStore, useErrorStore } from '../../Store';
+import { AuthResponse, AuthCredentials, TokenClientData } from '../../interfaces/auth';
+import { APIError } from '../../interfaces/api';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '../router/routes';
-import { CVServerService } from '../services/CVServer';
+import { routes } from '../../router/routes';
+import { CVServerService } from '../../services/CVServer';
 import * as yup from 'yup';
-import { AuthService } from '../services/auth';
+import { AuthService } from '../../services/auth';
 
 export const useFormSubmission = <T>(
     schema: yup.ObjectSchema<{}, T, {}, "">,
@@ -36,7 +36,7 @@ export const useInitialDataSync = () => {
         },
         onSuccess: (CVs) => {
             useCVsStore.getState().setCVs(CVs);
-            useCVsStore.getState().setlastFetched()
+            useCVsStore.getState().setLastSynced();
         },
     })
 }

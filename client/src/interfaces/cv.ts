@@ -176,13 +176,10 @@ export interface CVEditStore extends CVMetadataSliceAttributes, CVContentSliceAt
 export interface CVStore {
     CVs: CVAttributes[];
     lastSynced: number | null;
-    lastFetched: number | null;
     _hasHydrated: boolean;
     setHasHydrated: (hasHydrated: boolean) => void;
     clearCVsData: () => void;
     setLastSynced: () => void;
-    setlastFetched: () => void;
-    isFetchStale: () => boolean;
     isSyncStale: () => boolean;
     getChangedCVs: () => CVAttributes[];
     addCV: (CV: CVAttributes) => void;

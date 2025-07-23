@@ -19,7 +19,6 @@ export const useCVsStore = create<CVStore>()(
 
                     _hasHydrated: false,
                     lastSynced: null,
-                    lastFetched: null,
                     
                     setLastSynced: () => set({ lastSynced: new Date().getTime() }),
                     isSyncStale: () => {
@@ -32,17 +31,6 @@ export const useCVsStore = create<CVStore>()(
                         return (now - lastSynced) > maximumStalePeriod;
                     },
 
-                    setlastFetched: () => set({ lastFetched: new Date().getTime() }),
-                    isFetchStale: () => {
-                        const now = new Date().getTime();
-                        const lastFetched = get().lastFetched;
-                        const maximumStalePeriod = 0.5 * 60 * 1000; // 1 minutes
-
-                        if(!lastFetched) return true;
-                        
-                        return (now - lastFetched) > maximumStalePeriod;
-                    },
-                    
                     setHasHydrated: (hasHydrated) => set({ _hasHydrated: hasHydrated }),
 
                     clearCVsData: () => {
@@ -87,7 +75,6 @@ export const useCVsStore = create<CVStore>()(
             partialize: (state) => ({
                 CVs: state.CVs,
                 lastSynced: state.lastSynced,
-                lastFetched: state.lastFetched,
             }),
             onRehydrateStorage: () => (state) => {
                 state?.setHasHydrated(true);

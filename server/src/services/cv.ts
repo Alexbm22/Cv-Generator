@@ -1,4 +1,3 @@
-import { ApiResponse } from "../interfaces/api";
 import { PublicCVAttributes, CVAttributes, CVTemplates } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
 import { UserAttributes } from "../interfaces/user";
@@ -66,11 +65,9 @@ export class CVsService {
     static async syncCVs(
         userId: number, 
         incomingCVs: PublicCVAttributes[]
-    ): Promise<PublicCVAttributes[] | null> {
+    ): Promise<void> {
 
-        if(incomingCVs.length == 0){
-            return null;
-        }
+        if(incomingCVs.length == 0) return;
         
         // Transform DTOs to domain objects
         const candidateCVUpdates = incomingCVs.map((cv) => this.fromDTO(cv, userId));
@@ -91,7 +88,11 @@ export class CVsService {
         })
 
         if(this.hasVersionConflicts(existingCVs, updatesByPublicId)) {
-            return await this.getUserCVs(userId);
+            throw new AppError(
+                'Version conflict detected. Please refresh and try again.',
+                409,
+                ErrorTypes.VERSION_CONFLICT
+            );
         }
 
         const updatePromises = existingCVs.map(async (existingCV) => {
@@ -108,15 +109,10 @@ export class CVsService {
             if(Object.keys(fieldsToUpdate).length > 0){
                 existingCV.set(fieldsToUpdate);
                 await existingCV.save();
-                return existingCV
             }
-
-            return existingCV;
         })
 
         await Promise.all(updatePromises);
-        
-        return null
     }
 
     static async deleteCV(

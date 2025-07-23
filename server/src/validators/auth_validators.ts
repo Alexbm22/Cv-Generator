@@ -9,8 +9,8 @@ export const registrationRules = [
     body('password')
         .isLength({ min: 6 })
         .withMessage('Password must be at least 6 characters long')
-        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/)
-        .withMessage('Password must include uppercase, lowercase, number, and special character'),
+        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/)
+        .withMessage('Password must include uppercase, lowercase and number'),
     body('username')
         .trim()
         .isLength({ min: 3 })

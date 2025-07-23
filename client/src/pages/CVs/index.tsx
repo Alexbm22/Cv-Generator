@@ -1,5 +1,5 @@
 import React from "react";
-import { useCreateCV } from "../../hooks/useCVs";
+import { useCreateCV } from "../../hooks/CVs/useCVs";
 import { useCVsStore } from "../../Store";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/routes";

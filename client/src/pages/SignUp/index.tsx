@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAuthAndSync, useFormSubmission } from "../../hooks/useAuth";
+import { useAuthAndSync, useFormSubmission } from "../../hooks/Auth/useAuth";
 import { useAuthStore } from '../../Store'
 import { registerDto } from "../../interfaces/auth";
 import Field from '../../components/features/AuthForm/formField'

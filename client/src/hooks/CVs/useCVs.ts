@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query"
-import { useAuthStore, useCVsStore } from "../Store";
-import { CVAttributes } from "../interfaces/cv";
-import { ApiError } from "../interfaces/error";
-import { CVServerService } from "../services/CVServer";
-import { storeConfig } from "../Store/config/storeConfig";
+import { useAuthStore, useCVsStore } from "../../Store";
+import { CVAttributes } from "../../interfaces/cv";
+import { ApiError } from "../../interfaces/error";
+import { CVServerService } from "../../services/CVServer";
+import { storeConfig } from "../../Store/config/storeConfig";
 
 export const useCreateCV = () => {
     const addCV = useCVsStore(state => state.addCV);
@@ -19,3 +19,4 @@ export const useCreateCV = () => {
         }
     })
 }
+
