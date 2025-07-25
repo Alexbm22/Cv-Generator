@@ -1,3 +1,5 @@
+import { ProficiencyLanguageLevel } from "../interfaces/cv"
+
 export const CVEditContent = {
     formSections: {
         personalInfos: {
@@ -221,6 +223,10 @@ export const CVPreviewContent = {
         },
         languages: {
             title: 'Languages',
+            default: {
+                language: 'English:',
+                level: ProficiencyLanguageLevel.B2,
+            },
         }
     }
 }

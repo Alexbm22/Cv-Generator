@@ -57,9 +57,9 @@ export class CVsController {
         if (!Array.isArray(clientCVs)) {
             return next(new AppError('Invalid CV data format.', 400, ErrorTypes.BAD_REQUEST));
         }
-
+        
         try {
-            await CVsService.syncCVs(userData.id, clientCVs);
+            const syncRes = await CVsService.syncCVs(userData.id, clientCVs);
             return res.status(204).end()
         } catch (error) {
             return next(error);

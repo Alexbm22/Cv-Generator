@@ -18,5 +18,5 @@ export const createMetadataSlice = (set: {
     setTemplate: (template: CVTemplates) => set({ template }),
     setTitle: (title: string) => set({ title }),
     setSectionsOrder: (sectionsOrder: string[]) => set({ sectionsOrder }),
-    setUpdatedAt: (time: number) => set({ updatedAt: time}),
+    setUpdatedAt: () => set({ updatedAt: new Date().getTime()}),
 })

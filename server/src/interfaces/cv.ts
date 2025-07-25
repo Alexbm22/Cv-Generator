@@ -100,7 +100,7 @@ export interface PersonalDataAttributes {
 }
 
 export interface CVMetadataAttributes {
-    id: string | undefined;
+    id: string;
     title: string;
     template: CVTemplates;
     updatedAt: number;

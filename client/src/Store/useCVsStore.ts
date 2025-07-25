@@ -24,7 +24,7 @@ export const useCVsStore = create<CVStore>()(
                     isSyncStale: () => {
                         const now = new Date().getTime();
                         const lastSynced = get().lastSynced;
-                        const maximumStalePeriod = 0.5 * 60 * 1000; // 1 minutes
+                        const maximumStalePeriod = 6 * 1000; // 1 minutes
 
                         if(!lastSynced) return true;
                         

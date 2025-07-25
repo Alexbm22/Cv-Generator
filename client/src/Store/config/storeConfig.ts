@@ -38,8 +38,8 @@ export const storeConfig = {
             autoSaveCV: debounce((api: StoreApi<CVEditStore>)=> {
                 const { saveCV, setUpdatedAt } = api.getState();
 
+                setUpdatedAt();
                 saveCV(); // saving the CV to the main user cv list
-                setUpdatedAt(new Date().getTime());
             }, 3000), // 3 seconds debounce
             excludedActions: ['getCVObject', 'saveCV', 'setUpdatedAt'], // Actions that should not trigger the auto-save
         }

@@ -1,75 +1,53 @@
-import React from "react";
-import { 
-    CVPhoto, 
-    AboutMe,
-    Skills,
-    SocialLinks,
-    GeneralInfos,
-    Languages,
-    WorkExperience
-} from "../components";
+import React from 'react';
+import { Page, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import * as CVComponents from './components';
 
-interface TemplateProps {
-    templateClassName: string
-}
+Font.register({
+    family: 'Nunito Sans',
+    src: '/fonts/NunitoSans.ttf',
+})
 
-const CastorTemplate: React.FC<TemplateProps> = ({templateClassName}) => {
+const styles = StyleSheet.create({
+    page: { 
+        fontFamily: 'Nunito Sans', 
+    },
+    pageContainer: {
+        flexDirection: 'row',
+        height: '100%',
+        width: '100%'
+    },
+    leftContainer: {
+        backgroundColor: '#424242', 
+        width: '35%',
+        color: 'white', 
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        padding: 25,
+    },
+    rightContaniner: {
+
+    }
+})
+
+const HermesTemplate: React.FC = () => {
 
     return (
-        <div className={templateClassName}>
-            <div className="flex flex-col h-full w-38/100 bg-gray-600 p-7 items-center leading-relaxed">
-                <CVPhoto className="rounded-full w-6/10 h-auto mb-6" />
+        <Document>
+            <Page size='A4' style={styles.page}>
+                <View style={styles.pageContainer}>
+                    <View style={styles.leftContainer}>
+                        <CVComponents.CVPhoto />
+                        <CVComponents.GeneralInfos />
+                        <CVComponents.SocialLinks />
+                        <CVComponents.Languages />
+                    </View>
+                    <View style={styles.rightContaniner}>
 
-                <GeneralInfos
-                    componentClassName="flex flex-col gap-y-1 text-white w-full h-auto"
-                    phoneIconClassName="w-[11px] h-full"
-                    addressIconClassName="w-[11px] h-full"
-                    birthDateIconClassName="w-[11px] h-full"
-                    emailIconClassName="w-[11px] h-full"
-                    phoneNumberClassName="text-[10px]"
-                    emailClassName="text-[10px]"
-                    addressClassName="text-[10px]"
-                    birthDateClassName="text-[10px]"
-                />
-
-                <SocialLinks
-                    componentClassName="mt-6 text-left w-full"
-                    titleClassName="text-sm font-semibold text-left text-white w-full"
-                    linkPlatformClassName="text-xs text-white font-semibold"
-                    linkUrlClassName="text-xs underline text-gray-200 hover:text-white"
-                />
-
-                <Skills 
-                    componentClassName="mt-6 text-left w-full"
-                    titleClassName="text-sm font-semibold text-white w-full"
-                    skillNameClassName="text-xs text-white font-semibold"
-                    skillLevelClassName="text-xs text-gray-200 font-medium"
-                    skillLevelBarBackgroundClassName="w-full relative rounded-full bg-gray-400 h-1"
-                    skillLevelBarClassName="absolute top-0 left-0 h-full rounded-full bg-white"
-                />
-
-                <Languages 
-                    componentClassName="mt-6 text-left start w-full"
-                    titleClassName="text-left text-sm font-semibold text-white w-full"
-                    LanguageNameClassName="text-xs text-white font-semibold"
-                    LanguageLevelClassName="text-xs text-gray-200 font-medium"
-                    LanguageLevelBarBackgroundClassName="w-full relative rounded-full bg-gray-400 h-1"
-                    LanguageLevelBarClassName="absolute top-0 left-0 h-full rounded-full bg-white"
-                />
-                
-            </div>
-            <div className="p-5">
-                <AboutMe 
-                    componentClassName="mb-4"
-                    titleClassName="text-sm font-semibold text-left text-gray-700 w-full" 
-                    contentClassName="text-[10px] text-left text-gray-700 w-full" 
-                />
-                <WorkExperience
-                    componentClassName=""
-                />
-            </div>
-        </div>
+                    </View>
+                </View>
+            </Page>
+        </Document>
     )
 }
 
-export default CastorTemplate;
+export default HermesTemplate;

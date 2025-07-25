@@ -1,9 +1,8 @@
 import { useMutation } from "@tanstack/react-query"
-import { apiService } from "../services/api"
 import { useCvEditStore, useErrorStore } from "../Store";
 import { DownloadService } from "../services/download";
 import { CVAttributes } from "../interfaces/cv";
-import MyCV from "../components/features/CVEditor/templates/hermes";
+import { TemplateMap } from "../components/features/CVEditor/CVPreview";
 
 export const useDownload = (
     CVToDownload: CVAttributes
@@ -13,14 +12,17 @@ export const useDownload = (
         onSuccess: async () => {
             const { 
                 setCV, 
-                id // selected cv id
+                id, // selected cv id,
+                template
             } = useCvEditStore.getState();
 
             if(!(id === CVToDownload.id)) { 
                 setCV(CVToDownload);
             }
 
-            await DownloadService.downloadPdf(MyCV, CVToDownload.title);
+            const TemplateComponent = TemplateMap[template]
+
+            await DownloadService.downloadPdf(TemplateComponent, CVToDownload.title);
         }, 
         onError: (error) => {
             useErrorStore.getState().createError(error);

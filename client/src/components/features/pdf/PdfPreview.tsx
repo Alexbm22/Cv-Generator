@@ -7,47 +7,77 @@ import { useCVsStore } from '../../../Store';
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 type PdfPreviewProps = {
-  PdfDocument: React.FC<any>; // or specify props if you know them
+  PdfDocument: React.FC<any>;
+  className: string;
 };
 
-const PdfPreview = ({ PdfDocument }: PdfPreviewProps) => {
+const PdfPreview = ({ PdfDocument, className }: PdfPreviewProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const CVs = useCVsStore(state => state.CVs);
 
   useEffect(() => {
+    let isMounted = true;
+
     const generatePdf = async () => {
-      const blob = await pdf(<PdfDocument />).toBlob();
-      const blobUrl = URL.createObjectURL(blob);
+      let blobUrl: string | null = null;
 
-      const loadingTask = pdfjsLib.getDocument(blobUrl);
-      const pdfDoc = await loadingTask.promise;
-      const page = await pdfDoc.getPage(1);
+      try {
+        // Generate PDF blob and create URL
+        const blob = await pdf(<PdfDocument />).toBlob();
+        blobUrl = URL.createObjectURL(blob);
 
-      const viewport = page.getViewport({ scale: 1.0 });
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+        // Load PDF document
+        const loadingTask = pdfjsLib.getDocument(blobUrl);
+        const pdfDoc = await loadingTask.promise;
+        URL.revokeObjectURL(blobUrl); // Revoke immediately after loading
+        blobUrl = null;
 
-      const context = canvas.getContext('2d');
-      if (!context) return;
+        // Get first page
+        const page = await pdfDoc.getPage(1);
+        const viewport = page.getViewport({ scale: 2.5 });
 
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+        // Create offscreen canvas for rendering
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = viewport.width;
+        offscreenCanvas.height = viewport.height;
+        const offscreenContext = offscreenCanvas.getContext('2d');
+        if (!offscreenContext) return;
 
-      await page.render({
-        canvasContext: context,
-        viewport,
-      }).promise;
+        // Render page to offscreen canvas
+        await page.render({
+          canvasContext: offscreenContext,
+          viewport,
+        }).promise;
 
-      // curățare URL
-      URL.revokeObjectURL(blobUrl);
+        // Check if component is still mounted
+        if (!isMounted) return;
+
+        // Update visible canvas with new content
+        const visibleCanvas = canvasRef.current;
+        if (!visibleCanvas) return;
+        
+        const visibleContext = visibleCanvas.getContext('2d');
+        if (!visibleContext) return;
+
+        visibleCanvas.width = offscreenCanvas.width;
+        visibleCanvas.height = offscreenCanvas.height;
+        visibleContext.drawImage(offscreenCanvas, 0, 0);
+      } catch (error) {
+        console.error('Error generating PDF preview:', error);
+      } finally {
+        // Cleanup blob URL if still exists (e.g., due to error)
+        if (blobUrl) URL.revokeObjectURL(blobUrl);
+      }
     };
-    
-    generatePdf();
-  }, [CVs]);
 
-  return (
-    <canvas ref={canvasRef} />
-  );
+    generatePdf();
+
+    return () => {
+      isMounted = false; // Mark component as unmounted
+    };
+  }, [CVs, PdfDocument]); // Include all necessary dependencies
+
+  return <canvas ref={canvasRef} className={className} />;
 };
 
 export default PdfPreview;

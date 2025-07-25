@@ -160,7 +160,7 @@ export class CVsService {
             const updatedValue = updatedAttributes[attributeKey];
             
             // Only include attributes that exist in both objects and have different values
-            if (originalValue !== undefined && originalValue !== updatedValue) {
+            if (originalValue !== undefined && JSON.stringify(originalValue) !== JSON.stringify(updatedValue)) {
                 changedAttributes[attributeKey] = updatedValue;
             }
         }

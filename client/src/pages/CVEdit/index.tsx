@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCvEditStore, useCVsStore } from "../../Store";
 import { CVAttributes } from "../../interfaces/cv";
@@ -10,6 +10,7 @@ import { routes } from "../../router/routes";
 const CVEditPage: React.FC = () => {
     
     const navigate = useNavigate();
+
     const { id } = useParams<{id: string}>();
     if(!id) navigate(routes.notFound.path, { replace: true });
 
@@ -17,25 +18,24 @@ const CVEditPage: React.FC = () => {
     const _hasHydrated = useCVsStore((state) => state._hasHydrated);
     const setCV = useCvEditStore((state) => state.setCV);
 
-    const selectedCVRef = useRef<null | CVAttributes>(null);
+    const [selectedCV, setSelectedCV] = useState<CVAttributes | null>(null);
 
     useEffect(() => {
-
-        const CV = CVs.find((cv) => cv.id === id) as CVAttributes;
-        selectedCVRef.current = CV;
-
-        if(selectedCVRef.current){
+        const CV = CVs.find((cv) => cv.id === id) as CVAttributes | undefined;
+        if (CV) {
+            setSelectedCV(CV);
             setCV(CV);
+        } else {
+            setSelectedCV(null);
         }
-    }, [_hasHydrated]);
+    }, [_hasHydrated, id, CVs, setCV]);
 
-    if(!selectedCVRef.current) {
+    if(!selectedCV) {
         return <div> Loading CV.. </div>
     } 
 
     return (
         <div className="flex flex-column w-full h-full relative">
-            <DownloadBtn downloadedCV={selectedCVRef.current}/>
             <CVEditorForm/>
             <CVPreview/>
         </div>

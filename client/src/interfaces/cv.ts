@@ -113,7 +113,7 @@ export interface CVMetadataActions {
     setTemplate: (template: CVTemplates) => void;
     setTitle: (title: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
-    setUpdatedAt: (time: number) => void;
+    setUpdatedAt: () => void;
 }
 
 export interface CVContentActions {
