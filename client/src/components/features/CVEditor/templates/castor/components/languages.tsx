@@ -1,14 +1,14 @@
 import React from "react";
-import { useCvEditStore } from "../../../../../../Store";
 import { CVPreviewContent } from "../../../../../../config/content";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { LanguageLevelsMap } from "../../../../../../config/proficiency";
-import { ProficiencyLanguageLevel } from "../../../../../../interfaces/cv";
+import { Language, ProficiencyLanguageLevel } from "../../../../../../interfaces/cv";
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
         gap: 8,
+        marginBottom: '50%'
     },
     title: {
         fontWeight: 1000, // to do: repair the fontweight error
@@ -53,10 +53,15 @@ const styles = StyleSheet.create({
     }
 })
 
-const Languages: React.FC = () => {
+type languagesProps = { 
+    languages: Language[]
+}
+
+const Languages: React.FC<languagesProps> = ({
+    languages
+}) => {
 
     const { languages: languagesContent } = CVPreviewContent.sections;
-    const languages = useCvEditStore((state) => state.languages);
 
     return (
         <View style={styles.container}>
@@ -91,7 +96,7 @@ const Languages: React.FC = () => {
                             const levelBarWidth = `${((LanguageLevelsMap[LanguageLevel].index + 1) / Object.keys(LanguageLevelsMap).length) * 100}%`;
 
                             return (
-                                <View style={styles.LanguageContainer}>
+                                <View key={language.id} style={styles.LanguageContainer}>
                                     <View  style={styles.LanguageTopContainer} key={index}>
                                         <Text style={styles.LanguageTitle}>{languageName}</Text>
                                         <Text style={styles.LanguageLevel}>{languageLevelName}</Text>

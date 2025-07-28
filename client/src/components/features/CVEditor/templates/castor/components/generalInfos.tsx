@@ -1,16 +1,20 @@
 import React from "react";
-import { useCvEditStore } from "../../../../../../Store";
 import { CVPreviewContent } from "../../../../../../config/content";
 import * as Icons from '../../../../pdf/Icons'
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 
 interface GeneralInfosProps {
-
+    phoneNumber: string,
+    email: string,
+    address: string,
+    birthDate: Date
 }
 
 const styles = StyleSheet.create({
     container: {
+        marginTop: 40,
         gap: 7,
+        width: '100%'
     },
     row: {
         flexDirection: 'row',
@@ -29,13 +33,11 @@ const styles = StyleSheet.create({
 })
 
 const GeneralInfos: React.FC<GeneralInfosProps> = ({
-    
+    phoneNumber,
+    email,
+    address,
+    birthDate,
 }) => {
-
-    const phoneNumber = useCvEditStore((state) => state.phoneNumber);
-    const email = useCvEditStore((state) => state.email);
-    const address = useCvEditStore((state) => state.address);
-    const birthDate = useCvEditStore((state) => state.birthDate);
 
     const { personalInfos } = CVPreviewContent.sections;
 

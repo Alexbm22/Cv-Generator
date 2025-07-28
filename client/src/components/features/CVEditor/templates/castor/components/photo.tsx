@@ -1,8 +1,8 @@
 import React from "react";
-import { useCvEditStore } from "../../../../../../Store";
 import { Image, StyleSheet, View } from '@react-pdf/renderer';
 
 interface CVPhotoProps {
+  CVPhoto: string | null;
   fallbackUrl?: string;
 }
 
@@ -10,7 +10,8 @@ const styles = StyleSheet.create({
   photoContainer: {
     width: '75%',
     height: 'auto',
-    alignContent: 'center'
+    alignContent: 'center',
+    marginTop: 25,
   },
   photoStyles: {
     width: '100%',
@@ -21,10 +22,10 @@ const styles = StyleSheet.create({
 })
 
 const CVPhoto: React.FC<CVPhotoProps> = ({
+  CVPhoto,
   fallbackUrl = "/Images/anonymous_Picture.png",
 }) => {
-  const photo = useCvEditStore((state) => state.photo);
-  const currentPhoto =  photo ?? fallbackUrl;
+  const currentPhoto =  CVPhoto ?? fallbackUrl;
 
   return (
     <View style={styles.photoContainer}>

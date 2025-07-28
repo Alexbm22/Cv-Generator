@@ -34,10 +34,8 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
         modules: {
           toolbar: [
             ['bold', 'italic', 'underline'],
-            ['link'],
-            [{ 'header': 3 }, { 'header': 2 }],
             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'font': [] }],
+            ['link'],
           ],
         },
         placeholder: placeholder || "Write something...",

@@ -15,7 +15,7 @@ const DownloadBtn: React.FC<DownloadBtnProps> = ({downloadedCV}) => {
             onClick={() => {
                 downloadCV()
             }}
-            disabled={!!downloadCV || isPending}
+            disabled={!downloadCV || isPending}
         >
             download
         </button>

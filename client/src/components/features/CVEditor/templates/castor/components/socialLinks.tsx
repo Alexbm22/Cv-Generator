@@ -1,10 +1,12 @@
 import React from "react";
-import { useCvEditStore } from "../../../../../../Store";
 import { CVPreviewContent } from "../../../../../../config/content";
 import { Link, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { SocialLink } from "../../../../../../interfaces/cv";
 
 const styles = StyleSheet.create({
     container: {
+        marginTop: 50,
+        marginBottom: 50,
         width: '100%',
         gap: 8,
     },
@@ -28,10 +30,15 @@ const styles = StyleSheet.create({
     }
 })
 
-const SocialLinks: React.FC = () => {
+type SocialLinksProps = {
+    socialLinks: SocialLink[]
+}
+
+const SocialLinks: React.FC<SocialLinksProps> = ({
+    socialLinks
+}) => {
 
     const { socialLinks: socialLinksContent } = CVPreviewContent.sections;
-    const socialLinks = useCvEditStore((state) => state.socialLinks);
 
     return (
         <View style={styles.container}>
@@ -44,13 +51,13 @@ const SocialLinks: React.FC = () => {
                             <Link style={styles.LinkSrc} href={socialLinksContent.default.url}>{socialLinksContent.default.url}</Link>
                         </View>
                     ) : (
-                        socialLinks.map((link, index) => {
+                        socialLinks.map((link) => {
 
                             const platformLabel = link.platform != '' ? link.platform + ':' : '';
                             const linkUrl = link.url != '' ? 'https://' + link.url : '';
 
                             return (
-                                <View  style={styles.LinkContainer} key={index}>
+                                <View  style={styles.LinkContainer} key={link.id}>
                                     <Text style={styles.LinkTitle}>{platformLabel}</Text>
                                     <Link style={styles.LinkSrc} href={linkUrl}>{link.url}</Link>
                                 </View>

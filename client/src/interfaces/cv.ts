@@ -78,9 +78,12 @@ export enum CVTemplates {
     CASTOR = 'castor',
 }
 
+export type TemplateComponentProps = {
+    CV: CVAttributes
+}
 
 export interface CVMetadataAttributes {
-    id: string;
+    id: string | null;
     title: string;
     template: CVTemplates;
     sectionsOrder: string[];
