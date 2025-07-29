@@ -1,7 +1,7 @@
 import React from "react";
-import { CVPreviewContent } from "../../../../../../config/content";
 import { Link, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { SocialLink } from "../../../../../../interfaces/cv";
+import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../constants/CV/CVEditor";
 
 const styles = StyleSheet.create({
     container: {
@@ -34,24 +34,22 @@ type SocialLinksProps = {
     socialLinks: SocialLink[]
 }
 
+const { social_links: socialLinksConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
+
 const SocialLinks: React.FC<SocialLinksProps> = ({
     socialLinks
 }) => {
 
-    const { socialLinks: socialLinksContent } = CVPreviewContent.sections;
+    if(socialLinks.length === 0) {
+        socialLinks = socialLinksConstants.default;
+    }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{socialLinksContent.title}</Text>
+            <Text style={styles.title}>{socialLinksConstants.title}</Text>
             <View style={styles.contentContainer}>
                 {
-                    socialLinks.length === 0 ? (
-                        <View style={styles.LinkContainer}>
-                            <Text style={styles.LinkTitle}>{socialLinksContent.default.platform}</Text>
-                            <Link style={styles.LinkSrc} href={socialLinksContent.default.url}>{socialLinksContent.default.url}</Link>
-                        </View>
-                    ) : (
-                        socialLinks.map((link) => {
+                    socialLinks.map((link) => {
 
                             const platformLabel = link.platform != '' ? link.platform + ':' : '';
                             const linkUrl = link.url != '' ? 'https://' + link.url : '';
@@ -63,7 +61,6 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
                                 </View>
                             )
                         })
-                    )
                 }
             </View>
         </View>

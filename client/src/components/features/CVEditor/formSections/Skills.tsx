@@ -6,25 +6,26 @@ import {
     TextInputField,
     SliderPicker
 } from '../../../UI';
-import { SkillsLevelsMap } from '../../../../config/proficiency';
-import { CVEditContent } from '../../../../config/content';
+import { CV_EDITOR_FORM_CONSTANTS } from '../../../../constants/CV/CVEditor';
+import { SkillsLevelsMap } from '../../../../constants/CV/skillLevelsMap';
 
 interface ComponentProps {
     skill: Skill
 }
 
+const { skills: skillsConstants } = CV_EDITOR_FORM_CONSTANTS.sections
+const { fields: fieldsConstants } = skillsConstants;
+
 const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
     const updateSkill = useCvEditStore((state) => state.updateSkill);
-    const { skills: skillsContent } = CVEditContent.formSections;
-    const { fields } = skillsContent;
 
     return (
         <div className='p-0.5'>
             <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
                 <TextInputField
                     id={`skill-${skill.id}`}
-                    label={fields.skill.label}
-                    placeholder={fields.skill.placeholder}
+                    label={fieldsConstants.skill.label}
+                    placeholder={fieldsConstants.skill.placeholder}
                     value={skill.name}
                     onChange={(e) => updateSkill(skill.id, { name: e.target.value })}
                 />
@@ -47,12 +48,10 @@ const SkillMain:React.FC = () => {
     const removeSkill = useCvEditStore((state) => state.removeSkill);
     const skills = useCvEditStore((state) => state.skills);
 
-    const { skills: skillsContent } = CVEditContent.formSections;
-
     return (
         <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">{skillsContent.title}</h2>
-            <p className="text-sm text-gray-500 mb-4">{skillsContent.description}</p>
+            <h2 className="text-xl text-gray-600 font-bold">{skillsConstants.title}</h2>
+            <p className="text-sm text-gray-500 mb-4">{skillsConstants.description}</p>
             <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                 {
                     skills.map((skill) => (
@@ -65,8 +64,8 @@ const SkillMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <button onClick={() => addSkill({})} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    {skillsContent.addText}
+                <button onClick={() => addSkill()} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
+                    {skillsConstants.add_button_text}
                 </button>
             </div>
         </div>

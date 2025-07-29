@@ -4,19 +4,21 @@ import {
     CVEditStore } from '../../../interfaces/cv';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 import { resizeBase64Image } from '../../../utils/resizeBase64Image'; 
+import { DEFAULT_CV_EDITOR_STATE } from '../../../constants/CV/CVEditor';
 
 export const createPersonalInfoSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
     (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
 }): CVPersonalInfoSliceAttributes => ({
-    photo: null,
-    firstName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',
-    address: '',
-    birthDate: new Date(),
-    socialLinks: [],
+    photo: DEFAULT_CV_EDITOR_STATE.photo,
+    firstName: DEFAULT_CV_EDITOR_STATE.firstName,
+    lastName: DEFAULT_CV_EDITOR_STATE.lastName,
+    email: DEFAULT_CV_EDITOR_STATE.email,
+    phoneNumber: DEFAULT_CV_EDITOR_STATE.phoneNumber,
+    address: DEFAULT_CV_EDITOR_STATE.address,
+    birthDate: DEFAULT_CV_EDITOR_STATE.birthDate,
+    socialLinks: DEFAULT_CV_EDITOR_STATE.socialLinks,
+    
     setPhoto: (event) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -42,11 +44,11 @@ export const createPersonalInfoSlice = (set: {
     setAddress: (address: string) => set({ address }),
     setBirthDate: (birthDate: Date) => set({ birthDate }),
 
-    addSocialLink: (socialLink: Partial<SocialLink>) => {
+    addSocialLink: () => {
         const newSocialLink: SocialLink = {
-            id: socialLink.id || uuidv4(),
-            platform: socialLink.platform || '',
-            url: socialLink.url || '',
+            id: uuidv4(),
+            platform: '',
+            url: '',
         }
 
         return set((state: CVPersonalInfoSliceAttributes) => ({

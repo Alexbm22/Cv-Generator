@@ -7,9 +7,11 @@ interface CollapsableProps {
 }
 
 const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) => {
-    const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [height, setHeight] = useState('auto');
+
+    // Initialize the Collapsable component as closed by default
+    const [height, setHeight] = useState('0px'); 
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(()=>{
         if (containerRef.current) {
@@ -39,9 +41,7 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
                 </div>
             </div>
             <div ref={containerRef} style={{ height }} className={`h-fit overflow-hidden transition-all duration-500 ease-in-out`}>
-                <div>
-                    {children}
-                </div>
+                {children}
             </div>
         </div>
     )

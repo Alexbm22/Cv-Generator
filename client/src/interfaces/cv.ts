@@ -122,28 +122,28 @@ export interface CVMetadataActions {
 export interface CVContentActions {
     setProfessionalSummary: (summary: string) => void;
 
-    addLanguage: (language: Partial<Language>) => void;
+    addLanguage: () => void;
     removeLanguage: (id: string) => void;
     updateLanguage: (id: string, language: Partial<Language>) => void;
     
-    addSkill: (skill: Partial<Skill>) => void;
+    addSkill: () => void;
     removeSkill: (id: string) => void;
     updateSkill: (id: string, skill: Partial<Skill>) => void;
     
-    addWorkExperience: (workExperience: Partial<WorkExperience>) => void;
+    addWorkExperience: () => void;
     removeWorkExperience: (id: string) => void;
     updateWorkExperience: (id: string, workExperience: Partial<WorkExperience>) => void;
 
-    addEducation: (education: Partial<Education>) => void;
+    addEducation: () => void;
     removeEducation: (id: string) => void;
     updateEducation: (id: string, education: Partial<Education>) => void;
 
-    addProject: (project: Partial<Project>) => void;
+    addProject: () => void;
     removeProject: (id: string) => void;
     updateProject: (id: string, project: Partial<Project>) => void;
 
     setCustomSectionTitle: (title: string) => void;
-    addCustomSectionAttributes: (customSection: Partial<CustomSectionAttributes>) => void;
+    addCustomSectionAttributes: () => void;
     removeCustomSectionAttributes: (id: string) => void;
     updateCustomSectionAttributes: (id: string, customSection: Partial<CustomSectionAttributes>) => void;
 }
@@ -157,7 +157,7 @@ export interface CVPersonalInfoActions {
     setAddress: (address: string) => void;
     setBirthDate: (birthDate: Date) => void;
 
-    addSocialLink: (socialLink: Partial<SocialLink>) => void;
+    addSocialLink: () => void;
     removeSocialLink: (id: string) => void;
     updateSocialLink: (id: string, socialLink: Partial<SocialLink>) => void;
 }

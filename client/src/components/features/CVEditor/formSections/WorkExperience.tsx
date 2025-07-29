@@ -5,33 +5,34 @@ import Collapsable from '../../../UI/Collapsable';
 import TextInputField from '../../../UI/textInputField';
 import { sanitizeHtml } from '../../../../utils';
 import { WorkExperience } from '../../../../interfaces/cv';
-import { CVEditContent } from '../../../../config/content';
+import { CV_EDITOR_FORM_CONSTANTS } from '../../../../constants/CV/CVEditor';
 
 interface ComponentProps {
     work: WorkExperience
 }
 
+const { work_experience: workExperienceConstants } = CV_EDITOR_FORM_CONSTANTS.sections;
+const { fields: fieldsConstants } = workExperienceConstants;
+
 const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
 
     const updateWorkExperience = useCvEditStore((state) => state.updateWorkExperience);
-    const { workExperience } = CVEditContent.formSections;
-    const { fields } = workExperience;
 
     return (
         <div className='p-0.5'>
             <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
                 <TextInputField
                     id={`title-${work.id}`}
-                    label={fields.jobTitle.label}
-                    placeholder={fields.jobTitle.placeholder}
+                    label={fieldsConstants.job_title.label}
+                    placeholder={fieldsConstants.job_title.placeholder}
                     value={work.jobTitle}
                     onChange={(e) => updateWorkExperience(work.id, { jobTitle: e.target.value })}
                 />
 
                 <TextInputField
                     id={`company-${work.id}`}
-                    label={fields.companyName.label}
-                    placeholder={fields.companyName.placeholder}
+                    label={fieldsConstants.company_name.label}
+                    placeholder={fieldsConstants.company_name.placeholder}
                     value={work.company}
                     onChange={(e) => updateWorkExperience(work.id, { company: e.target.value })}
                 />
@@ -39,8 +40,8 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
                 <TextInputField
                     type='date'
                     id={`startDate-${work.id}`}
-                    label={fields.startDate.label}
-                    placeholder={fields.startDate.placeholder}
+                    label={fieldsConstants.start_date.label}
+                    placeholder={fieldsConstants.start_date.placeholder}
                     value={new Date(work.startDate).toISOString().slice(0, 10)}
                     onChange={(e) => updateWorkExperience(work.id, { startDate: new Date(e.target.value) })}
                 />
@@ -48,8 +49,8 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
                 <TextInputField
                     type='date'
                     id={`endDate-${work.id}`}
-                    placeholder={fields.endDate.placeholder}
-                    label={fields.endDate.label}
+                    placeholder={fieldsConstants.end_date.placeholder}
+                    label={fieldsConstants.end_date.label}
                     value={new Date(work.endDate).toISOString().slice(0, 10)}
                     onChange={(e) => updateWorkExperience(work.id, { endDate: new Date(e.target.value) })}
                 />
@@ -58,7 +59,7 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
             <Editor
                 htmlContent={work.description}
                 onHtmlChange={(html) => updateWorkExperience(work.id, { description: sanitizeHtml(html) })}
-                placeholder={fields.description.placeholder}
+                placeholder={fieldsConstants.description.placeholder}
             />
         </div>
     )
@@ -70,12 +71,10 @@ const WorkExperienceMain: React.FC = () => {
     const addWorkExperience = useCvEditStore((state) => state.addWorkExperience);
     const removeWorkExperience = useCvEditStore((state) => state.removeWorkExperience);
 
-    const { workExperience: workExperienceContent } = CVEditContent.formSections;
-
     return (
         <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">{workExperienceContent.title}</h2>
-            <p className="text-sm text-gray-500 mb-4">{workExperienceContent.description}</p>
+            <h2 className="text-xl text-gray-600 font-bold">{workExperienceConstants.title}</h2>
+            <p className="text-sm text-gray-500 mb-4">{workExperienceConstants.description}</p>
             <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                 {
                     workExperience.map((work) => (
@@ -88,8 +87,8 @@ const WorkExperienceMain: React.FC = () => {
                         </div>
                     ))
                 }
-                <button onClick={() => addWorkExperience({})} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    {workExperienceContent.addText}
+                <button onClick={() => addWorkExperience()} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
+                    {workExperienceConstants.add_button_text}
                 </button>
             </div>
         </div>

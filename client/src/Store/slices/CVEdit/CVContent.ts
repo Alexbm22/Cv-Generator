@@ -10,29 +10,27 @@ import {
     CustomSectionAttributes
 } from '../../../interfaces/cv'; // Adjust the import path as necessary
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
+import { DEFAULT_CV_EDITOR_STATE } from '../../../constants/CV/CVEditor';
 
 export const createContentSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
     (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
 }): CVContentSliceAttributes => ({
-    professionalSummary: '',
-    languages: [],
-    skills: [],
-    workExperience: [],
-    education: [],
-    projects: [],
-    customSections: {
-        title: '',
-        content: [],
-    },
+    professionalSummary: DEFAULT_CV_EDITOR_STATE.professionalSummary,
+    languages: DEFAULT_CV_EDITOR_STATE.languages,
+    skills: DEFAULT_CV_EDITOR_STATE.skills,
+    workExperience: DEFAULT_CV_EDITOR_STATE.workExperience,
+    education: DEFAULT_CV_EDITOR_STATE.education,
+    projects: DEFAULT_CV_EDITOR_STATE.projects,
+    customSections: DEFAULT_CV_EDITOR_STATE.customSections,
 
     setProfessionalSummary: (summary: string) => set({professionalSummary: sanitizeHtml(summary)}),
 
-    addLanguage: (language: Partial<Language>) => {
+    addLanguage: () => {
         const newLanguage: Language = {
-            id: language.id || uuidv4(),
-            name: language.name || '',
-            level: language.level || null
+            id: uuidv4(),
+            name: '',
+            level: null
         }
 
         return set((state: CVContentSliceAttributes) => ({
@@ -46,11 +44,11 @@ export const createContentSlice = (set: {
         languages: state.languages.map((lang) => lang.id === id ? { ...lang, ...language} : lang)
     })),
 
-    addSkill: (skill: Partial<Skill>) => {
+    addSkill: () => {
         const newSkill: Skill = {
-            id: skill.id || uuidv4(),
-            name: skill.name || '',
-            level: skill.level || null
+            id: uuidv4(),
+            name: '',
+            level: null
         }
 
         return set((state: CVContentSliceAttributes) => ({
@@ -64,14 +62,14 @@ export const createContentSlice = (set: {
         skills: state.skills.map((sk) => sk.id === id ? { ...sk, ...skill} : sk)
     })),
 
-    addWorkExperience: (workExperience: Partial<WorkExperience>) => {
+    addWorkExperience: () => {
         const newWorkExperience: WorkExperience = {
-            id: workExperience.id || uuidv4(),
-            jobTitle: workExperience.jobTitle || 'Untitled',
-            company: workExperience.company || '',
-            startDate: workExperience.startDate || new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
-            endDate: workExperience.endDate || new Date(),
-            description: workExperience.description || ''
+            id: uuidv4(),
+            jobTitle: 'Untitled',
+            company: '',
+            startDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
+            endDate: new Date(),
+            description: ''
         }
 
         return set((state: CVContentSliceAttributes) => ({
@@ -89,14 +87,14 @@ export const createContentSlice = (set: {
         )
     })),    
 
-    addEducation: (education: Partial<Education>) => {
+    addEducation: () => {
         const newEducation: Education = {
-            id: education.id || uuidv4(),
-            institution: education.institution || '',
-            degree: education.degree || '',
-            startDate: education.startDate || new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
-            endDate: education.endDate || new Date(),
-            description: education.description || ''
+            id: uuidv4(),
+            institution: '',
+            degree: '',
+            startDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
+            endDate: new Date(),
+            description: ''
         }
 
         return set((state: CVContentSliceAttributes) => ({
@@ -114,14 +112,14 @@ export const createContentSlice = (set: {
         )
     })),
 
-    addProject: (project: Partial<Project>) => {
+    addProject: () => {
         const newProject: Project = {
-            id: project.id || uuidv4(),
-            name: project.name || '',
-            url: project.url || '',
-            startDate: project.startDate || new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
-            endDate: project.endDate || new Date(),
-            description: project.description || '',
+            id: uuidv4(),
+            name: '',
+            url: '',
+            startDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
+            endDate: new Date(),
+            description: '',
         }
 
         return set((state: CVContentSliceAttributes) => ({
@@ -146,13 +144,14 @@ export const createContentSlice = (set: {
             title: title
         }
     })),
-    addCustomSectionAttributes: (section: Partial<CustomSectionAttributes>) => {
+    
+    addCustomSectionAttributes: () => {
         const newSection: CustomSectionAttributes = {
-            id: section.id || uuidv4(), 
-            title: section.title || '',
-            startDate: section.startDate || new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
-            endDate: section.endDate || new Date(),
-            description: section.description || '',
+            id: uuidv4(), 
+            title: '',
+            startDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
+            endDate: new Date(),
+            description: '',
         }
 
         return set((state: CVContentSliceAttributes) => ({

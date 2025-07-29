@@ -1,7 +1,8 @@
 import { StoreApi } from "zustand";
-import { CVStore } from "../interfaces/cv";
+import { CVEditStore, CVStore } from "../interfaces/cv";
 import { useAuthStore, useCVsStore, useErrorStore } from "../Store";
 import { CVServerService } from "./CVServer";
+import { debounce } from "lodash";
 
 export class CVLocalService {
     private static isProcessing = false;
@@ -45,6 +46,15 @@ export class CVLocalService {
         }
 
         CVLocalService.isProcessing = false;
+    }
+
+    public static autoSaveCV() {
+        return debounce((api: StoreApi<CVEditStore>) => {
+            const { saveCV, setUpdatedAt } = api.getState();
+
+            setUpdatedAt();
+            saveCV();
+        }, 3000); // debounce for 3 seconds
     }
 
 }

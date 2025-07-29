@@ -1,7 +1,7 @@
 import React from "react";
-import { CVPreviewContent } from "../../../../../../config/content";
 import * as Icons from '../../../../pdf/Icons'
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../constants/CV/CVEditor";
 
 interface GeneralInfosProps {
     phoneNumber: string,
@@ -32,6 +32,8 @@ const styles = StyleSheet.create({
     }
 })
 
+const { personal_infos: personalInfosworkExperienceConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections
+
 const GeneralInfos: React.FC<GeneralInfosProps> = ({
     phoneNumber,
     email,
@@ -39,11 +41,10 @@ const GeneralInfos: React.FC<GeneralInfosProps> = ({
     birthDate,
 }) => {
 
-    const { personalInfos } = CVPreviewContent.sections;
 
-    const phoneNumVal = phoneNumber !== ''? phoneNumber : personalInfos.default.phoneNumber;
-    const emailVal = email !== ''? email : personalInfos.default.email;
-    const adressVal = address !== ''? address : personalInfos.default.address;
+    const phoneNumVal = phoneNumber !== ''? phoneNumber : personalInfosworkExperienceConstants.default.phone_number;
+    const emailVal = email !== ''? email : personalInfosworkExperienceConstants.default.email;
+    const adressVal = address !== ''? address : personalInfosworkExperienceConstants.default.address;
 
     const birthDateObj = new Date(birthDate); // conversion to Date
 

@@ -1,8 +1,8 @@
 import React from "react";
-import { CVPreviewContent } from "../../../../../../config/content";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { LanguageLevelsMap } from "../../../../../../config/proficiency";
 import { Language, ProficiencyLanguageLevel } from "../../../../../../interfaces/cv";
+import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../constants/CV/CVEditor";
+import { LanguageLevelsMap } from "../../../../../../constants/CV/languageLevelsMap";
 
 const styles = StyleSheet.create({
     container: {
@@ -57,60 +57,45 @@ type languagesProps = {
     languages: Language[]
 }
 
+const { languages: languagesConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
+
 const Languages: React.FC<languagesProps> = ({
     languages
 }) => {
 
-    const { languages: languagesContent } = CVPreviewContent.sections;
+    if(languages.length === 0) {
+        languages = languagesConstants.default
+    }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{languagesContent.title}</Text>
+            <Text style={styles.title}>{languagesConstants.title}</Text>
             <View style={styles.contentContainer}>
                 {
-                    languages.length === 0 ? (
-                        <View style={styles.LanguageContainer}>
-                            <View style={styles.LanguageTopContainer}>
-                                <Text style={styles.LanguageTitle}>{languagesContent.default.language}</Text>
-                                <Text style={styles.LanguageLevel} >{languagesContent.default.level}</Text>
-                            </View>
-                            <View style={styles.LanguageLevelBar.container}>
-                                <View style={styles.LanguageLevelBar.background}>
-                                </View>
-                                <View style={[styles.LanguageLevelBar.foreground, {width: 
-                                    `${((LanguageLevelsMap[languagesContent.default.level].index + 1) / Object.keys(LanguageLevelsMap).length) * 100}%`
-                                 }]}>
-                                </View>
-                            </View>
-                        </View>
-                        
-                        
-                    ) : (
-                        languages.map((language, index) => {
+                    languages.map((language, index) => {
 
-                            const LanguageLevel = language.level as ProficiencyLanguageLevel;
-                            if (!LanguageLevel) return null; // verify if languagelevel is defined
-    
-                            const languageName = language.name != '' ? language.name + ': ' : '';
-                            const languageLevelName = LanguageLevel || LanguageLevelsMap[LanguageLevel];
-                            const levelBarWidth = `${((LanguageLevelsMap[LanguageLevel].index + 1) / Object.keys(LanguageLevelsMap).length) * 100}%`;
+                        const LanguageLevel = language.level as ProficiencyLanguageLevel;
+                        if (!LanguageLevel) return null; // verify if languagelevel is defined
 
-                            return (
-                                <View key={language.id} style={styles.LanguageContainer}>
-                                    <View  style={styles.LanguageTopContainer} key={index}>
-                                        <Text style={styles.LanguageTitle}>{languageName}</Text>
-                                        <Text style={styles.LanguageLevel}>{languageLevelName}</Text>
+                        const languageName = language.name != '' ? language.name + ': ' : '';
+                        const languageLevelName = LanguageLevel || LanguageLevelsMap[LanguageLevel];
+                        const levelBarWidth = `${((LanguageLevelsMap[LanguageLevel].index + 1) / Object.keys(LanguageLevelsMap).length) * 100}%`;
+
+                        return (
+                            <View key={language.id} style={styles.LanguageContainer}>
+                                <View  style={styles.LanguageTopContainer} key={index}>
+                                    <Text style={styles.LanguageTitle}>{languageName}</Text>
+                                    <Text style={styles.LanguageLevel}>{languageLevelName}</Text>
+                                </View>
+                                <View style={styles.LanguageLevelBar.container}>
+                                    <View style={styles.LanguageLevelBar.background}>
                                     </View>
-                                    <View style={styles.LanguageLevelBar.container}>
-                                        <View style={styles.LanguageLevelBar.background}>
-                                        </View>
-                                        <View style={[styles.LanguageLevelBar.foreground, {width: levelBarWidth }]}>
-                                        </View>
+                                    <View style={[styles.LanguageLevelBar.foreground, {width: levelBarWidth }]}>
                                     </View>
                                 </View>
-                            )
-                        })
-                    )
+                            </View>
+                        )
+                    })
                 }
             </View>
         </View>

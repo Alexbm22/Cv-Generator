@@ -10,12 +10,12 @@ import  {
 } from './slices/CVEdit';
 import { triggerOnChange } from './middleware/triggerOnChange';
 import { devtools } from 'zustand/middleware';
-import { storeConfig } from './config/storeConfig';
+import { CVLocalService } from '../services/CVLocal';
 
 export const useCvEditStore = create<CVEditStore>()(
     devtools(    
         triggerOnChange<CVEditStore>({
-            callback: storeConfig.middlewareOptions.debouncedCVAutoSave.autoSaveCV, 
+            callback: CVLocalService.autoSaveCV().bind(CVLocalService),
             ignoredKeys: ['updatedAt']
         })(
             (set, get): CVEditStore => ({

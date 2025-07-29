@@ -1,11 +1,14 @@
 import React from "react";
 import { useCvEditStore } from "../../../../Store";
 import TextInputField from "../../../UI/textInputField";
-import { CVEditContent } from "../../../../config/content";
 import { SocialLink } from "../../../../interfaces/cv";
+import { CV_EDITOR_FORM_CONSTANTS } from "../../../../constants/CV/CVEditor";
+
+
+const { personal_infos: personalInfosConstants } = CV_EDITOR_FORM_CONSTANTS.sections;
+const { fields: fieldsConstants } = personalInfosConstants;
 
 const PersonalInfos: React.FC = () => {
-
     const photo = useCvEditStore((state) => state.photo);
     const firstName  = useCvEditStore((state) => state.firstName);
     const lastName  = useCvEditStore((state) => state.lastName);
@@ -22,31 +25,28 @@ const PersonalInfos: React.FC = () => {
     const setAddress = useCvEditStore((state) => state.setAddress);
     const setBirthDate = useCvEditStore((state) => state.setBirthDate);
     const addSocialLink = useCvEditStore((state) => state.addSocialLink);
-
-    const { personalInfos } = CVEditContent.formSections;
-    const { fields } = personalInfos;
     
     return (
         <>
             <div className="font-sans w-auto">
-                <h2 className="text-xl text-gray-600 font-bold mb-2">{personalInfos.title}</h2>
+                <h2 className="text-xl text-gray-600 font-bold mb-2">{personalInfosConstants.title}</h2>
                 <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-2">
         
                     <div className="flex flex-col gap-x-8 gap-y-3">
                         <TextInputField
-                            id="firstName"
-                            label={personalInfos.fields.firstName.label}
+                            id={personalInfosConstants.fields.first_name.label}
+                            label={personalInfosConstants.fields.first_name.label}
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
-                            placeholder={fields.firstName.placeholder}
+                            placeholder={fieldsConstants.first_name.placeholder}
                         />
 
                         <TextInputField
-                            id="lastName"
-                            label={fields.lastName.label}
+                            id={fieldsConstants.last_name.label}
+                            label={fieldsConstants.last_name.label}
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
-                            placeholder={fields.lastName.placeholder}
+                            placeholder={fieldsConstants.last_name.placeholder}
                         />
                     </div>
 
@@ -56,8 +56,8 @@ const PersonalInfos: React.FC = () => {
                             <input 
                                 id="photo" 
                                 className="hidden" 
-                                type={fields.photo.type} 
-                                accept="image/*" 
+                                type={fieldsConstants.photo.type} 
+                                accept={fieldsConstants.photo.accept}
                                 onChange={setPhoto} 
                             />
 
@@ -66,43 +66,43 @@ const PersonalInfos: React.FC = () => {
                     </div>
 
                     <TextInputField
-                        id="email"
-                        type={fields.email.type}
-                        label={fields.email.label}
+                        id={fieldsConstants.email.label}
+                        type={fieldsConstants.email.type}
+                        label={fieldsConstants.email.label}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder={fields.email.placeholder}
+                        placeholder={fieldsConstants.email.placeholder}
                     />
 
                     <TextInputField
-                        id="phoneNumber"
-                        type={fields.phoneNumber.type}
-                        label={fields.phoneNumber.label}
+                        id={fieldsConstants.phone_number.label}
+                        type={fieldsConstants.phone_number.type}
+                        label={fieldsConstants.phone_number.label}
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder={fields.phoneNumber.placeholder}
+                        placeholder={fieldsConstants.phone_number.placeholder}
                     />
 
                     <TextInputField
                         id="address"
-                        label={fields.address.label}
+                        label={fieldsConstants.address.label}
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
-                        placeholder={fields.address.placeholder}
+                        placeholder={fieldsConstants.address.placeholder}
                     />
 
                     <TextInputField
-                        type={fields.birthDate.type}
-                        id="birthDate"
-                        label={fields.birthDate.label}
+                        type={fieldsConstants.birth_date.type}
+                        id={fieldsConstants.birth_date.label}
+                        label={fieldsConstants.birth_date.label}
                         value={new Date(birthDate).toISOString().slice(0, 10)}
                         onChange={(e) => setBirthDate(new Date(e.target.value))}
-                        placeholder={fields.birthDate.placeholder}
+                        placeholder={fieldsConstants.birth_date.placeholder}
                     />
 
                     <div className="col-span-2 flex flex-col space-y1 w-full mt-2">
-                        <label className="text-lg text-gray-600 font-bold">{fields.socialLinks.title}</label>
-                        <p className="text-sm text-gray-500 mb-4e">{fields.socialLinks.description}</p>
+                        <label className="text-lg text-gray-600 font-bold">{fieldsConstants.social_links.title}</label>
+                        <p className="text-sm text-gray-500 mb-4e">{fieldsConstants.social_links.description}</p>
                         <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
                             {
                                 socialLinks.map((link) => (
@@ -111,8 +111,8 @@ const PersonalInfos: React.FC = () => {
                                     </div>
                                 ))
                             }
-                            <button onClick={() => addSocialLink({ platform: '', url: '' })} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                                {fields.socialLinks.addText}
+                            <button onClick={() => addSocialLink()} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
+                                {fieldsConstants.social_links.add_button_text}
                             </button>
                         </div>
                     </div>
@@ -131,8 +131,6 @@ const SocialLinkComponent: React.FC<ComponentProps> = ({ socialLink }) => {
     const removeSocialLink = useCvEditStore((state) => state.removeSocialLink);
     const updateSocialLink = useCvEditStore((state) => state.updateSocialLink);
 
-    const { fields } = CVEditContent.formSections.personalInfos;
-
     return (
         <>
             <div className="flex items-center justify-between col-span-2">
@@ -142,15 +140,15 @@ const SocialLinkComponent: React.FC<ComponentProps> = ({ socialLink }) => {
 
             <TextInputField
                 id={`platform-${socialLink.id}`}
-                label={fields.socialLinks.platform.label}
-                placeholder={fields.socialLinks.platform.placeholder}
+                label={fieldsConstants.social_links.fields.platform.label}
+                placeholder={fieldsConstants.social_links.fields.platform.placeholder}
                 value={socialLink.platform}
                 onChange={(e) => updateSocialLink(socialLink.id, { platform: e.target.value })}
             />
             <TextInputField
                 id={`url-${socialLink.id}`}
-                label={fields.socialLinks.url.label}
-                placeholder={fields.socialLinks.url.placeholder}
+                label={fieldsConstants.social_links.fields.url.label}
+                placeholder={fieldsConstants.social_links.fields.url.placeholder}
                 value={socialLink.url}
                 onChange={(e) => updateSocialLink(socialLink.id, { url: e.target.value })}
             />
