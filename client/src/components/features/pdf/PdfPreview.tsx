@@ -2,17 +2,16 @@ import { pdf } from '@react-pdf/renderer';
 import { useEffect, useRef, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-import { CVAttributes, TemplateComponentProps } from '../../../interfaces/cv';
+import { CVAttributes } from '../../../interfaces/cv';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 type PdfPreviewProps = {
   CVData: CVAttributes;
-  PdfDocument: React.FC<TemplateComponentProps>;
   className: string;
 };
 
-const PdfPreview = ({ CVData, PdfDocument, className }: PdfPreviewProps) => {
+const PdfPreview = ({ CVData, className }: PdfPreviewProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -28,7 +27,9 @@ const PdfPreview = ({ CVData, PdfDocument, className }: PdfPreviewProps) => {
 
     try {
       // Generate PDF blob
-      const blob = await pdf(<PdfDocument CV={CVData} />).toBlob();
+      const { TemplateMap } = await import('../../../constants/CV/TemplatesMap')
+      const CVTemplate = TemplateMap[CVData.template];
+      const blob = await pdf(<CVTemplate CV={CVData} />).toBlob();
       
       // Check if operation was cancelled
       if (abortController.signal.aborted) return;
@@ -105,7 +106,7 @@ const PdfPreview = ({ CVData, PdfDocument, className }: PdfPreviewProps) => {
         console.error('Error generating PDF preview:', error);
       }
     }
-  }, [CVData, PdfDocument]);
+  }, [CVData]);
 
   useEffect(() => {
     generatePdf();

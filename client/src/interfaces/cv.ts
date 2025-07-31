@@ -1,4 +1,3 @@
-import React from "react"
 
 export interface Language {
     id: string,
@@ -149,7 +148,7 @@ export interface CVContentActions {
 }
 
 export interface CVPersonalInfoActions {
-    setPhoto: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    setPhoto: (url: string | null) => void;
     setFirstName: (firstName: string) => void;
     setLastName: (lastName: string) => void;
     setEmail: (email: string) => void;

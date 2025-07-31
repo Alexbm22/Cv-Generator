@@ -1,6 +1,8 @@
 import React from "react";
 import { CVAttributes } from "../../../interfaces/cv";
 import { useDownload } from "../../../hooks/useDownload";
+import { DownloadService } from "../../../services/download";
+import { TemplateMap } from "../../../constants/CV/TemplatesMap";
 
 type DownloadBtnProps = {
     downloadedCV: CVAttributes
@@ -12,10 +14,12 @@ const DownloadBtn: React.FC<DownloadBtnProps> = ({downloadedCV}) => {
 
     return (
         <button 
-            onClick={() => {
-                downloadCV()
+            onClick={async () => {
+                // temporary for development purposes
+                const TemplateComponent = TemplateMap[downloadedCV.template]
+                await DownloadService.downloadPdf(TemplateComponent, downloadedCV)
             }}
-            disabled={!downloadCV || isPending}
+            
         >
             download
         </button>

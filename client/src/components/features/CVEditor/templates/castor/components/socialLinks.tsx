@@ -49,13 +49,13 @@ const SocialLinks: React.FC<SocialLinksProps> = ({
             <Text style={styles.title}>{socialLinksConstants.title}</Text>
             <View style={styles.contentContainer}>
                 {
-                    socialLinks.map((link) => {
+                    socialLinks.map((link, index) => {
 
                             const platformLabel = link.platform != '' ? link.platform + ':' : '';
                             const linkUrl = link.url != '' ? 'https://' + link.url : '';
 
                             return (
-                                <View  style={styles.LinkContainer} key={link.id}>
+                                <View key={index} style={styles.LinkContainer}>
                                     <Text style={styles.LinkTitle}>{platformLabel}</Text>
                                     <Link style={styles.LinkSrc} href={linkUrl}>{link.url}</Link>
                                 </View>

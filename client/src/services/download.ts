@@ -14,9 +14,9 @@ export class DownloadService {
         );
     }
 
-    static async downloadPdf(PdfDocument: React.FC<any>, fileName: string) {
-        const blob = await pdf(createElement(PdfDocument)).toBlob();
-        saveAs(blob, fileName);
+    static async downloadPdf(PdfDocument: React.FC<any>, CV: CVAttributes) {
+        const blob = await pdf(createElement(PdfDocument, { CV })).toBlob();
+        saveAs(blob, CV.title);
     }
 
 }

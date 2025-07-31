@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { CVAttributes, CVTemplates } from "../../../interfaces/cv";
+import { CVAttributes } from "../../../interfaces/cv";
 import { useCvEditStore } from "../../../Store";
 import PdfPreview from "../pdf/PdfPreview";
-import CastorTemplate from './templates/castor'
+import { Buffer } from 'buffer';
 
-export const TemplateMap = {
-    [CVTemplates.CASTOR]: CastorTemplate,
-}
+(window as any).global = window;
+(window as any).Buffer = Buffer;
 
 const CVPreview:React.FC = () => {
     const CV = useCvEditStore.getState();
@@ -27,7 +26,6 @@ const CVPreview:React.FC = () => {
         <div className="hidden bg-gray-100 overflow-hidden w-screen max-w-[calc(100vw*0.45)] h-screen justify-center items-center md:flex sticky top-0">
             <PdfPreview 
                 CVData={selectedCV} 
-                PdfDocument={TemplateMap[selectedCV.template]} 
                 className='aspect-[1/1.4142] max-w-[90%] max-h-[90%]'/>
         </div>
     )

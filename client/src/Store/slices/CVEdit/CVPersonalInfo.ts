@@ -3,7 +3,6 @@ import {
     SocialLink, 
     CVEditStore } from '../../../interfaces/cv';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
-import { resizeBase64Image } from '../../../utils/resizeBase64Image'; 
 import { DEFAULT_CV_EDITOR_STATE } from '../../../constants/CV/CVEditor';
 
 export const createPersonalInfoSlice = (set: {
@@ -19,23 +18,8 @@ export const createPersonalInfoSlice = (set: {
     birthDate: DEFAULT_CV_EDITOR_STATE.birthDate,
     socialLinks: DEFAULT_CV_EDITOR_STATE.socialLinks,
     
-    setPhoto: (event) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-
-            reader.readAsDataURL(file);
-
-            reader.onloadend = async () => {
-                const base64 = reader.result as string;
-                const resizedBase64 = await resizeBase64Image(base64, 1000, 1000, 1);
-                set({ photo: resizedBase64 });
-            };
-
-            reader.onerror = (error) => {
-                console.error('Error reading file:', error);
-            };
-        }
+    setPhoto: (url) => {
+        set({ photo: url });
     },
     setFirstName: (firstName: string) => set({ firstName }),
     setLastName: (lastName: string) => set({ lastName }),

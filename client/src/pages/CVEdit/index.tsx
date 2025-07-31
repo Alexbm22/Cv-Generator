@@ -36,6 +36,7 @@ const CVEditPage: React.FC = () => {
 
     return (
         <div className="flex flex-column w-full h-full relative">
+            <DownloadBtn downloadedCV={selectedCV}/>
             <CVEditorForm/>
             <CVPreview/>
         </div>

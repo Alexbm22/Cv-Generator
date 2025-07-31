@@ -79,21 +79,9 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       };
     }, [ref]);
 
-    // Update editor if htmlContent changes
-    useEffect(() => {
-      const quill = quillRef.current;
-      if (!quill || htmlContent === undefined) return;
-
-      const currentHtml = quill.root.innerHTML;
-      if (htmlContent !== currentHtml) {
-        quill.clipboard.dangerouslyPasteHTML(htmlContent);
-      }
-    }, [htmlContent]);
-
     return <div ref={containerRef} className="border border-gray-300 rounded-lg overflow-hidden shadow-sm focus:outline-none"></div>;
   }
 );
-
 
 QuillEditor.displayName = "Editor";
 

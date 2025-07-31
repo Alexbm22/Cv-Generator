@@ -11,7 +11,7 @@ export default function MainComponent({htmlContent, onHtmlChange, placeholder}: 
   const quillRef = useRef<QuillInstance>(null);
 
   return (
-    <section className="editor-container">
+    <section className="editor-container" dir="ltr">
       <QuillEditor
         ref={quillRef}
         htmlContent={htmlContent}

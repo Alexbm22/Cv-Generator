@@ -3,13 +3,12 @@ import { useCvEditStore } from "../../../../Store";
 import TextInputField from "../../../UI/textInputField";
 import { SocialLink } from "../../../../interfaces/cv";
 import { CV_EDITOR_FORM_CONSTANTS } from "../../../../constants/CV/CVEditor";
-
+import PhotoEditor from "./PhotoEditor/photoEditor";
 
 const { personal_infos: personalInfosConstants } = CV_EDITOR_FORM_CONSTANTS.sections;
 const { fields: fieldsConstants } = personalInfosConstants;
 
 const PersonalInfos: React.FC = () => {
-    const photo = useCvEditStore((state) => state.photo);
     const firstName  = useCvEditStore((state) => state.firstName);
     const lastName  = useCvEditStore((state) => state.lastName);
     const email  = useCvEditStore((state) => state.email);
@@ -17,7 +16,6 @@ const PersonalInfos: React.FC = () => {
     const address  = useCvEditStore((state) => state.address);
     const birthDate  = useCvEditStore((state) => state.birthDate);
     const socialLinks = useCvEditStore((state) => state.socialLinks);
-    const setPhoto  = useCvEditStore((state) => state.setPhoto);
     const setFirstName = useCvEditStore((state) => state.setFirstName);
     const setLastName = useCvEditStore((state) => state.setLastName);
     const setEmail = useCvEditStore((state) => state.setEmail);
@@ -50,20 +48,7 @@ const PersonalInfos: React.FC = () => {
                         />
                     </div>
 
-                    <div className="flex flex-row gap-x-4 justify-start items-end">
-                        <img className="max-w-50 max-h-20 object-contain rounded-lg border-gray-300 shadow-sm" src={photo ?? "/Images/anonymous_Picture.png"} alt="Image" />
-                        <div>
-                            <input 
-                                id="photo" 
-                                className="hidden" 
-                                type={fieldsConstants.photo.type} 
-                                accept={fieldsConstants.photo.accept}
-                                onChange={setPhoto} 
-                            />
-
-                            <label htmlFor="photo" className="font-medium text-md text-blue-600 w-fit cursor-pointer">+ Add Photo</label>
-                        </div>
-                    </div>
+                    <PhotoEditor />
 
                     <TextInputField
                         id={fieldsConstants.email.label}

@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query"
 import { useCvEditStore, useErrorStore } from "../Store";
 import { DownloadService } from "../services/download";
 import { CVAttributes } from "../interfaces/cv";
-import { TemplateMap } from "../components/features/CVEditor/CVPreview";
+import { TemplateMap } from "../constants/CV/TemplatesMap";
 
 export const useDownload = (
     CVToDownload: CVAttributes
@@ -22,7 +22,7 @@ export const useDownload = (
 
             const TemplateComponent = TemplateMap[template]
 
-            await DownloadService.downloadPdf(TemplateComponent, CVToDownload.title);
+            await DownloadService.downloadPdf(TemplateComponent, CVToDownload);
         }, 
         onError: (error) => {
             useErrorStore.getState().createError(error);
