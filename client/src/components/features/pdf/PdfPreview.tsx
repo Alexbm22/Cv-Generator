@@ -1,8 +1,8 @@
-import { pdf } from '@react-pdf/renderer';
 import { useEffect, useRef, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { CVAttributes } from '../../../interfaces/cv';
+import { generatePdfBlob } from '../../../services/Pdf';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -15,7 +15,7 @@ const PdfPreview = ({ CVData, className }: PdfPreviewProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const generatePdf = useCallback(async () => {
+  const generatePdfPreview = useCallback(async () => {
     // Cancel any ongoing operation
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -29,7 +29,7 @@ const PdfPreview = ({ CVData, className }: PdfPreviewProps) => {
       // Generate PDF blob
       const { TemplateMap } = await import('../../../constants/CV/TemplatesMap')
       const CVTemplate = TemplateMap[CVData.template];
-      const blob = await pdf(<CVTemplate CV={CVData} />).toBlob();
+      const blob = await generatePdfBlob(CVTemplate, {CV: CVData});
       
       // Check if operation was cancelled
       if (abortController.signal.aborted) return;
@@ -109,7 +109,7 @@ const PdfPreview = ({ CVData, className }: PdfPreviewProps) => {
   }, [CVData]);
 
   useEffect(() => {
-    generatePdf();
+    generatePdfPreview();
 
     // Cleanup function
     return () => {
@@ -117,7 +117,7 @@ const PdfPreview = ({ CVData, className }: PdfPreviewProps) => {
         abortControllerRef.current.abort();
       }
     };
-  }, [generatePdf]);
+  }, [generatePdfPreview]);
 
   return <canvas ref={canvasRef} className={className} />;
 };

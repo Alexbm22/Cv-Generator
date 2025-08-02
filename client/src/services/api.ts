@@ -214,23 +214,23 @@ class ApiService {
   
   }
 
-  async get<T>(url: string): Promise<T> {
-    const response = await this.client.get<T>(url);
+  async get<T>(url: string, config?: AxiosRequestConfig<any>): Promise<T> {
+    const response = await this.client.get<T>(url, config);
     return response.data;
   }
 
-  async post<T, D = any>(url: string, data?: D): Promise<T> {
-    const response = await this.client.post<T>(url, data);
+  async post<T, D = any>(url: string, data?: D, config?: AxiosRequestConfig<any>): Promise<T> {
+    const response = await this.client.post<T>(url, data, config);
     return response.data;
   }
 
-  async put<T, D = any>(url: string, data?: D): Promise<T> {
-    const response = await this.client.put<T>(url, data);
+  async put<T, D = any>(url: string, data?: D, config?: AxiosRequestConfig<any>): Promise<T> {
+    const response = await this.client.put<T>(url, data, config);
     return response.data;
   }
 
-  async delete<T>(url: string): Promise<T> {
-    const response = await this.client.delete<T>(url);
+  async delete<T>(url: string, config?: AxiosRequestConfig<any>): Promise<T> {
+    const response = await this.client.delete<T>(url, config);
     return response.data;
   }
 }

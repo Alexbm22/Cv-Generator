@@ -1,5 +1,3 @@
-import { pdf } from "@react-pdf/renderer";
-import React, { createElement } from "react";
 import { saveAs } from 'file-saver';
 import { apiService } from "./api";
 import { CVAttributes } from "../interfaces/cv";
@@ -7,16 +5,31 @@ import { CVAttributes } from "../interfaces/cv";
 export class DownloadService {
     private static apiUrl = '/protected/downloads';
 
-    static async initiateDownload(CVToDownload: CVAttributes) {
-        return await apiService.post<void, CVAttributes>( 
+    // Sends the document data and PDF blob to the server.
+    // The server verifies if the user has an active subscription or sufficient credits.
+    // If verification passes, the server records the download and responds with a 204 status.
+    static async initiateDownload(PdfBlob: Blob, documentData: CVAttributes) {
+        const filename = `${documentData.title}.pdf`;
+        const file = new File([PdfBlob], filename, { 
+            type: "application/pdf",
+            lastModified: Date.now()
+        });
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('documentData', JSON.stringify(documentData));
+
+        return await apiService.post<void, FormData>( 
             this.apiUrl + '/initiate',
-            CVToDownload
+            formData,
+            { 
+                headers: { 'Content-Type': 'multipart/form-data' } 
+            }
         );
     }
 
-    static async downloadPdf(PdfDocument: React.FC<any>, CV: CVAttributes) {
-        const blob = await pdf(createElement(PdfDocument, { CV })).toBlob();
-        saveAs(blob, CV.title);
+    static async downloadPdf(PdfBlob: Blob, documentData: CVAttributes) {
+        saveAs(PdfBlob, documentData.title);
     }
 
 }
