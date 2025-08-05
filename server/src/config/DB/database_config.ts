@@ -1,21 +1,22 @@
 import { Sequelize, Options } from "sequelize";
 import dotenv from "dotenv";
+import { config } from "../env";
 dotenv.config();
 
 const dbConfig: Options = {
     dialect: "mysql",
-    port: Number(process.env.DB_PORT) || 3306,
-    host: process.env.DB_HOST || "localhost",
+    port: config.DB_PORT,
+    host: config.DB_HOST,
     pool: {
         max: 5,
         min: 0,
         acquire: 30000,
         idle: 10000
     },
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    logging: config.NODE_ENV === 'development' ? console.log : false,
     retry: { max: 3 },
     timezone: "+00:00",
-    benchmark: process.env.NODE_ENV === 'development'
+    benchmark: config.NODE_ENV === 'development'
 
     // SSL configuration for secure connection
     // dialectOptions: {
@@ -27,9 +28,9 @@ const dbConfig: Options = {
 }
 
 const sequelize = new Sequelize(
-    process.env.DB_NAME || "my_db",
-    process.env.DB_USER || "root",
-    process.env.DB_PASSWORD || '',
+    config.DB_NAME,
+    config.DB_USER,
+    config.DB_PASSWORD,
     dbConfig
 )
 

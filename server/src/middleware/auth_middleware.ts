@@ -4,6 +4,7 @@ import { AuthRequest, TokenPayload } from '../interfaces/auth';
 import jwt from 'jsonwebtoken';
 import { User } from '../models';
 import { ErrorTypes } from '../interfaces/error';
+import { config } from '../config/env';
 
 export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction)=> {
     const authorizationHeader = req.headers.authorization;
@@ -20,7 +21,7 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
     try{
         decodedToken = jwt.verify(
             accessToken, 
-            process.env.JWT_SECRET as string
+            config.JWT_SECRET
         ) as TokenPayload;
     } catch(error: any) {
         return next(new AppError('Invalid token', 401, ErrorTypes.UNAUTHORIZED));

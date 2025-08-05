@@ -3,11 +3,12 @@ import sequelize from './config/DB/database_config';
 import https from 'https';
 import fs from 'fs';
 import { initModels } from './models';
+import { config } from './config/env';
 
-const PORT: number = Number(process.env.PORT) || 5001;
+const PORT: number = config.PORT;
 
-const keyPath = process.env.SSL_KEY_PATH;
-const certPath = process.env.SSL_CERT_PATH;
+const keyPath = config.SSL_KEY_PATH;
+const certPath = config.SSL_CERT_PATH;
 
 if (!keyPath || !certPath) {
   throw new Error("SSL_KEY_PATH and SSL environment variables must be set");

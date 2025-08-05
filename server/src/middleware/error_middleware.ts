@@ -1,3 +1,4 @@
+import { config } from '../config/env';
 import { ErrorTypes } from '../interfaces/error';
 import { Request, Response, NextFunction } from 'express';
 
@@ -29,7 +30,7 @@ export const errorHandler = (
     const errType = err.errorType ?? ErrorTypes.INTERNAL_ERR;
     const errors = err.data ?? undefined;
     
-    if(process.env.NODE_ENV === "development"){
+    if(config.NODE_ENV === "development"){
         return res.status(statusCode).json({
             message: err.message,
             stack: err.stack,

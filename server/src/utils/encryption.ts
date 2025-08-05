@@ -1,8 +1,7 @@
+import { config } from '../config/env';
 import crypto from 'crypto';
-import dotenv from 'dotenv';
-dotenv.config();
 
-const ENCRYPTION_KEY_HEX = String(process.env.ENCRYPTION_KEY);
+const ENCRYPTION_KEY_HEX = String(config.ENCRYPTION_KEY);
 const IV_LENGTH = 16;
 
 const ENCRYPTION_KEY = Buffer.from(ENCRYPTION_KEY_HEX, 'hex');

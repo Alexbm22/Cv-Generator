@@ -2,6 +2,7 @@ import { Request, Response, NextFunction} from 'express';
 import { AppError } from './error_middleware';
 import rateLimit from 'express-rate-limit';
 import { ErrorTypes } from '../interfaces/error';
+import { config, Env } from '../config/env';
 
 interface EnvConfig {
     [key: string]: number;
@@ -34,29 +35,18 @@ export class RateLimitMiddleware {
   }
 
   private loadEnvironmentConfig(): RateLimitEnvironmentConfig {
-    const getEnvNumber = (key: string, defaultValue: number): number => {
-      const value = process.env[key];
-      if (!value) return defaultValue;
-      
-      const parsed = parseInt(value, 10);
-      if (isNaN(parsed) || parsed <= 0) {
-        console.warn(`Invalid ${key}: ${value}, using default: ${defaultValue}`);
-        return defaultValue;
-      }
-      return parsed;
-    };
 
     return {
-      DEFAULT_LIMIT: getEnvNumber('RATE_LIMIT_DEFAULT_LIMIT', 100),
-      DEFAULT_WINDOW_MS: getEnvNumber('RATE_LIMIT_DEFAULT_WINDOW_MS', 15 * 60 * 1000), // 15 minutes
-      AUTH_WINDOW_MS: getEnvNumber('RATE_LIMIT_AUTH_WINDOW_MS', 15 * 60 * 1000), // 15 minutes
-      AUTH_LIMIT: getEnvNumber('RATE_LIMIT_AUTH_LIMIT', 10),
-      REFRESH_TOKEN_WINDOW_MS: getEnvNumber('RATE_LIMIT_REFRESH_TOKEN_WINDOW_MS', 5 * 60 * 1000), // 5 minutes
-      REFRESH_TOKEN_LIMIT: getEnvNumber('RATE_LIMIT_REFRESH_TOKEN_LIMIT', 5),
-      CHECK_AUTH_WINDOW_MS: getEnvNumber('RATE_LIMIT_CHECK_AUTH_WINDOW_MS', 5 * 60 * 1000), // 5 minutes
-      CHECK_AUTH_LIMIT: getEnvNumber('RATE_LIMIT_CHECK_AUTH_LIMIT', 20),
-      CVS_WINDOW_MS: getEnvNumber('CVS_WINDOW_MS', 15 * 60 * 1000), // 15 minutes
-      CVS_LIMIT: getEnvNumber('CVS_LIMIT', 100),
+      DEFAULT_LIMIT: config.RATE_LIMIT_DEFAULT_LIMIT,
+      DEFAULT_WINDOW_MS: config.RATE_LIMIT_DEFAULT_WINDOW_MS,
+      AUTH_WINDOW_MS: config.RATE_LIMIT_AUTH_WINDOW_MS,
+      AUTH_LIMIT: config.RATE_LIMIT_AUTH_LIMIT,
+      REFRESH_TOKEN_WINDOW_MS: config.RATE_LIMIT_REFRESH_TOKEN_WINDOW_MS,
+      REFRESH_TOKEN_LIMIT: config.RATE_LIMIT_REFRESH_TOKEN_LIMIT,
+      CHECK_AUTH_WINDOW_MS: config.RATE_LIMIT_CHECK_AUTH_WINDOW_MS,
+      CHECK_AUTH_LIMIT: config.RATE_LIMIT_CHECK_AUTH_LIMIT,
+      CVS_WINDOW_MS: config.RATE_LIMIT_CVS_LIMIT,
+      CVS_LIMIT: config.RATE_LIMIT_CVS_WINDOW_MS,
     };
   }
 

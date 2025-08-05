@@ -6,8 +6,9 @@ import { PaymentService } from "../services/payments";
 import Stripe from "stripe";
 import { SubscriptionService } from "../services/subscriptions";
 import { CreditsService } from "../services/credits";
+import { config } from "../config/env";
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const endpointSecret = config.STRIPE_WEBHOOK_SECRET;
 
 export default async (req: Request, res: Response) => {
     const signature = req.headers['stripe-signature'] as string;

@@ -15,9 +15,7 @@ const DownloadBtn: React.FC<DownloadBtnProps> = ({downloadedCV}) => {
     return (
         <button 
             onClick={async () => {
-                // temporary for development purposes
-                const TemplateComponent = TemplateMap[downloadedCV.template]
-                await DownloadService.downloadPdf(TemplateComponent, downloadedCV)
+                downloadCV(downloadCV);
             }}
             
         >

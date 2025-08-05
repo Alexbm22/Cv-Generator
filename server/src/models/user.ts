@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import { ErrorTypes } from '../interfaces/error';
 import { UserAttributes, UserAccountData } from '../interfaces/user'
 import DownloadCredits from './Download_credits';
+import { config } from '../config/env';
 
 interface UserCreationAttributes extends Optional<UserAttributes, 
 'id' | 'refreshToken' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive'> {}
@@ -53,7 +54,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     }
 
     public hashGoogleId(googleId: string): string {
-        const GOOGLE_ID_SALT =  process.env.GOOGLE_ID_SALT || 'salt_google';
+        const GOOGLE_ID_SALT =  config.GOOGLE_ID_SALT;
 
         return crypto.createHash('sha256')
             .update(googleId + GOOGLE_ID_SALT)

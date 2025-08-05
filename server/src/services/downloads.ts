@@ -8,7 +8,15 @@ import { CreditsService } from "./credits";
 export class DownloadsService {
 
 
-    static async initDownload(user: User, downloadedCV: PublicCVAttributes) {
+    static async initDownload(user: User, downloadedCV: PublicCVAttributes, file?: Express.Multer.File) {
+
+        if(!file) {
+            throw new AppError(
+                "No file provided for download.",
+                400,
+                ErrorTypes.BAD_REQUEST
+            )
+        }
 
         const userData = user.get();
 

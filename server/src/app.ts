@@ -4,16 +4,17 @@ import stripeWebHook from './routes/stripeWebHook';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import Stripe from 'stripe';
+import { config } from './config/env';
 import helmet from 'helmet';
-import { AppError, catchAsync, errorHandler, notFound } from './middleware/error_middleware';
+import { AppError, errorHandler, notFound } from './middleware/error_middleware';
 import RateLimitInstance from './middleware/rate_limit_middleware';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+export const stripe = new Stripe(config.STRIPE_SECRET_KEY);
 
 const app: Application = express();
 
 app.use(cors({
-    origin: process.env.ORIGIN,
+    origin: config.ORIGIN,
     credentials: true
 }));
 

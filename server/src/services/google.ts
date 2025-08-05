@@ -2,13 +2,14 @@ import { OAuth2Client } from "google-auth-library";
 import { GoogleUserPayload } from '../interfaces/auth'
 import { AppError } from "../middleware/error_middleware";
 import { ErrorTypes } from "../interfaces/error";
+import { config } from "../config/env";
 
 export class GoogleServices {
     private readonly CLIENT_ID: string;
     private OAuthClient: OAuth2Client;
 
     constructor() {
-        this.CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'CLIENT_ID';
+        this.CLIENT_ID = config.GOOGLE_CLIENT_ID;
         this.OAuthClient = new OAuth2Client(this.CLIENT_ID);
     }
 

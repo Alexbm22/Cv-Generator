@@ -5,6 +5,7 @@ import Subscriptions from './Subscriptions';
 import DownloadCredits from './Download_credits';
 import { defineTablesRelationships } from '../config/DB/relationships';
 import { Payments } from './Payments';
+import { config } from '../config/env';
 
 export {
     User,
@@ -17,7 +18,7 @@ export {
 export const initModels = async () => {
     defineTablesRelationships();
 
-    switch (process.env.NODE_ENV) {
+    switch (config.NODE_ENV) {
         case 'development':
             await sequelize.sync({ alter: false, force: true });
             break;
