@@ -6,12 +6,14 @@ import {
     SubscriptionStatus
 } from '../interfaces/subscriptions'; 
 import { Payment_Interval } from '../interfaces/payments';
+import { generateUUID } from '@/utils/uuid';
 interface SubscriptionCreationAttributs extends Optional<SubscriptionAttributes,
-    'subscription_id'| 'auto_renew' | 'createdAt' | 'updatedAt'
+    'auto_renew' | 'createdAt' | 'updatedAt' | 'id' | 'public_id'
 > {}
 
-class Subscriptions extends Model<SubscriptionAttributes, SubscriptionCreationAttributs> implements SubscriptionAttributes{
-    public subscription_id!: number;
+class Subscription extends Model<SubscriptionAttributes, SubscriptionCreationAttributs> implements SubscriptionAttributes{
+    public id!: number;
+    public public_id!: string;
     public payment_id!: string;
     public plan_id!: string;
     public user_id!: number;
@@ -26,7 +28,7 @@ class Subscriptions extends Model<SubscriptionAttributes, SubscriptionCreationAt
 
     public toSafeSubscription(): PublicSubscriptionData {
         const { 
-            subscription_id,
+            public_id: subscription_id,
             plan_id,
             status,
             current_period_start,
@@ -49,13 +51,17 @@ class Subscriptions extends Model<SubscriptionAttributes, SubscriptionCreationAt
     }
 }
 
-Subscriptions.init({
-    subscription_id: {
+Subscription.init({
+    id: {
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
         unique: true,
         allowNull: false,
         primaryKey: true,
+    },
+    public_id: {
+        type: DataTypes.CHAR(36),
+        allowNull: false
     },
     payment_id: {
         type: DataTypes.STRING(255),
@@ -70,7 +76,7 @@ Subscriptions.init({
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: 'user',
+            model: 'users',
             key: 'id'
         }
     },
@@ -111,9 +117,14 @@ Subscriptions.init({
     }
 },{
     sequelize,
-    tableName: 'Subscriptions',
+    tableName: 'subscriptions',
     timestamps: true,
     underscored: true,
+    hooks: {
+        beforeCreate: (subscription: Subscription) => {
+            subscription.setDataValue('public_id', generateUUID());
+        }
+    }
 });
 
-export default Subscriptions;
+export default Subscription;

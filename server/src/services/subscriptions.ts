@@ -1,4 +1,4 @@
-import { Subscriptions } from "../models";
+import { Subscription } from "../models";
 import { PublicSubscriptionData, SubscriptionStatus } from "../interfaces/subscriptions";
 import { PaymentAttributes } from "../interfaces/payments";
 import { getFutureDate } from "../utils/date_utils/getFutureDate";
@@ -8,7 +8,7 @@ import { ErrorTypes } from "../interfaces/error";
 export class SubscriptionService {
 
     static async getUserSubscription(userId: number): Promise<PublicSubscriptionData | null> {
-        const activeSubscription = await Subscriptions.findOne({
+        const activeSubscription = await Subscription.findOne({
             where: {
                 user_id: userId,
                 status: SubscriptionStatus.ACTIVE
@@ -21,7 +21,7 @@ export class SubscriptionService {
         try {
             const subscription_end_date = getFutureDate(paymentObj.price.interval!, paymentObj.price.interval_count ?? 1)
     
-            const newSubscription = await Subscriptions.create({
+            const newSubscription = await Subscription.create({
                 payment_id: paymentObj.payment_id,
                 plan_id: paymentObj.price.id,
                 user_id: paymentObj.user_id,

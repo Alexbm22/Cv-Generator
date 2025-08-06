@@ -1,5 +1,5 @@
 import { AppError } from "../middleware/error_middleware";
-import { Payments } from "../models";
+import { Payment } from "../models";
 import Stripe from "stripe";
 import { ErrorTypes } from "../interfaces/error";
 import { StripeService } from "./stripe";
@@ -11,7 +11,7 @@ export class PaymentService {
         price: Stripe.Price
     ) {
         try {
-            await Payments.create({
+            await Payment.create({
                 payment_id: paymentIntent.id,
                 user_id: Number(paymentIntent.metadata.userId),
                 customer_id: 
@@ -35,7 +35,7 @@ export class PaymentService {
         paymentIntent: Stripe.PaymentIntent,
     ) {
         try {
-            await Payments.update({
+            await Payment.update({
                 status: paymentIntent.status,
                 customer_id: 
                     typeof paymentIntent.customer === 'string' ? paymentIntent.customer : null,
@@ -49,7 +49,7 @@ export class PaymentService {
                 }
             });
 
-            const updatedPayment = await Payments.findOne({
+            const updatedPayment = await Payment.findOne({
                 where: { payment_id: paymentIntent.id }
             });
 
@@ -64,7 +64,7 @@ export class PaymentService {
     }
 
     static async getUserPayments(user_id: number) {
-        const payments = await Payments.findAll({
+        const payments = await Payment.findAll({
             where: {
                 user_id: user_id
             }

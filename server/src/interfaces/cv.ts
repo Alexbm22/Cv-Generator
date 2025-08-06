@@ -78,6 +78,14 @@ export enum CVTemplates {
 }
 
 export interface CVContentAttributes {
+    photo: string | null,
+    firstName: string,
+    lastName: string,
+    email: string,
+    phoneNumber: string,
+    address: string,
+    birthDate: Date,
+    socialLinks: SocialLink[]
     professionalSummary: string,
     languages: Language[],
     skills: Skill[],
@@ -88,17 +96,6 @@ export interface CVContentAttributes {
     sectionsOrder: string[];
 }
 
-export interface PersonalDataAttributes {
-    photo: string | null,
-    firstName: string,
-    lastName: string,
-    email: string,
-    phoneNumber: string,
-    address: string,
-    birthDate: Date,
-    socialLinks: SocialLink[]
-}
-
 export interface CVMetadataAttributes {
     id: string;
     title: string;
@@ -107,7 +104,7 @@ export interface CVMetadataAttributes {
     version?: number;
 }
 
-export interface PublicCVAttributes extends CVContentAttributes, CVMetadataAttributes, PersonalDataAttributes {}
+export interface PublicCVAttributes extends CVContentAttributes, CVMetadataAttributes {}
 
 export interface CVAttributes {
     id: number,
@@ -116,8 +113,7 @@ export interface CVAttributes {
     version: number;
     title: string,
     template: CVTemplates;
-    personalData?: PersonalDataAttributes | null,
-    encryptedPersonalData: string
+    encryptedContent: string
     content: CVContentAttributes,
     createdAt: Date,
     updatedAt: Date

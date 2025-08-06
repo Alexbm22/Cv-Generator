@@ -129,7 +129,7 @@ User.init({
     updatedAt: DataTypes.DATE
 }, {
     sequelize,
-    tableName: 'user',
+    tableName: 'users',
     timestamps: true,
     underscored: true,
     hooks: {

@@ -1,54 +1,67 @@
 import {
     User,
     CV,
-    Subscriptions,
+    Subscription,
     DownloadCredits,
-    Payments
+    Payment
 } from '../../models'
+import * as Models from '../../models'
 
 export const defineTablesRelationships = () => {
-    User.hasMany(CV, {
+    Models.User.hasMany(Models.CV, {
         foreignKey: 'user_id',
         as: 'cvs',
     });
 
-    User.hasMany(Subscriptions, {
+    Models.User.hasMany(Models.Subscription, {
         foreignKey: 'user_id',
         as: 'subscriptions',
     });
 
-    User.hasOne(DownloadCredits, {
+    Models.User.hasOne(Models.DownloadCredits, {
         foreignKey: 'user_id',
-        as: 'downloadCredits',
+        as: 'download_credits',
     });
 
-    User.hasMany(Payments, {
+    Models.User.hasMany(Models.Payment, {
         foreignKey: 'user_id',
         as: 'payments',
     });
 
-    Payments.belongsTo(User, {
+    Models.User.hasMany(Models.Download, {
+        foreignKey: 'user_id',
+        as: 'downloads',
+    });
+
+    Models.Payment.belongsTo(Models.User, {
         foreignKey: 'user_id',
         as: 'user',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 
-    DownloadCredits.belongsTo(User, {
+    Models.Download.belongsTo(Models.User, {
         foreignKey: 'user_id',
         as: 'user',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 
-    Subscriptions.belongsTo(User, {
+    Models.DownloadCredits.belongsTo(Models.User, {
         foreignKey: 'user_id',
         as: 'user',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 
-    CV.belongsTo(User, {
+    Models.Subscription.belongsTo(Models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    });
+
+    Models.CV.belongsTo(Models.User, {
         foreignKey: 'user_id',
         as: 'user',
         onDelete: 'CASCADE',

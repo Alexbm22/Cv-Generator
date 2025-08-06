@@ -31,7 +31,7 @@ DownloadCredits.init({
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: 'user',
+            model: 'users',
             key: 'id'
         }
     },

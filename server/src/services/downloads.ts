@@ -2,22 +2,17 @@ import { SubscriptionStatus } from "../interfaces/subscriptions";
 import { PublicCVAttributes } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
 import { AppError } from "../middleware/error_middleware";
-import { User, CV, Subscriptions } from "../models";
+import { User, CV, Subscription, Download } from "../models";
 import { CreditsService } from "./credits";
+import { S3Services } from "./s3";
+import { config } from "../config/env";
+
+const s3Services = new S3Services();
 
 export class DownloadsService {
 
 
-    static async initDownload(user: User, downloadedCV: PublicCVAttributes, file?: Express.Multer.File) {
-
-        if(!file) {
-            throw new AppError(
-                "No file provided for download.",
-                400,
-                ErrorTypes.BAD_REQUEST
-            )
-        }
-
+    static async initDownload(user: User, downloadedCV: PublicCVAttributes, file: Express.Multer.File) {
         const userData = user.get();
 
         // veryfy if the user is the owner of the CV
@@ -36,16 +31,62 @@ export class DownloadsService {
             )
         }
 
-        // it will throw an error if the user does not have permission to download
+        // throws an error if the user does not have permission to download
         await this.hasDownloadPermission(userData.id);
 
-        // to do add the cv in the downloads table
+        const uploadResult = await s3Services.uploadToS3(file, config.AWS_S3_BUCKET);
+        const uploadKey = uploadResult.Key;
 
-        return;
+        // add download to the downloads table
+        const newDownload = await Download.create({
+            metadata: downloadedCV,
+            fileKey: uploadKey,
+            fileName: file.originalname,
+            user_id: userData.id
+        });
+    }
+
+    static async getUserDownloads(user: User) {
+        const userDownloads = await Download.findAll({
+            where: {
+                user_id: user.get().id
+            }
+        })
+
+        const publicDowloadsData = userDownloads.map(download => download.toSafeDownload());
+        return publicDowloadsData;
+    }
+
+    static async getDownloadFileStream(download_id: string) {
+
+        const download = await Download.findOne({
+            where: {
+                public_id: download_id
+            }
+        })
+        
+        if(!download) {
+            throw new AppError(
+                "The requested file could not be found.",
+                404,
+                ErrorTypes.NOT_FOUND
+            )
+        }
+
+        const downloadData = download.get();
+        const fileStream = await s3Services.getFromS3(
+            downloadData.fileKey,
+            config.AWS_S3_BUCKET
+        );
+
+        return {
+            fileName: downloadData.fileName,
+            fileStream
+        };
     }
 
     static async hasDownloadPermission(user_id: number) {
-        const hasSubscription = await Subscriptions.findOne({
+        const hasSubscription = await Subscription.findOne({
             where: {
                 user_id,
                 status: SubscriptionStatus.ACTIVE
@@ -69,5 +110,4 @@ export class DownloadsService {
             )
         }
     } 
-
 }

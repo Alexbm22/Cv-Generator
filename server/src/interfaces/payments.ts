@@ -19,6 +19,7 @@ export enum PaymentStatus {
 }
 
 export interface PaymentAttributes {
+    id: number;
     payment_id: string;
     user_id: number;
     customer_id: string | null;

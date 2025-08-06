@@ -1,19 +1,13 @@
 import sequelize from '../config/DB/database_config';
-import User from './User';
-import CV from './CV';
-import Subscriptions from './Subscriptions';
-import DownloadCredits from './Download_credits';
 import { defineTablesRelationships } from '../config/DB/relationships';
-import { Payments } from './Payments';
 import { config } from '../config/env';
 
-export {
-    User,
-    CV,
-    Subscriptions,
-    DownloadCredits,
-    Payments
-}
+export { default as User} from "./User";
+export { default as Payment} from "./Payment";
+export { default as CV} from './CV';
+export { default as Subscription} from './Subscription';
+export { default as DownloadCredits} from './Download_credits';
+export { default as Download } from './Download'
 
 export const initModels = async () => {
     defineTablesRelationships();

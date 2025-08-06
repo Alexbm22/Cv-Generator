@@ -11,13 +11,14 @@ import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
 
 interface PaymentCreationAttributes extends Optional<PaymentAttributes, 
-    'amount_received' | 'payment_method_type' | 'createdAt' | 'updatedAt'
+    'amount_received' | 'payment_method_type' | 'createdAt' | 'updatedAt' | 'id'
 > {}
 
-export class Payments extends Model<
+class Payments extends Model<
     PaymentAttributes, 
     PaymentCreationAttributes
 > implements PaymentAttributes {
+    public id!: number
     public payment_id!: string;
     public user_id!: number;
     public customer_id!: string | null;
@@ -61,16 +62,21 @@ export class Payments extends Model<
 }
 
 Payments.init({
+    id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false,
+    },
     payment_id: {
         type: DataTypes.STRING(255),
-        primaryKey: true,
         allowNull: false
     },
     user_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: 'user',
+            model: 'users',
             key: 'id'
         }
     },
@@ -126,7 +132,7 @@ Payments.init({
     }
 }, {
     sequelize,
-    tableName: 'payments',
+    tableName: 'Payment',
     timestamps: true,
     underscored: true,
     hooks: {
@@ -148,3 +154,5 @@ Payments.init({
         }
     }
 })
+
+export default Payments;

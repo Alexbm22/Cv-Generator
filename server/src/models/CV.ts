@@ -4,12 +4,12 @@ import { encrypt, decrypt } from '../utils/encryption';
 import {
     CVAttributes, 
     CVContentAttributes, 
-    PersonalDataAttributes,
     CVTemplates
 } from '../interfaces/cv';
+import { generateUUID } from '@/utils/uuid';
 
 interface CVCreationAttributes extends Optional<CVAttributes, 
-    'id' | 'encryptedPersonalData' | 'createdAt' | 'updatedAt' | 'version'
+    'id' | 'encryptedContent' | 'createdAt' | 'updatedAt' | 'version' | 'public_id'
 > {}
 
 class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttributes {
@@ -20,23 +20,22 @@ class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttribut
     public title!: string;
     public template!: CVTemplates;
     public content!: CVContentAttributes;
-    public encryptedPersonalData!: string;
-    public personalData?: PersonalDataAttributes | null;
+    public encryptedContent!: string;
     public createdAt!: Date;
     public updatedAt!: Date;
 
-    public setPersonalData(data: PersonalDataAttributes):void {
-        this.setDataValue('encryptedPersonalData',  encrypt(JSON.stringify(data)));
+    public setContent(data: CVContentAttributes) {
+        this.setDataValue('encryptedContent',  encrypt(JSON.stringify(data)));
     }
 
-    public setVersion(version: number){
+    public setVersion(version: number) {
         this.setDataValue('version', version);
     }
 
-    public getPersonalData(): PersonalDataAttributes | null {
-        const encryptedPersonalData = this.getDataValue('encryptedPersonalData')
-        if (encryptedPersonalData) {
-          return JSON.parse(decrypt(encryptedPersonalData));
+    public getContent() {
+        const encryptedContent = this.getDataValue('encryptedContent')
+        if (encryptedContent) {
+          return JSON.parse(decrypt(encryptedContent));
         }
         return null;
     }
@@ -54,14 +53,14 @@ CV.init({
         allowNull: false,
     },
     public_id: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.CHAR(36),
         allowNull: false
     },
     user_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: 'user',
+            model: 'users',
             key: 'id'
         }
     },
@@ -74,21 +73,17 @@ CV.init({
         allowNull: false
     },
     content: {
-        type: DataTypes.JSON,
-        allowNull: false
-    },
-    personalData: {
         type: DataTypes.VIRTUAL,
         get() {
-            return this.getPersonalData()
+            return this.getContent()
         },
-        set(value: PersonalDataAttributes) {
+        set(value: CVContentAttributes) {
             if (value) {
-                this.setDataValue('encryptedPersonalData', encrypt(JSON.stringify(value)));
+                this.setDataValue('encryptedContent', encrypt(JSON.stringify(value)));
             }
         }
     },
-    encryptedPersonalData: {
+    encryptedContent: {
         type: DataTypes.TEXT('long'),
         allowNull: true
     },
@@ -100,20 +95,22 @@ CV.init({
     }
 }, {
     sequelize,
-    tableName: 'CV',
+    tableName: 'cvs',
     timestamps: true,
     underscored: true,
     hooks: {
         beforeCreate: (cv: CV) => {
-            const personalData = cv.getDataValue('personalData')
-            if (personalData) {
-                cv.setPersonalData(personalData);
+            const content = cv.getDataValue('content')
+            if (content) {
+                cv.setContent(content);
             }
+
+            cv.setDataValue('public_id', generateUUID());
         }, 
         beforeUpdate: (cv: CV) => {
-            const personalData = cv.getDataValue('personalData')
-            if (personalData) {
-                cv.setPersonalData(personalData);
+            const content = cv.getDataValue('content')
+            if (content) {
+                cv.setContent(content);
             }
 
             const version = cv.getDataValue('version');
@@ -125,14 +122,14 @@ CV.init({
             if(!cv) return;
             if (Array.isArray(cv)) {
                 cv.forEach((instance) => {
-                    if(instance.encryptedPersonalData){
-                        instance.personalData = instance.getPersonalData();
+                    if(instance.encryptedContent){
+                        instance.content = instance.getContent();
                     }
                 });
             }
             else{
-                if (cv.encryptedPersonalData) {
-                    cv.personalData = cv.getPersonalData();
+                if (cv.encryptedContent) {
+                    cv.content = cv.getContent();
                 }
             }
         }

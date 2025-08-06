@@ -30,16 +30,6 @@ export class CVsService {
             template: CVTemplates.CASTOR,
             public_id: publicId,
             version: 0,
-            personalData: {
-                firstName: '',
-                lastName: '',
-                email: '',
-                phoneNumber: '',
-                address: '',
-                photo: null,
-                birthDate: new Date(),
-                socialLinks: [],
-            },
             content: {
                 professionalSummary: '',
                 sectionsOrder: [],
@@ -52,6 +42,14 @@ export class CVsService {
                     title: '',
                     content: []
                 },
+                firstName: '',
+                lastName: '',
+                email: '',
+                phoneNumber: '',
+                address: '',
+                photo: null,
+                birthDate: new Date(),
+                socialLinks: [],
             }
         })
 
@@ -182,23 +180,13 @@ export class CVsService {
         return hasVersionConflicts;
     }
 
-    private static fromDTO(cv: PublicCVAttributes, userId: number): Partial<CVAttributes> {
+    public static fromDTO(cv: PublicCVAttributes, userId: number): Partial<CVAttributes> {
         return {
             public_id: cv.id ?? randomUUID(),
             title: cv.title,
             template: cv.template,
             version: cv.version ?? 0,
             user_id: userId,
-            personalData: {
-                photo: cv.photo,
-                phoneNumber: cv.phoneNumber,
-                firstName: cv.firstName,
-                lastName: cv.lastName,
-                email: cv.email,
-                address: cv.address,
-                birthDate: cv.birthDate,
-                socialLinks: cv.socialLinks
-            },
             content: {
                 professionalSummary: cv.professionalSummary,
                 languages: cv.languages,
@@ -207,12 +195,20 @@ export class CVsService {
                 education: cv.education,
                 projects: cv.projects,
                 customSections: cv.customSections,
-                sectionsOrder: cv.sectionsOrder
+                sectionsOrder: cv.sectionsOrder,
+                photo: cv.photo,
+                phoneNumber: cv.phoneNumber,
+                firstName: cv.firstName,
+                lastName: cv.lastName,
+                email: cv.email,
+                address: cv.address,
+                birthDate: cv.birthDate,
+                socialLinks: cv.socialLinks
             }
         }
     }
 
-    private static toDTO(cv: CVAttributes): PublicCVAttributes {
+    public static toDTO(cv: CVAttributes): PublicCVAttributes {
         return {
             id: cv.public_id,
             title: cv.title,
@@ -226,14 +222,14 @@ export class CVsService {
             education: cv.content.education,
             projects: cv.content.projects,
             customSections: cv.content.customSections,
-            photo: cv.personalData?.photo || null,
-            firstName: cv.personalData!.firstName,
-            lastName: cv.personalData!.lastName,
-            email: cv.personalData!.email,
-            phoneNumber: cv.personalData!.phoneNumber,
-            address: cv.personalData!.address,
-            birthDate: cv.personalData!.birthDate,
-            socialLinks: cv.personalData!.socialLinks,
+            photo: cv.content?.photo || null,
+            firstName: cv.content!.firstName,
+            lastName: cv.content!.lastName,
+            email: cv.content!.email,
+            phoneNumber: cv.content!.phoneNumber,
+            address: cv.content!.address,
+            birthDate: cv.content!.birthDate,
+            socialLinks: cv.content!.socialLinks,
             version: cv.version,
         }
     }

@@ -18,10 +18,22 @@ const upload = multer({
 })
 
 router.post(
-    '/initiate',
+    '/',
     RateLimitInstance.globalRateLimit(),
     upload.single('file'),
-    catchAsync(DownloadsController.initDownload)
+    catchAsync(DownloadsController.createDownload)
+)
+
+router.get(
+    '/',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(DownloadsController.getDownloads)
+)
+
+router.get(
+    '/:download_id/file',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(DownloadsController.downloadFile)
 )
 
 export default router;

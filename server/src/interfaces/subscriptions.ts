@@ -1,4 +1,4 @@
-import { Payment_Interval } from "./stripe";
+import { Payment_Interval } from "./payments";
 
 export enum SubscriptionStatus {
     ACTIVE = 'Active',
@@ -8,7 +8,8 @@ export enum SubscriptionStatus {
 }
 
 export interface SubscriptionAttributes {
-    subscription_id: number;
+    id: number;
+    public_id: string;
     payment_id: string;
     user_id: number;
     plan_id: string;
@@ -23,7 +24,7 @@ export interface SubscriptionAttributes {
 }
 
 export interface PublicSubscriptionData {
-    subscription_id: number;
+    subscription_id: string;
     plan_id: string;
     status: SubscriptionStatus;
     current_period_start: Date;

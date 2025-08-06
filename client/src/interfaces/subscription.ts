@@ -8,7 +8,7 @@ export enum SubscriptionStatus {
 }
 
 export interface SubscriptionAttributes {
-    subscription_id: number;
+    subscription_id: string;
     plan_id: string;
     status: SubscriptionStatus;
     current_period_start: Date;
