@@ -108,7 +108,7 @@ export interface PublicCVAttributes extends CVContentAttributes, CVMetadataAttri
 
 export interface CVAttributes {
     id: number,
-    public_id:string,
+    public_id: string,
     user_id: number,
     version: number;
     title: string,

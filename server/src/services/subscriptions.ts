@@ -19,7 +19,7 @@ export class SubscriptionService {
 
     static async createSubscription (paymentObj: PaymentAttributes) {
         try {
-            const subscription_end_date = getFutureDate(paymentObj.price.interval!, paymentObj.price.interval_count ?? 1)
+            const subscription_end_date = getFutureDate(paymentObj.price.interval!, paymentObj.price.interval_count ?? 1);
     
             const newSubscription = await Subscription.create({
                 payment_id: paymentObj.payment_id,
@@ -34,6 +34,7 @@ export class SubscriptionService {
 
             return newSubscription;
         } catch (error) {
+            console.error(error);
             throw new AppError(
                 "Failed to create subscription",
                 500,

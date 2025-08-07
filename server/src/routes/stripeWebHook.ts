@@ -34,7 +34,11 @@ export default async (req: Request, res: Response) => {
 
                         if( succeededPayment?.price.type === 'recurring' ) {
                             // Handle recurring payment success
-                            await SubscriptionService.createSubscription(succeededPayment);
+                            try {
+                                await SubscriptionService.createSubscription(succeededPayment);
+                            } catch (error) {
+                                console.error(error)
+                            }
 
                         } else if( succeededPayment?.price.type === 'one_time' ) {
                             // Handle one-time payment success

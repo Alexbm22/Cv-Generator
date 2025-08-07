@@ -22,13 +22,10 @@ export class CVsService {
     } 
 
     static async createDefaultCV(userId: number): Promise<PublicCVAttributes> {
-        const publicId = randomUUID();
-
         const createdCV = await CV.create({
             title: '',
             user_id: userId,
             template: CVTemplates.CASTOR,
-            public_id: publicId,
             version: 0,
             content: {
                 professionalSummary: '',

@@ -1,23 +1,15 @@
-import {
-    HomePage,
-    CVsPage,
-    CVEditPage,
-    NotFoundPage,
-    Login,
-    SignUp,
-    Prices,
-    Checkout,
-} from '../pages/index'
+import * as Pages from '../pages/index'
 
 export const routes = {
-    home: { path: '/', element: HomePage, protected: false },
-    login: { path: '/login', element: Login, protected: false },
-    signup: { path: '/signup', element: SignUp, protected: false },
-    resumes: { path: '/resumes', element: CVsPage, protected: false },
-    editResume: { path: '/resumes/edit/:id', element: CVEditPage, protected: false },
-    prices: { path: '/prices', element: Prices, protected: true },
-    checkout: { path: '/checkout/:priceId', element: Checkout, protected: true },
-    notFound: { path: '*', element: NotFoundPage, protected: false },
+    home: { path: '/', element: Pages.HomePage, protected: false },
+    login: { path: '/login', element: Pages.Login, protected: false },
+    signup: { path: '/signup', element: Pages.SignUp, protected: false },
+    resumes: { path: '/resumes', element: Pages.CVsPage, protected: false },
+    editResume: { path: '/resumes/edit/:id', element: Pages.CVEditPage, protected: false },
+    downloads: { path: '/downloads', element: Pages.Downloads, protected: true },
+    prices: { path: '/prices', element: Pages.Prices, protected: true },
+    checkout: { path: '/checkout/:priceId', element: Pages.Checkout, protected: true },
+    notFound: { path: '*', element: Pages.NotFoundPage, protected: false },
 };
 
 export interface route {

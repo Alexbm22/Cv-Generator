@@ -37,6 +37,7 @@ export class DownloadsService {
         const uploadResult = await s3Services.uploadToS3(file, config.AWS_S3_BUCKET);
         const uploadKey = uploadResult.Key;
 
+        
         // add download to the downloads table
         const newDownload = await Download.create({
             metadata: downloadedCV,

@@ -68,9 +68,21 @@ export class S3Services {
                 return data.Body;
             }
 
+            if (Buffer.isBuffer(data.Body)) {
+                return Readable.from(data.Body);
+            }
+
+            if (typeof data.Body === "string") {
+                return Readable.from(Buffer.from(data.Body));
+            }
+
+
             // Convert other types to stream
             const chunks: Uint8Array[] = [];
-            for await (const chunk of data.Body as any) {
+            for await (const chunk of data.Body as AsyncIterable<Uint8Array>) {
+                if (!(chunk instanceof Uint8Array)) {
+                    throw new Error("Unexpected chunk type");
+                }
                 chunks.push(chunk);
             }
 

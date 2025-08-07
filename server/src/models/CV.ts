@@ -6,7 +6,7 @@ import {
     CVContentAttributes, 
     CVTemplates
 } from '../interfaces/cv';
-import { generateUUID } from '@/utils/uuid';
+import { generateUUID } from '../utils/uuid';
 
 interface CVCreationAttributes extends Optional<CVAttributes, 
     'id' | 'encryptedContent' | 'createdAt' | 'updatedAt' | 'version' | 'public_id'
@@ -53,8 +53,10 @@ CV.init({
         allowNull: false,
     },
     public_id: {
-        type: DataTypes.CHAR(36),
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        defaultValue: () => generateUUID(),
     },
     user_id: {
         type: DataTypes.INTEGER.UNSIGNED,
@@ -104,8 +106,6 @@ CV.init({
             if (content) {
                 cv.setContent(content);
             }
-
-            cv.setDataValue('public_id', generateUUID());
         }, 
         beforeUpdate: (cv: CV) => {
             const content = cv.getDataValue('content')

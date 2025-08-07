@@ -24,7 +24,7 @@ export class DownloadsController {
 
         try {
             await DownloadsService.initDownload(user, CVData, file); 
-            return res.status(204)
+            return res.status(204).end()
         } catch (error) {
             return next(error);
         }

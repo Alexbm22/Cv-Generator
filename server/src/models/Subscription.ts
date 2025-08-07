@@ -6,7 +6,8 @@ import {
     SubscriptionStatus
 } from '../interfaces/subscriptions'; 
 import { Payment_Interval } from '../interfaces/payments';
-import { generateUUID } from '@/utils/uuid';
+import { generateUUID } from '../utils/uuid';
+
 interface SubscriptionCreationAttributs extends Optional<SubscriptionAttributes,
     'auto_renew' | 'createdAt' | 'updatedAt' | 'id' | 'public_id'
 > {}
@@ -60,8 +61,10 @@ Subscription.init({
         primaryKey: true,
     },
     public_id: {
-        type: DataTypes.CHAR(36),
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        defaultValue: () => generateUUID(),
     },
     payment_id: {
         type: DataTypes.STRING(255),
@@ -120,11 +123,6 @@ Subscription.init({
     tableName: 'subscriptions',
     timestamps: true,
     underscored: true,
-    hooks: {
-        beforeCreate: (subscription: Subscription) => {
-            subscription.setDataValue('public_id', generateUUID());
-        }
-    }
 });
 
 export default Subscription;

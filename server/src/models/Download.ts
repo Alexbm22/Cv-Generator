@@ -56,10 +56,12 @@ Download.init({
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
-    },
+    },    
     public_id: {
-        type: DataTypes.CHAR(36),
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        defaultValue: () => generateUUID(),
     },
     user_id: {
         type: DataTypes.INTEGER.UNSIGNED,
@@ -107,8 +109,6 @@ Download.init({
             if(metadata) {
                 download.setMetadata(metadata);
             }
-
-            download.setDataValue('public_id', generateUUID());
         },
         beforeUpdate: (download: Download) => {
             const metadata = download.getDataValue('metadata');

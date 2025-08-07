@@ -214,24 +214,42 @@ class ApiService {
   
   }
 
-  async get<T>(url: string, config?: AxiosRequestConfig<any>): Promise<T> {
+  async get<T, R extends boolean = false>(
+    url: string, 
+    config?: AxiosRequestConfig<any>, 
+    raw?: boolean
+  ): Promise<R extends true ? AxiosResponse<T> : T>{
     const response = await this.client.get<T>(url, config);
-    return response.data;
+    return (raw ? response : response.data) as any;
   }
 
-  async post<T, D = any>(url: string, data?: D, config?: AxiosRequestConfig<any>): Promise<T> {
+  async post<T, D = any, R extends boolean = false>(
+    url: string, 
+    data?: D, 
+    config?: AxiosRequestConfig<any>, 
+    raw?: boolean
+  ): Promise<R extends true ? AxiosResponse<T> : T> {
     const response = await this.client.post<T>(url, data, config);
-    return response.data;
+    return (raw ? response : response.data) as any;
   }
 
-  async put<T, D = any>(url: string, data?: D, config?: AxiosRequestConfig<any>): Promise<T> {
+  async put<T, D = any, R extends boolean = false>(
+    url: string, 
+    data?: D, 
+    config?: AxiosRequestConfig<any>, 
+    raw?: boolean
+  ): Promise<R extends true ? AxiosResponse<T> : T> {
     const response = await this.client.put<T>(url, data, config);
-    return response.data;
+    return (raw ? response : response.data) as any;
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig<any>): Promise<T> {
+  async delete<T, R extends boolean = false>(
+    url: string, 
+    config?: AxiosRequestConfig<any>, 
+    raw?: boolean
+  ): Promise<R extends true ? AxiosResponse<T> : T> {
     const response = await this.client.delete<T>(url, config);
-    return response.data;
+    return (raw ? response : response.data) as any;
   }
 }
 

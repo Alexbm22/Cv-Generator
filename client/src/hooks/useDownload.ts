@@ -24,7 +24,7 @@ export const useDownload = (
             const TemplateComponent = TemplateMap[template]
             const PdfBlob = await generatePdfBlob(TemplateComponent, {CV: CVToDownload})
             
-            await DownloadService.initiateDownload(PdfBlob, CVToDownload)
+            await DownloadService.createDownload(PdfBlob, CVToDownload)
             return PdfBlob; // Return the generated PDF blob if no errors occurred during the api request
         },
         onSuccess: async (PdfBlob) => {

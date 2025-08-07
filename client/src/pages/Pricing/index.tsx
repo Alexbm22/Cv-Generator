@@ -10,7 +10,7 @@ const PricingPage: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<string>();
   const navigate = useNavigate();
 
-  const { data, error, isLoading } = useQuery({
+  const { data: product, error, isLoading } = useQuery({
     queryKey: ['plans'],
     queryFn: () => StripeService.getPricing(),
     enabled: useAuthStore.getState().isAuthenticated, // just when the user is authenticated
@@ -18,7 +18,6 @@ const PricingPage: React.FC = () => {
     staleTime: 5 * 60 * 1000 // 5 minutes
   })
 
-  const product = data;
   const prices = product?.prices
 
   if (isLoading) return <div>Loading...</div>
@@ -32,7 +31,6 @@ const PricingPage: React.FC = () => {
         <div key={price.id}>
           <button onClick={() => {
             setSelectedPlan(price.id)
-            console.log(prices)
           }}>
             { price.id }
           </button>
