@@ -12,7 +12,7 @@ import {
 
 const CVEditorForm: React.FC = () => {
     return (
-        <div className="p-10 bg-white w-full h-full shadow-lg z-10">        
+        <div className="p-10 bg-white w-full h-full shadow-lg z-0.5">        
             <PersonalInfos/>
             <ProfessionalSummary/>
             <WorkExperience/>

@@ -9,6 +9,10 @@ const { personal_infos: personalInfosConstants } = CV_EDITOR_FORM_CONSTANTS.sect
 const { fields: fieldsConstants } = personalInfosConstants;
 
 const PersonalInfos: React.FC = () => {
+    const title = useCvEditStore(state => state.title);
+    const setTitle = useCvEditStore(state => state.setTitle);
+    const jobTitle = useCvEditStore(state => state.jobTitle);
+    const setJobTitle = useCvEditStore(state => state.setJobTitle);
     const firstName  = useCvEditStore((state) => state.firstName);
     const lastName  = useCvEditStore((state) => state.lastName);
     const email  = useCvEditStore((state) => state.email);
@@ -29,6 +33,22 @@ const PersonalInfos: React.FC = () => {
             <div className="font-sans w-auto">
                 <h2 className="text-xl text-gray-600 font-bold mb-2">{personalInfosConstants.title}</h2>
                 <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-2">
+
+                    <TextInputField
+                        id={personalInfosConstants.fields.title.label}
+                        label={personalInfosConstants.fields.title.label}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder={fieldsConstants.title.placeholder}
+                    />
+
+                    <TextInputField
+                        id={fieldsConstants.job_title.label}
+                        label={fieldsConstants.job_title.label}
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        placeholder={fieldsConstants.job_title.placeholder}
+                    />
         
                     <div className="flex flex-col gap-x-8 gap-y-3">
                         <TextInputField

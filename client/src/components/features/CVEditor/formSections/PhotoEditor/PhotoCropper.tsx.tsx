@@ -59,7 +59,7 @@ const CVPhotoCropper: React.FC<CVPhotoCropperProps> = ({ imageSrc, setIsSelectin
   };
 
   return (
-    <div className="max-w-4xl w-full h-50 mx-auto p-6">
+    <div className="max-w-4xl w-full h-40 mx-auto p-6">
       <div className="mb-6 w-full h-full">
         <ImageCropper
           imageSrc={imageSrc}

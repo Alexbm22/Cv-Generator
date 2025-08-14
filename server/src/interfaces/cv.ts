@@ -96,21 +96,23 @@ export interface CVContentAttributes {
     sectionsOrder: string[];
 }
 
-export interface CVMetadataAttributes {
+export interface PublicCVMetadataAttributes {
     id: string;
     title: string;
+    jobTitle: string;
     template: CVTemplates;
     updatedAt: number;
     version?: number;
 }
 
-export interface PublicCVAttributes extends CVContentAttributes, CVMetadataAttributes {}
+export interface PublicCVAttributes extends CVContentAttributes, PublicCVMetadataAttributes {}
 
 export interface CVAttributes {
     id: number,
     public_id: string,
     user_id: number,
     version: number;
+    jobTitle: string;
     title: string,
     template: CVTemplates;
     encryptedContent: string

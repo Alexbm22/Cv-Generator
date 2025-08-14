@@ -11,75 +11,86 @@ export const PhotoEditor: React.FC = () => {
     const [ selectedPhoto, setSelectedPhoto ] = useState<string | null>(null);
     const [ isSelectingPhoto, setIsSelectingPhoto ] = useState<boolean>(false);
 
+    // to improve
     return (
-        <div className="relative">
+        <>
             {
-                !isSelectingPhoto && (
-                    <div className="absolute bottom-0 left-0 flex flex-row gap-x-4 justify-start items-end">
-                        <img 
-                            className="max-w-50 max-h-20 object-contain rounded-lg border-gray-300 shadow-sm" 
-                            src={cvPhoto ?? "/Images/anonymous_Picture.png"} 
-                            alt="Image"
-                        />
+                isSelectingPhoto && (
+                    <div className="absolute z-1 w-[100vw] h-full mt-[calc(-1 * var(--offset-y, 0px))] ml-[calc(-1 * var(--offset-x, 0px))]" onClick={() => {
+                        setIsSelectingPhoto(false)
+                    }} ></div>
+                )
+            }
+            <div className="relative z-2">
+                {
+                    !isSelectingPhoto && (
+                        <div className="absolute bottom-0 left-0 flex flex-row gap-x-4 justify-start items-end">
 
-                        {
-                            !cvPhoto ? (
-                                <button
-                                    onClick={() => {
-                                        setIsSelectingPhoto(true);
-                                    }}
-                                >
-                                    +Add Photo
-                                </button>
-                            ) : (
-                                <div>
+                            <img 
+                                className="max-w-50 max-h-20 object-contain rounded-lg border-gray-300 shadow-sm" 
+                                src={cvPhoto ?? "/Images/anonymous_Picture.png"} 
+                                alt="Image"
+                            />
+
+                            {
+                                !cvPhoto ? (
                                     <button
                                         onClick={() => {
                                             setIsSelectingPhoto(true);
-                                            setSelectedPhoto(cvPhoto)
                                         }}
                                     >
-                                        Edit Photo
+                                        +Add Photo
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            setPhoto(null)
-                                            setSelectedPhoto(null)
-                                        }}
-                                    >
-                                        Delete Photo
-                                    </button>
-                                </div>
-                            )
-                        }
+                                ) : (
+                                    <div>
+                                        <button
+                                            onClick={() => {
+                                                setIsSelectingPhoto(true);
+                                                setSelectedPhoto(cvPhoto)
+                                            }}
+                                        >
+                                            Edit Photo
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setPhoto(null)
+                                                setSelectedPhoto(null)
+                                            }}
+                                        >
+                                            Delete Photo
+                                        </button>
+                                    </div>
+                                )
+                            }
 
-                    </div>
-                )
-            }
+                        </div>
+                    )
+                }
 
-            {
-                (!selectedPhoto && isSelectingPhoto) && (
-                    <div className="w-full h-full">
-                        <PhotoSelector 
-                            setSelectedPhoto={setSelectedPhoto}
-                            setIsSelectingPhoto={setIsSelectingPhoto}
-                        />
-                    </div>
-                )
-            }
+                {
+                    (!selectedPhoto && isSelectingPhoto) && (
+                        <div className="w-full h-full">
+                            <PhotoSelector 
+                                setSelectedPhoto={setSelectedPhoto}
+                                setIsSelectingPhoto={setIsSelectingPhoto}
+                            />
+                        </div>
+                    )
+                }
 
-            {   
-                (selectedPhoto && isSelectingPhoto) && (
-                    <div>
-                        <CVPhotoCropper 
-                            imageSrc={selectedPhoto}
-                            setImageSource={setSelectedPhoto}
-                            setIsSelectingPhoto={setIsSelectingPhoto}
-                        />
-                    </div>
-                )
-            }
-        </div>
+                {   
+                    (selectedPhoto && isSelectingPhoto) && (
+                        <div>
+                            <CVPhotoCropper 
+                                imageSrc={selectedPhoto}
+                                setImageSource={setSelectedPhoto}
+                                setIsSelectingPhoto={setIsSelectingPhoto}
+                            />
+                        </div>
+                    )
+                }
+            </div>
+        </>
 
     )
 }

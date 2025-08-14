@@ -18,6 +18,7 @@ class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttribut
     public user_id!: number;
     public version!: number;
     public title!: string;
+    public jobTitle!: string;
     public template!: CVTemplates;
     public content!: CVContentAttributes;
     public encryptedContent!: string;
@@ -67,6 +68,10 @@ CV.init({
         }
     },
     title: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+    },
+    jobTitle: {
         type: DataTypes.STRING(255),
         allowNull: false
     },

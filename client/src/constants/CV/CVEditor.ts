@@ -5,6 +5,16 @@ export const CV_EDITOR_FORM_CONSTANTS = {
         personal_infos: {
             title: 'Personal Information',
             fields: {
+                title: {
+                    label: 'CV Title:',
+                    type: 'text',
+                    placeholder: 'e.g. Your CV Title',
+                },
+                job_title: {
+                    label: 'Job Title:',
+                    type: 'text',
+                    placeholder: 'e.g. Engineer',
+                },
                 photo: {
                     label: '+ Add Photo',
                     type: 'file',
@@ -295,6 +305,7 @@ export const CV_EDITOR_TEMPLATE_CONSTANTS = {
 
 export const DEFAULT_CV_EDITOR_STATE = {
     title: 'Untitled',
+    jobTitle: '',
     template: CVTemplates.CASTOR,
     professionalSummary: '',
     sectionsOrder: [],

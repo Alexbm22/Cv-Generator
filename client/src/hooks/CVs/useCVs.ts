@@ -19,3 +19,17 @@ export const useCreateCV = () => {
     })
 }
 
+export const useDeleteCV = (CVId: string) => {
+    const removeCV = useCVsStore(state => state.removeCV);
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
+    return useMutation<null, ApiError>({
+        mutationFn: async () => {
+            return isAuthenticated ? (await CVServerService.deleteCV(CVId)) : null;
+        },
+        onSuccess: () => {
+            removeCV(CVId);
+        }
+    })
+}
+

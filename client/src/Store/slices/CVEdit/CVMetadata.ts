@@ -10,11 +10,13 @@ export const createMetadataSlice = (set: {
     }): CVMetadataSliceAttributes => ({
     id: null,
     title: DEFAULT_CV_EDITOR_STATE.title,
+    jobTitle: DEFAULT_CV_EDITOR_STATE.jobTitle,
     template: DEFAULT_CV_EDITOR_STATE.template,
     sectionsOrder: DEFAULT_CV_EDITOR_STATE.sectionsOrder,
     updatedAt: DEFAULT_CV_EDITOR_STATE.updatedAt,
     version: DEFAULT_CV_EDITOR_STATE.version,
 
+    setJobTitle: (jobTitle) => set({ jobTitle }),
     setTemplate: (template) => set({ template }),
     setTitle: (title) => set({ title }),
     setSectionsOrder: (sectionsOrder) => set({ sectionsOrder }),

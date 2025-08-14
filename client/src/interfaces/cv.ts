@@ -84,6 +84,7 @@ export type TemplateComponentProps = {
 export interface CVMetadataAttributes {
     id: string | null;
     title: string;
+    jobTitle: string;
     template: CVTemplates;
     sectionsOrder: string[];
     updatedAt: number | null;
@@ -114,6 +115,7 @@ export interface CVPersonalInfoAttributes {
 export interface CVMetadataActions {
     setTemplate: (template: CVTemplates) => void;
     setTitle: (title: string) => void;
+    setJobTitle: (jobTitle: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
     setUpdatedAt: () => void;
 }

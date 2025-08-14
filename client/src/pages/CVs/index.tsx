@@ -1,40 +1,30 @@
 import React from "react";
 import { useCreateCV } from "../../hooks/CVs/useCVs";
 import { useCVsStore } from "../../Store";
-import { useNavigate } from "react-router-dom";
-import { routes } from "../../router/routes";
+import CVCard from "./CVCard";
 
 const CVsPage: React.FC = () => {
 
   const { mutate: createNewCV } = useCreateCV();
-  const CVs = useCVsStore(state => state.CVs);
-  const navigate = useNavigate();
+  const CVs = useCVsStore(state => state.CVs)
 
   return (
     <>
       <h1>CVs Page</h1>
-      <p>This is the CVs page.</p>
+      <div className="flex flex-row">
+        {
+          CVs.map((cv) => (
+            <div key={cv.id}>
+              <CVCard CV={cv}/>
+            </div>
+          ))
+        }
+      </div>
       <button
         onClick={() => {
           createNewCV()
         }}
       >add cv</button>
-      <div>
-        {
-          CVs.map((cv) => (
-            <div key={cv.id}>
-              {cv.id}
-              <button onClick={() => {
-                navigate(routes.editResume.path.replace(/:id$/, cv.id), {
-                  replace: true
-                })
-              }}>
-                edit
-              </button>
-            </div>
-          ))
-        }
-      </div>
     </>
   );
 }

@@ -26,7 +26,7 @@ export default async (req: Request, res: Response) => {
                     case 'payment_intent.created':
                         const paymentIntent = event.data.object as Stripe.PaymentIntent;
                         const price = await stripe.prices.retrieve(paymentIntent.metadata.priceId);
-                        await PaymentService.createPayment(paymentIntent, price);
+                        return await PaymentService.createPayment(paymentIntent, price);
                         break;
                     case 'payment_intent.succeeded':
                         const succeededPaymentIntent = event.data.object as Stripe.PaymentIntent;
@@ -34,15 +34,11 @@ export default async (req: Request, res: Response) => {
 
                         if( succeededPayment?.price.type === 'recurring' ) {
                             // Handle recurring payment success
-                            try {
-                                await SubscriptionService.createSubscription(succeededPayment);
-                            } catch (error) {
-                                console.error(error)
-                            }
+                            return await SubscriptionService.createSubscription(succeededPayment);
 
                         } else if( succeededPayment?.price.type === 'one_time' ) {
                             // Handle one-time payment success
-                            await CreditsService.addCredits(
+                            return await CreditsService.addCredits(
                                 succeededPayment.user_id,
                                 succeededPayment.quantity!
                             )
@@ -50,8 +46,7 @@ export default async (req: Request, res: Response) => {
                         break;
                     default: 
                         const defaultPaymentIntent = event.data.object as Stripe.PaymentIntent;
-                        await PaymentService.updatePayment(defaultPaymentIntent);
-                        break;
+                        return await PaymentService.updatePayment(defaultPaymentIntent);
                 }
             }
         } catch (error) {

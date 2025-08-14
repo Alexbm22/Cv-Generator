@@ -24,6 +24,7 @@ export class CVsService {
     static async createDefaultCV(userId: number): Promise<PublicCVAttributes> {
         const createdCV = await CV.create({
             title: '',
+            jobTitle: '',
             user_id: userId,
             template: CVTemplates.CASTOR,
             version: 0,
@@ -181,6 +182,7 @@ export class CVsService {
         return {
             public_id: cv.id ?? randomUUID(),
             title: cv.title,
+            jobTitle: cv.jobTitle,
             template: cv.template,
             version: cv.version ?? 0,
             user_id: userId,
@@ -209,6 +211,7 @@ export class CVsService {
         return {
             id: cv.public_id,
             title: cv.title,
+            jobTitle: cv.jobTitle,
             template: cv.template,
             sectionsOrder: cv.content.sectionsOrder,
             updatedAt: cv.updatedAt.getTime(),
