@@ -56,19 +56,19 @@ export class AuthServices {
             });
             
         } else {
-            if (!user.get('isActive')) {
-                throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
-            }
-
             if(!user.compareGoogleId(TokenPayload.google_id)) {
                 throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
+            }
+
+            if (!user.get('isActive')) {
+                throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
             }
 
             await User.update({
                     lastLogin: new Date(),
                 }, {
                     where: { 
-                        id: user.id
+                        id: user.get().id
                 },
             });
         }

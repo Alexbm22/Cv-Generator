@@ -51,7 +51,7 @@ export class AuthController {
         
         try {
             await this.authServices.logout(user, res);
-            return res.status(200);
+            return res.status(204).end();
         } catch (error) {
             return next(error)
         }

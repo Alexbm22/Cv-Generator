@@ -2,9 +2,10 @@ import { PublicCVAttributes, CVAttributes, CVTemplates } from "../interfaces/cv"
 import { ErrorTypes } from "../interfaces/error";
 import { UserAttributes } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
-import { CV } from "../models";
+import { CV, MediaFiles } from "../models";
 import { Op } from "sequelize";
 import { randomUUID } from "crypto";
+import { MediaTypes, OwnerTypes } from "../interfaces/mediaFiles";
 
 export class CVsService {
 
@@ -49,6 +50,13 @@ export class CVsService {
                 birthDate: new Date(),
                 socialLinks: [],
             }
+        })
+
+        const cvPhoto = await MediaFiles.create({
+            owner_id: createdCV.id,
+            owner_type: OwnerTypes.CV,
+            type: MediaTypes.CV_PHOTO,
+            obj_key: `cv_photo/${createdCV.id}`
         })
 
         return this.toDTO(createdCV.get());

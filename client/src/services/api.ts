@@ -61,7 +61,7 @@ class ApiService {
     if (config.url?.includes('/auth/refresh_token')) 
       return config
 
-    if(!config.url?.includes('/protected'))
+    if(!config.url?.includes('/protected') && !config.url?.includes('/logout'))
       return config
 
     const { 

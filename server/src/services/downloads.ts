@@ -4,10 +4,10 @@ import { ErrorTypes } from "../interfaces/error";
 import { AppError } from "../middleware/error_middleware";
 import { User, CV, Subscription, Download } from "../models";
 import { CreditsService } from "./credits";
-import { S3Services } from "./s3";
+import { S3Service } from "./s3";
 import { config } from "../config/env";
 
-const s3Services = new S3Services();
+const s3Services = new S3Service();
 
 export class DownloadsService {
 
@@ -35,7 +35,7 @@ export class DownloadsService {
         await this.hasDownloadPermission(userData.id);
 
         const uploadResult = await s3Services.uploadToS3(file, config.AWS_S3_BUCKET);
-        const uploadKey = uploadResult.Key;
+        const uploadKey = uploadResult;
 
         
         // add download to the downloads table
