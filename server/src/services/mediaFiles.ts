@@ -34,71 +34,46 @@ export class MediaFilesServices {
     static async getPresignedGetUrl(
         mediaFileId: string
     ): Promise<PresignedUrl> {
-        try {
-            const mediaFile = await MediaFiles.findOne({
-                where: { public_id: mediaFileId }
-            });
-    
-            if (!mediaFile) {
-                throw new AppError(
-                    "Media file not found",
-                    404,
-                    ErrorTypes.NOT_FOUND
-                );
-            }
-    
-            const presignedUrl = await s3Service.generatePresignedGetUrl(mediaFile.obj_key, config.AWS_S3_BUCKET);
-    
-            return {
-                url: presignedUrl.url,
-                expiresAt: presignedUrl.expiresAt
-            }
-        } catch (error) {
-            if(error instanceof AppError) {
-                throw error
-            }
+        const mediaFile = await MediaFiles.findOne({
+            where: { public_id: mediaFileId }
+        });
 
+        if (!mediaFile) {
             throw new AppError(
-                "Failed to generate download URL",
-                503,
-                ErrorTypes.INTERNAL_ERR
+                "Media file not found",
+                404,
+                ErrorTypes.NOT_FOUND
             );
+        }
+
+        const presignedUrl = await s3Service.generatePresignedGetUrl(mediaFile.obj_key, config.AWS_S3_BUCKET);
+
+        return {
+            url: presignedUrl.url,
+            expiresAt: presignedUrl.expiresAt
         }
     }
 
     static async getPresignedPutUrl(
         mediaFileId: string
     ): Promise<PresignedUrl> {
-        try {
-            const mediaFile = await MediaFiles.findOne({
-                where: { public_id: mediaFileId }
-            });
-    
-            if (!mediaFile) {
-                throw new AppError(
-                    "Media file not found",
-                    404,
-                    ErrorTypes.NOT_FOUND
-                );
-            }
-    
-            const presignedUrl = await s3Service.generatePresignedPutUrl(mediaFile.obj_key, config.AWS_S3_BUCKET);
-    
-            return {
-                url: presignedUrl.url,
-                expiresAt: presignedUrl.expiresAt
-            }
-        } catch (error) {
-            if(error instanceof AppError) {
-                throw error
-            }
+        const mediaFile = await MediaFiles.findOne({
+            where: { public_id: mediaFileId }
+        });
 
+        if (!mediaFile) {
             throw new AppError(
-                "Failed to generate download URL",
-                503,
-                ErrorTypes.INTERNAL_ERR
+                "Media file not found",
+                404,
+                ErrorTypes.NOT_FOUND
             );
         }
 
+        const presignedUrl = await s3Service.generatePresignedPutUrl(mediaFile.obj_key, config.AWS_S3_BUCKET);
+
+        return {
+            url: presignedUrl.url,
+            expiresAt: presignedUrl.expiresAt
+        }
     }
 }

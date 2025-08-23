@@ -18,8 +18,10 @@ export class CVsController {
         }
 
         try {
-            const createCVsResult = await CVsService.createCVs(userData.id, cvs);
-            return res.status(200).json(createCVsResult);
+            const createdCVs = await CVsService.createCVs(userData.id, cvs);
+            const CVsMetaData = createdCVs.map((CV) => CVsService.getCVMetaData(CV.get()))
+
+            return res.status(200).json(CVsMetaData);
         } catch (error) {
             return next(error);
         }
@@ -30,36 +32,71 @@ export class CVsController {
         const userData = user.get();
 
         try {
-            const createCVResult = await CVsService.createDefaultCV(userData.id);
-            return res.status(200).json(createCVResult)
+            const createdCV = await CVsService.createCV(userData.id);
+            const createdCVMetaData = CVsService.getCVMetaData(createdCV.get());
+            
+            return res.status(200).json(createdCVMetaData)
         } catch (error) {
             return next(error);
         }
     }
 
-    static async getAll(req: AuthRequest, res: Response, next: NextFunction) {
+    static async getCVsMetaData(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
         const userData = user.get();
 
         try {
-            const CVs = await CVsService.getAllCVs(userData.id);
-            return res.status(200).json(CVs)
+            const CVs = await CVsService.getUserCVs(userData.id);
+            const CVsMetaData = CVs.map((cv) => CVsService.getCVMetaData(cv.get()));
+
+            return res.status(200).json(CVsMetaData)
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    static async getCV(req: AuthRequest, res: Response, next: NextFunction) {
+        const user = req.user;
+        const userData = user.get();
+        
+        const cvPublicId: string = req.params.id;
+
+        try {
+            if (!cvPublicId) {
+                throw new AppError(
+                    "CV public id is required!", 
+                    400, 
+                    ErrorTypes.BAD_REQUEST
+                );
+            }
+
+            const CV = await CVsService.getUserCV(userData.id, cvPublicId);
+            const cvData = CV.get();
+            const PublicCVData = CVsService.mapServerCVToPublicCV(cvData);
+
+            return res.status(200).json(PublicCVData)
         } catch (error) {
             return next(error);
         }
     }
 
     static async sync(req: AuthRequest, res: Response, next: NextFunction) {
-        const clientCVs: PublicCVAttributes[] = req.body;
         const user = req.user;
         const userData = user.get();
-
-        if (!Array.isArray(clientCVs)) {
-            return next(new AppError('Invalid CV data format.', 400, ErrorTypes.BAD_REQUEST));
-        }
         
+        const CVUpdates: Partial<PublicCVAttributes> = req.body;
+        const cvPublicId: string = req.params.id;
+
         try {
-            const syncRes = await CVsService.syncCVs(userData.id, clientCVs);
+            if (!CVUpdates || !cvPublicId) {
+                throw new AppError(
+                    'Invalid CV data.', 
+                    400, 
+                    ErrorTypes.BAD_REQUEST
+                );
+            }
+            
+            const syncRes = await CVsService.syncCV(userData.id, CVUpdates, cvPublicId);
             return res.status(204).end()
         } catch (error) {
             return next(error);

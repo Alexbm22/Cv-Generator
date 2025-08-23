@@ -101,8 +101,8 @@ export interface PublicCVMetadataAttributes {
     title: string;
     jobTitle: string;
     template: CVTemplates;
-    updatedAt: number;
-    version?: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface PublicCVAttributes extends CVContentAttributes, PublicCVMetadataAttributes {}
@@ -111,7 +111,6 @@ export interface CVAttributes {
     id: number,
     public_id: string,
     user_id: number,
-    version: number;
     jobTitle: string;
     title: string,
     template: CVTemplates;

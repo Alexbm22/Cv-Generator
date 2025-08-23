@@ -8,15 +8,23 @@ import {
 } from '../interfaces/cv';
 import { generateUUID } from '../utils/uuid';
 
-interface CVCreationAttributes extends Optional<CVAttributes, 
-    'id' | 'encryptedContent' | 'createdAt' | 'updatedAt' | 'version' | 'public_id'
+export interface CVCreationAttributes extends Optional<
+    CVAttributes, 
+    'id' | 
+    'encryptedContent' | 
+    'createdAt' | 
+    'updatedAt' | 
+    'public_id' | 
+    'content' | 
+    'jobTitle' | 
+    'template' | 
+    'title'
 > {}
 
 class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttributes {
     public id!: number;
     public public_id!: string;
     public user_id!: number;
-    public version!: number;
     public title!: string;
     public jobTitle!: string;
     public template!: CVTemplates;
@@ -27,10 +35,6 @@ class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttribut
 
     public setContent(data: CVContentAttributes) {
         this.setDataValue('encryptedContent',  encrypt(JSON.stringify(data)));
-    }
-
-    public setVersion(version: number) {
-        this.setDataValue('version', version);
     }
 
     public getContent() {
@@ -49,10 +53,6 @@ CV.init({
         primaryKey: true,
         allowNull: false,
     },
-    version : {
-        type: DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
-    },
     public_id: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -69,15 +69,18 @@ CV.init({
     },
     title: {
         type: DataTypes.STRING(255),
-        allowNull: false
+        allowNull: false,
+        defaultValue: ''
     },
     jobTitle: {
         type: DataTypes.STRING(255),
-        allowNull: false
+        allowNull: false,
+        defaultValue: ''
     },
     template: {
         type: DataTypes.ENUM(...Object.values(CVTemplates)),
-        allowNull: false
+        allowNull: false,
+        defaultValue: CVTemplates.CASTOR
     },
     content: {
         type: DataTypes.VIRTUAL,
@@ -88,7 +91,8 @@ CV.init({
             if (value) {
                 this.setDataValue('encryptedContent', encrypt(JSON.stringify(value)));
             }
-        }
+        }, 
+        defaultValue: {}
     },
     encryptedContent: {
         type: DataTypes.TEXT('long'),
@@ -116,11 +120,6 @@ CV.init({
             const content = cv.getDataValue('content')
             if (content) {
                 cv.setContent(content);
-            }
-
-            const version = cv.getDataValue('version');
-            if(version) {
-                cv.setVersion(version + 1);
             }
         },
         afterFind: (cv: CV | CV[] | null) => {
