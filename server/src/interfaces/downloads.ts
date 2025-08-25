@@ -1,4 +1,4 @@
-import { CVAttributes, PublicCVAttributes } from "./cv";
+import { ServerCVAttributes, PublicCVAttributes } from "./cv";
 
 export interface DownloadAttributes {
     id: number;

@@ -2,14 +2,15 @@ import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/DB/database_config';
 import { encrypt, decrypt } from '../utils/encryption';
 import {
-    CVAttributes, 
+    ServerCVAttributes, 
     CVContentAttributes, 
     CVTemplates
 } from '../interfaces/cv';
 import { generateUUID } from '../utils/uuid';
+import MediaFiles from './Media_files';
 
 export interface CVCreationAttributes extends Optional<
-    CVAttributes, 
+    ServerCVAttributes, 
     'id' | 
     'encryptedContent' | 
     'createdAt' | 
@@ -21,7 +22,7 @@ export interface CVCreationAttributes extends Optional<
     'title'
 > {}
 
-class CV extends Model<CVAttributes, CVCreationAttributes> implements CVAttributes {
+class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements ServerCVAttributes {
     public id!: number;
     public public_id!: string;
     public user_id!: number;
@@ -139,5 +140,9 @@ CV.init({
         }
     }
 })
+
+export interface CVWithMediaFiles extends CV {
+  mediaFiles: MediaFiles[];
+}
 
 export default CV;

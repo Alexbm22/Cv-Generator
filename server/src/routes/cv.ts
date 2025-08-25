@@ -8,11 +8,17 @@ const router = express.Router();
 router.get(
     '',
     RateLimitInstance.CVsRateLimit(),
-    catchAsync(CVsController.getAll)
+    catchAsync(CVsController.getCVsMetaData)
 )
 
-router.put(
-    '/sync',
+router.get(
+    '/:id',
+    RateLimitInstance.CVsRateLimit(),
+    catchAsync(CVsController.getCV)
+)
+
+router.patch(
+    '/:id',
     RateLimitInstance.CVsRateLimit(),
     catchAsync(CVsController.sync)
 )
@@ -24,7 +30,7 @@ router.post(
 )
 
 router.post(
-    '/import',
+    '/bulk',
     RateLimitInstance.CVsRateLimit(),
     catchAsync(CVsController.import)
 )

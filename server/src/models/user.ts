@@ -138,9 +138,7 @@ User.init({
 
             try {
                 // Create initial download credits for the user
-                const userDownloadCredits = await DownloadCredits.create({
-                    user_id
-                })
+                await DownloadCredits.create({ user_id })
 
             } catch (error) {
                 console.error('Error creating initial download credits:', error);

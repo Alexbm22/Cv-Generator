@@ -1,3 +1,4 @@
+import { PublicMediaFilesAttributes } from "./mediaFiles"
 
 export interface Language {
     id: string,
@@ -78,7 +79,25 @@ export enum CVTemplates {
 }
 
 export interface CVContentAttributes {
-    photo: string | null,
+    firstName: string,
+    lastName: string,
+    email: string,
+    phoneNumber: string,
+    address: string,
+    birthDate: Date,
+    socialLinks: SocialLink[]
+    professionalSummary: string,
+    languages: Language[],
+    skills: Skill[],
+    workExperience: WorkExperience[],
+    education: Education[],
+    projects: Project[],
+    customSections: CustomSection,
+    sectionsOrder: string[];
+}
+
+
+export interface PublicCVContentAttributes {
     firstName: string,
     lastName: string,
     email: string,
@@ -100,14 +119,16 @@ export interface PublicCVMetadataAttributes {
     id: string;
     title: string;
     jobTitle: string;
+    preview?: PublicMediaFilesAttributes;
+    photo?: PublicMediaFilesAttributes;
     template: CVTemplates;
     createdAt: Date;
     updatedAt: Date;
 }
 
-export interface PublicCVAttributes extends CVContentAttributes, PublicCVMetadataAttributes {}
+export interface PublicCVAttributes extends PublicCVContentAttributes, PublicCVMetadataAttributes {}
 
-export interface CVAttributes {
+export interface ServerCVAttributes {
     id: number,
     public_id: string,
     user_id: number,

@@ -1,3 +1,4 @@
+import { MediaFilesAttributes } from "./mediaFiles"
 
 export interface Language {
     id: string,
@@ -82,16 +83,18 @@ export type TemplateComponentProps = {
 }
 
 export interface CVMetadataAttributes {
-    id: string | null;
+    id: string;
     title: string;
     jobTitle: string;
     template: CVTemplates;
-    sectionsOrder: string[];
-    updatedAt: number | null;
-    version: number | null;
+    updatedAt: Date;
+    createdAt: Date
+    preview?: MediaFilesAttributes;
+    photo?: MediaFilesAttributes;
 }
 
 export interface CVContentAttributes {
+    sectionsOrder: string[];
     professionalSummary: string,
     languages: Language[],
     skills: Skill[],
@@ -102,7 +105,6 @@ export interface CVContentAttributes {
 }
 
 export interface CVPersonalInfoAttributes {
-    photo: string | null,
     firstName: string,
     lastName: string,
     email: string,
@@ -117,7 +119,6 @@ export interface CVMetadataActions {
     setTitle: (title: string) => void;
     setJobTitle: (jobTitle: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
-    setUpdatedAt: () => void;
 }
 
 export interface CVContentActions {
@@ -150,7 +151,6 @@ export interface CVContentActions {
 }
 
 export interface CVPersonalInfoActions {
-    setPhoto: (url: string | null) => void;
     setFirstName: (firstName: string) => void;
     setLastName: (lastName: string) => void;
     setEmail: (email: string) => void;
@@ -178,16 +178,9 @@ export interface CVPersonalInfoSliceAttributes extends CVPersonalInfoAttributes,
 export interface CVEditStore extends CVMetadataSliceAttributes, CVContentSliceAttributes, CVPersonalInfoSliceAttributes, CVEditStoreActions {}
 
 export interface CVStore {
-    CVs: CVAttributes[];
-    lastSynced: number | null;
-    _hasHydrated: boolean;
-    setHasHydrated: (hasHydrated: boolean) => void;
+    CVs: CVMetadataAttributes[];
     clearCVsData: () => void;
-    setLastSynced: () => void;
-    isSyncStale: () => boolean;
-    getChangedCVs: () => CVAttributes[];
-    addCV: (CV: CVAttributes) => void;
+    addCV: (CV: CVMetadataAttributes) => void;
     removeCV: (id: string) => void;
-    updateCV: (updatedCV: CVAttributes) => void;
-    setCVs: (CVs: CVAttributes[]) => void;
+    setCVs: (CVs: CVMetadataAttributes[]) => void;
 }

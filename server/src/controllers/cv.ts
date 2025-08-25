@@ -4,60 +4,67 @@ import { PublicCVAttributes } from '../interfaces/cv';
 import { AuthRequest } from '../interfaces/auth';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
-
+import { MediaFilesServices } from '../services/mediaFiles';
 
 export class CVsController {
 
     static async import(req: AuthRequest, res: Response, next: NextFunction) {
-        const user = req.user;
-        const userData = user.get();
-        const cvs: PublicCVAttributes[] = req.body;
+        const authenticatedUser = req.user;
+        const userInfo = authenticatedUser.get();
 
-        if (!Array.isArray(cvs)) {
-            return next(new AppError('Invalid CV data format.', 400, ErrorTypes.BAD_REQUEST));
-        }
+        const cvsToImport: PublicCVAttributes[] = req.body;
 
         try {
-            const createdCVs = await CVsService.createCVs(userData.id, cvs);
-            const CVsMetaData = createdCVs.map((CV) => CVsService.getCVMetaData(CV.get()))
+            if (!Array.isArray(cvsToImport)) {
+                throw new AppError('Invalid CV data format.', 400, ErrorTypes.BAD_REQUEST);
+            }
 
-            return res.status(200).json(CVsMetaData);
+            const importedCVs = await CVsService.createCVs(userInfo.id, cvsToImport);
+            const importedCVsMetaData = importedCVs.map(
+                (cv) => CVsService.getCVMetaData(
+                    cv.CVData.get(), 
+                    cv.CVPreview, 
+                    cv.CVPhoto
+                )
+            );
+
+            return res.status(200).json(importedCVsMetaData);
         } catch (error) {
             return next(error);
         }
     }
 
     static async create(req: AuthRequest, res: Response, next: NextFunction) {
-        const user = req.user;
-        const userData = user.get();
+        const authenticatedUser = req.user;
+        const userInfo = authenticatedUser.get();
 
         try {
-            const createdCV = await CVsService.createCV(userData.id);
-            const createdCVMetaData = CVsService.getCVMetaData(createdCV.get());
+            const { createdCV, createdCVPhoto, createdCVPreview } = await CVsService.createCV(userInfo.id);
+            const createdCVMetaData = await CVsService.getCVMetaData(createdCV.get(), createdCVPreview, createdCVPhoto);
             
-            return res.status(200).json(createdCVMetaData)
+            return res.status(200).json(createdCVMetaData);
         } catch (error) {
             return next(error);
         }
     }
 
     static async getCVsMetaData(req: AuthRequest, res: Response, next: NextFunction) {
-        const user = req.user;
-        const userData = user.get();
+        const authenticatedUser = req.user;
+        const userInfo = authenticatedUser.get();
 
         try {
-            const CVs = await CVsService.getUserCVs(userData.id);
-            const CVsMetaData = CVs.map((cv) => CVsService.getCVMetaData(cv.get()));
+            const userCVs = await CVsService.getUserCVs(userInfo.id);
+            const userCVsMetaData = Promise.all(userCVs.map((cv) => CVsService.getCVMetaData(cv.CVData.get(), cv.CVPreview, cv.CVPhoto)));
 
-            return res.status(200).json(CVsMetaData)
+            return res.status(200).json(await userCVsMetaData);
         } catch (error) {
             return next(error);
         }
     }
 
     static async getCV(req: AuthRequest, res: Response, next: NextFunction) {
-        const user = req.user;
-        const userData = user.get();
+        const authenticatedUser = req.user;
+        const userInfo = authenticatedUser.get();
         
         const cvPublicId: string = req.params.id;
 
@@ -70,25 +77,28 @@ export class CVsController {
                 );
             }
 
-            const CV = await CVsService.getUserCV(userData.id, cvPublicId);
-            const cvData = CV.get();
-            const PublicCVData = CVsService.mapServerCVToPublicCV(cvData);
+            const { CVData, CVPhoto, CVPreview } = await CVsService.getCV(userInfo.id, cvPublicId);
 
-            return res.status(200).json(PublicCVData)
+            const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(CVPhoto);
+            const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(CVPreview);
+            
+            const publicCVData = CVsService.mapServerCVToPublicCV(CVData.get(), publicPhotoData, publicPreviewData);
+
+            return res.status(200).json(publicCVData);
         } catch (error) {
             return next(error);
         }
     }
 
     static async sync(req: AuthRequest, res: Response, next: NextFunction) {
-        const user = req.user;
-        const userData = user.get();
+        const authenticatedUser = req.user;
+        const userInfo = authenticatedUser.get();
         
-        const CVUpdates: Partial<PublicCVAttributes> = req.body;
+        const cvUpdates: PublicCVAttributes = req.body;
         const cvPublicId: string = req.params.id;
 
         try {
-            if (!CVUpdates || !cvPublicId) {
+            if (!cvUpdates || !cvPublicId) {
                 throw new AppError(
                     'Invalid CV data.', 
                     400, 
@@ -96,24 +106,29 @@ export class CVsController {
                 );
             }
             
-            const syncRes = await CVsService.syncCV(userData.id, CVUpdates, cvPublicId);
-            return res.status(204).end()
+            await CVsService.syncCV(userInfo.id, cvUpdates);
+            return res.status(204).end();
         } catch (error) {
             return next(error);
         }
     }
 
     static async delete(req: AuthRequest, res: Response, next: NextFunction) {
-        const cvId = req.params.id;
-        const user = req.user;
-        const userData = user.get();
+        const authenticatedUser = req.user;
+        const userInfo = authenticatedUser.get();
 
-        if(!cvId) {
-            return next(new AppError("CV id is required!", 400, ErrorTypes.BAD_REQUEST))
-        }
-
+        const cvPublicId = req.params.id;
+        
         try {
-            const deleteResult = await CVsService.deleteCV(userData, cvId);
+            if (!cvPublicId) {
+                throw new AppError(
+                    "CV id is required!", 
+                    400, 
+                    ErrorTypes.BAD_REQUEST
+                );
+            }
+
+            const deleteResult = await CVsService.deleteCV(userInfo, cvPublicId);
             return res.status(200).json(deleteResult);
         } catch (error) {
             return next(error);

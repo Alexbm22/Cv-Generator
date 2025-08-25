@@ -1,13 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCVsStore, useErrorStore } from "../../Store";
+import { useAuthStore, useCVsStore, useErrorStore } from "../../Store";
 import { CVServerService } from "../../services/CVServer";
 import { useEffect } from "react";
 
 export const useCVsEffects = () => {
-  const lastSynced = useCVsStore(state => state.lastSynced);
-  const _hasHydrated = useCVsStore(state => state._hasHydrated);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
   const setCVs = useCVsStore(state => state.setCVs);
-  const setLastSynced = useCVsStore(state => state.setLastSynced);
   const createError = useErrorStore(state => state.createError);
 
   const {
@@ -18,7 +16,7 @@ export const useCVsEffects = () => {
   } = useQuery({
     queryKey: ['userCVs'],
     queryFn: () => CVServerService.fetch(),
-    enabled: !lastSynced && _hasHydrated,
+    enabled: isAuthenticated,
     retry: true,
   });
 
@@ -27,7 +25,6 @@ export const useCVsEffects = () => {
     else if (isError && error) {
       createError(error);
       setCVs([]);
-      setLastSynced();
     }
   }, [CVs, isSuccess, isError, error]);
 };

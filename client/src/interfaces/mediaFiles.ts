@@ -1,15 +1,5 @@
-export interface MediaFilesAttributes {
-    id: number;
-    public_id: string,
-    owner_id: number;
-    owner_type: OwnerTypes;
-    obj_key: string;
-    type: MediaTypes;
-    createdAt: Date;
-    updatedAt: Date;
-}
 
-export interface PublicMediaFilesAttributes {
+export interface MediaFilesAttributes {
     id: string;
     owner_type: OwnerTypes;
     type: MediaTypes;
@@ -28,7 +18,6 @@ export interface PresignedUrl {
 }
 
 export enum OwnerTypes {
-    DOWNLOAD = 'DOWNLOAD',
     CV = 'CV',
     USER = 'USER'
 }

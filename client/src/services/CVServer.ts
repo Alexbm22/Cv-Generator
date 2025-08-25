@@ -1,4 +1,4 @@
-import { CVAttributes } from "../interfaces/cv";
+import { CVAttributes, CVMetadataAttributes } from "../interfaces/cv";
 import { apiService } from "./api";
 
 export class CVServerService {
@@ -12,13 +12,13 @@ export class CVServerService {
     }
 
     public static async fetch() {
-        return await apiService.get<CVAttributes[]>(
+        return await apiService.get<CVMetadataAttributes[]>(
             this.apiUrl
         )
     }
 
     public static async createNewCV() {
-        return await apiService.post<CVAttributes>(
+        return await apiService.post<CVMetadataAttributes>(
             this.apiUrl
         )
     }

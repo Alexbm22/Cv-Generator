@@ -67,8 +67,8 @@ export const defineTablesRelationships = () => {
         Models.MediaFiles,
         {
             foreignKey: 'owner_id',
-            constraints: false,
-            scope: { owne_type: OwnerTypes.CV },
+            constraints: true,
+            scope: { owner_type: OwnerTypes.CV },
             as: 'mediaFiles'
         }
     )
@@ -77,7 +77,8 @@ export const defineTablesRelationships = () => {
         Models.CV, 
         { 
             foreignKey: 'owner_id',
-            constraints: false, 
+            constraints: true, 
+            scope: { owner_type: OwnerTypes.CV },
             as: 'cv' 
         }
     );
@@ -86,8 +87,8 @@ export const defineTablesRelationships = () => {
         Models.MediaFiles,
         {
             foreignKey: 'owner_id',
-            constraints: false,
-            scope: { owner_type: OwnerTypes.CV },
+            constraints: true,
+            scope: { owner_type: OwnerTypes.DOWNLOAD },
             as: 'mediaFiles'
         }
     )
@@ -96,7 +97,8 @@ export const defineTablesRelationships = () => {
         Models.Download, 
         { 
             foreignKey: 'owner_id',
-            constraints: false, 
+            constraints: true, 
+            scope: { owner_type: OwnerTypes.DOWNLOAD },
             as: 'download' 
         }
     );

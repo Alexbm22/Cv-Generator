@@ -10,46 +10,17 @@ import { CVLocalService } from '../services/CVLocal';
 export const useCVsStore = create<CVStore>()(
     devtools(
         persist( 
-            triggerOnChange<CVStore>({
+            triggerOnChange<CVStore>({ // to review this part of the code
                 callback: CVLocalService.handleCVsHydration.bind(CVLocalService),
                 ignoredKeys: ['_hasHydrated', 'lastSynced', 'lastFetched'],
             }) (
-                (set, get) => ({
+                (set) => ({
                     CVs: [],
 
-                    _hasHydrated: false,
-                    lastSynced: null,
-                    
-                    setLastSynced: () => set({ lastSynced: new Date().getTime() }),
-                    isSyncStale: () => {
-                        const now = new Date().getTime();
-                        const lastSynced = get().lastSynced;
-                        const maximumStalePeriod = 6 * 1000; // 1 minutes
-
-                        if(!lastSynced) return true;
-                        
-                        return (now - lastSynced) > maximumStalePeriod;
-                    },
-
-                    setHasHydrated: (hasHydrated) => set({ _hasHydrated: hasHydrated }),
-
                     clearCVsData: () => {
-                        set({
-                            CVs: [],
-                            lastSynced: null,
-                            _hasHydrated: false
-                        })
+                        set({ CVs: [] })
                     },
                     
-                    getChangedCVs: () => {
-                        // to be improved
-                        const { lastSynced, CVs } = get();
-                        
-                        return CVs.filter((cv) => 
-                            cv.updatedAt && cv.updatedAt > lastSynced!
-                        )
-                    },
-
                     setCVs: (CVs) => set({ CVs }),
 
                     addCV: (CV) => {
@@ -59,26 +30,14 @@ export const useCVsStore = create<CVStore>()(
                     removeCV: (id: string) => {
                         set((state) => ({ CVs: state.CVs.filter((cv) => cv.id !== id) }))
                     },
-
-                    updateCV: (updatedCV) => {
-                        if (get().CVs.some((cv) => cv.id === updatedCV.id)) {
-                            set((state) => ({ CVs: state.CVs.map((cv) => (cv.id === updatedCV.id ? updatedCV : cv)) }))
-                        } else { 
-                            get().addCV(updatedCV);
-                        }
-                    },
                 })
             ), 
         {
             name: 'Resumes',
             storage: createJSONStorage(() => storage), // sau sessionStorage
             partialize: (state) => ({
-                CVs: state.CVs,
-                lastSynced: state.lastSynced,
+                CVs: state.CVs
             }),
-            onRehydrateStorage: () => (state) => {
-                state?.setHasHydrated(true);
-            },
         }), {
             name: 'CVsStore', // Name of the slice in the Redux DevTools
             enabled: import.meta.env.VITE_NODE_ENV === 'development',

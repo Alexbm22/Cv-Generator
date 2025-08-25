@@ -33,10 +33,6 @@ MediaFiles.init({
     owner_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
     },
     owner_type: {
         type: DataTypes.ENUM(...Object.values(OwnerTypes)),

@@ -1,87 +1,106 @@
-import { PublicCVAttributes, CVAttributes, PublicCVMetadataAttributes } from "../interfaces/cv";
+import { PublicCVAttributes, ServerCVAttributes, PublicCVMetadataAttributes } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
 import { UserAttributes } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
 import { CV, MediaFiles } from "../models";
 import { randomUUID } from "crypto";
-import { MediaTypes, OwnerTypes } from "../interfaces/mediaFiles";
+import { MediaTypes, OwnerTypes, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
+import { MediaFilesServices } from "./mediaFiles";
+import { CVWithMediaFiles } from "../models/CV";
 
 export class CVsService {
 
     static async createCVs(
         userId: number, 
-        CVs: PublicCVAttributes[], 
+        publicCVs: PublicCVAttributes[], 
     ) {
+        const serverCVs = publicCVs.map(cv => this.mapPublicCVToServerCV(cv, userId));
 
-        const candidateCVs = CVs.map(cv => this.mapPublicCVToServerCV(cv, userId));
-
-        return CV.bulkCreate(candidateCVs, {
+        const createdCVs = await CV.bulkCreate(serverCVs, {
             validate: true
         });
+
+        const photoMediaFileObjs = createdCVs.map(cv => this.createCVPhotoMediaFileObj(cv.id));
+        const createdPhotos = await MediaFilesServices.bulkCreate(photoMediaFileObjs);
+
+        const previewMediaFileObjs = createdCVs.map(cv => this.createCVPreviewMediaFileObj(cv.id));
+        const createdPreviews = await MediaFilesServices.bulkCreate(previewMediaFileObjs);
+
+        const photoMap = new Map(createdPhotos.map(photo => [photo.get().owner_id, photo]));
+        const previewMap = new Map(createdPreviews.map(preview => [preview.get().owner_id, preview]));
+
+        const result = createdCVs.map(cv => {
+            const photo = photoMap.get(cv.id)!; 
+            const preview = previewMap.get(cv.id)!;
+
+            return {
+                CVData: cv,
+                CVPhoto: photo,
+                CVPreview: preview
+            }
+        });
+
+        return result;
     } 
 
     static async createCV(userId: number) {
-        const createdCV = await CV.create({
+        const cv = await CV.create({
             user_id: userId
-        })
+        });
 
-        const cvPhoto = await MediaFiles.create({
-            owner_id: createdCV.id,
-            owner_type: OwnerTypes.CV,
-            type: MediaTypes.CV_PHOTO,
-            obj_key: `cv_photo/${createdCV.id}`
-        })
+        const photo = await MediaFilesServices.create(this.createCVPhotoMediaFileObj(cv.id));
+        const preview = await MediaFilesServices.create(this.createCVPreviewMediaFileObj(cv.id));
 
-        return createdCV;
+        return {
+            createdCV: cv,
+            createdCVPhoto: photo,
+            createdCVPreview: preview
+        };
     }
-
+    
     static async syncCV(
-        user_id: number, 
-        CVUpdates: Partial<PublicCVAttributes>,
-        cvPublicId: string
+        userId: number, 
+        updatedPublicCV: PublicCVAttributes
     ) {
+        const { CVData: existingCV } = await this.getCV(userId, updatedPublicCV.id);
+        const updatedServerCV = this.mapPublicCVToServerCV(updatedPublicCV, userId) as ServerCVAttributes; 
+        
+        const existingCVData = existingCV.get();
+        const changedFields: any = {};
 
-        const existingCV = await CV.findOne({
-            where: {
-                user_id,
-                public_id: cvPublicId,
+        Object.keys(existingCVData).forEach((key) => {
+            if (key in updatedServerCV && key in existingCVData) {
+                const typedKey = key as keyof typeof updatedServerCV;
+                if (
+                    JSON.stringify(existingCVData[typedKey]) !== JSON.stringify(updatedServerCV[typedKey])
+                ) {
+                    changedFields[typedKey] = updatedServerCV[typedKey];
+                }
             }
-        })
+        });
 
-        if(!existingCV) {
-            throw new AppError(
-                'CV not found.',
-                404,
-                ErrorTypes.NOT_FOUND
-            );
+        const updatedFields = changedFields as Partial<ServerCVAttributes>;
+
+        if (Object.keys(changedFields).length > 0) {
+            existingCV.set(updatedFields);
+            await existingCV.save();
         }
 
-        const currentPublicCV = this.mapServerCVToPublicCV(existingCV.get());
-        const mergedPublicCV = {
-            ...currentPublicCV,
-            ...CVUpdates
-        }
-
-        const dbFieldsToUpdate = this.mapPublicCVToServerCV(mergedPublicCV, user_id)
-
-        existingCV.set(dbFieldsToUpdate)
-        await existingCV.save();
-
-        return this.mapServerCVToPublicCV(existingCV.get());
+        return updatedFields;
     }
 
     static async deleteCV(
         user: UserAttributes, 
-        cvId: string, 
+        cvPublicId: string, 
     ): Promise<void> {
-        const deleteCount = await CV.destroy({
+        const deletedCount = await CV.destroy({
             where: {
                 user_id: user.id,
-                public_id: cvId
+                public_id: cvPublicId
             }
-        })
-
-        if(deleteCount <= 0) {
+        });
+        
+        if(deletedCount <= 0) {
             throw new AppError(
                 'Something went wrong. Please contact support.',
                 400,
@@ -89,50 +108,92 @@ export class CVsService {
             );
         }   
     }
-
+    
     static async getUserCVs(userId: number) {
-        return await CV.findAll({
+        const cvs = await CV.findAll({
             where: {
                 user_id: userId
             },
+            include: [
+                {
+                    model: MediaFiles,
+                    as: 'mediaFiles'
+                }
+            ],
             order: [['updatedAt', 'DESC']],
-        })
-    }
+        }) as CVWithMediaFiles[];
 
-    static async getUserCV(user_id: number, cvPublicId: string) {
+        return cvs.map(cv => {
+            const photo = cv.mediaFiles.find(mediaFile => mediaFile.get().type === MediaTypes.CV_PHOTO)!;
+            const preview = cv.mediaFiles.find(mediaFile => mediaFile.get().type === MediaTypes.CV_PREVIEW)!;
+
+            return {
+                CVData: cv,
+                CVPhoto: photo,
+                CVPreview: preview
+            };
+        });
+    }
+    
+    static async getCV(userId: number, cvPublicId: string) {
         const cv = await CV.findOne({
             where: {
-                user_id,
-                public_id: cvPublicId
-            }
-        })
+                user_id: userId,
+                public_id: cvPublicId,
+            }, 
+            include: [{
+                model: MediaFiles,
+                required: true,
+            }]
+        }) as CVWithMediaFiles;
 
         if(!cv) {
             throw new AppError(
                 'CV not found.',
                 404,
                 ErrorTypes.NOT_FOUND
-            )
+            );
+        }
+
+        if(cv.mediaFiles) {
+            const photo = cv.mediaFiles.find(mediaFile => mediaFile.get().type === MediaTypes.CV_PHOTO)!;
+            const preview = cv.mediaFiles.find(mediaFile => mediaFile.get().type === MediaTypes.CV_PREVIEW)!;
+
+            return {
+                CVData: cv,
+                CVPhoto: photo,
+                CVPreview: preview
+            };
         } else {
-            return cv;
+            throw new AppError(
+                "error, no media files found",
+                404,
+                ErrorTypes.NOT_FOUND
+            );
         }
     }
+    
+    static async getCVMetaData(cv: ServerCVAttributes, preview: MediaFiles, photo: MediaFiles): Promise<PublicCVMetadataAttributes> {
 
-    static getCVMetaData(CV: CVAttributes): PublicCVMetadataAttributes {
+        const publicPreview = await MediaFilesServices.getPublicMediaFileData(preview);
+        const publicPhoto = await MediaFilesServices.getPublicMediaFileData(photo);
+
         return {
-            id: CV.public_id,
-            title: CV.title,
-            jobTitle: CV.jobTitle,
-            template: CV.template,
-            createdAt: CV.createdAt,
-            updatedAt: CV.updatedAt
-        }
+            id: cv.public_id,
+            title: cv.title,
+            jobTitle: cv.jobTitle,
+            template: cv.template,
+            preview: publicPreview,
+            photo: publicPhoto,
+            createdAt: cv.createdAt,
+            updatedAt: cv.updatedAt
+        };
     }
 
     public static mapPublicCVToServerCV(
         cv: PublicCVAttributes, 
         userId: number
-    ): Omit<CVAttributes, 'id' | 'encryptedContent' | 'updatedAt' | 'createdAt'> 
+    ): Omit<ServerCVAttributes, 'id' | 'encryptedContent' | 'updatedAt' | 'createdAt'> 
     {
         return {
             public_id: cv.id ?? randomUUID(),
@@ -149,7 +210,6 @@ export class CVsService {
                 projects: cv.projects,
                 customSections: cv.customSections,
                 sectionsOrder: cv.sectionsOrder,
-                photo: cv.photo,
                 phoneNumber: cv.phoneNumber,
                 firstName: cv.firstName,
                 lastName: cv.lastName,
@@ -158,11 +218,17 @@ export class CVsService {
                 birthDate: cv.birthDate,
                 socialLinks: cv.socialLinks
             }
-        }
+        };
     }
-
-    public static mapServerCVToPublicCV(cv: CVAttributes): PublicCVAttributes {
+    
+    public static mapServerCVToPublicCV(
+        cv: ServerCVAttributes, 
+        photo: PublicMediaFilesAttributes,
+        preview: PublicMediaFilesAttributes
+    ): PublicCVAttributes{
         return {
+            photo,
+            preview,
             id: cv.public_id,
             title: cv.title,
             jobTitle: cv.jobTitle,
@@ -170,6 +236,24 @@ export class CVsService {
             updatedAt: cv.updatedAt,
             createdAt: cv.createdAt,
             ...cv.content,
-        }
+        };
+    }
+
+    private static createCVPhotoMediaFileObj(cvId: number) {
+        return {
+            owner_id: cvId,
+            owner_type: OwnerTypes.CV,
+            type: MediaTypes.CV_PHOTO,
+            obj_key: `cv_photo/${cvId}`
+        };
+    }
+
+    private static createCVPreviewMediaFileObj(cvId: number) {
+        return {
+            owner_id: cvId,
+            owner_type: OwnerTypes.CV,
+            type: MediaTypes.CV_PREVIEW,
+            obj_key: `cv_preview/${cvId}`
+        };
     }
 }

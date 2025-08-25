@@ -1,5 +1,5 @@
 import { MediaFiles } from "../models";
-import { MediaTypes, OwnerTypes, PresignedUrl } from "../interfaces/mediaFiles";
+import { MediaFilesAttributes, MediaTypes, OwnerTypes, PresignedUrl, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
 import { AppError } from "../middleware/error_middleware";
 import { ErrorTypes } from "../interfaces/error";
 import { S3Service } from "./s3";
@@ -10,18 +10,25 @@ const s3Service = new S3Service();
 export class MediaFilesServices {
 
     static async create(
-        owner_id: number,
-        owner_type: OwnerTypes,
-        file_type: MediaTypes,
-        obj_key: string
+        mediaFileObj: Omit<MediaFilesAttributes, 'id' | 'createdAt' | 'updatedAt' | 'public_id'>
     ) {
         try {
-            return await MediaFiles.create({
-                owner_id,
-                owner_type,
-                obj_key,
-                type: file_type,
-            });
+            return await MediaFiles.create(mediaFileObj);
+        } catch (error) {
+            console.error(error)
+            throw new AppError(
+                "Failed to create media file",
+                500,
+                ErrorTypes.INTERNAL_ERR
+            );
+        }
+    }
+
+    static async bulkCreate(
+        mediaFileObj: Omit<MediaFilesAttributes, 'id' | 'createdAt' | 'updatedAt' | 'public_id'>[]
+    ) {
+        try {
+            return await MediaFiles.bulkCreate(mediaFileObj);
         } catch (error) {
             throw new AppError(
                 "Failed to create media file",
@@ -31,22 +38,28 @@ export class MediaFilesServices {
         }
     }
 
-    static async getPresignedGetUrl(
-        mediaFileId: string
-    ): Promise<PresignedUrl> {
-        const mediaFile = await MediaFiles.findOne({
-            where: { public_id: mediaFileId }
-        });
+    static async getPublicMediaFileData(
+        mediaFile: MediaFiles
+    ): Promise<PublicMediaFilesAttributes> {
+        const getURL = await this.getMediaPresignedGetUrl(mediaFile);
+        const putURL = await this.getMediaPresignedPutUrl(mediaFile);
 
-        if (!mediaFile) {
-            throw new AppError(
-                "Media file not found",
-                404,
-                ErrorTypes.NOT_FOUND
-            );
+        const mediaFileData = mediaFile.get();
+
+        return {
+            id: mediaFileData.public_id,
+            owner_type: mediaFileData.owner_type,
+            type: mediaFileData.type,
+            presigned_get_URL: getURL,
+            presigned_put_URL: putURL,
         }
+    }
 
-        const presignedUrl = await s3Service.generatePresignedGetUrl(mediaFile.obj_key, config.AWS_S3_BUCKET);
+    static async getMediaPresignedGetUrl(
+        mediaFile: MediaFiles
+    ): Promise<PresignedUrl> {
+
+        const presignedUrl = await s3Service.generatePresignedGetUrl(mediaFile.get().obj_key, config.AWS_S3_BUCKET);
 
         return {
             url: presignedUrl.url,
@@ -54,22 +67,11 @@ export class MediaFilesServices {
         }
     }
 
-    static async getPresignedPutUrl(
-        mediaFileId: string
+    static async getMediaPresignedPutUrl(
+        mediaFile: MediaFiles
     ): Promise<PresignedUrl> {
-        const mediaFile = await MediaFiles.findOne({
-            where: { public_id: mediaFileId }
-        });
 
-        if (!mediaFile) {
-            throw new AppError(
-                "Media file not found",
-                404,
-                ErrorTypes.NOT_FOUND
-            );
-        }
-
-        const presignedUrl = await s3Service.generatePresignedPutUrl(mediaFile.obj_key, config.AWS_S3_BUCKET);
+        const presignedUrl = await s3Service.generatePresignedPutUrl(mediaFile.get().obj_key, config.AWS_S3_BUCKET);
 
         return {
             url: presignedUrl.url,
