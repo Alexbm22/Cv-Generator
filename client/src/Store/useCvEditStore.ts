@@ -8,15 +8,16 @@ import  {
     createPersonalInfoSlice,
     createStoreActionsSlice,
 } from './slices/CVEdit';
-import { triggerOnChange } from './middleware/triggerOnChange';
+
 import { devtools } from 'zustand/middleware';
 import { CVLocalService } from '../services/CVLocal';
+import { triggerOnAction } from './middleware';
 
 export const useCvEditStore = create<CVEditStore>()(
     devtools(    
-        triggerOnChange<CVEditStore>({
+        triggerOnAction<CVEditStore>({
             callback: CVLocalService.autoSaveCV().bind(CVLocalService),
-            ignoredKeys: ['updatedAt']
+            excludedActions: ['getCVObject', 'setCV']
         })(
             (set, get): CVEditStore => ({
                 ...createMetadataSlice(set),

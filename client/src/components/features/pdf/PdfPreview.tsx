@@ -3,6 +3,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { CVAttributes } from '../../../interfaces/cv';
 import { generatePdfBlob } from '../../../services/Pdf';
+import { uploadImage } from '../../../services/MediaFiles';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -117,7 +118,19 @@ const PdfPreview = ({ CVData, className }: PdfPreviewProps) => {
         abortControllerRef.current.abort();
       }
     };
-  }, [generatePdfPreview]);
+  }, [generatePdfPreview, CVData]);
+
+  const handleUpload = async () => {
+    const image = new Promise<Blob>((resolve) => {
+      canvasRef.current?.toBlob((blob) => resolve(blob!), 'image/png')
+    })
+    console.log(await image)
+    uploadImage(await image, CVData.preview?.presigned_put_URL.url!)
+  }
+
+  useEffect(() => {
+    handleUpload()
+  }, [canvasRef.current])
 
   return <canvas ref={canvasRef} className={className} />;
 };

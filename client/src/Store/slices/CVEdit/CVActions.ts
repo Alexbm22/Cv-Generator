@@ -3,7 +3,6 @@ import {
     CVEditStore,
     CVEditStoreActions,
  } from '../../../interfaces/cv';
-import { useCVsStore } from '../../useCVsStore';
 
 export const createStoreActionsSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
@@ -17,12 +16,6 @@ export const createStoreActionsSlice = (set: {
         ) as CVAttributes
 
         return CVObj;
-    },
-    saveCV: () => {
-        const CV: CVAttributes = get().getCVObject(); 
-
-        const { updateCV } = useCVsStore.getState();
-        updateCV(CV);
     },
     setCV: (CV: CVAttributes) => {
         set((state) => ({

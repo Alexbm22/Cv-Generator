@@ -15,7 +15,7 @@ export const useCVsEffects = () => {
     error,
   } = useQuery({
     queryKey: ['userCVs'],
-    queryFn: () => CVServerService.fetch(),
+    queryFn: () => CVServerService.getCVs(),
     enabled: isAuthenticated,
     retry: true,
   });

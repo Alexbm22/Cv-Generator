@@ -5,55 +5,29 @@ import { CVServerService } from "./CVServer";
 import { debounce } from "lodash";
 
 export class CVLocalService {
-    private static isProcessing = false;
 
-    public static async syncCVs() {
-        const { getChangedCVs, setLastSynced } = useCVsStore.getState();
+    // public static async fetchCV(cvId: string) {
+    //     const { setCVs } = useCVsStore.getState();
 
-        try {
-            await CVServerService.sync(getChangedCVs());
-        } catch (error) {
-            await this.fetchCVs();
-        } finally {
-            setLastSynced();
-        }
-    }
+    //     try {
+    //         const fetchedCVs = await CVServerService.getCV(cvId);
     
-    public static async fetchCVs() {
-        const { setCVs } = useCVsStore.getState();
+    //         setCVs(fetchedCVs);
+    //     } catch (error) {
+    //         useErrorStore.getState().createError(error);
+    //         useCVsStore.getState().setCVs([]);
+    //     }
+    // }
 
-        try {
-            const fetchedCVs = await CVServerService.fetch();
-    
-            setCVs(fetchedCVs);
-        } catch (error) {
-            useErrorStore.getState().createError(error);
-            useCVsStore.getState().setCVs([]);
-        }
-    }
-
-    public static async handleCVsHydration(api: StoreApi<CVStore>) {    
-        if (CVLocalService.isProcessing) return;
-        CVLocalService.isProcessing = true;
-        
-        const { isSyncStale } = api.getState();
-        const { isAuthenticated } = useAuthStore.getState();
-        
-        if(isAuthenticated){
-            if(isSyncStale()) {
-                await this.syncCVs();
-            }
-        }
-
-        CVLocalService.isProcessing = false;
-    }
 
     public static autoSaveCV() {
-        return debounce((api: StoreApi<CVEditStore>) => {
-            const { saveCV, setUpdatedAt } = api.getState();
-
-            setUpdatedAt();
-            saveCV();
+        return debounce(async (api: StoreApi<CVEditStore>) => {
+            const { getCVObject } = api.getState();
+            const { setSelectedCV } = useCVsStore.getState();
+            const updatedCV = getCVObject();
+            
+            await CVServerService.sync(updatedCV);
+            setSelectedCV(updatedCV);
         }, 3000); // debounce for 3 seconds
     }
 

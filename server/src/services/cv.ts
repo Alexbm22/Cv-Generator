@@ -45,7 +45,27 @@ export class CVsService {
 
     static async createCV(userId: number) {
         const cv = await CV.create({
-            user_id: userId
+            user_id: userId,
+            content: {
+                professionalSummary: '',
+                sectionsOrder: [],
+                languages: [],
+                skills: [],
+                workExperience: [],
+                education: [],
+                projects: [],
+                customSections: {
+                    title: '',
+                    content: []
+                },
+                firstName: '',
+                lastName: '',
+                email: '',
+                phoneNumber: '',
+                address: '',
+                birthDate: new Date(),
+                socialLinks: [],
+            }
         });
 
         const photo = await MediaFilesServices.create(this.createCVPhotoMediaFileObj(cv.id));
@@ -144,6 +164,7 @@ export class CVsService {
             include: [{
                 model: MediaFiles,
                 required: true,
+                as: 'mediaFiles'
             }]
         }) as CVWithMediaFiles;
 

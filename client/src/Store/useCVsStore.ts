@@ -5,18 +5,19 @@ import {
 } from '../interfaces/cv';
 import { storage  } from '../lib/indexedDB/cvStore';
 import { triggerOnChange } from './middleware/triggerOnChange';
-import { CVLocalService } from '../services/CVLocal';
 
 export const useCVsStore = create<CVStore>()(
     devtools(
         persist( 
             triggerOnChange<CVStore>({ // to review this part of the code
-                callback: CVLocalService.handleCVsHydration.bind(CVLocalService),
+                callback: () => console.log(''), // to be deleted
                 ignoredKeys: ['_hasHydrated', 'lastSynced', 'lastFetched'],
             }) (
                 (set) => ({
                     CVs: [],
+                    selectedCV: null,
 
+                    setSelectedCV: (CV) => set({selectedCV: CV}),
                     clearCVsData: () => {
                         set({ CVs: [] })
                     },

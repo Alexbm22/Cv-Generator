@@ -326,6 +326,4 @@ export const DEFAULT_CV_EDITOR_STATE = {
     address: '',
     birthDate: new Date(),
     socialLinks: [],
-    updatedAt: null,
-    version: 0,
 }

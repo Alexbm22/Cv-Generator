@@ -40,7 +40,7 @@ const Castor: React.FC<TemplateComponentProps> = ({ CV }) => {
             <Page size='A4' style={styles.page}>
                 <View style={styles.pageContainer}>
                     <View style={styles.leftContainer}>
-                        <CVComponents.CVPhoto CVPhoto={CV.photo}/>
+                        <CVComponents.CVPhoto CVPhoto={CV.photo?.presigned_get_URL.url}/>
                         <CVComponents.GeneralInfos 
                             phoneNumber={CV.phoneNumber}
                             email={CV.email}

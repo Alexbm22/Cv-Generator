@@ -233,6 +233,16 @@ class ApiService {
     return (raw ? response : response.data) as any;
   }
 
+  async patch<T, D = any, R extends boolean = false>(
+    url: string, 
+    data?: D, 
+    config?: AxiosRequestConfig<any>, 
+    raw?: boolean
+  ): Promise<R extends true ? AxiosResponse<T> : T> {
+    const response = await this.client.patch<T>(url, data, config);
+    return (raw ? response : response.data) as any;
+  }
+
   async put<T, D = any, R extends boolean = false>(
     url: string, 
     data?: D, 

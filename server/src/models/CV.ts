@@ -92,8 +92,7 @@ CV.init({
             if (value) {
                 this.setDataValue('encryptedContent', encrypt(JSON.stringify(value)));
             }
-        }, 
-        defaultValue: {}
+        },
     },
     encryptedContent: {
         type: DataTypes.TEXT('long'),

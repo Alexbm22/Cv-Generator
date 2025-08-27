@@ -1,44 +1,63 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useCvEditStore, useCVsStore } from "../../Store";
-import { CVAttributes } from "../../interfaces/cv";
+import { useCvEditStore, useCVsStore, useErrorStore } from "../../Store";
 import CVEditorForm  from "../../components/features/CVEditor/CVForm";
 import CVPreview from "../../components/features/CVEditor/CVPreview";
 import DownloadBtn from "../../components/features/pdf/download";
 import { routes } from "../../router/routes";
+import { useQuery } from "@tanstack/react-query";
+import { CVServerService } from "../../services/CVServer";
 
-const CVEditPage: React.FC = () => {
+const CVEditPage = () => {
     
     const navigate = useNavigate();
-
     const { id } = useParams<{id: string}>();
-    if(!id) navigate(routes.notFound.path, { replace: true });
 
-    const CVs = useCVsStore((state) => state.CVs);
-    const _hasHydrated = useCVsStore((state) => state._hasHydrated);
     const setCV = useCvEditStore((state) => state.setCV);
+    const setSelectedCV = useCVsStore(state => state.setSelectedCV)
+    const createError = useErrorStore(state => state.createError);
 
-    const [selectedCV, setSelectedCV] = useState<CVAttributes | null>(null);
+    const {
+        data: CV,
+        isSuccess,
+        isError,
+        error,
+        isLoading
+    } = useQuery({
+        queryKey: [`CV:${id}`],
+        queryFn: () => CVServerService.getCV(id!),
+        enabled: !!id,
+    });
+
+    // Redirect if no id or no CV found
+    useEffect(() => {
+        if (isError) {
+            createError(error);
+            navigate(routes.resumes.path, { replace: true });
+            return;
+        } else if (!id) {
+            navigate(routes.notFound.path, { replace: true });
+            return;
+        }
+    }, [id, navigate, isError, error]);
 
     useEffect(() => {
-        const CV = CVs.find((cv) => cv.id === id) as CVAttributes | undefined;
-        if (CV) {
-            setSelectedCV(CV);
+        if(isSuccess) {
             setCV(CV);
-        } else {
-            setSelectedCV(null);
+            setSelectedCV(CV);
         }
-    }, [_hasHydrated, id, CVs, setCV]);
+    }, [CV, isSuccess, setCV])
 
-    if(!selectedCV) {
-        return <div> Loading CV.. </div>
-    } 
-
+    if (isLoading) {
+        return <div>Loading...</div>;
+    } else if(!CV) {
+        return <div>No selected cv!</div>
+    }
+    
     return (
         <div className="flex flex-column w-full h-full relative">
-            <DownloadBtn downloadedCV={selectedCV}/>
             <CVEditorForm/>
-            <CVPreview/>
+            <CVPreview />
         </div>
     );
 }

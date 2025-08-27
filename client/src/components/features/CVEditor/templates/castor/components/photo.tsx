@@ -2,7 +2,7 @@ import React from "react";
 import { Image, StyleSheet, View } from '@react-pdf/renderer';
 
 interface CVPhotoProps {
-  CVPhoto: string | null;
+  CVPhoto?: string;
   fallbackUrl?: string;
 }
 

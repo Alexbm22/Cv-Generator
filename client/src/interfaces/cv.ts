@@ -165,7 +165,6 @@ export interface CVPersonalInfoActions {
 
 export interface CVEditStoreActions {
     getCVObject: () => CVAttributes;
-    saveCV: () => void;
     setCV: (CV: CVAttributes) => void;
 }
 
@@ -179,6 +178,8 @@ export interface CVEditStore extends CVMetadataSliceAttributes, CVContentSliceAt
 
 export interface CVStore {
     CVs: CVMetadataAttributes[];
+    selectedCV: CVAttributes | null;
+    setSelectedCV: (CV:CVAttributes) => void;
     clearCVsData: () => void;
     addCV: (CV: CVMetadataAttributes) => void;
     removeCV: (id: string) => void;

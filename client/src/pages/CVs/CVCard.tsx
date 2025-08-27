@@ -18,6 +18,7 @@ const CVCard: React.FC<CVCardProps> = ({CV}) => {
     const { mutate: deleteCV } = useDeleteCV(CV.id);
 
     const handleEditClick = () => {
+
         navigate(
             routes.editResume.path.replace(/:id$/, CV.id ?? "" ), 
             { replace: true }
@@ -30,7 +31,7 @@ const CVCard: React.FC<CVCardProps> = ({CV}) => {
                 <div onClick={handleEditClick} className="w-full h-70">
                     {
                         CV.preview?.presigned_get_URL ? (
-                            <img src={'CV.preview.presigned_get_URL.url'} alt="preview image" onClick={handleEditClick}/> 
+                            <img src={CV.preview.presigned_get_URL.url} alt="preview image" onClick={handleEditClick}/> 
                         ) : (
                             <div className="flex w-full h-full bg-gray-200 justify-center items-center rounded-md">
                                 No preview available

@@ -147,7 +147,8 @@ export class S3Service {
         try {
             const params = {
                 Bucket: bucketName,
-                Key: key
+                Key: key,
+                ContentType: 'image/png'
             };
 
             const command = new PutObjectCommand(params);

@@ -1,13 +1,15 @@
 import { useMutation } from "@tanstack/react-query"
-import { useAuthStore, useCVsStore } from "../../Store";
+import { useAuthStore, useCvEditStore, useCVsStore } from "../../Store";
 import { CVAttributes, CVMetadataAttributes } from "../../interfaces/cv";
 import { ApiError } from "../../interfaces/error";
 import { CVServerService } from "../../services/CVServer";
 import { createDefaultCVObject } from "../../utils/cv";
+import { useNavigate } from "react-router-dom";
+import { routes } from "../../router/routes";
 
 export const useCreateCV = () => {
     const addCV = useCVsStore(state => state.addCV);
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    //  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
     return useMutation<CVMetadataAttributes, ApiError>({
         mutationFn: async () => { // To adjust this for not authenticated users
@@ -18,6 +20,8 @@ export const useCreateCV = () => {
         }
     })
 }
+
+
 
 export const useDeleteCV = (CVId: string) => {
     const removeCV = useCVsStore(state => state.removeCV);
