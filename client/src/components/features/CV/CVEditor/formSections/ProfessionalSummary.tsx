@@ -1,6 +1,6 @@
-import { CV_EDITOR_FORM_CONSTANTS } from '../../../../constants/CV/CVEditor';
-import { useCvEditStore } from '../../../../Store';
-import Editor from '../../../UI/TextEditor/EditorComponent'
+import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import { useCvEditStore } from '../../../../../Store';
+import Editor from '../../../../UI/TextEditor/EditorComponent'
 import React from 'react';
 
 const { professional_summary: summaryConstants } = CV_EDITOR_FORM_CONSTANTS.sections;

@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCvEditStore, useCVsStore, useErrorStore } from "../../Store";
-import CVEditorForm  from "../../components/features/CVEditor/CVForm";
-import CVPreview from "../../components/features/CVEditor/CVPreview";
+import CVEditorForm  from "../..//components/features/CV/CVEditor/CVForm";
+import CVPreview from "../../components/features/CV/CVEditor/CVPreview";
 import DownloadBtn from "../../components/features/pdf/download";
 import { routes } from "../../router/routes";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +16,7 @@ const CVEditPage = () => {
     const setCV = useCvEditStore((state) => state.setCV);
     const setSelectedCV = useCVsStore(state => state.setSelectedCV)
     const createError = useErrorStore(state => state.createError);
-
+ 
     const {
         data: CV,
         isSuccess,

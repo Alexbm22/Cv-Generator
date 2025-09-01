@@ -1,8 +1,8 @@
 import React from 'react';
 import { Page, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 import * as CVComponents from './components';
-import { TemplateComponentProps } from '../../../../../interfaces/cv';
-import { parseQuillToReactPDF } from '../../../../../utils/parseHtmlToPdf';
+import { TemplateComponentProps } from '../../../../../../interfaces/cv';
+import { parseQuillToReactPDF } from '../../../../../../utils/parseHtmlToPdf';
 
 Font.register({
     family: 'Nunito Sans',

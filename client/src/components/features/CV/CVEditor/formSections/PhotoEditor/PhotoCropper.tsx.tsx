@@ -1,7 +1,8 @@
 import React, { useState, useCallback, Dispatch, SetStateAction } from 'react';
-import ImageCropper, { CropArea, CropImageOptions } from '../../../../UI/ImageCropper';
-import { getCroppedImage } from '../../../../../utils/getCroppedImage';
-import { useCvEditStore } from '../../../../../Store';
+import ImageCropper, { CropArea, CropImageOptions } from '../../../../../UI/ImageCropper';
+import { getCroppedImage } from '../../../../../../utils/getCroppedImage';
+import { uploadImage } from '../../../../../../services/MediaFiles';
+import { useCvEditStore } from '../../../../../../Store';
 
 export type CVPhotoCropperProps = {
   imageSrc: string;
@@ -15,7 +16,7 @@ const CVPhotoCropper: React.FC<CVPhotoCropperProps> = ({ imageSrc, setIsSelectin
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const setPhoto = useCvEditStore(state => state.setPhoto);
+  const photoPutUrl = useCvEditStore(state => state.photo?.presigned_put_URL.url)
 
   const handleCropComplete = useCallback((newCropArea: CropArea) => {
     setCropArea(newCropArea);
@@ -36,11 +37,10 @@ const CVPhotoCropper: React.FC<CVPhotoCropperProps> = ({ imageSrc, setIsSelectin
 
     try {
       const result = await getCroppedImage(imageSrc, cropArea, options);
-      setPhoto(result.url);
+      uploadImage(result.imgBlob, photoPutUrl!)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown cropping error';
       setError(errorMessage);
-      setPhoto(null);
     } finally {
       setIsProcessing(false);
       setIsSelectingPhoto(false);

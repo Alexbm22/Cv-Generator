@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, StyleSheet, Text, View } from "@react-pdf/renderer";
-import { SocialLink } from "../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../constants/CV/CVEditor";
+import { SocialLink } from "../../../../../../../interfaces/cv";
+import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
 
 const styles = StyleSheet.create({
     container: {

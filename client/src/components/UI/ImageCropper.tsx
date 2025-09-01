@@ -35,7 +35,7 @@ export interface CropImageOptions {
 }
 
 export interface CropResult {
-  url: string;
+  imgBlob: Blob;
 }
 
 

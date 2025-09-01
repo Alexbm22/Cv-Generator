@@ -1,11 +1,10 @@
 import React from "react";
-import { useCreateCV } from "../../hooks/CVs/useCVs";
+import CreateCVButton from '../../components/features/CV/createCVButton';
 import { useCVsStore } from "../../Store";
 import CVCard from "./CVCard";
 
 const CVsPage: React.FC = () => {
 
-  const { mutate: createNewCV } = useCreateCV();
   const CVs = useCVsStore(state => state.CVs)
 
   return (
@@ -20,11 +19,7 @@ const CVsPage: React.FC = () => {
           ))
         }
       </div>
-      <button
-        onClick={() => {
-          createNewCV()
-        }}
-      >add cv</button>
+      <CreateCVButton />
     </>
   );
 }

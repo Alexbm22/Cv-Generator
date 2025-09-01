@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useCvEditStore } from "../../../../../Store";
+import { useCvEditStore } from "../../../../../../Store";
 import PhotoSelector from "./photoSelector";
 import CVPhotoCropper from './PhotoCropper.tsx'
 

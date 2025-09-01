@@ -1,10 +1,9 @@
-import axios from "axios"
-import { apiService } from "./api"
+import axios from "axios";
 
-export const uploadImage = (blobObj: Blob, url: string) => {
+export const uploadImage = async (blobObj: Blob, url: string) => {
 
     try {
-        axios.put(url, blobObj, {
+        await axios.put(url, blobObj, {
             headers: {
                 'Content-Type': "image/png"
             }

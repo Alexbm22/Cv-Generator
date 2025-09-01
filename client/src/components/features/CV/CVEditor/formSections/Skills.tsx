@@ -1,13 +1,13 @@
 import React from 'react';
-import { useCvEditStore } from '../../../../Store';
-import { Skill, SkillLevel } from '../../../../interfaces/cv';
+import { useCvEditStore } from '../../../../../Store';
+import { Skill, SkillLevel } from '../../../../../interfaces/cv';
 import {
     Collapsable,
     TextInputField,
     SliderPicker
-} from '../../../UI';
-import { CV_EDITOR_FORM_CONSTANTS } from '../../../../constants/CV/CVEditor';
-import { SkillsLevelsMap } from '../../../../constants/CV/skillLevelsMap';
+} from '../../../../UI';
+import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import { SkillsLevelsMap } from '../../../../../constants/CV/skillLevelsMap';
 
 interface ComponentProps {
     skill: Skill

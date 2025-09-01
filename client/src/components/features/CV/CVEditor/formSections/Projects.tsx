@@ -1,11 +1,11 @@
 import React from 'react';
-import { useCvEditStore } from '../../../../Store';
-import Editor from '../../../UI/TextEditor/EditorComponent'
-import Collapsable from '../../../UI/Collapsable';
-import TextInputField from '../../../UI/textInputField';
-import { sanitizeHtml } from '../../../../utils';
-import { Project } from '../../../../interfaces/cv';
-import { CV_EDITOR_FORM_CONSTANTS } from '../../../../constants/CV/CVEditor';
+import { useCvEditStore } from '../../../../../Store';
+import Editor from '../../../../UI/TextEditor/EditorComponent'
+import Collapsable from '../../../../UI/Collapsable';
+import TextInputField from '../../../../UI/textInputField';
+import { sanitizeHtml } from '../../../../../utils';
+import { Project } from '../../../../../interfaces/cv';
+import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
 
 interface ComponentProps {
     project: Project

@@ -1,13 +1,13 @@
 import React from 'react';
-import { useCvEditStore } from '../../../../Store';
-import { Language, ProficiencyLanguageLevel } from '../../../../interfaces/cv';
+import { useCvEditStore } from '../../../../../Store';
+import { Language, ProficiencyLanguageLevel } from '../../../../../interfaces/cv';
 import {
     Collapsable,
     TextInputField,
     SliderPicker
-} from '../../../UI';
-import { CV_EDITOR_FORM_CONSTANTS } from '../../../../constants/CV/CVEditor';
-import { LanguageLevelsMap } from '../../../../constants/CV/languageLevelsMap';
+} from '../../../../UI';
+import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import { LanguageLevelsMap } from '../../../../../constants/CV/languageLevelsMap';
 
 interface ComponentProps {
     language: Language

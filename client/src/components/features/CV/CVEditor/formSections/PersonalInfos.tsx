@@ -1,8 +1,8 @@
 import React from "react";
-import { useCvEditStore } from "../../../../Store";
-import TextInputField from "../../../UI/textInputField";
-import { SocialLink } from "../../../../interfaces/cv";
-import { CV_EDITOR_FORM_CONSTANTS } from "../../../../constants/CV/CVEditor";
+import { useCvEditStore } from "../../../../../Store";
+import TextInputField from "../../../../UI/textInputField";
+import { SocialLink } from "../../../../../interfaces/cv";
+import { CV_EDITOR_FORM_CONSTANTS } from "../../../../../constants/CV/CVEditor";
 import PhotoEditor from "./PhotoEditor/photoEditor";
 
 const { personal_infos: personalInfosConstants } = CV_EDITOR_FORM_CONSTANTS.sections;

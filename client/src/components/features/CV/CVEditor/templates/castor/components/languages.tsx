@@ -1,8 +1,8 @@
 import React from "react";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { Language, ProficiencyLanguageLevel } from "../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../constants/CV/CVEditor";
-import { LanguageLevelsMap } from "../../../../../../constants/CV/languageLevelsMap";
+import { Language, ProficiencyLanguageLevel } from "../../../../../../../interfaces/cv";
+import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import { LanguageLevelsMap } from "../../../../../../../constants/CV/languageLevelsMap";
 
 const styles = StyleSheet.create({
     container: {

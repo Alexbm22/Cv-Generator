@@ -7,7 +7,7 @@ export const getCroppedImage = async (
 ): Promise<CropResult> => {
   const {
     quality = 0.92,
-    format = 'image/jpeg',
+    format = 'image/png',
     maxWidth,
     maxHeight,
   } = options;
@@ -64,9 +64,13 @@ export const getCroppedImage = async (
           cropHeight
         );
 
-        // Convert to base64-encoded data URL string
-        const url =  canvas.toDataURL(format, quality);
-        resolve({url});
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('Failed to create blob from canvas'));
+            return;
+          }
+          resolve({ imgBlob: blob });
+        }, format, quality);
       } catch (error) {
         reject(new Error(`Cropping operation failed: ${error}`));
       }

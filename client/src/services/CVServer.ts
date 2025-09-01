@@ -24,7 +24,7 @@ export class CVServerService {
     }
 
     public static async createNewCV() {
-        return await apiService.post<CVMetadataAttributes>(
+        return await apiService.post<CVAttributes>(
             this.apiUrl
         )
     }

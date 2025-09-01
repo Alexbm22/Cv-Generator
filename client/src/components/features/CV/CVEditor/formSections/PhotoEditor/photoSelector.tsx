@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { CV_EDITOR_FORM_CONSTANTS } from "../../../../../constants/CV/CVEditor";
+import { CV_EDITOR_FORM_CONSTANTS } from "../../../../../../constants/CV/CVEditor";
 import type { SetStateAction, Dispatch } from "react";
 
 const { personal_infos: personalInfosConstants } = CV_EDITOR_FORM_CONSTANTS.sections;

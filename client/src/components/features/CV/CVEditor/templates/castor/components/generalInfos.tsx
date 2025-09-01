@@ -1,7 +1,7 @@
 import React from "react";
-import * as Icons from '../../../../pdf/Icons'
+import * as Icons from '../../../../../pdf/Icons'
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../constants/CV/CVEditor";
+import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
 
 interface GeneralInfosProps {
     phoneNumber: string,
