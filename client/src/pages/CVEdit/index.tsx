@@ -1,52 +1,12 @@
-import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useCvEditStore, useCVsStore, useErrorStore } from "../../Store";
+import { useParams } from "react-router-dom";
 import CVEditorForm  from "../..//components/features/CV/CVEditor/CVForm";
-import CVPreview from "../../components/features/CV/CVEditor/CVPreview";
-import DownloadBtn from "../../components/features/pdf/download";
-import { routes } from "../../router/routes";
-import { useQuery } from "@tanstack/react-query";
-import { CVServerService } from "../../services/CVServer";
+import CVPreview from "../../components/features/CV/CVEditor/CVPreview/CVPreview";
+import { useFetchCV } from "./useFetchCV";
 
 const CVEditPage = () => {
-    
-    const navigate = useNavigate();
     const { id } = useParams<{id: string}>();
-
-    const setCV = useCvEditStore((state) => state.setCV);
-    const setSelectedCV = useCVsStore(state => state.setSelectedCV)
-    const createError = useErrorStore(state => state.createError);
- 
-    const {
-        data: CV,
-        isSuccess,
-        isError,
-        error,
-        isLoading
-    } = useQuery({
-        queryKey: [`CV:${id}`],
-        queryFn: () => CVServerService.getCV(id!),
-        enabled: !!id,
-    });
-
-    // Redirect if no id or no CV found
-    useEffect(() => {
-        if (isError) {
-            createError(error);
-            navigate(routes.resumes.path, { replace: true });
-            return;
-        } else if (!id) {
-            navigate(routes.notFound.path, { replace: true });
-            return;
-        }
-    }, [id, navigate, isError, error]);
-
-    useEffect(() => {
-        if(isSuccess) {
-            setCV(CV);
-            setSelectedCV(CV);
-        }
-    }, [CV, isSuccess, setCV])
+    
+    const { isLoading, CV } = useFetchCV(id);
 
     if (isLoading) {
         return <div>Loading...</div>;

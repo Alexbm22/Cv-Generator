@@ -4,6 +4,7 @@ import { CVAttributes, CVMetadataAttributes } from "../../interfaces/cv"
 import { useCvEditStore, useCVsStore } from "../../Store";
 import { useDeleteCV } from "../../hooks/CVs/useCVs";
 import DownloadBtn from "../../components/features/pdf/download";
+import { useState } from "react";
 
 type CVCardProps = {
     CV: CVMetadataAttributes
@@ -14,11 +15,11 @@ const CVCard: React.FC<CVCardProps> = ({CV}) => {
     if(!CV.id) return;
 
     const navigate = useNavigate();
+    const [ isCVPreview, setIsCVPreview ] = useState(true)
 
     const { mutate: deleteCV } = useDeleteCV(CV.id);
 
     const handleEditClick = () => {
-
         navigate(
             routes.editResume.path.replace(/:id$/, CV.id ?? "" ), 
             { replace: true }
@@ -30,8 +31,14 @@ const CVCard: React.FC<CVCardProps> = ({CV}) => {
             <div className="flex flex-col gap-3 p-4 m-4 items-center bg-gray-100 w-[calc(100vw*0.18)] h-80 rounded-lg">
                 <div onClick={handleEditClick} className="w-full h-70">
                     {
-                        CV.preview?.presigned_get_URL ? (
-                            <img src={CV.preview.presigned_get_URL.url} alt="preview image" onClick={handleEditClick}/> 
+                        isCVPreview && CV.preview?.presigned_get_URL.url ? (
+                            <img 
+                                src={CV.preview.presigned_get_URL.url} 
+                                alt="preview image" onClick={handleEditClick}
+                                onError={() => {
+                                    setIsCVPreview(false);
+                                }}
+                            /> 
                         ) : (
                             <div className="flex w-full h-full bg-gray-200 justify-center items-center rounded-md">
                                 No preview available

@@ -2,15 +2,28 @@ import React, { useState } from "react";
 import { useCvEditStore } from "../../../../../../Store";
 import PhotoSelector from "./photoSelector";
 import CVPhotoCropper from './PhotoCropper.tsx'
+import { uploadImage } from "../../../../../../services/MediaFiles.ts";
+import { useFetchCVPhoto } from "../../hooks/useFetchCVPhoto.ts";
 
 export const PhotoEditor: React.FC = () => {
-
-    const cvPhoto  = useCvEditStore((state) => state.photo);
-    const setPhoto  = useCvEditStore((state) => state.setPhoto);
-
+    const cvPhotoMetaData = useCvEditStore((state) => state.photo);
+    
+    const { 
+        cvPhotoSource, 
+        setCvPhotoSource,
+        refetchPhoto 
+    } = useFetchCVPhoto()
+    
     const [ selectedPhoto, setSelectedPhoto ] = useState<string | null>(null);
     const [ isSelectingPhoto, setIsSelectingPhoto ] = useState<boolean>(false);
-
+    
+    if(!cvPhotoMetaData) return null;
+    const handleCropSuccess = async (cropResult: Blob) => {
+        await uploadImage(cropResult, cvPhotoMetaData.presigned_put_URL.url);
+        setIsSelectingPhoto(false);
+        setSelectedPhoto(null);
+        refetchPhoto()
+    } 
     // to improve
     return (
         <>
@@ -28,12 +41,12 @@ export const PhotoEditor: React.FC = () => {
 
                             <img 
                                 className="max-w-50 max-h-20 object-contain rounded-lg border-gray-300 shadow-sm" 
-                                src={cvPhoto ?? "/Images/anonymous_Picture.png"} 
+                                src={cvPhotoSource ?? "/Images/anonymous_Picture.png"} 
                                 alt="Image"
                             />
 
                             {
-                                !cvPhoto ? (
+                                !cvPhotoSource ? (
                                     <button
                                         onClick={() => {
                                             setIsSelectingPhoto(true);
@@ -46,15 +59,16 @@ export const PhotoEditor: React.FC = () => {
                                         <button
                                             onClick={() => {
                                                 setIsSelectingPhoto(true);
-                                                setSelectedPhoto(cvPhoto)
+                                                setSelectedPhoto(cvPhotoSource)
                                             }}
                                         >
                                             Edit Photo
                                         </button>
                                         <button
                                             onClick={() => {
-                                                setPhoto(null)
                                                 setSelectedPhoto(null)
+                                                setCvPhotoSource(null);
+                                                // to add delete request 
                                             }}
                                         >
                                             Delete Photo
@@ -84,6 +98,7 @@ export const PhotoEditor: React.FC = () => {
                             <CVPhotoCropper 
                                 imageSrc={selectedPhoto}
                                 setImageSource={setSelectedPhoto}
+                                onCroppSuccess={handleCropSuccess}
                                 setIsSelectingPhoto={setIsSelectingPhoto}
                             />
                         </div>

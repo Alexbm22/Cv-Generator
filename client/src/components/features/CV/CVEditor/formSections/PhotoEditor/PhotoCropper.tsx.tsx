@@ -6,17 +6,16 @@ import { useCvEditStore } from '../../../../../../Store';
 
 export type CVPhotoCropperProps = {
   imageSrc: string;
+  onCroppSuccess: (cropResult: Blob) => Promise<any> | any;
   setImageSource: Dispatch<SetStateAction<string | null>>;
   setIsSelectingPhoto: Dispatch<SetStateAction<boolean>>;
 }
 
-const CVPhotoCropper: React.FC<CVPhotoCropperProps> = ({ imageSrc, setIsSelectingPhoto }) => {
+const CVPhotoCropper: React.FC<CVPhotoCropperProps> = ({ imageSrc, setIsSelectingPhoto, onCroppSuccess}) => {
   
   const [cropArea, setCropArea] = useState<CropArea | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const photoPutUrl = useCvEditStore(state => state.photo?.presigned_put_URL.url)
 
   const handleCropComplete = useCallback((newCropArea: CropArea) => {
     setCropArea(newCropArea);
@@ -37,7 +36,7 @@ const CVPhotoCropper: React.FC<CVPhotoCropperProps> = ({ imageSrc, setIsSelectin
 
     try {
       const result = await getCroppedImage(imageSrc, cropArea, options);
-      uploadImage(result.imgBlob, photoPutUrl!)
+      onCroppSuccess(result.imgBlob)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown cropping error';
       setError(errorMessage);

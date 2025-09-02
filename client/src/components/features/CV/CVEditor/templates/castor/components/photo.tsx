@@ -1,6 +1,7 @@
 import React from "react";
 import { Image, StyleSheet, View } from '@react-pdf/renderer';
 
+
 interface CVPhotoProps {
   CVPhoto?: string;
   fallbackUrl?: string;
@@ -23,14 +24,12 @@ const styles = StyleSheet.create({
 
 const CVPhoto: React.FC<CVPhotoProps> = ({
   CVPhoto,
-  fallbackUrl = "/Images/anonymous_Picture.png",
 }) => {
-  const currentPhoto =  CVPhoto ?? fallbackUrl;
 
   return (
     <View style={styles.photoContainer}>
       <Image 
-          src={currentPhoto}
+          src={CVPhoto}
           style={styles.photoStyles}
       ></Image>
     </View>
