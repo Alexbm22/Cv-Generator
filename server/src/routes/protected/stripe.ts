@@ -1,7 +1,7 @@
-import { StripeController } from '../controllers/stripe';
-import RateLimitInstance from '../middleware/rate_limit_middleware';
+import { StripeController } from '../../controllers/stripe';
+import RateLimitInstance from '../../middleware/rate_limit_middleware';
 import express from 'express';
-import { catchAsync } from '../middleware/error_middleware';
+import { catchAsync } from '../../middleware/error_middleware';
 
 const router = express.Router();
 

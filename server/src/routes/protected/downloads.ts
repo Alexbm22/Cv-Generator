@@ -1,6 +1,6 @@
-import { DownloadsController } from '../controllers/downloads';
-import { catchAsync } from '../middleware/error_middleware';
-import RateLimitInstance from '../middleware/rate_limit_middleware';
+import { DownloadsController } from '../../controllers/downloads';
+import { catchAsync } from '../../middleware/error_middleware';
+import RateLimitInstance from '../../middleware/rate_limit_middleware';
 import multer from 'multer';
 import express from 'express';
 

@@ -40,7 +40,6 @@ export class CVsController {
 
         try {
             const { createdCV, createdCVPhoto, createdCVPreview } = await CVsService.createCV(userInfo.id);
-            const createdCVMetaData = await CVsService.getCVMetaData(createdCV.get(), createdCVPreview, createdCVPhoto);
 
             const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(createdCVPhoto);
             const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(createdCVPreview);

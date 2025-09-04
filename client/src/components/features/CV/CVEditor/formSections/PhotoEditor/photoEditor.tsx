@@ -2,15 +2,14 @@ import React, { useState } from "react";
 import { useCvEditStore } from "../../../../../../Store";
 import PhotoSelector from "./photoSelector";
 import CVPhotoCropper from './PhotoCropper.tsx'
-import { uploadImage } from "../../../../../../services/MediaFiles.ts";
+import { deleteImage, uploadImage } from "../../../../../../services/MediaFiles.ts";
 import { useFetchCVPhoto } from "../../hooks/useFetchCVPhoto.ts";
 
 export const PhotoEditor: React.FC = () => {
     const cvPhotoMetaData = useCvEditStore((state) => state.photo);
     
     const { 
-        cvPhotoSource, 
-        setCvPhotoSource,
+        cvPhotoBlobUrl,
         refetchPhoto 
     } = useFetchCVPhoto()
     
@@ -19,7 +18,7 @@ export const PhotoEditor: React.FC = () => {
     
     if(!cvPhotoMetaData) return null;
     const handleCropSuccess = async (cropResult: Blob) => {
-        await uploadImage(cropResult, cvPhotoMetaData.presigned_put_URL.url);
+        await uploadImage(cropResult, cvPhotoMetaData);
         setIsSelectingPhoto(false);
         setSelectedPhoto(null);
         refetchPhoto()
@@ -41,12 +40,12 @@ export const PhotoEditor: React.FC = () => {
 
                             <img 
                                 className="max-w-50 max-h-20 object-contain rounded-lg border-gray-300 shadow-sm" 
-                                src={cvPhotoSource ?? "/Images/anonymous_Picture.png"} 
+                                src={cvPhotoBlobUrl ?? "/Images/anonymous_Picture.png"} 
                                 alt="Image"
                             />
 
                             {
-                                !cvPhotoSource ? (
+                                !cvPhotoBlobUrl ? (
                                     <button
                                         onClick={() => {
                                             setIsSelectingPhoto(true);
@@ -59,16 +58,16 @@ export const PhotoEditor: React.FC = () => {
                                         <button
                                             onClick={() => {
                                                 setIsSelectingPhoto(true);
-                                                setSelectedPhoto(cvPhotoSource)
+                                                setSelectedPhoto(cvPhotoBlobUrl)
                                             }}
                                         >
                                             Edit Photo
                                         </button>
                                         <button
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 setSelectedPhoto(null)
-                                                setCvPhotoSource(null);
-                                                // to add delete request 
+                                                await deleteImage(cvPhotoMetaData);
+                                                refetchPhoto();
                                             }}
                                         >
                                             Delete Photo

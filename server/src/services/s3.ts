@@ -1,5 +1,5 @@
 import { config } from '../config/env';
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
@@ -152,6 +152,39 @@ export class S3Service {
             };
 
             const command = new PutObjectCommand(params);
+
+            const url = await getSignedUrl(this.s3Client, command, { expiresIn });
+            const expiresAt = new Date(Date.now() + expiresIn).getTime();
+
+            return {
+                url,
+                expiresAt
+            }
+        } catch (error) {
+            const errorMessage = error && typeof error === "object" && "message" in error ?
+                error.message : "Failed to generate presigned URL";
+
+            throw new AppError(
+                `S3 getPresignedUrl error: ${errorMessage}`,
+                500,
+                ErrorTypes.BAD_REQUEST
+            );
+        }
+    }
+
+    public async generatePresignedDeleteUrl(
+        key: string,
+        bucketName: string,
+        expiresIn: number = 5 * 60 * 1000
+    ) {
+        try {
+            const params = {
+                Bucket: bucketName,
+                Key: key,
+                ContentType: 'image/png'
+            };
+
+            const command = new DeleteObjectCommand(params);
 
             const url = await getSignedUrl(this.s3Client, command, { expiresIn });
             const expiresAt = new Date(Date.now() + expiresIn).getTime();

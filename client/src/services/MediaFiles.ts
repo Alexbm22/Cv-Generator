@@ -1,8 +1,14 @@
 import axios from "axios";
+import { MediaFilesAttributes } from "../interfaces/mediaFiles";
+import { apiService } from "./api";
 
-export const uploadImage = async (blobObj: Blob, url: string) => {
+export const uploadImage = async (blobObj: Blob, mediaFile: MediaFilesAttributes) => {
     try {
-        await axios.put(url, blobObj, {
+        if(mediaFile.expiresAt > Date.now()) {
+            mediaFile = await getMediaFileById(mediaFile.id);
+        }
+
+        await axios.put(mediaFile.presigned_put_URL, blobObj, {
             headers: {
                 'Content-Type': "image/png"
             }
@@ -12,21 +18,42 @@ export const uploadImage = async (blobObj: Blob, url: string) => {
     }
 }
 
-export const fetchImage = async (url: string) => {
+export const fetchImage = async (mediaFile: MediaFilesAttributes) => {
     try {
-        return (await axios.get<Blob>(url, {
-            responseType: 'blob'
-        })).data
+        if(mediaFile.expiresAt > Date.now()) {
+            mediaFile = await getMediaFileById(mediaFile.id);
+        }
+
+        return (await axios.get<Blob>(
+            mediaFile.presigned_get_URL, {
+                responseType: 'blob'
+            }
+        )).data
     } catch (error) {
         throw error;
     }
 }
 
-export const validateImage = async (url: string) => {
+export const deleteImage = async (mediaFile: MediaFilesAttributes) => {
     try {
-        await axios.head(url);
+        if(mediaFile.expiresAt > Date.now()) {
+            mediaFile = await getMediaFileById(mediaFile.id);
+        }
+        
+        await axios.delete(mediaFile.presigned_delete_URL);
         return true;
     } catch (error) {
         return false;
+    }
+}
+
+export const getMediaFileById = async (id: string) => {
+    try {
+        const mediaFile = await apiService.get<MediaFilesAttributes>(
+            `/protected/media_files/${id}`
+        );
+        return mediaFile;
+    } catch (error) {
+        throw error;
     }
 }

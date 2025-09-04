@@ -1,7 +1,7 @@
 import express from 'express';
-import RateLimitInstance from '../middleware/rate_limit_middleware';
-import { catchAsync } from '../middleware/error_middleware';
-import { CVsController } from '../controllers/cv';
+import RateLimitInstance from '../../middleware/rate_limit_middleware';
+import { catchAsync } from '../../middleware/error_middleware';
+import { CVsController } from '../../controllers/cv';
 
 const router = express.Router();
 

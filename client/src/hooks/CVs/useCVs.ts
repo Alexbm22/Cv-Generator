@@ -40,7 +40,12 @@ export const useCreateCV = () => {
             const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
             const CVTemplate = TemplateMap[createdCV.template];
 
-            const cvBlob = await generatePdfBlob(CVTemplate, { CV: createdCV });
+            const CVData = {
+                ...createdCV, 
+                photo: "/Images/anonymous_Picture.png"
+            }
+
+            const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });
             const CVCanvas = await pdfBlobToCanvas(cvBlob);
 
             if (CVCanvas) {
@@ -49,6 +54,52 @@ export const useCreateCV = () => {
                     uploadImage(blob, createdCV.preview?.presigned_put_URL.url!)
                 }, "image/png")
             }                
+        }
+    })
+}
+
+export const useCreateCVs = () => {
+    //  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    
+    const addCV = useCVsStore(state => state.addCV);
+
+    return useMutation<CVAttributes[], ApiError>({
+        mutationFn: async () => { // To adjust this for not authenticated users
+            return (await CVServerService.createCVs([])); // just for test
+        },
+        onSuccess: async (createdCVs) => {
+            createdCVs.forEach(async (createdCV) => {
+                const CVMetaData: CVMetadataAttributes = {
+                    id: createdCV.id,
+                    jobTitle: createdCV.jobTitle,
+                    title:createdCV.title,
+                    template: createdCV.template,
+                    photo: createdCV.photo,
+                    preview: createdCV.preview,
+                    updatedAt: createdCV.updatedAt,
+                    createdAt: createdCV.createdAt
+                }
+    
+                addCV(CVMetaData);
+    
+                const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
+                const CVTemplate = TemplateMap[createdCV.template];
+    
+                const CVData = {
+                    ...createdCV, 
+                    photo: "/Images/anonymous_Picture.png"
+                }
+    
+                const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });
+                const CVCanvas = await pdfBlobToCanvas(cvBlob);
+    
+                if (CVCanvas) {
+                    CVCanvas.toBlob(async (blob) => {
+                        if(!blob) return;
+                        uploadImage(blob, createdCV.preview?.presigned_put_URL.url!)
+                    }, "image/png")
+                }                
+            }) 
         }
     })
 }

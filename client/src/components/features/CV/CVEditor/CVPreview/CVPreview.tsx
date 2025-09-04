@@ -10,50 +10,63 @@ import { useFetchCVPhoto } from "../hooks/useFetchCVPhoto";
 
 const CVPreview: React.FC = () => {
   
+  // Get the currently selected CV from the store
   const selectedCV = useCVsStore(state => state.selectedCV);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const { cvPhotoSource } = useFetchCVPhoto();
+  // Fetch the photo blob URL for the CV
+  const { cvPhotoBlobUrl } = useFetchCVPhoto();
   
+  // Upload the canvas image as a PNG to the presigned URL
   const handleUpload = async () => {
-    if (!canvasRef.current || !selectedCV) return;
-    
-    canvasRef.current.toBlob(async (blob) => {
-      if(!blob) return;
-      uploadImage(blob, selectedCV.preview?.presigned_put_URL.url!)
-    }, "image/png")
+  if (!canvasRef.current || !selectedCV) return;
+  
+  canvasRef.current.toBlob(async (blob) => {
+    if(!blob) return;
+    uploadImage(blob, selectedCV.preview!)
+  }, "image/png")
   }
   
+  // Generate a PDF blob from the CV data and render it to the canvas
   const handleGeneratePdfBlob = async () => {
-    if (!selectedCV) return;
+  if (!selectedCV) return;
 
-    try {
-      const cvData = {
-        ...selectedCV,
-        photo: cvPhotoSource ?? "/Images/anonymous_Picture.png",
-      }
-
-      const { TemplateMap } = await import("../../../../../constants/CV/TemplatesMap");
-      const CVTemplate = TemplateMap[selectedCV.template];
-      const pdfBlob = await generatePdfBlob(CVTemplate, { CV: cvData });
-      await renderPdfPreview(pdfBlob, canvasRef.current);
-
-      await handleUpload();
-      } catch (err) {
-        console.error("Preview generation failed:", err);
+  try {
+    // Prepare CV data, including the photo
+    const cvData = {
+    ...selectedCV,
+    photo: cvPhotoBlobUrl ?? "/Images/anonymous_Picture.png",
     }
+
+    // Dynamically import the template map and select the template
+    const { TemplateMap } = await import("../../../../../constants/CV/TemplatesMap");
+    const CVTemplate = TemplateMap[selectedCV.template];
+
+    // Generate the PDF blob using the selected template and CV data
+    const pdfBlob = await generatePdfBlob(CVTemplate, { CV: cvData });
+
+    // Render the PDF preview to the canvas
+    await renderPdfPreview(pdfBlob, canvasRef.current);
+
+    // Upload the preview image
+    await handleUpload();
+  } catch (err) {
+    console.error("Preview generation failed:", err);
+  }
   }
 
+  // Regenerate the preview whenever the selected CV or photo changes
   useEffect(() => {
-    handleGeneratePdfBlob();
-  }, [selectedCV, cvPhotoSource])
+  handleGeneratePdfBlob();
+  }, [selectedCV, cvPhotoBlobUrl])
   
   if(!selectedCV) return <div>There is no CV to preview</div>
   
   return (
-    <div className="hidden bg-gray-100 overflow-hidden w-screen max-w-[calc(100vw*0.45)] h-screen justify-center items-center md:flex sticky top-0">
-      <canvas ref={canvasRef} className='aspect-[1/1.4142] max-w-[90%] max-h-[90%]' />
-    </div>
+  <div className="hidden bg-gray-100 overflow-hidden w-screen max-w-[calc(100vw*0.45)] h-screen justify-center items-center md:flex sticky top-0">
+    <canvas ref={canvasRef} className='aspect-[1/1.4142] max-w-[90%] max-h-[90%]' />
+  </div>
   )
 }
 

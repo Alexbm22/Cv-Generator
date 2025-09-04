@@ -5,32 +5,27 @@ import { useEffect, useState } from "react";
 
 export const useFetchCVPhoto = () => {
     const cvPhotoMetaData = useCvEditStore((state) => state.photo);
-    const isFetchEnabled = !!cvPhotoMetaData?.presigned_get_URL.url; // to add auth state and verify expiration date
+    const isFetchEnabled = !!cvPhotoMetaData?.presigned_get_URL; // to add auth state and verify expiration date
 
     const { data, isSuccess, isError, error, refetch } = useQuery({
         queryKey: ['cvPhoto'],
-        queryFn: async () => await fetchImage(cvPhotoMetaData?.presigned_get_URL.url!),
+        queryFn: async () => await fetchImage(cvPhotoMetaData!),
         enabled: isFetchEnabled,
         staleTime: 600000,
         retry: false
     })
 
-    const [ cvPhotoSource, setCvPhotoSource ] = useState<string | null>(null)
+    const [ cvPhotoBlobUrl, setCvPhotoBlobUrl ] = useState<string | null>(null)
 
     useEffect(() => {
-        if(data && isSuccess) {
-            const blobUrl = URL.createObjectURL(data);
-            setCvPhotoSource(blobUrl);
-        } else {
-            setCvPhotoSource(null);
-        }
-
-        if(isError) console.error(error)
-    }, [data])
+        setCvPhotoBlobUrl(
+            data && isSuccess ? URL.createObjectURL(data) : null
+        );
+    }, [data, isError, isSuccess])
 
     return {
-        cvPhotoSource,
-        setCvPhotoSource,
+        cvPhotoBlobUrl,
+        setCvPhotoBlobUrl,
         refetchPhoto: refetch
     }
 }
