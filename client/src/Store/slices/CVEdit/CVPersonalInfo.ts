@@ -1,5 +1,5 @@
 import { 
-    CVPersonalInfoSliceAttributes, 
+    CVEditStorePersonalInfoSliceAttributes, 
     SocialLink, 
     CVEditStore } from '../../../interfaces/cv';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
@@ -8,7 +8,7 @@ import { DEFAULT_CV_EDITOR_STATE } from '../../../constants/CV/CVEditor';
 export const createPersonalInfoSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
     (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
-}): CVPersonalInfoSliceAttributes => ({
+}): CVEditStorePersonalInfoSliceAttributes => ({
     photo: DEFAULT_CV_EDITOR_STATE.photo,
     firstName: DEFAULT_CV_EDITOR_STATE.firstName,
     lastName: DEFAULT_CV_EDITOR_STATE.lastName,
@@ -19,7 +19,7 @@ export const createPersonalInfoSlice = (set: {
     socialLinks: DEFAULT_CV_EDITOR_STATE.socialLinks,
     
     setPhoto: (url) => {
-        set({ photo: url });
+        set({ UserPhoto: url });
     },
     setFirstName: (firstName: string) => set({ firstName }),
     setLastName: (lastName: string) => set({ lastName }),
@@ -35,14 +35,14 @@ export const createPersonalInfoSlice = (set: {
             url: '',
         }
 
-        return set((state: CVPersonalInfoSliceAttributes) => ({
+        return set((state: CVEditStorePersonalInfoSliceAttributes) => ({
             socialLinks: state.socialLinks.concat(newSocialLink)
         }))
     },
-    updateSocialLink: (id: string, socialLink: Partial<SocialLink>) => set((state: CVPersonalInfoSliceAttributes) => ({
+    updateSocialLink: (id: string, socialLink: Partial<SocialLink>) => set((state: CVEditStorePersonalInfoSliceAttributes) => ({
         socialLinks: state.socialLinks.map((link) => link.id === id ? { ...link, ...socialLink} : link)
     })),
-    removeSocialLink: (id: string) => set((state: CVPersonalInfoSliceAttributes) => ({
+    removeSocialLink: (id: string) => set((state: CVEditStorePersonalInfoSliceAttributes) => ({
         socialLinks: state.socialLinks.filter((link) => link.id !== id)
     })),
 })

@@ -57,7 +57,7 @@ export class MediaFilesServices {
     static async getPublicMediaFileData(
         mediaFile: MediaFiles
     ): Promise<PublicMediaFilesAttributes> {
-        const timeToLive = 60 * 1000;
+        const timeToLive = 5 * 60 * 1000;
 
         const expiresAt = Date.now() + timeToLive;
         const getURL = await this.getMediaPresignedGetUrl(mediaFile, timeToLive);

@@ -4,9 +4,9 @@ import { AuthResponse, AuthCredentials, TokenClientData } from '../../interfaces
 import { APIError } from '../../interfaces/api';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../router/routes';
-import { CVServerService } from '../../services/CVServer';
 import * as yup from 'yup';
 import { AuthService } from '../../services/auth';
+import { useInitialCVsSync } from '../CVs/useCVs';
 
 export const useFormSubmission = <T>(
     schema: yup.ObjectSchema<{}, T, {}, "">,
@@ -27,24 +27,11 @@ export const useFormSubmission = <T>(
     }
 }
 
-// to do an initial data sync with all user settings
-export const useInitialDataSync = () => {
-    return useMutation({
-        mutationFn: async () => {
-            const { CVs } = useCVsStore.getState();
-            return await CVServerService.createCVs(CVs);
-        },
-        onSuccess: (CVs) => {
-            useCVsStore.getState().setCVs(CVs);
-            useCVsStore.getState().setLastSynced();
-        },
-    })
-}
-
 export const useAuthAndSync = <T extends AuthCredentials>(
     authFunction: (authCredentials: T) => Promise<AuthResponse>
 ) => {
-    const { mutate: mutateSync } = useInitialDataSync();  
+    const { mutate: mutateSync } = useInitialCVsSync();
+    const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser)  
     
     return useMutation<void, APIError, T>({
         mutationFn: async (authCredentials: T) => {
@@ -58,6 +45,8 @@ export const useAuthAndSync = <T extends AuthCredentials>(
             if(authResponse.firstAuth) {                
                 // sync the user data 
                 mutateSync();
+            } else {
+                migrateGuestToUser();
             }
 
             // handle auth after syncing data 
@@ -69,6 +58,7 @@ export const useAuthAndSync = <T extends AuthCredentials>(
 
 export const useLogout = () => {
     const navigate = useNavigate();
+    const migrateUserToGuest = useCVsStore(state => state.migrateUserToGuest)  
 
     return useMutation<void, APIError>({
         mutationFn: async () => await AuthService.logout(),
@@ -77,25 +67,36 @@ export const useLogout = () => {
         },
         onSettled: () => {
             useAuthStore.getState().clearAuthenticatedUser();
+            migrateUserToGuest()
         }
     })
 }
 
 export const useCheckAuth = () => {
+    const { 
+        setIsLoadingAuth, 
+        handleAuthSuccess,
+        clearAuthenticatedUser,
+    } = useAuthStore.getState();
+
+    const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser) 
+    const migrateUserToGuest = useCVsStore(state => state.migrateUserToGuest) 
+
     return useMutation<TokenClientData, APIError>({
         mutationFn: async () => {
-            useAuthStore.getState().setIsLoadingAuth(true);
+            setIsLoadingAuth(true);
             return await AuthService.checkAuth();
         },
         onSuccess: (response) => {
-            const { handleAuthSuccess } = useAuthStore.getState();
-            handleAuthSuccess(response)
+            handleAuthSuccess(response);
+            migrateGuestToUser();
         }, 
         onError: () => {
-            useAuthStore.getState().clearAuthenticatedUser();
+            clearAuthenticatedUser();
+            migrateUserToGuest();
         },
         onSettled: () => {
-            useAuthStore.getState().setIsLoadingAuth(false);
+            setIsLoadingAuth(false);
         }
     })
 }

@@ -78,7 +78,7 @@ export enum CVTemplates {
     CASTOR = 'castor',
 }
 
-type ModifiedCVAttributes = Omit<CVAttributes, 'photo'> & {
+type ModifiedCVAttributes = Omit<UserCVAttributes, 'photo' | 'preview' > & {
   photo: string;
 };
 
@@ -93,8 +93,23 @@ export interface CVMetadataAttributes {
     template: CVTemplates;
     updatedAt: Date;
     createdAt: Date
-    preview?: MediaFilesAttributes;
+}
+
+export interface UserCVMetadataAttributes extends CVMetadataAttributes {
     photo?: MediaFilesAttributes;
+    preview?: MediaFilesAttributes;
+}
+
+export interface GuestCVMetadataAttributes extends CVMetadataAttributes {
+    photo: string | null;
+    preview: string | null;
+}
+
+export interface CVEditStoreMetadataAttributes extends CVMetadataAttributes {
+    UserPreview?: MediaFilesAttributes;
+    UserPhoto?: MediaFilesAttributes;
+    GuestPreview: string | null;
+    GuestPhoto: string | null;
 }
 
 export interface CVContentAttributes {
@@ -118,14 +133,16 @@ export interface CVPersonalInfoAttributes {
     socialLinks: SocialLink[]
 }
 
-export interface CVMetadataActions {
+export interface CVEditStoreMetadataActions {
     setTemplate: (template: CVTemplates) => void;
     setTitle: (title: string) => void;
     setJobTitle: (jobTitle: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
+    setGuestPhoto: (photoURL: string) => void;
+    setGuestPreview: (previewURL: string) => void;
 }
 
-export interface CVContentActions {
+export interface CVEditStoreContentActions {
     setProfessionalSummary: (summary: string) => void;
 
     addLanguage: () => void;
@@ -154,7 +171,7 @@ export interface CVContentActions {
     updateCustomSectionAttributes: (id: string, customSection: Partial<CustomSectionAttributes>) => void;
 }
 
-export interface CVPersonalInfoActions {
+export interface CVEditStorePersonalInfoActions {
     setFirstName: (firstName: string) => void;
     setLastName: (lastName: string) => void;
     setEmail: (email: string) => void;
@@ -168,24 +185,53 @@ export interface CVPersonalInfoActions {
 }
 
 export interface CVEditStoreActions {
-    getCVObject: () => CVAttributes;
-    setCV: (CV: CVAttributes) => void;
+    getUserCVObject: () => UserCVAttributes;
+    setUserCV: (CV: UserCVAttributes) => void;
+
+    getGuestCVObject: () => GuestCVAttributes;
+    setGuestCV: (CV: GuestCVAttributes) => void;
 }
 
-export interface CVAttributes extends CVMetadataAttributes, CVContentAttributes, CVPersonalInfoAttributes {}
+export interface UserCVAttributes extends 
+UserCVMetadataAttributes, CVContentAttributes, CVPersonalInfoAttributes {}
 
-export interface CVMetadataSliceAttributes extends CVMetadataAttributes, CVMetadataActions {}
-export interface CVContentSliceAttributes extends CVContentAttributes, CVContentActions {}
-export interface CVPersonalInfoSliceAttributes extends CVPersonalInfoAttributes, CVPersonalInfoActions {}
+export interface GuestCVAttributes extends 
+GuestCVMetadataAttributes, CVContentAttributes, CVPersonalInfoAttributes {}
 
-export interface CVEditStore extends CVMetadataSliceAttributes, CVContentSliceAttributes, CVPersonalInfoSliceAttributes, CVEditStoreActions {}
+export interface CVEditStoreMetadataSliceAttributes extends 
+CVEditStoreMetadataAttributes, CVEditStoreMetadataActions {}
 
-export interface CVStore {
-    CVs: CVMetadataAttributes[];
-    selectedCV: CVAttributes | null;
-    setSelectedCV: (CV:CVAttributes) => void;
+export interface CVEditStoreContentSliceAttributes extends 
+CVContentAttributes, CVEditStoreContentActions {}
+
+export interface CVEditStorePersonalInfoSliceAttributes extends 
+CVPersonalInfoAttributes, CVEditStorePersonalInfoActions {}
+
+export interface CVEditStoreObjectAttributes extends
+CVEditStoreMetadataAttributes, CVPersonalInfoAttributes, CVContentAttributes {}
+
+export interface CVEditStore extends 
+CVEditStoreMetadataSliceAttributes, CVEditStoreContentSliceAttributes, CVEditStorePersonalInfoSliceAttributes, CVEditStoreActions {}
+
+export enum CVStateMode {
+    USER = 'user',
+    GUEST = 'guest'
+}
+
+export type CVState = 
+    { mode: CVStateMode.USER, cvs: UserCVMetadataAttributes[], selectedCV: UserCVAttributes | null } | 
+    { mode: CVStateMode.GUEST, cvs: GuestCVAttributes[], selectedCV: GuestCVAttributes | null } // to do create guest cv attributes type
+
+export interface CVsStore {
+    CVState: CVState;
+    setGuestSelectedCV: (CV:GuestCVAttributes) => void;
+    setUserSelectedCV: (CV:UserCVAttributes) => void;
     clearCVsData: () => void;
-    addCV: (CV: CVMetadataAttributes) => void;
+    addUserCV: (CV: UserCVMetadataAttributes) => void;
+    addGuestCV: (CV: GuestCVAttributes) => void;
     removeCV: (id: string) => void;
-    setCVs: (CVs: CVMetadataAttributes[]) => void;
+    setUserCVs: (CVs: UserCVMetadataAttributes[]) => void;
+    setGuestCVs: (CVs: GuestCVAttributes[]) => void;
+    migrateGuestToUser: (cvs?: UserCVMetadataAttributes[]) => void;
+    migrateUserToGuest: (cvs?: GuestCVAttributes[]) => void;
 }

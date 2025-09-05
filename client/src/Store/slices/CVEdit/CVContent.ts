@@ -1,6 +1,6 @@
 import { sanitizeHtml } from '../../../utils/sanitizeHtml';
 import { 
-    CVContentSliceAttributes, 
+    CVEditStoreContentSliceAttributes, 
     CVEditStore,
     Language, 
     Skill,
@@ -15,7 +15,7 @@ import { DEFAULT_CV_EDITOR_STATE } from '../../../constants/CV/CVEditor';
 export const createContentSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
     (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
-}): CVContentSliceAttributes => ({
+}): CVEditStoreContentSliceAttributes => ({
     professionalSummary: DEFAULT_CV_EDITOR_STATE.professionalSummary,
     languages: DEFAULT_CV_EDITOR_STATE.languages,
     skills: DEFAULT_CV_EDITOR_STATE.skills,
@@ -33,14 +33,14 @@ export const createContentSlice = (set: {
             level: null
         }
 
-        return set((state: CVContentSliceAttributes) => ({
+        return set((state: CVEditStoreContentSliceAttributes) => ({
             languages: state.languages.concat(newLanguage)
         }))
     },
-    removeLanguage: (id: string) => set((state: CVContentSliceAttributes) => ({
+    removeLanguage: (id: string) => set((state: CVEditStoreContentSliceAttributes) => ({
         languages: state.languages.filter((lang) => lang.id !== id)
     })),
-    updateLanguage: (id: string, language: Partial<Language>) => set((state: CVContentSliceAttributes) => ({
+    updateLanguage: (id: string, language: Partial<Language>) => set((state: CVEditStoreContentSliceAttributes) => ({
         languages: state.languages.map((lang) => lang.id === id ? { ...lang, ...language} : lang)
     })),
 
@@ -51,14 +51,14 @@ export const createContentSlice = (set: {
             level: null
         }
 
-        return set((state: CVContentSliceAttributes) => ({
+        return set((state: CVEditStoreContentSliceAttributes) => ({
             skills: state.skills.concat(newSkill)
         }))
     },
-    removeSkill: (id: string) => set((state: CVContentSliceAttributes) => ({
+    removeSkill: (id: string) => set((state: CVEditStoreContentSliceAttributes) => ({
         skills: state.skills.filter((skill) => skill.id !== id)
     })),
-    updateSkill: (id: string, skill: Partial<Skill>) => set((state: CVContentSliceAttributes) => ({
+    updateSkill: (id: string, skill: Partial<Skill>) => set((state: CVEditStoreContentSliceAttributes) => ({
         skills: state.skills.map((sk) => sk.id === id ? { ...sk, ...skill} : sk)
     })),
 
@@ -72,16 +72,16 @@ export const createContentSlice = (set: {
             description: ''
         }
 
-        return set((state: CVContentSliceAttributes) => ({
+        return set((state: CVEditStoreContentSliceAttributes) => ({
             workExperience: state.workExperience.concat(newWorkExperience).sort((a, b) => 
                 new Date(a.startDate).getTime() - new Date(b.startDate).getTime() // sorting workExperience by startDate
             )
         }))
     },
-    removeWorkExperience: (id: string) => set((state: CVContentSliceAttributes) => ({
+    removeWorkExperience: (id: string) => set((state: CVEditStoreContentSliceAttributes) => ({
         workExperience: state.workExperience.filter((work) => work.id !== id)
     })),
-    updateWorkExperience: (id: string, workExperience: Partial<WorkExperience>) => set((state: CVContentSliceAttributes) => ({
+    updateWorkExperience: (id: string, workExperience: Partial<WorkExperience>) => set((state: CVEditStoreContentSliceAttributes) => ({
         workExperience: state.workExperience.map((work) => work.id === id ? { ...work, ...workExperience} : work).sort((a, b) => 
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
         )
@@ -97,16 +97,16 @@ export const createContentSlice = (set: {
             description: ''
         }
 
-        return set((state: CVContentSliceAttributes) => ({
+        return set((state: CVEditStoreContentSliceAttributes) => ({
             education: state.education.concat(newEducation).sort((a, b) => 
                 new Date(a.startDate).getTime() - new Date(b.startDate).getTime() // sorting education by startDate
             )
         }))
     },
-    removeEducation: (id: string) => set((state: CVContentSliceAttributes) => ({
+    removeEducation: (id: string) => set((state: CVEditStoreContentSliceAttributes) => ({
         education: state.education.filter((edu) => edu.id !== id)
     })),
-    updateEducation: (id: string, education: Partial<Education>) => set((state: CVContentSliceAttributes) => ({
+    updateEducation: (id: string, education: Partial<Education>) => set((state: CVEditStoreContentSliceAttributes) => ({
         education: state.education.map((edu) => edu.id === id ? { ...edu, ...education} : edu).sort((a, b) => 
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
         )
@@ -122,23 +122,23 @@ export const createContentSlice = (set: {
             description: '',
         }
 
-        return set((state: CVContentSliceAttributes) => ({
+        return set((state: CVEditStoreContentSliceAttributes) => ({
             projects: state.projects.concat(newProject).sort((a, b) => 
                 new Date(a.startDate).getTime() - new Date(b.startDate).getTime() // sorting projects by startDate
             )
         }))
     },
-    removeProject: (id: string) => set((state: CVContentSliceAttributes) => ({
+    removeProject: (id: string) => set((state: CVEditStoreContentSliceAttributes) => ({
         projects: state.projects.filter((proj) => proj.id !== id)
     })),
-    updateProject: (id: string, project: Partial<Project>) => set((state: CVContentSliceAttributes) => ({
+    updateProject: (id: string, project: Partial<Project>) => set((state: CVEditStoreContentSliceAttributes) => ({
         projects: state.projects.map((proj) => proj.id === id ? { ...proj, ...project} : proj).sort((a, b) => 
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
         )
     })),
 
     // Custom sections
-    setCustomSectionTitle: (title: string) => set((state: CVContentSliceAttributes) => ({
+    setCustomSectionTitle: (title: string) => set((state: CVEditStoreContentSliceAttributes) => ({
         customSections: {
             ...state.customSections,
             title: title
@@ -154,7 +154,7 @@ export const createContentSlice = (set: {
             description: '',
         }
 
-        return set((state: CVContentSliceAttributes) => ({
+        return set((state: CVEditStoreContentSliceAttributes) => ({
             customSections:{ 
                 ...state.customSections,
                 content: state.customSections.content.concat(newSection).sort((a, b) =>
@@ -163,13 +163,13 @@ export const createContentSlice = (set: {
             }
         }))
     },
-    removeCustomSectionAttributes: (id: string) => set((state: CVContentSliceAttributes) => ({
+    removeCustomSectionAttributes: (id: string) => set((state: CVEditStoreContentSliceAttributes) => ({
         customSections: {
             ...state.customSections,
             content: state.customSections.content.filter((section) => section.id !== id)
         }
     })),
-    updateCustomSectionAttributes: (id: string, section: Partial<CustomSectionAttributes>) => set((state: CVContentSliceAttributes) => ({
+    updateCustomSectionAttributes: (id: string, section: Partial<CustomSectionAttributes>) => set((state: CVEditStoreContentSliceAttributes) => ({
         customSections: {
             ...state.customSections,
             content: state.customSections.content.map((sec) => sec.id === id ? { ...sec, ...section} : sec).sort((a, b) => 

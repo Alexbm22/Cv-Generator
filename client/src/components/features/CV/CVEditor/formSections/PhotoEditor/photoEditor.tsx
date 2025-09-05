@@ -6,7 +6,7 @@ import { deleteImage, uploadImage } from "../../../../../../services/MediaFiles.
 import { useFetchCVPhoto } from "../../hooks/useFetchCVPhoto.ts";
 
 export const PhotoEditor: React.FC = () => {
-    const cvPhotoMetaData = useCvEditStore((state) => state.photo);
+    const cvPhotoMetaData = useCvEditStore((state) => state.UserPhoto);
     
     const { 
         cvPhotoBlobUrl,

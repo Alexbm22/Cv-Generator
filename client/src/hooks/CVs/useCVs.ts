@@ -1,30 +1,31 @@
 import { useMutation } from "@tanstack/react-query"
-import { useAuthStore, useCVsStore } from "../../Store";
-import { CVAttributes, CVMetadataAttributes } from "../../interfaces/cv";
+import { useCvEditStore, useCVsStore } from "../../Store";
+import { UserCVAttributes, CVStateMode, GuestCVAttributes, UserCVMetadataAttributes } from "../../interfaces/cv";
 import { ApiError } from "../../interfaces/error";
 import { CVServerService } from "../../services/CVServer";
 import { generatePdfBlob, pdfBlobToCanvas } from "../../services/Pdf";
 import { uploadImage } from "../../services/MediaFiles";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/routes";
+import { createDefaultCVObject } from "../../utils/cv";
 
-export const useCreateCV = () => {
-    //  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-    
-    const addCV = useCVsStore(state => state.addCV);
+export const useCreateUserCV = () => {
+    const addUserCV = useCVsStore(state => state.addUserCV);
+    const CVState = useCVsStore(state => state.CVState);
     const navigate = useNavigate();
 
-    return useMutation<CVAttributes, ApiError>({
-        mutationFn: async () => { // To adjust this for not authenticated users
-            return (await CVServerService.createNewCV()); // just for test
+    return useMutation<UserCVAttributes, ApiError>({
+        mutationFn: async () => { 
+            if(CVState.mode === CVStateMode.USER) {
+                return await CVServerService.createNewCV();
+            } else {
+                throw new Error("CV creation is only supported in USER mode.");
+            }
+
         },
         onSuccess: async (createdCV) => {
-            navigate(
-                routes.editResume.path.replace(/:id$/, createdCV.id ?? "" ), 
-                { replace: true }
-            )
             
-            const CVMetaData: CVMetadataAttributes = {
+            const CVMetaData: UserCVMetadataAttributes = {
                 id: createdCV.id,
                 jobTitle: createdCV.jobTitle,
                 title:createdCV.title,
@@ -34,9 +35,14 @@ export const useCreateCV = () => {
                 updatedAt: createdCV.updatedAt,
                 createdAt: createdCV.createdAt
             }
-
-            addCV(CVMetaData);
-
+            
+            addUserCV(CVMetaData);
+            
+            navigate(
+                routes.editResume.path.replace(/:id$/, createdCV.id ?? "" ), 
+                { replace: true }
+            ) 
+            
             const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
             const CVTemplate = TemplateMap[createdCV.template];
 
@@ -51,25 +57,82 @@ export const useCreateCV = () => {
             if (CVCanvas) {
                 CVCanvas.toBlob(async (blob) => {
                     if(!blob) return;
-                    uploadImage(blob, createdCV.preview?.presigned_put_URL.url!)
+                    uploadImage(blob, createdCV.preview!)
                 }, "image/png")
             }                
         }
     })
 }
 
-export const useCreateCVs = () => {
-    //  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+export const useCreateGuestCV = () => {
     
-    const addCV = useCVsStore(state => state.addCV);
+    const addGuestCV = useCVsStore(state => state.addGuestCV);
+    const CVState = useCVsStore(state => state.CVState);
 
-    return useMutation<CVAttributes[], ApiError>({
-        mutationFn: async () => { // To adjust this for not authenticated users
-            return (await CVServerService.createCVs([])); // just for test
+    const setGuestPreview = useCvEditStore(state => state.setGuestPreview);
+    const setGuestCV = useCvEditStore(state => state.setGuestCV);
+
+    const navigate = useNavigate();
+
+    return useMutation<GuestCVAttributes, ApiError>({
+        mutationFn: async () => { 
+            if(CVState.mode === CVStateMode.GUEST) {
+                const now = new Date();
+                const defaultCV = createDefaultCVObject();
+                return Promise.resolve({
+                    ...defaultCV,
+                    updatedAt: now,
+                    createdAt: now
+                } as GuestCVAttributes);
+            } else {
+                throw new Error("CV creation is only supported in Guest mode.");
+            }
+
+        },
+        onSuccess: async (createdCV) => {
+            
+            addGuestCV(createdCV);
+            
+            navigate(
+                routes.editResume.path.replace(/:id$/, createdCV.id ?? "" ), 
+                { replace: true }
+            ) 
+            
+            const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
+            const CVTemplate = TemplateMap[createdCV.template];
+
+            const CVData = {
+                ...createdCV, 
+                photo: "/Images/anonymous_Picture.png"
+            }
+
+            const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });
+            const CVCanvas = await pdfBlobToCanvas(cvBlob);
+
+            if (CVCanvas) {
+                setGuestCV(createdCV);
+                setGuestPreview(CVCanvas.toDataURL());
+            }                
+        }
+    })
+}
+
+export const useInitialCVsSync = () => {
+
+    const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser);
+    const CVState = useCVsStore(state => state.CVState);
+
+    return useMutation<UserCVAttributes[], ApiError>({
+        mutationFn: async () => { 
+            if(CVState.mode === CVStateMode.GUEST) {
+                return await CVServerService.createCVs(CVState.cvs);
+            } else {
+                throw new Error("Initial data sync is only supported for guest mode.");
+            }
         },
         onSuccess: async (createdCVs) => {
-            createdCVs.forEach(async (createdCV) => {
-                const CVMetaData: CVMetadataAttributes = {
+            const cvsPromise = createdCVs.map(async (createdCV) => {
+                const CVMetaData: UserCVMetadataAttributes = {
                     id: createdCV.id,
                     jobTitle: createdCV.jobTitle,
                     title:createdCV.title,
@@ -79,8 +142,6 @@ export const useCreateCVs = () => {
                     updatedAt: createdCV.updatedAt,
                     createdAt: createdCV.createdAt
                 }
-    
-                addCV(CVMetaData);
     
                 const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
                 const CVTemplate = TemplateMap[createdCV.template];
@@ -96,21 +157,28 @@ export const useCreateCVs = () => {
                 if (CVCanvas) {
                     CVCanvas.toBlob(async (blob) => {
                         if(!blob) return;
-                        uploadImage(blob, createdCV.preview?.presigned_put_URL.url!)
+                        uploadImage(blob, createdCV.preview!)
                     }, "image/png")
-                }                
+                }      
+                
+                return CVMetaData;
             }) 
+
+            const cvs = await Promise.all(cvsPromise);
+            migrateGuestToUser(cvs);
         }
     })
 }
 
 export const useDeleteCV = (CVId: string) => {
     const removeCV = useCVsStore(state => state.removeCV);
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    const CVState = useCVsStore(state => state.CVState);
 
-    return useMutation<null, ApiError>({
+    return useMutation<void, ApiError>({
         mutationFn: async () => {
-            return isAuthenticated ? (await CVServerService.deleteCV(CVId)) : null;
+            if(CVState.mode === CVStateMode.USER) {
+                await CVServerService.deleteCV(CVId)
+            } 
         },
         onSuccess: () => {
             removeCV(CVId);

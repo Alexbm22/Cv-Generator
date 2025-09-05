@@ -7,7 +7,7 @@ import { routes } from "../../router/routes";
 
 export const useFetchCV = (id?: string) => {
     const navigate = useNavigate();
-    const setCV = useCvEditStore((state) => state.setCV);
+    const setCV = useCvEditStore((state) => state.setUserCV);
     const setSelectedCV = useCVsStore(state => state.setSelectedCV)
     const createError = useErrorStore(state => state.createError);
  

@@ -1,9 +1,9 @@
 import React from "react";
-import { CVAttributes } from "../../../interfaces/cv";
+import { UserCVAttributes } from "../../../interfaces/cv";
 import { useDownload } from "../../../hooks/useDownload";
 
 type DownloadBtnProps = {
-    downloadedCV: CVAttributes
+    downloadedCV: UserCVAttributes
 }
 
 const DownloadBtn: React.FC<DownloadBtnProps> = ({downloadedCV}) => {

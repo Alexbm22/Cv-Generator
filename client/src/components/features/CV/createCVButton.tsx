@@ -1,8 +1,8 @@
 import React from "react";
-import { useCreateCV } from "../../../hooks/CVs/useCVs";
+import { useCreateUserCV } from "../../../hooks/CVs/useCVs";
 
 const CreateCVBtn: React.FC = () => {
-    const { mutate: createCV } = useCreateCV();
+    const { mutate: createCV } = useCreateUserCV();
 
     return (
         <button

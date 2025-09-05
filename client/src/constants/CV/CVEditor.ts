@@ -318,7 +318,38 @@ export const DEFAULT_CV_EDITOR_STATE = {
         title: '',
         content: []
     },
+    UserPreview: undefined,
+    UserPhoto: undefined,
+    GuestPreview: null,
+    GuestPhoto: null,
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    address: '',
+    birthDate: new Date(),
+    socialLinks: [],
+    updatedAt: new Date(),
+    createdAt: new Date(),
+}
+
+export const DEFAULT_CV_DATA = {
+    title: 'Untitled',
+    jobTitle: '',
+    template: CVTemplates.CASTOR,
+    professionalSummary: '',
+    sectionsOrder: [],
+    languages: [],
+    skills: [],
+    workExperience: [],
+    education: [],
+    projects: [],
+    customSections: {
+        title: '',
+        content: []
+    },
     photo: null,
+    preview: null,
     firstName: '',
     lastName: '',
     email: '',

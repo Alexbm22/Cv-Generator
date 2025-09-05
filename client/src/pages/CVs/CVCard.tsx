@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/routes";
-import { CVAttributes, CVMetadataAttributes } from "../../interfaces/cv";
+import { UserCVAttributes, CVMetadataAttributes } from "../../interfaces/cv";
 import { useDeleteCV } from "../../hooks/CVs/useCVs";
 import DownloadBtn from "../../components/features/pdf/download";
 import { useState } from "react";
@@ -30,9 +30,9 @@ const CVCard: React.FC<CVCardProps> = ({CV}) => {
             <div className="flex flex-col gap-3 p-4 m-4 items-center bg-gray-100 w-[calc(100vw*0.18)] h-80 rounded-lg">
                 <div onClick={handleEditClick} className="w-full h-70">
                     {
-                        isCVPreview && CV.preview?.presigned_get_URL ? (
+                        isCVPreview && CV.UserPreview?.presigned_get_URL ? (
                             <img 
-                                src={CV.preview.presigned_get_URL} 
+                                src={CV.UserPreview.presigned_get_URL} 
                                 alt="preview image" onClick={handleEditClick}
                                 onError={() => {
                                     setIsCVPreview(false);

@@ -4,7 +4,7 @@ import { apiService } from "./api";
 
 export const uploadImage = async (blobObj: Blob, mediaFile: MediaFilesAttributes) => {
     try {
-        if(mediaFile.expiresAt > Date.now()) {
+        if(mediaFile.expiresAt < Date.now()) {
             mediaFile = await getMediaFileById(mediaFile.id);
         }
 
@@ -20,7 +20,7 @@ export const uploadImage = async (blobObj: Blob, mediaFile: MediaFilesAttributes
 
 export const fetchImage = async (mediaFile: MediaFilesAttributes) => {
     try {
-        if(mediaFile.expiresAt > Date.now()) {
+        if(mediaFile.expiresAt < Date.now()) {
             mediaFile = await getMediaFileById(mediaFile.id);
         }
 
@@ -36,7 +36,7 @@ export const fetchImage = async (mediaFile: MediaFilesAttributes) => {
 
 export const deleteImage = async (mediaFile: MediaFilesAttributes) => {
     try {
-        if(mediaFile.expiresAt > Date.now()) {
+        if(mediaFile.expiresAt < Date.now()) {
             mediaFile = await getMediaFileById(mediaFile.id);
         }
         

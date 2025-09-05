@@ -4,7 +4,7 @@ import { fetchImage } from "../../../../../services/MediaFiles";
 import { useEffect, useState } from "react";
 
 export const useFetchCVPhoto = () => {
-    const cvPhotoMetaData = useCvEditStore((state) => state.photo);
+    const cvPhotoMetaData = useCvEditStore((state) => state.UserPhoto);
     const isFetchEnabled = !!cvPhotoMetaData?.presigned_get_URL; // to add auth state and verify expiration date
 
     const { data, isSuccess, isError, error, refetch } = useQuery({

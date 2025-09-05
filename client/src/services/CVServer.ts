@@ -1,18 +1,18 @@
-import { CVAttributes, CVMetadataAttributes } from "../interfaces/cv";
+import { UserCVAttributes, CVMetadataAttributes, GuestCVAttributes } from "../interfaces/cv";
 import { apiService } from "./api";
 
 export class CVServerService {
     private static apiUrl = '/protected/cvs';
 
-    public static async sync(CV: CVAttributes) {
-        return await apiService.patch<void, CVAttributes>(
+    public static async sync(CV: UserCVAttributes) {
+        return await apiService.patch<void, UserCVAttributes>(
             this.apiUrl + `/${CV.id}`,
             CV
         )
     }
 
     public static async getCV(cvId: string) {
-        return await apiService.get<CVAttributes>(
+        return await apiService.get<UserCVAttributes>(
             this.apiUrl + `/${cvId}`
         )
     }
@@ -24,20 +24,20 @@ export class CVServerService {
     }
 
     public static async createNewCV() {
-        return await apiService.post<CVAttributes>(
+        return await apiService.post<UserCVAttributes>(
             this.apiUrl
         )
     }
 
-    public static async createCVs(CVs: CVAttributes[]) {
-        return await apiService.post<CVAttributes[], CVAttributes[]>(
+    public static async createCVs(CVs: GuestCVAttributes[]) {
+        return await apiService.post<UserCVAttributes[], GuestCVAttributes[]>(
             this.apiUrl + '/import',
             CVs
         )
     }
 
     public static async deleteCV(CVId: string) {
-        return await apiService.delete<null>(
+        return await apiService.delete<void>(
             this.apiUrl + `/${CVId}`
         )
     }

@@ -1,18 +1,18 @@
 import { useMutation } from "@tanstack/react-query"
 import { useCvEditStore, useErrorStore } from "../Store";
 import { DownloadService } from "../services/download";
-import { CVAttributes } from "../interfaces/cv";
+import { UserCVAttributes } from "../interfaces/cv";
 import { TemplateMap } from "../constants/CV/TemplatesMap";
 import { generatePdfBlob } from "../services/Pdf";
 import { ApiError } from "../interfaces/error";
 
 export const useDownload = (
-    CVToDownload: CVAttributes
+    CVToDownload: UserCVAttributes
 ) => {
     return useMutation<Blob, ApiError, any>({
         mutationFn: async () => {
             const { 
-                setCV, 
+                setUserCV: setCV, 
                 id, // selected cv id,
                 template
             } = useCvEditStore.getState();

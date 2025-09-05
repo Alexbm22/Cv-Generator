@@ -1,44 +1,135 @@
 import { create } from 'zustand';
-import { persist, devtools, createJSONStorage } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
 import { 
-    CVStore,
+    CVStateMode,
+    CVsStore,
 } from '../interfaces/cv';
-import { storage  } from '../lib/indexedDB/cvStore';
 import { triggerOnChange } from './middleware/triggerOnChange';
 
-export const useCVsStore = create<CVStore>()(
+export const useCVsStore = create<CVsStore>()(
     devtools(
         persist( 
-            triggerOnChange<CVStore>({ // to review this part of the code
-                callback: () => console.log(''), // to be deleted
+            triggerOnChange<CVsStore>({ // to review this part of the code
+                callback: () => {}, // to be deleted
                 ignoredKeys: ['_hasHydrated', 'lastSynced', 'lastFetched'],
             }) (
                 (set) => ({
-                    CVs: [],
-                    selectedCV: null,
+                    CVState: { mode: CVStateMode.GUEST, cvs: [], selectedCV: null },
 
-                    setSelectedCV: (CV) => set({selectedCV: CV}),
-                    clearCVsData: () => {
-                        set({ CVs: [] })
+                    setGuestSelectedCV: (CV) => {
+                        set((state) => (
+                            state.CVState.mode === CVStateMode.GUEST ? 
+                                { CVState: { ...state.CVState, selectedCV: CV } } :
+                                state
+                        ))
+                    },
+
+                    setUserSelectedCV: (CV) => {
+                        set((state) => (
+                            state.CVState.mode === CVStateMode.USER ? 
+                                { CVState: { ...state.CVState, selectedCV: CV } } :
+                                state
+                        ))
                     },
                     
-                    setCVs: (CVs) => set({ CVs }),
-
-                    addCV: (CV) => {
-                        set((state) => ({ CVs: state.CVs.concat(CV) }));
+                    addUserCV: (CV) => {
+                        set((state) => (
+                            state.CVState.mode === CVStateMode.USER ? 
+                                { CVState: { 
+                                    ...state.CVState, 
+                                    cvs: state.CVState.cvs.concat(CV) 
+                                } 
+                                } : state
+                        ))
                     },
 
-                    removeCV: (id: string) => {
-                        set((state) => ({ CVs: state.CVs.filter((cv) => cv.id !== id) }))
+                    addGuestCV: (CV) => {
+                        set((state) => (
+                            state.CVState.mode === CVStateMode.GUEST ? 
+                                { CVState: { 
+                                    ...state.CVState, 
+                                    cvs: state.CVState.cvs.concat(CV) 
+                                } 
+                                } : state
+                        ))
                     },
+
+                    clearCVsData: () => {
+                        // to be improved
+                        set((state) => ({
+                            CVState: {
+                                ...state.CVState,
+                                cvs: []
+                            }
+                        }))
+                    },
+                    
+                    setUserCVs: (CVs) => {
+                        set((state) => (
+                            state.CVState.mode === CVStateMode.USER ? 
+                                { CVState: { 
+                                    ...state.CVState, 
+                                    cvs: CVs 
+                                } 
+                                } : state
+                        ))
+                    },
+                    setGuestCVs: (CVs) => {
+                        set((state) => (
+                            state.CVState.mode === CVStateMode.GUEST ? 
+                                { CVState: { 
+                                    ...state.CVState, 
+                                    cvs: CVs 
+                                } 
+                                } : state
+                        ))
+                    },
+
+                    removeCV: (id) => {
+                        set((state) => (
+                            state.CVState.mode === CVStateMode.GUEST ? 
+                            {
+                                CVState: {
+                                    ...state.CVState,
+                                    cvs: state.CVState.cvs.filter((cv) => cv.id !== id)
+                                }
+                            } : {
+                                CVState: {
+                                    ...state.CVState,
+                                    cvs: state.CVState.cvs.filter((cv) => cv.id !== id)
+                                }
+                            }
+                        ))
+                    },
+
+                    migrateGuestToUser: (cvs = []) => {
+                        set({
+                            CVState: {
+                                mode: CVStateMode.USER,
+                                cvs: cvs,
+                                selectedCV: null
+                            }
+                        })
+                    },
+                    migrateUserToGuest: (cvs = []) => {
+                        set({
+                            CVState: {
+                                mode: CVStateMode.GUEST,
+                                cvs: cvs,
+                                selectedCV: null
+                            }
+                        })
+                    },
+
                 })
             ), 
         {
             name: 'Resumes',
-            storage: createJSONStorage(() => storage), // sau sessionStorage
-            partialize: (state) => ({
-                CVs: state.CVs
-            }),
+            partialize: (state) => (
+                // persist the cvs if the user is a guest
+                state.CVState.mode === CVStateMode.GUEST ? 
+                { CVs: state.CVState.cvs } : {}
+            ),
         }), {
             name: 'CVsStore', // Name of the slice in the Redux DevTools
             enabled: import.meta.env.VITE_NODE_ENV === 'development',
