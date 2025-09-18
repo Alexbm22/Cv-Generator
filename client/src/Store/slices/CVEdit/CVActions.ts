@@ -36,7 +36,7 @@ export const createStoreActionsSlice = (set: {
 
         const CVObj = Object.fromEntries(
             Object.entries(CV).filter(([key]) => 
-                (key === 'photo') || (key === 'preview') 
+                !((key === 'photo') || (key === 'preview')) 
             )
         ) as Omit<UserCVAttributes, 
             'preview' | 'photo'
@@ -47,6 +47,7 @@ export const createStoreActionsSlice = (set: {
             UserPhoto: CV.photo,
             UserPreview: CV.preview
         } as CVEditStoreObjectAttributes
+
 
         set((state) => ({
             ...state,
@@ -78,7 +79,7 @@ export const createStoreActionsSlice = (set: {
     setGuestCV: (CV: GuestCVAttributes) => {
         const CVObj = Object.fromEntries(
             Object.entries(CV).filter(([key]) => 
-                (key === 'photo') || (key === 'preview') 
+                !((key === 'photo') || (key === 'preview')) 
             )
         ) as Omit<GuestCVAttributes, 
             'preview' | 'photo'

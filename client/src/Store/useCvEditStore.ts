@@ -17,7 +17,14 @@ export const useCvEditStore = create<CVEditStore>()(
     devtools(    
         triggerOnAction<CVEditStore>({
             callback: CVLocalService.autoSaveCV().bind(CVLocalService),
-            excludedActions: ['getCVObject', 'setCV']
+            excludedActions: [
+                'getGuestCVObject', 
+                'setGuestCV', 
+                'setUserCV', 
+                'getUserCVObject',
+                'setGuestPhoto',
+                'setGuestPreview'
+            ]
         })(
             (set, get): CVEditStore => ({
                 ...createMetadataSlice(set),

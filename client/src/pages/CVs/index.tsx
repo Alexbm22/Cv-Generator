@@ -5,7 +5,7 @@ import CVCard from "./CVCard";
 
 const CVsPage: React.FC = () => {
 
-  const CVs = useCVsStore(state => state.CVs)
+  const CVs = useCVsStore(state => state.CVState.cvs)
 
   return (
     <>

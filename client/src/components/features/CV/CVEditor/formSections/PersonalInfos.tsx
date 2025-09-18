@@ -14,11 +14,11 @@ const PersonalInfos: React.FC = () => {
     const jobTitle = useCvEditStore(state => state.jobTitle);
     const setJobTitle = useCvEditStore(state => state.setJobTitle);
     const firstName  = useCvEditStore((state) => state.firstName);
-    const lastName  = useCvEditStore((state) => state.lastName);
-    const email  = useCvEditStore((state) => state.email);
+    const lastName = useCvEditStore((state) => state.lastName);
+    const email = useCvEditStore((state) => state.email);
     const phoneNumber = useCvEditStore((state) => state.phoneNumber);
-    const address  = useCvEditStore((state) => state.address);
-    const birthDate  = useCvEditStore((state) => state.birthDate);
+    const address = useCvEditStore((state) => state.address);
+    const birthDate = useCvEditStore((state) => state.birthDate);
     const socialLinks = useCvEditStore((state) => state.socialLinks);
     const setFirstName = useCvEditStore((state) => state.setFirstName);
     const setLastName = useCvEditStore((state) => state.setLastName);

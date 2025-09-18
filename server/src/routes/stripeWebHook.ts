@@ -10,7 +10,7 @@ import { config } from "../config/env";
 
 const endpointSecret = config.STRIPE_WEBHOOK_SECRET;
 
-export default async (req: Request, res: Response) => {
+const stripeWebHook = async (req: Request, res: Response) => {
     const signature = req.headers['stripe-signature'] as string;
     
     if(endpointSecret){
@@ -26,7 +26,7 @@ export default async (req: Request, res: Response) => {
                     case 'payment_intent.created':
                         const paymentIntent = event.data.object as Stripe.PaymentIntent;
                         const price = await stripe.prices.retrieve(paymentIntent.metadata.priceId);
-                        return await PaymentService.createPayment(paymentIntent, price);
+                        await PaymentService.createPayment(paymentIntent, price);
                         break;
                     case 'payment_intent.succeeded':
                         const succeededPaymentIntent = event.data.object as Stripe.PaymentIntent;
@@ -34,11 +34,11 @@ export default async (req: Request, res: Response) => {
 
                         if( succeededPayment?.price.type === 'recurring' ) {
                             // Handle recurring payment success
-                            return await SubscriptionService.createSubscription(succeededPayment);
+                            await SubscriptionService.createSubscription(succeededPayment);
 
                         } else if( succeededPayment?.price.type === 'one_time' ) {
                             // Handle one-time payment success
-                            return await CreditsService.addCredits(
+                            await CreditsService.addCredits(
                                 succeededPayment.user_id,
                                 succeededPayment.quantity!
                             )
@@ -46,7 +46,7 @@ export default async (req: Request, res: Response) => {
                         break;
                     default: 
                         const defaultPaymentIntent = event.data.object as Stripe.PaymentIntent;
-                        return await PaymentService.updatePayment(defaultPaymentIntent);
+                        await PaymentService.updatePayment(defaultPaymentIntent);
                 }
             }
         } catch (error) {
@@ -65,3 +65,5 @@ export default async (req: Request, res: Response) => {
 
     res.json({received: true});
 }
+
+export default stripeWebHook

@@ -1,29 +1,19 @@
 import React, { useState } from "react";
-import { useCvEditStore } from "../../../../../../Store";
 import PhotoSelector from "./photoSelector";
 import CVPhotoCropper from './PhotoCropper.tsx'
-import { deleteImage, uploadImage } from "../../../../../../services/MediaFiles.ts";
-import { useFetchCVPhoto } from "../../hooks/useFetchCVPhoto.ts";
+import { useCVPhotoState } from "../../hooks/usePhotoEditor.ts";
 
 export const PhotoEditor: React.FC = () => {
-    const cvPhotoMetaData = useCvEditStore((state) => state.UserPhoto);
-    
-    const { 
-        cvPhotoBlobUrl,
-        refetchPhoto 
-    } = useFetchCVPhoto()
     
     const [ selectedPhoto, setSelectedPhoto ] = useState<string | null>(null);
     const [ isSelectingPhoto, setIsSelectingPhoto ] = useState<boolean>(false);
     
-    if(!cvPhotoMetaData) return null;
-    const handleCropSuccess = async (cropResult: Blob) => {
-        await uploadImage(cropResult, cvPhotoMetaData);
-        setIsSelectingPhoto(false);
-        setSelectedPhoto(null);
-        refetchPhoto()
-    } 
-    // to improve
+    const { 
+        cvPhotoBlobUrl,
+        handleCropSuccess,
+        handleCVPhotoDelete
+    } = useCVPhotoState()
+
     return (
         <>
             {
@@ -66,8 +56,7 @@ export const PhotoEditor: React.FC = () => {
                                         <button
                                             onClick={async () => {
                                                 setSelectedPhoto(null)
-                                                await deleteImage(cvPhotoMetaData);
-                                                refetchPhoto();
+                                                await handleCVPhotoDelete();
                                             }}
                                         >
                                             Delete Photo
@@ -97,7 +86,11 @@ export const PhotoEditor: React.FC = () => {
                             <CVPhotoCropper 
                                 imageSrc={selectedPhoto}
                                 setImageSource={setSelectedPhoto}
-                                onCroppSuccess={handleCropSuccess}
+                                onCroppSuccess={async (cropResult) => {
+                                    await handleCropSuccess(cropResult);
+                                    setIsSelectingPhoto(false);
+                                    setSelectedPhoto(null);
+                                }}
                                 setIsSelectingPhoto={setIsSelectingPhoto}
                             />
                         </div>

@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 export const useCVsEffects = () => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated)
-  const setCVs = useCVsStore(state => state.setCVs);
+  const setCVs = useCVsStore(state => state.setUserCVs);
   const createError = useErrorStore(state => state.createError);
 
   const {

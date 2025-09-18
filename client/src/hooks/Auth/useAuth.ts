@@ -91,9 +91,13 @@ export const useCheckAuth = () => {
             handleAuthSuccess(response);
             migrateGuestToUser();
         }, 
-        onError: () => {
-            clearAuthenticatedUser();
-            migrateUserToGuest();
+        onError: (error) => {
+            if(error.status === 401) {
+                clearAuthenticatedUser();
+                migrateUserToGuest();
+            } else {
+                clearAuthenticatedUser();
+            }
         },
         onSettled: () => {
             setIsLoadingAuth(false);

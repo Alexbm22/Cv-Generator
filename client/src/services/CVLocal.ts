@@ -1,34 +1,36 @@
 import { StoreApi } from "zustand";
-import { CVEditStore, CVsStore } from "../interfaces/cv";
-import { useAuthStore, useCVsStore, useErrorStore } from "../Store";
+import { CVEditStore, CVStateMode } from "../interfaces/cv";
+import { useCVsStore } from "../Store";
 import { CVServerService } from "./CVServer";
 import { debounce } from "lodash";
 
 export class CVLocalService {
 
-    // public static async fetchCV(cvId: string) {
-    //     const { setCVs } = useCVsStore.getState();
-
-    //     try {
-    //         const fetchedCVs = await CVServerService.getCV(cvId);
-    
-    //         setCVs(fetchedCVs);
-    //     } catch (error) {
-    //         useErrorStore.getState().createError(error);
-    //         useCVsStore.getState().setCVs([]);
-    //     }
-    // }
-
-
     public static autoSaveCV() {
         return debounce(async (api: StoreApi<CVEditStore>) => {
-            const { getUserCVObject: getCVObject } = api.getState();
-            const { setSelectedCV } = useCVsStore.getState();
-            const updatedCV = getCVObject();
+
+            console.log("se updateaza")
+
+            const { getUserCVObject, getGuestCVObject } = api.getState();
+            const { 
+                CVState, 
+                setUserSelectedCV, 
+                setGuestSelectedCV,
+                updateGuestCV
+            } = useCVsStore.getState();
             
-            await CVServerService.sync(updatedCV);
-            setSelectedCV(updatedCV);
-        }, 3000); // debounce for 3 seconds
+            if(CVState.mode === CVStateMode.USER) {
+                const updatedCV = getUserCVObject();
+
+                await CVServerService.sync(updatedCV);
+                setUserSelectedCV(updatedCV);
+            } else {
+                const updatedCV = getGuestCVObject();
+
+                updateGuestCV(updatedCV);
+                setGuestSelectedCV(updatedCV);
+            }
+        }, 4000);
     }
 
 }

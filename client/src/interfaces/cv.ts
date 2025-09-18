@@ -138,7 +138,7 @@ export interface CVEditStoreMetadataActions {
     setTitle: (title: string) => void;
     setJobTitle: (jobTitle: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
-    setGuestPhoto: (photoURL: string) => void;
+    setGuestPhoto: (photoURL: string | null) => void;
     setGuestPreview: (previewURL: string) => void;
 }
 
@@ -224,6 +224,8 @@ export type CVState =
 
 export interface CVsStore {
     CVState: CVState;
+    updateGuestCV: (CV: GuestCVAttributes) => void;
+    findGuestCV: (id:string) => GuestCVAttributes | undefined
     setGuestSelectedCV: (CV:GuestCVAttributes) => void;
     setUserSelectedCV: (CV:UserCVAttributes) => void;
     clearCVsData: () => void;
