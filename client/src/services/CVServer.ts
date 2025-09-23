@@ -29,9 +29,9 @@ export class CVServerService {
         )
     }
 
-    public static async createCVs(CVs: GuestCVAttributes[]) {
-        return await apiService.post<UserCVAttributes[], GuestCVAttributes[]>(
-            this.apiUrl + '/import',
+    public static async createCVs(CVs: Omit<GuestCVAttributes, 'photo' | 'preview'>[]) {
+        return await apiService.post<UserCVAttributes[], Omit<GuestCVAttributes, 'photo' | 'preview'>[]>(
+            this.apiUrl + '/bulk',
             CVs
         )
     }

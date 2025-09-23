@@ -30,6 +30,7 @@ export class MediaFilesServices {
         try {
             return await MediaFiles.bulkCreate(mediaFileObj);
         } catch (error) {
+            console.error(error)
             throw new AppError(
                 "Failed to create media file",
                 500,

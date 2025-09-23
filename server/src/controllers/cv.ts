@@ -21,14 +21,14 @@ export class CVsController {
 
             const importedCVs = await CVsService.createCVs(userInfo.id, cvsToImport);
             const importedCVsMetaData = importedCVs.map(
-                (cv) => CVsService.getCVMetaData(
+                async (cv) => await CVsService.getCVMetaData(
                     cv.CVData.get(), 
                     cv.CVPreview, 
                     cv.CVPhoto
                 )
             );
 
-            return res.status(200).json(importedCVsMetaData);
+            return res.status(200).json(await Promise.all(importedCVsMetaData));
         } catch (error) {
             return next(error);
         }

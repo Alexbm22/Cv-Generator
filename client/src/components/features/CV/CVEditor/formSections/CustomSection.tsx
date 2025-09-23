@@ -6,6 +6,7 @@ import TextInputField from '../../../../UI/textInputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { CustomSectionAttributes } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import AddSectionButton from '../../../../UI/AddSectionButton';
 
 interface ComponentProps {
     customSection: CustomSectionAttributes
@@ -88,9 +89,7 @@ const CustomSectionMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <button onClick={() => addCustomSectionAttributes()} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    + Add {customSections.title ? customSections.title : "Custom Section"}
-                </button>
+                <AddSectionButton OnClick={() => addCustomSectionAttributes()} sectionName={'Custom Section'} />
             </div>
         </div>
     )

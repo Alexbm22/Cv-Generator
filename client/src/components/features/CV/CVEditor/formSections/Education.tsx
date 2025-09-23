@@ -6,6 +6,7 @@ import TextInputField from '../../../../UI/textInputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { Education } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import AddSectionButton from '../../../../UI/AddSectionButton';
 
 interface ComponentProps {
     education: Education
@@ -87,9 +88,7 @@ const EducationMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <button onClick={() => addEducation()} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    {educationConstants.add_button_text}
-                </button>
+                <AddSectionButton OnClick={() => addEducation()} sectionName={'Education'} />
             </div>
         </div>
     )

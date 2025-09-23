@@ -12,7 +12,7 @@ const ProfessionalSummary: React.FC= () => {
 
   return (
     <div className="mt-5">
-      <h2 className="text-xl text-gray-600 font-bold">{summaryConstants.title}</h2>
+      <h2 className="text-xl text-[#154D71] font-bold">{summaryConstants.title}</h2>
       <p className="text-sm text-gray-500 mb-4">{summaryConstants.description}</p>
       <Editor 
         onHtmlChange={(html) => setProfessionalSummary(html)}

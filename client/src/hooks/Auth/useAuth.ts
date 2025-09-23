@@ -67,6 +67,7 @@ export const useLogout = () => {
         },
         onSettled: () => {
             useAuthStore.getState().clearAuthenticatedUser();
+            useCVsStore.getState().clearCVsData();
             migrateUserToGuest()
         }
     })

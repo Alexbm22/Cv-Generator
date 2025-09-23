@@ -8,6 +8,7 @@ import {
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
 import { LanguageLevelsMap } from '../../../../../constants/CV/languageLevelsMap';
+import AddSectionButton from '../../../../UI/AddSectionButton';
 
 interface ComponentProps {
     language: Language
@@ -43,7 +44,6 @@ const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
 }
 
 const LanguageMain:React.FC = () => {
-
     
     const languages = useCvEditStore((state) => state.languages);
     const addLanguage = useCvEditStore((state) => state.addLanguage);
@@ -65,9 +65,7 @@ const LanguageMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <button onClick={() => addLanguage()} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    {languagesConstants.add_button_text}
-                </button>
+                <AddSectionButton OnClick={() => addLanguage()} sectionName={'Language'} />
             </div>
         </div>
     )

@@ -20,18 +20,18 @@ export class CVsService {
             validate: true
         });
 
-        const photoMediaFileObjs = createdCVs.map(cv => this.createCVPhotoMediaFileObj(cv.id));
+        const photoMediaFileObjs = createdCVs.map(cv => this.createCVPhotoMediaFileObj(cv.get().id));
         const createdPhotos = await MediaFilesServices.bulkCreate(photoMediaFileObjs);
 
-        const previewMediaFileObjs = createdCVs.map(cv => this.createCVPreviewMediaFileObj(cv.id));
+        const previewMediaFileObjs = createdCVs.map(cv => this.createCVPreviewMediaFileObj(cv.get().id));
         const createdPreviews = await MediaFilesServices.bulkCreate(previewMediaFileObjs);
 
         const photoMap = new Map(createdPhotos.map(photo => [photo.get().owner_id, photo]));
         const previewMap = new Map(createdPreviews.map(preview => [preview.get().owner_id, preview]));
 
         const result = createdCVs.map(cv => {
-            const photo = photoMap.get(cv.id)!; 
-            const preview = previewMap.get(cv.id)!;
+            const photo = photoMap.get(cv.get().id)!; 
+            const preview = previewMap.get(cv.get().id)!;
 
             return {
                 CVData: cv,
@@ -39,6 +39,8 @@ export class CVsService {
                 CVPreview: preview
             }
         });
+
+        console.error(result)
 
         return result;
     } 

@@ -1,7 +1,7 @@
 import { CredentialResponse } from "@react-oauth/google";
 import { AuthResponse, loginDto, registerDto, TokenClientData } from "../interfaces/auth";
 import { apiService } from "./api";
-import { useAuthStore } from "../Store";
+import { useAuthStore, useCVsStore } from "../Store";
 import { routes } from "../router/routes";
 
 export class AuthService {
@@ -43,6 +43,7 @@ export class AuthService {
     public static async forceLogout(): Promise<void> {
         await this.logout();
         useAuthStore.getState().clearAuthenticatedUser();
+        useCVsStore.getState().clearCVsData()
 
         if(window.location !== undefined){
             window.location.href = routes.login.path; // Redirect to login page

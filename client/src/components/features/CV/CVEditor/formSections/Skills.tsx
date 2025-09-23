@@ -8,6 +8,7 @@ import {
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
 import { SkillsLevelsMap } from '../../../../../constants/CV/skillLevelsMap';
+import AddSectionButton from '../../../../UI/AddSectionButton';
 
 interface ComponentProps {
     skill: Skill
@@ -64,9 +65,7 @@ const SkillMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <button onClick={() => addSkill()} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    {skillsConstants.add_button_text}
-                </button>
+                <AddSectionButton OnClick={() => addSkill()} sectionName={'Skill'} />
             </div>
         </div>
     )

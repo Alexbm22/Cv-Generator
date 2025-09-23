@@ -125,7 +125,11 @@ export const useInitialCVsSync = () => {
     return useMutation<UserCVAttributes[], ApiError>({
         mutationFn: async () => { 
             if(CVState.mode === CVStateMode.GUEST) {
-                return await CVServerService.createCVs(CVState.cvs);
+                const sanitizedCVs = CVState.cvs.map((cv) => {
+                    const { photo, preview, ...rest } = cv; // scoatem câmpurile mari
+                    return rest;
+                });
+                return await CVServerService.createCVs(sanitizedCVs);
             } else {
                 throw new Error("Initial data sync is only supported for guest mode.");
             }

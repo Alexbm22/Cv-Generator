@@ -10,9 +10,16 @@ import {
     CustomSection
 } from "./formSections";
 
-const CVEditorForm: React.FC = () => {
+type ComponentProps = {
+  isShowingPreview: boolean
+}
+
+const CVEditorForm: React.FC<ComponentProps> = ({ isShowingPreview }) => {
     return (
-        <div className="p-10 bg-white w-full h-full shadow-lg z-0.5">        
+        <div 
+            className="transition-all duration-1000 p-10 bg-[#f3fbff] w-full h-full shadow-lg z-0.5"
+            style={isShowingPreview ? {flexBasis: '56.25%'} : {flexBasis: '100%'} }
+        >        
             <PersonalInfos/>
             <ProfessionalSummary/>
             <WorkExperience/>

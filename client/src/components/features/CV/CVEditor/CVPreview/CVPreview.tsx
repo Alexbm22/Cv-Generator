@@ -8,7 +8,11 @@ import { useCVPreviewState } from "../hooks/useCVPreviewState";
 (window as any).global = window;
 (window as any).Buffer = Buffer;
 
-const CVPreview: React.FC = () => {
+type ComponentProps = {
+  isShowingPreview: boolean
+}
+
+const CVPreview: React.FC<ComponentProps> = ({ isShowingPreview }) => {
   
   // Get the currently selected CV from the store
   const CVState = useCVsStore(state => state.CVState);
@@ -58,7 +62,11 @@ const CVPreview: React.FC = () => {
   if(!selectedCV) return <div>There is no CV to preview</div>
   
   return (
-    <div className="hidden bg-gray-100 overflow-hidden w-screen max-w-[calc(100vw*0.45)] h-screen justify-center items-center md:flex sticky top-0">
+    <div className="
+    transition-all duration-1000 bg-[#dfebf1]  w-screen h-screen justify-center 
+    items-center flex sticky top-0"
+      style={isShowingPreview ? {flexBasis: '43.74%'} : {flexBasis: '0%'} }
+    >
       <canvas ref={canvasRef} className='aspect-[1/1.4142] max-w-[90%] max-h-[90%]' />
     </div>
   )

@@ -3,6 +3,7 @@ import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../../UI/Collapsable';
 import TextInputField from '../../../../UI/textInputField';
+import AddSectionButton from '../../../../UI/AddSectionButton';
 import { sanitizeHtml } from '../../../../../utils';
 import { WorkExperience } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
@@ -87,9 +88,7 @@ const WorkExperienceMain: React.FC = () => {
                         </div>
                     ))
                 }
-                <button onClick={() => addWorkExperience()} className="font-medium text-md text-blue-600 w-fit cursor-pointer">
-                    {workExperienceConstants.add_button_text}
-                </button>
+                <AddSectionButton OnClick={() => addWorkExperience()} sectionName={'Work Experience'} />
             </div>
         </div>
     );
