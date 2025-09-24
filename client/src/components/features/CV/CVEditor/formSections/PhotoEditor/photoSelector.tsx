@@ -8,9 +8,10 @@ const { fields: fieldsConstants } = personalInfosConstants;
 type PhotoSelectorProps = {
     setSelectedPhoto: Dispatch<SetStateAction<string | null>>,
     setIsSelectingPhoto: Dispatch<SetStateAction<boolean>>,
+    handleSelectingCancel: () => void;
 }
 
-export const PhotoSelector: React.FC<PhotoSelectorProps> = ({setSelectedPhoto, setIsSelectingPhoto}) => {
+export const PhotoSelector: React.FC<PhotoSelectorProps> = ({handleSelectingCancel, setSelectedPhoto, setIsSelectingPhoto}) => {
     
     const readFile = (file?: File) => {
         if (file) {
@@ -52,7 +53,7 @@ export const PhotoSelector: React.FC<PhotoSelectorProps> = ({setSelectedPhoto, s
     const inputRef = useRef<HTMLInputElement>(null);
 
     return (
-            <div className="flex flex-col justify-center w-full h-full border border-gray-300 rounded-md">
+            <div className="flex flex-col justify-center w-full h-full min-h-40 border border-gray-300 bg-[#eff9ff] rounded-md font-medium">
                 <div
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
@@ -60,13 +61,24 @@ export const PhotoSelector: React.FC<PhotoSelectorProps> = ({setSelectedPhoto, s
                 >
                     <p>Drag and drop your photo</p>
 
-                    <button
-                        type="button"
-                        onClick={() => inputRef.current?.click()}
-                        className="mt-4 px-4 py-2 bg-amber-300 rounded cursor-pointer"
-                    >
-                        Select Photo
-                    </button>
+                    <div className="flex mt-4 gap-x-2">
+                        <button
+                            type="button"
+                            onClick={() => inputRef.current?.click()}
+                            className="font-medium text-md p-2 pl-3 pr-3 text-[#007dff] w-fit cursor-pointer bg-[#d7e9ff] 
+                            hover:bg-[#cce0f9] transition-colors duration-200 rounded-md"
+                        >
+                            Select Photo
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSelectingCancel}
+                            className="font-medium text-md p-2 pl-3 pr-3 text-[#007dff] w-fit cursor-pointer bg-[#d7e9ff] 
+                            hover:bg-[#cce0f9] transition-colors duration-200 rounded-md"
+                        >
+                            Cancel
+                        </button>
+                    </div>
 
                     <input
                         id="photo"

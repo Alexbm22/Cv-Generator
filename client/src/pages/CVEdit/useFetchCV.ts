@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCvEditStore, useCVsStore, useErrorStore } from "../../Store";
 import { useQuery } from "@tanstack/react-query";
@@ -58,9 +58,22 @@ export const useFetchGuestCV = (id?: string) => {
     const setSelectedCV = useCVsStore(state => state.setGuestSelectedCV)
     const addError = useErrorStore(state => state.addError);
 
+    const hasHydrated = useCVsStore.persist.hasHydrated();
+
+    const [ isLoading, setIsLoading ] = useState(true);
+
     useEffect(() => {
         if(!id) {
             navigate(routes.notFound.path, { replace: true });
+            return;
+        }
+
+        console.log(hasHydrated);
+
+        if(hasHydrated) {
+            setIsLoading(false);
+        } else {
+            setIsLoading(true);
             return;
         }
 
@@ -79,5 +92,7 @@ export const useFetchGuestCV = (id?: string) => {
             return;
         }
 
-    }, [id, cvs])
+    }, [id, cvs, hasHydrated])
+
+    return { isLoading }
 }

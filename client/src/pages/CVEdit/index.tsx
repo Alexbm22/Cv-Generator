@@ -25,6 +25,7 @@ const CVEditPage = () => {
 
         return () => mediaQuery.removeEventListener("change", handler);
     }, []);
+
     
     if(CVState.mode === CVStateMode.USER) {
         const { isLoading, CV } = useFetchUserCV(id);
@@ -35,9 +36,12 @@ const CVEditPage = () => {
             return <div>No selected cv!</div>
         }
     } else {
-        useFetchGuestCV(id);
-    }
+        const { isLoading } = useFetchGuestCV(id);
 
+        if (isLoading) {
+            return <div>Loading...</div>;
+        }
+    }
 
     return (
         <div className="flex flex-column transition-all duration-1000 w-full h-full relative">
@@ -45,15 +49,21 @@ const CVEditPage = () => {
             <CVPreview isShowingPreview={isShowingPreview}/>
             <button 
                 onClick={() => setIsShowingPreview(!isShowingPreview)}
-                className="fixed w-15 h-15 bg-[#007dff] rounded-full bottom-5 right-5 text-2xl z-50 opacity-[70%] hover:opacity-100 transition-opacity duration-300"  
+                className="fixed cursor-pointer w-22 h-22 bg-[#007dff] rounded-full bottom-5 right-5 
+                    text-2xl z-50 shadow-2xl opacity-[70%] hover:opacity-100 transition-all duration-300 p-4
+                    flex items-center justify-center
+                "  
             >
                 {
                     isShowingPreview ? "Icon" : (
-                        <CVPreviewImage CV={CVState.selectedCV!} FallbackComponent={() => (
-                            <>
-                                Some Icon
-                            </>
-                        )}/>
+                        
+                        <div className="flex items-center justify-center  w-10 ">
+                            <CVPreviewImage CV={CVState.selectedCV!} FallbackComponent={() => (
+                                <>
+                                    Some Icon
+                                </>
+                            )}/>
+                        </div>
                     )
                 }
             </button>

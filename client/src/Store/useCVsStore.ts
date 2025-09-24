@@ -1,9 +1,10 @@
 import { create } from 'zustand';
-import { persist, devtools } from 'zustand/middleware';
+import { persist, devtools, createJSONStorage } from 'zustand/middleware';
 import { 
     CVStateMode,
     CVsStore,
 } from '../interfaces/cv';
+import { CVStorage } from '../services/storage/cvIndexedDBStorage';
 
 export const useCVsStore = create<CVsStore>()(
     devtools(
@@ -142,6 +143,7 @@ export const useCVsStore = create<CVsStore>()(
             }),
         {
             name: 'Resumes',
+            storage: createJSONStorage(() => CVStorage),
             partialize: (state) => (
                 // persist the cvs if the user is a guest
                 state.CVState.mode === CVStateMode.GUEST ? 

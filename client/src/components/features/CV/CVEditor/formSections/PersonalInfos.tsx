@@ -36,72 +36,60 @@ const PersonalInfos: React.FC = () => {
         <>
             <div className="font-sans w-full h-full">
                 <h2 className="text-xl text-[#154D71] font-bold mb-2">{personalInfosConstants.title}</h2>
-                <div className="flex flex-col gap-x-8 gap-y-4 s:">
+                <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-2">
 
-                    <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-2">
-                        <div className="flex flex-col gap-x-8 gap-y-4 s:grid">
-                            <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-1">
-                                <TextInputField
-                                    id={personalInfosConstants.fields.title.label}
-                                    label={personalInfosConstants.fields.title.label}
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    placeholder={fieldsConstants.title.placeholder}
-                                />
+                    <TextInputField
+                        id={personalInfosConstants.fields.title.label}
+                        label={personalInfosConstants.fields.title.label}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder={fieldsConstants.title.placeholder}
+                    />
 
-                                <TextInputField
-                                    id={fieldsConstants.job_title.label}
-                                    label={fieldsConstants.job_title.label}
-                                    value={jobTitle}
-                                    onChange={(e) => setJobTitle(e.target.value)}
-                                    placeholder={fieldsConstants.job_title.placeholder}
-                                />
-                            </div>
-                            
-                            <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-1">    
-                                <TextInputField
-                                    id={personalInfosConstants.fields.first_name.label}
-                                    label={personalInfosConstants.fields.first_name.label}
-                                    value={firstName}
-                                    onChange={(e) => setFirstName(e.target.value)}
-                                    placeholder={fieldsConstants.first_name.placeholder}
-                                />
+                    <TextInputField
+                        id={fieldsConstants.job_title.label}
+                        label={fieldsConstants.job_title.label}
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        placeholder={fieldsConstants.job_title.placeholder}
+                    />
+                    
+                    <TextInputField
+                        id={personalInfosConstants.fields.first_name.label}
+                        label={personalInfosConstants.fields.first_name.label}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder={fieldsConstants.first_name.placeholder}
+                    />
 
-                                <TextInputField
-                                    id={fieldsConstants.last_name.label}
-                                    label={fieldsConstants.last_name.label}
-                                    value={lastName}
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    placeholder={fieldsConstants.last_name.placeholder}
-                                />
-                            </div>
+                    <TextInputField
+                        id={fieldsConstants.last_name.label}
+                        label={fieldsConstants.last_name.label}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder={fieldsConstants.last_name.placeholder}
+                    />
 
-                        </div>
+                    
+                    <TextInputField
+                        id={fieldsConstants.email.label}
+                        type={fieldsConstants.email.type}
+                        label={fieldsConstants.email.label}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={fieldsConstants.email.placeholder}
+                    />
 
-                        <PhotoEditor isSelectingPhoto={isSelectingPhoto} setIsSelectingPhoto={setIsSelectingPhoto} />
-                    </div>
+                    <TextInputField
+                        id={fieldsConstants.phone_number.label}
+                        type={fieldsConstants.phone_number.type}
+                        label={fieldsConstants.phone_number.label}
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder={fieldsConstants.phone_number.placeholder}
+                    />
 
-
-                    <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-2">
-
-                        <TextInputField
-                            id={fieldsConstants.email.label}
-                            type={fieldsConstants.email.type}
-                            label={fieldsConstants.email.label}
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder={fieldsConstants.email.placeholder}
-                        />
-
-                        <TextInputField
-                            id={fieldsConstants.phone_number.label}
-                            type={fieldsConstants.phone_number.type}
-                            label={fieldsConstants.phone_number.label}
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder={fieldsConstants.phone_number.placeholder}
-                        />
-
+                    <div className="flex flex-col h-fit gap-x-8 gap-y-4 s:grid grid-cols-1">
                         <TextInputField
                             id="address"
                             label={fieldsConstants.address.label}
@@ -119,6 +107,8 @@ const PersonalInfos: React.FC = () => {
                             placeholder={fieldsConstants.birth_date.placeholder}
                         />
                     </div>
+
+                    <PhotoEditor isSelectingPhoto={isSelectingPhoto} setIsSelectingPhoto={setIsSelectingPhoto} />
 
 
                     <div className="col-span-2 flex flex-col space-y1 w-full mt-2">

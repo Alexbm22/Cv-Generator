@@ -11,6 +11,7 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
 
     const sliderRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const parentRef = useRef<HTMLDivElement>(null);
 
     const updateSliderPosition = () => {
         if ( sliderRef.current && containerRef.current ) {
@@ -35,18 +36,22 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
     }
 
     useEffect(() => {
+        if (!parentRef.current) return;
+        updateSliderPosition();
+
+        const handleResize = () => {
             updateSliderPosition();
+        }
+
+        const observer = new ResizeObserver(() => {
+            handleResize();
+        });
+
+        observer.observe(parentRef.current);
+
+        return () => observer.disconnect();
     
-            const handleResize = () => {
-                updateSliderPosition();
-            }
-    
-            window.addEventListener('resize', handleResize);
-            return () => {
-                window.removeEventListener('resize', handleResize);
-            }
-    
-        }, [selectedLevel]);
+    }, [selectedLevel]);
 
     const handleButtonClick = (level: any) => {
         onLevelChange(sectionId, level);
@@ -54,7 +59,7 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
     }
 
     return (
-        <div className='flex flex-col space-y-2 w-full'>   
+        <div ref={parentRef} className='flex flex-col space-y-2 w-full'>   
             <div className='flex flex-row '>
                 <label className="text-base text-gray-600 font-bold">Level: </label>
                 <p 
