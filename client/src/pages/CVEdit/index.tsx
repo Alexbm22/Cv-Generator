@@ -1,17 +1,16 @@
 import { useParams } from "react-router-dom";
 import CVEditorForm  from "../..//components/features/CV/CVEditor/CVForm";
 import CVPreview from "../../components/features/CV/CVEditor/CVPreview/CVPreview";
-import { useFetchGuestCV, useFetchUserCV } from "./useFetchCV";
+import useFetchCV from "./useFetchCV";
 import { useCVsStore } from "../../Store";
-import { CVStateMode } from "../../interfaces/cv";
 import { useEffect, useState } from "react";
 import CVPreviewImage from "../../components/UI/CVPreviewImage";
 
 const CVEditPage = () => {
     const { id } = useParams<{id: string}>();
+
     const CVState = useCVsStore(state => state.CVState);
-    
-    const [ isShowingPreview, setIsShowingPreview ] = useState(true)
+    const [ isShowingPreview, setIsShowingPreview ] = useState(true);
     
     useEffect(() => {
         const mediaQuery = window.matchMedia("(min-width: 1300px)");
@@ -25,23 +24,8 @@ const CVEditPage = () => {
 
         return () => mediaQuery.removeEventListener("change", handler);
     }, []);
-
     
-    if(CVState.mode === CVStateMode.USER) {
-        const { isLoading, CV } = useFetchUserCV(id);
-
-        if (isLoading) {
-            return <div>Loading...</div>;
-        } else if(!CV) {
-            return <div>No selected cv!</div>
-        }
-    } else {
-        const { isLoading } = useFetchGuestCV(id);
-
-        if (isLoading) {
-            return <div>Loading...</div>;
-        }
-    }
+    useFetchCV({id});
 
     return (
         <div className="flex flex-column transition-all duration-1000 w-full h-full relative">

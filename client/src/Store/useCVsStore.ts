@@ -13,6 +13,7 @@ export const useCVsStore = create<CVsStore>()(
                 CVState: { mode: CVStateMode.GUEST, cvs: [], selectedCV: null },
 
                 updateGuestCV: (CV) => {
+                    
                     set(state => (
                         state.CVState.mode === CVStateMode.GUEST ? 
                         {CVState: {

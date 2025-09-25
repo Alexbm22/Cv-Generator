@@ -15,9 +15,9 @@ export const createStoreActionsSlice = (set: {
         const store = get();
         const CVStoreObj = Object.fromEntries(
             Object.entries(store).filter(([key, value]) => 
-                (typeof value !== 'function') || 
-                (key === 'GuestPreview') || (key === 'GuestPhoto') || 
-                (key === 'UserPreview') || (key === 'UserPhoto') 
+                (typeof value !== 'function') &&
+                (key !== 'GuestPreview') && (key !== 'GuestPhoto') && 
+                (key !== 'UserPreview') && (key !== 'UserPhoto') 
             )
         ) as Omit<CVEditStoreObjectAttributes, 
             'GuestPreview' | 'GuestPhoto' | 'UserPhoto' | 'UserPreview'
@@ -59,21 +59,21 @@ export const createStoreActionsSlice = (set: {
         const store = get();
         const CVStoreObj = Object.fromEntries(
             Object.entries(store).filter(([key, value]) => 
-                (typeof value !== 'function') || 
-                (key === 'GuestPreview') || (key === 'GuestPhoto') || 
-                (key === 'UserPreview') || (key === 'UserPhoto') 
+                (typeof value !== 'function') &&
+                (key !== 'GuestPreview') && (key !== 'GuestPhoto') &&
+                (key !== 'UserPreview') && (key !== 'UserPhoto') 
             )
         ) as Omit<CVEditStoreObjectAttributes, 
             'GuestPreview' | 'GuestPhoto' | 'UserPhoto' | 'UserPreview'
         >
 
-        const UserCVObj = {
+        const GuestCVObj = {
             ...CVStoreObj,
             photo: store.GuestPhoto,
             preview: store.GuestPreview
         };
 
-        return UserCVObj;
+        return GuestCVObj;
     },
     
     setGuestCV: (CV: GuestCVAttributes) => {

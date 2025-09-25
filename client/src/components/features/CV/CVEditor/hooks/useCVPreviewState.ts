@@ -20,7 +20,7 @@ export const useCVPreviewState = () => {
     const handleGuestCVPreviewUpload = async (canvas: HTMLCanvasElement, selectedCV: GuestCVAttributes) => {
         if (!canvas || !selectedCV) return;
         
-        setGuestPreview(canvas.toDataURL())
+        setGuestPreview(canvas.toDataURL());
     }
 
     const handleCVPreviewUpload = async (canvas: HTMLCanvasElement) => {

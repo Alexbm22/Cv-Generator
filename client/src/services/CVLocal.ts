@@ -9,8 +9,6 @@ export class CVLocalService {
     public static autoSaveCV() {
         return debounce(async (api: StoreApi<CVEditStore>) => {
 
-            console.log("se updateaza")
-
             const { getUserCVObject, getGuestCVObject } = api.getState();
             const { 
                 CVState, 
@@ -22,10 +20,18 @@ export class CVLocalService {
             if(CVState.mode === CVStateMode.USER) {
                 const updatedCV = getUserCVObject();
 
+                const selectedCV = CVState.selectedCV;
+                if(JSON.stringify(selectedCV) === JSON.stringify(updatedCV)) return;
+
                 await CVServerService.sync(updatedCV);
                 setUserSelectedCV(updatedCV);
             } else {
                 const updatedCV = getGuestCVObject();
+
+                const selectedCV = CVState.selectedCV;
+                if(JSON.stringify(selectedCV) === JSON.stringify(updatedCV)) return;
+
+                console.log('is updating')
 
                 updateGuestCV(updatedCV);
                 setGuestSelectedCV(updatedCV);

@@ -3,6 +3,7 @@ import { useCvEditStore, useCVsStore } from "../../../../../Store";
 import { deleteImage, fetchImage, uploadImage } from "../../../../../services/MediaFiles";
 import { useEffect, useState } from "react";
 import { CVStateMode } from "../../../../../interfaces/cv";
+import { blobToBase64 } from "../../../../../utils/blobtoBase64";
 
 export const useCVPhotoState = () => {
 
@@ -32,7 +33,7 @@ export const useCVPhotoState = () => {
                 data && isSuccess ? URL.createObjectURL(data) : null
             );
         } else {
-            setCvPhotoBlobUrl(GuestCVPhoto)
+            setCvPhotoBlobUrl(GuestCVPhoto ? GuestCVPhoto : null)
         }
     }, [isUser, GuestCVPhoto, data, isError, isSuccess]);
 
@@ -41,9 +42,9 @@ export const useCVPhotoState = () => {
         refetch();
     } 
 
-    const handleGuestCropSuccess = async  (cropResult: Blob) => {
-        const resultUrl = URL.createObjectURL(cropResult);
-        setGuestPhoto(resultUrl)
+    const handleGuestCropSuccess = async (cropResult: Blob) => {
+        const base64Image = await blobToBase64(cropResult)
+        setGuestPhoto(base64Image);
     }
 
     const handleCropSuccess = isUser ? handleUserCropSuccess : handleGuestCropSuccess

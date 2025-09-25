@@ -22,8 +22,6 @@ export const useCvEditStore = create<CVEditStore>()(
                 'setGuestCV', 
                 'setUserCV', 
                 'getUserCVObject',
-                'setGuestPhoto',
-                'setGuestPreview'
             ]
         })(
             (set, get): CVEditStore => ({

@@ -139,7 +139,7 @@ export interface CVEditStoreMetadataActions {
     setJobTitle: (jobTitle: string) => void;
     setSectionsOrder: (sectionsOrder: string[]) => void;
     setGuestPhoto: (photoURL: string | null) => void;
-    setGuestPreview: (previewURL: string) => void;
+    setGuestPreview: (previewURL: string | null) => void;
 }
 
 export interface CVEditStoreContentActions {

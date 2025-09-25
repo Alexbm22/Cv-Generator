@@ -23,6 +23,7 @@ export const createContentSlice = (set: {
     education: DEFAULT_CV_EDITOR_STATE.education,
     projects: DEFAULT_CV_EDITOR_STATE.projects,
     customSections: DEFAULT_CV_EDITOR_STATE.customSections,
+    sectionsOrder: [],
 
     setProfessionalSummary: (summary: string) => set({professionalSummary: sanitizeHtml(summary)}),
 
