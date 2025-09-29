@@ -21,13 +21,13 @@ const CVPreview: React.FC<ComponentProps> = ({ isShowingPreview }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Fetch the photo blob URL for the CV
-  const { cvPhotoBlobUrl } = useCVPhotoState();
+  const { cvPhotoBlobUrl, isLoadingPhotoUrl } = useCVPhotoState();
   
   const { handleCVPreviewUpload } = useCVPreviewState();
   
   // Generate a PDF blob from the CV data and render it to the canvas
   const handleGeneratePdfBlob = async () => {
-    if (!selectedCV) return;
+    if (!selectedCV || isLoadingPhotoUrl) return;
 
     try {
       // Prepare CV data, including the photo

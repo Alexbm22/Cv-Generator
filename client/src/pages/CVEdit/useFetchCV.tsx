@@ -51,7 +51,7 @@ export const useFetchGuestCV = (id?: string) => {
     const findGuestCV = useCVsStore(state => state.findGuestCV)     
     const setSelectedCV = useCVsStore(state => state.setGuestSelectedCV)
     const CVStoreMode = useCVsStore(state => state.CVState.mode);
-    const hasHydrated = useCVsStore.persist;
+    const _hasHydrated = useCVsStore(state => state.CVState._hasHydrated)
 
     const [ isLoading, setIsLoading ] = useState(true);
     const [ CVToEdit, setCVToEdit ] = useState<GuestCVAttributes | null>(null);
@@ -66,8 +66,8 @@ export const useFetchGuestCV = (id?: string) => {
             setIsLoading(false);
             return;
         }
-        if(!hasHydrated.hasHydrated()) {
-            setIsLoading(false);
+        if(!_hasHydrated) {
+            setIsLoading(true);
             return;
         }
 
@@ -80,7 +80,7 @@ export const useFetchGuestCV = (id?: string) => {
 
         setIsLoading(false);
 
-    }, [id, hasHydrated])
+    }, [id, _hasHydrated])
 
     return { isLoading, CV: CVToEdit };
 }

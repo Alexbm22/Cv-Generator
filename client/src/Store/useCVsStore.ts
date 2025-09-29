@@ -10,10 +10,19 @@ export const useCVsStore = create<CVsStore>()(
     devtools(
         persist( 
             (set, get) => ({
-                CVState: { mode: CVStateMode.GUEST, cvs: [], selectedCV: null },
+                CVState: { mode: CVStateMode.GUEST, cvs: [], selectedCV: null, _hasHydrated: false },
 
+                setHydrationState: (hydrationState) => {
+                    set(state => (
+                        state.CVState.mode === CVStateMode.GUEST ? 
+                        {CVState: {
+                            ...state.CVState,
+                            _hasHydrated: hydrationState
+                        }} : state
+                    ))
+                },
+                
                 updateGuestCV: (CV) => {
-                    
                     set(state => (
                         state.CVState.mode === CVStateMode.GUEST ? 
                         {CVState: {
@@ -127,7 +136,8 @@ export const useCVsStore = create<CVsStore>()(
                         CVState: {
                             mode: CVStateMode.USER,
                             cvs: cvs,
-                            selectedCV: null
+                            selectedCV: null,
+                            _hasHydrated: null
                         }
                     })
                 },
@@ -136,7 +146,8 @@ export const useCVsStore = create<CVsStore>()(
                         CVState: {
                             mode: CVStateMode.GUEST,
                             cvs: cvs,
-                            selectedCV: null
+                            selectedCV: null,
+                            _hasHydrated: true
                         }
                     })
                 },
@@ -148,8 +159,19 @@ export const useCVsStore = create<CVsStore>()(
             partialize: (state) => (
                 // persist the cvs if the user is a guest
                 state.CVState.mode === CVStateMode.GUEST ? 
-                { CVState: state.CVState } : {}
+                {
+                    CVState: {
+                        ...state.CVState,
+                        cvs: state.CVState.cvs,
+                        _hasHydrated: false,
+                    }
+                } : {}
             ),
+            onRehydrateStorage: () => (state, error) => {
+                if(state && !error) {
+                    state.setHydrationState(true);
+                }
+            },
         }), {
             name: 'CVsStore', // Name of the slice in the Redux DevTools
             enabled: import.meta.env.VITE_NODE_ENV === 'development',

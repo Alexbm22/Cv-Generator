@@ -219,11 +219,12 @@ export enum CVStateMode {
 }
 
 export type CVState = 
-    { mode: CVStateMode.USER, cvs: UserCVMetadataAttributes[], selectedCV: UserCVAttributes | null } | 
-    { mode: CVStateMode.GUEST, cvs: GuestCVAttributes[], selectedCV: GuestCVAttributes | null } // to do create guest cv attributes type
+    { mode: CVStateMode.USER, cvs: UserCVMetadataAttributes[], selectedCV: UserCVAttributes | null, _hasHydrated: null} | 
+    { mode: CVStateMode.GUEST, cvs: GuestCVAttributes[], selectedCV: GuestCVAttributes | null, _hasHydrated: boolean } 
 
 export interface CVsStore {
     CVState: CVState;
+    setHydrationState: (hydrationState: boolean) => void;
     updateGuestCV: (CV: GuestCVAttributes) => void;
     findGuestCV: (id:string) => GuestCVAttributes | undefined
     setGuestSelectedCV: (CV:GuestCVAttributes) => void;

@@ -3,7 +3,7 @@ import { useCvEditStore, useCVsStore } from "../../../../../Store";
 import { deleteImage, fetchImage, uploadImage } from "../../../../../services/MediaFiles";
 import { useEffect, useState } from "react";
 import { CVStateMode } from "../../../../../interfaces/cv";
-import { blobToBase64 } from "../../../../../utils/blobtoBase64";
+import { blobToBase64 } from "../../../../../utils/blobToBase64";
 
 export const useCVPhotoState = () => {
 
@@ -25,7 +25,8 @@ export const useCVPhotoState = () => {
         retry: false
     })
 
-    const [ cvPhotoBlobUrl, setCvPhotoBlobUrl ] = useState<string | null>(null)
+    const [ cvPhotoBlobUrl, setCvPhotoBlobUrl ] = useState<string | null>(null);
+    const [ isLoadingPhotoUrl, setIsLoadingPhotoUrl ] = useState(true);
 
     useEffect(() => {
         if(isUser) {
@@ -35,6 +36,7 @@ export const useCVPhotoState = () => {
         } else {
             setCvPhotoBlobUrl(GuestCVPhoto ? GuestCVPhoto : null)
         }
+        setIsLoadingPhotoUrl(false)
     }, [isUser, GuestCVPhoto, data, isError, isSuccess]);
 
     const handleUserCropSuccess = async (cropResult: Blob) => {
@@ -61,6 +63,7 @@ export const useCVPhotoState = () => {
     const handleCVPhotoDelete = isUser ? handleUserPhotoDelete : handleGuestPhotoDelete;
 
     return {
+        isLoadingPhotoUrl,
         cvPhotoBlobUrl,
         handleCropSuccess,
         handleCVPhotoDelete
