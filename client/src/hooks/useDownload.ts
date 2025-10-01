@@ -1,34 +1,43 @@
 import { useMutation } from "@tanstack/react-query"
-import { useCvEditStore, useErrorStore } from "../Store";
+import { useErrorStore } from "../Store";
 import { DownloadService } from "../services/download";
-import { UserCVAttributes } from "../interfaces/cv";
 import { TemplateMap } from "../constants/CV/TemplatesMap";
 import { generatePdfBlob } from "../services/Pdf";
 import { ApiError } from "../interfaces/error";
+import { CVServerService } from "../services/CVServer";
+import { UserCVAttributes } from "../interfaces/cv";
 
-export const useDownload = (
-    CVToDownload: UserCVAttributes
-) => {
-    return useMutation<Blob, ApiError, any>({
-        mutationFn: async () => {
-            const { 
-                setUserCV: setCV, 
-                id, // selected cv id,
-                template
-            } = useCvEditStore.getState();
-            
-            if(!(id === CVToDownload.id)) { 
-                setCV(CVToDownload); 
-            }
-            
-            const TemplateComponent = TemplateMap[template]
+type onDownloadSuccessProps = {
+    PdfBlob: Blob;
+    CVData: UserCVAttributes
+}
+
+export const useDownload = () => {
+    return useMutation<onDownloadSuccessProps, ApiError, any>({
+        mutationFn: async (CVId: string) => {
+
+            const CVData = await CVServerService.getCV(CVId);
+
+            const TemplateComponent = TemplateMap[CVData.template];
+            const CVToDownload = {
+                ...CVData,
+                photo: CVData.photo?.presigned_get_URL!
+            };
+
             const PdfBlob = await generatePdfBlob(TemplateComponent, {CV: CVToDownload})
             
-            await DownloadService.createDownload(PdfBlob, CVToDownload)
-            return PdfBlob; // Return the generated PDF blob if no errors occurred during the api request
+            await DownloadService.createDownload(PdfBlob, CVData)
+
+            const DownloadData = {
+                PdfBlob,
+                CVData
+            }
+
+            return DownloadData;
+
         },
-        onSuccess: async (PdfBlob) => {
-            await DownloadService.downloadPdf(PdfBlob, CVToDownload);
+        onSuccess: async (DownloadData) => {
+            await DownloadService.downloadPdf(DownloadData.PdfBlob, DownloadData.CVData);
         }, 
         onError: (error) => {
             useErrorStore.getState().createError(error);

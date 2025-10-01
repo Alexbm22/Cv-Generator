@@ -4,7 +4,7 @@ import { UserAttributes } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
 import { CV, MediaFiles } from "../models";
 import { randomUUID } from "crypto";
-import { MediaTypes, OwnerTypes, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
+import { MediaFilesCreationAttributes, MediaTypes, OwnerTypes, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
 import { MediaFilesServices } from "./mediaFiles";
 import { CVWithMediaFiles } from "../models/CV";
 
@@ -20,10 +20,10 @@ export class CVsService {
             validate: true
         });
 
-        const photoMediaFileObjs = createdCVs.map(cv => this.createCVPhotoMediaFileObj(cv.get().id));
+        const photoMediaFileObjs = createdCVs.map(cv => this.createCVPhotoMediaFileObj(cv.get().id, cv.get().title));
         const createdPhotos = await MediaFilesServices.bulkCreate(photoMediaFileObjs);
 
-        const previewMediaFileObjs = createdCVs.map(cv => this.createCVPreviewMediaFileObj(cv.get().id));
+        const previewMediaFileObjs = createdCVs.map(cv => this.createCVPreviewMediaFileObj(cv.get().id, cv.get().title));
         const createdPreviews = await MediaFilesServices.bulkCreate(previewMediaFileObjs);
 
         const photoMap = new Map(createdPhotos.map(photo => [photo.get().owner_id, photo]));
@@ -70,8 +70,8 @@ export class CVsService {
             }
         });
 
-        const photo = await MediaFilesServices.create(this.createCVPhotoMediaFileObj(cv.id));
-        const preview = await MediaFilesServices.create(this.createCVPreviewMediaFileObj(cv.id));
+        const photo = await MediaFilesServices.create(this.createCVPhotoMediaFileObj(cv.id, cv.title));
+        const preview = await MediaFilesServices.create(this.createCVPreviewMediaFileObj(cv.id, cv.title));
 
         return {
             createdCV: cv,
@@ -262,21 +262,21 @@ export class CVsService {
         };
     }
 
-    private static createCVPhotoMediaFileObj(cvId: number) {
+    private static createCVPhotoMediaFileObj(cvId: number, cv_title: string): Omit<MediaFilesCreationAttributes, 'obj_key'> {
         return {
             owner_id: cvId,
+            file_name: cv_title,
             owner_type: OwnerTypes.CV,
             type: MediaTypes.CV_PHOTO,
-            obj_key: `cv_photo/${cvId}`
         };
     }
 
-    private static createCVPreviewMediaFileObj(cvId: number) {
+    private static createCVPreviewMediaFileObj(cvId: number, cv_title: string): Omit<MediaFilesCreationAttributes, 'obj_key'> {
         return {
             owner_id: cvId,
+            file_name: cv_title,
             owner_type: OwnerTypes.CV,
             type: MediaTypes.CV_PREVIEW,
-            obj_key: `cv_preview/${cvId}`
         };
     }
 }

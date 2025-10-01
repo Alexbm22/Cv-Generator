@@ -6,11 +6,12 @@ import { User, CV, Subscription, Download } from "../models";
 import { CreditsService } from "./credits";
 import { S3Service } from "./s3";
 import { config } from "../config/env";
+import { MediaFilesServices } from "./mediaFiles";
+import { MediaTypes, OwnerTypes } from "@/interfaces/mediaFiles";
 
 const s3Services = new S3Service();
 
 export class DownloadsService {
-
 
     static async initDownload(user: User, downloadedCV: PublicCVAttributes, file: Express.Multer.File) {
         const userData = user.get();
@@ -33,18 +34,43 @@ export class DownloadsService {
 
         // throws an error if the user does not have permission to download
         await this.hasDownloadPermission(userData.id);
+        // Check if this download is a duplicate; update the existing record if found
 
-        const uploadResult = await s3Services.uploadToS3(file, config.AWS_S3_BUCKET);
-        const uploadKey = uploadResult;
-
-        
         // add download to the downloads table
         const newDownload = await Download.create({
             metadata: downloadedCV,
-            fileKey: uploadKey,
             fileName: file.originalname,
+            origin_id: downloadedCV.id,
             user_id: userData.id
         });
+
+        const newDownloadData = newDownload.get();
+
+        const downloadFile = await MediaFilesServices.create({
+            owner_id: newDownloadData.id,
+            owner_type: OwnerTypes.DOWNLOAD,
+            type: MediaTypes.DOWNLOAD_FILE,
+            file_name: file.mimetype.split('/')[1]
+        })
+
+        // to do: duplicate the cv preview photo for the download preview photo
+
+        await s3Services.uploadToS3(
+            file,
+            downloadFile.get().obj_key,
+            config.AWS_S3_BUCKET
+        );
+    }
+
+    static async isDuplicateDownload(downloadData: PublicCVAttributes) {
+        const OriginDownloads = await Download.findAll({
+            where: {
+                origin_id: downloadData.id 
+            }
+        })
+
+        // Check if any existing download has the same metadata (origin_id)
+
     }
 
     static async getUserDownloads(user: User) {

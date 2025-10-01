@@ -4,8 +4,8 @@ export interface DownloadAttributes {
     id: number;
     public_id: string;
     user_id: number;
+    origin_id: string;
     fileName: string;
-    fileKey: string;
     metadata: PublicCVAttributes;
     encryptedMetadata: string;
     createdAt: Date,

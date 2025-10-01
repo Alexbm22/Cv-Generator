@@ -1,5 +1,5 @@
 import { config } from '../config/env';
-import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
@@ -20,7 +20,8 @@ export class S3Service {
 
     public async uploadToS3(
         file: Express.Multer.File, 
-        bucketName: string
+        s3ObjKey: string,
+        bucketName: string,
     ) {
         try {
             const fileName = `${Date.now().toString()}.${file.mimetype.split('/')[1]}`;
@@ -199,6 +200,34 @@ export class S3Service {
 
             throw new AppError(
                 `S3 getPresignedUrl error: ${errorMessage}`,
+                500,
+                ErrorTypes.BAD_REQUEST
+            );
+        }
+    }
+
+    public async duplicateImage(
+        bucketName: string, 
+        sourceKey: string, 
+        targetKey: string
+    ) {
+        const params = {
+            Bucket: bucketName,
+            CopySource: `${bucketName}/${sourceKey}`, // source
+            Key: targetKey, 
+        };
+
+        const copyCommand = new CopyObjectCommand(params);
+
+        try {
+            await this.s3Client.send(copyCommand);
+            return targetKey;
+        } catch (error) {
+            const errorMessage = error && typeof error === "object" && "message" in error ?
+                error.message : "Failed to generate presigned URL";
+
+            throw new AppError(
+                `S3 duplicateImage error: ${errorMessage}`,
                 500,
                 ErrorTypes.BAD_REQUEST
             );

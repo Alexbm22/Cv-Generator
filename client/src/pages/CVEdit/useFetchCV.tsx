@@ -67,7 +67,7 @@ export const useFetchGuestCV = (id?: string) => {
             return;
         }
         if(!_hasHydrated) {
-            setIsLoading(true);
+            setIsLoading(true); // Wait for store hydration before proceeding
             return;
         }
 

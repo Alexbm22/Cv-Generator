@@ -13,11 +13,11 @@ interface DownloadCreationAttributes extends Optional<DownloadAttributes,
 class Download extends Model<DownloadAttributes, DownloadCreationAttributes> implements DownloadAttributes {
     public id!: number;
     public public_id!: string;
+    public origin_id!: string;
     public user_id!: number;
     public metadata!: PublicCVAttributes;
     public encryptedMetadata!: string;
     public fileName!: string;
-    public fileKey!: string;
     public createdAt!: Date;
     public updatedAt!: Date;
 
@@ -63,6 +63,10 @@ Download.init({
         unique: true,
         defaultValue: () => generateUUID(),
     },
+    origin_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+    },
     user_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
@@ -85,10 +89,6 @@ Download.init({
         allowNull: true,
     },
     fileName: {
-        type: DataTypes.CHAR(64),
-        allowNull: false
-    },
-    fileKey: {
         type: DataTypes.CHAR(64),
         allowNull: false
     },

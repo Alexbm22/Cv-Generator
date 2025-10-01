@@ -1,5 +1,5 @@
 import { MediaFiles } from "../models";
-import { MediaFilesAttributes, MediaTypes, OwnerTypes, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
+import { MediaFilesAttributes, MediaFilesCreationAttributes, MediaTypes, OwnerTypes, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
 import { AppError } from "../middleware/error_middleware";
 import { ErrorTypes } from "../interfaces/error";
 import { S3Service } from "./s3";
@@ -10,12 +10,18 @@ const s3Service = new S3Service();
 export class MediaFilesServices {
 
     static async create(
-        mediaFileObj: Omit<MediaFilesAttributes, 'id' | 'createdAt' | 'updatedAt' | 'public_id'>
+        mediaFileObj: Omit<MediaFilesCreationAttributes, 'obj_key'>
     ) {
         try {
-            return await MediaFiles.create(mediaFileObj);
+            const s3ObjKey = this.generateS3ObjKey(mediaFileObj);
+
+            const mediaFileData = {
+                ...mediaFileObj,
+                obj_key: s3ObjKey
+            }
+
+            return await MediaFiles.create(mediaFileData);
         } catch (error) {
-            console.error(error)
             throw new AppError(
                 "Failed to create media file",
                 500,
@@ -25,12 +31,21 @@ export class MediaFilesServices {
     }
 
     static async bulkCreate(
-        mediaFileObj: Omit<MediaFilesAttributes, 'id' | 'createdAt' | 'updatedAt' | 'public_id'>[]
+        mediaFileObjects: Omit<MediaFilesCreationAttributes, 'obj_key'>[]
     ) {
         try {
-            return await MediaFiles.bulkCreate(mediaFileObj);
+            const mediaFilesData = mediaFileObjects.map((mediaFile) => {
+                const s3ObjKey = this.generateS3ObjKey(mediaFile);
+
+                const mediaFileData = {
+                    ...mediaFile,
+                    obj_key: s3ObjKey
+                }
+
+                return mediaFileData;
+            })
+            return await MediaFiles.bulkCreate(mediaFilesData);
         } catch (error) {
-            console.error(error)
             throw new AppError(
                 "Failed to create media file",
                 500,
@@ -72,6 +87,7 @@ export class MediaFilesServices {
             id: mediaFileData.public_id,
             owner_type: mediaFileData.owner_type,
             type: mediaFileData.type,
+            file_name: mediaFileData.file_name,
             presigned_get_URL: getURL,
             presigned_put_URL: putURL,
             presigned_delete_URL: deleteUrl
@@ -118,5 +134,21 @@ export class MediaFilesServices {
         );
 
         return presignedUrl.url;
+    }
+
+    private static generateS3ObjKey(
+        mediaFileObj: Omit<MediaFilesCreationAttributes, 'obj_key'>
+    ): string {
+        // safe filename
+        const safeFilename = mediaFileObj.file_name.replace(/\s+/g, "_").toLowerCase();
+
+        // generate unique suffix
+        const uniqueId = Date.now();
+
+        return `myapp/
+        ${mediaFileObj.owner_type}/
+        ${mediaFileObj.owner_id}/
+        ${mediaFileObj.type}/
+        ${uniqueId}_${safeFilename}`
     }
 }

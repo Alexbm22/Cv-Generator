@@ -1,6 +1,6 @@
 import { saveAs } from 'file-saver';
 import { apiService } from "./api";
-import { UserCVAttributes } from "../interfaces/cv";
+import { ModifiedCVAttributes, UserCVAttributes } from "../interfaces/cv";
 import { DownloadAttributes } from '../interfaces/downloads';
 
 export class DownloadService {
@@ -44,7 +44,7 @@ export class DownloadService {
         return await apiService.get<DownloadAttributes[]>(this.apiUrl);
     }
 
-    static async downloadPdf(PdfBlob: Blob, documentData: UserCVAttributes) {
+    static async downloadPdf(PdfBlob: Blob, documentData: UserCVAttributes | ModifiedCVAttributes) {
         saveAs(PdfBlob, documentData.title);
     }
 

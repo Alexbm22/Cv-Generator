@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/routes";
 import { GuestCVAttributes, UserCVMetadataAttributes } from "../../interfaces/cv";
 import { useDeleteCV } from "../../hooks/CVs/useCVs";
-import DownloadBtn from "../../components/features/pdf/download";
+import DownloadBtn from "../../components/features/pdf/downloadBtn";
 import CVPreviewImage from "../../components/UI/CVPreviewImage";
 
 type CVCardProps = {
@@ -39,7 +39,7 @@ const CVCard: React.FC<CVCardProps> = ({CV}) => {
                         {CV.title !== '' ? CV.title : 'Your CV'} 
                     </div>
                     <div className="flex flex-row gap-2">
-                        <DownloadBtn downloadedCV={CV} />
+                        <DownloadBtn CVId={CV.id} />
                         <button onClick={handleEditClick}>
                             edit
                         </button>
