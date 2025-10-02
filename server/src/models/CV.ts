@@ -4,23 +4,11 @@ import { encrypt, decrypt } from '../utils/encryption';
 import {
     ServerCVAttributes, 
     CVContentAttributes, 
-    CVTemplates
+    CVTemplates,
+    CVCreationAttributes
 } from '../interfaces/cv';
 import { generateUUID } from '../utils/uuid';
 import MediaFiles from './Media_files';
-
-export interface CVCreationAttributes extends Optional<
-    ServerCVAttributes, 
-    'id' | 
-    'encryptedContent' | 
-    'createdAt' | 
-    'updatedAt' | 
-    'public_id' | 
-    'content' | 
-    'jobTitle' | 
-    'template' | 
-    'title'
-> {}
 
 class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements ServerCVAttributes {
     public id!: number;
@@ -71,17 +59,14 @@ CV.init({
     title: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        defaultValue: ''
     },
     jobTitle: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        defaultValue: ''
     },
     template: {
         type: DataTypes.ENUM(...Object.values(CVTemplates)),
         allowNull: false,
-        defaultValue: CVTemplates.CASTOR
     },
     content: {
         type: DataTypes.VIRTUAL,

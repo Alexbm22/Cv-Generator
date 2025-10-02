@@ -1,3 +1,4 @@
+import { Optional } from "sequelize"
 import { PublicMediaFilesAttributes } from "./mediaFiles"
 
 export interface Language {
@@ -140,3 +141,13 @@ export interface ServerCVAttributes {
     createdAt: Date,
     updatedAt: Date
 }
+
+export interface CVCreationAttributes extends Optional<
+    ServerCVAttributes, 
+    'id' | 
+    'encryptedContent' | 
+    'createdAt' | 
+    'updatedAt' | 
+    'public_id' | 
+    'content' 
+> {}

@@ -2,75 +2,125 @@ import { SubscriptionStatus } from "../interfaces/subscriptions";
 import { PublicCVAttributes } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
 import { AppError } from "../middleware/error_middleware";
-import { User, CV, Subscription, Download } from "../models";
+import { User, CV, Subscription, Download, MediaFiles } from "../models";
 import { CreditsService } from "./credits";
 import { S3Service } from "./s3";
 import { config } from "../config/env";
 import { MediaFilesServices } from "./mediaFiles";
 import { MediaTypes, OwnerTypes } from "@/interfaces/mediaFiles";
+import { CVWithMediaFiles } from "@/models/CV";
 
 const s3Services = new S3Service();
 
 export class DownloadsService {
 
-    static async initDownload(user: User, downloadedCV: PublicCVAttributes, file: Express.Multer.File) {
-        const userData = user.get();
+    /**
+     * Initializes a new download for a user's CV.
+     * - Verifies ownership of the CV.
+     * - Checks download permissions (subscription or credits).
+     * - Prevents duplicate downloads.
+     * - Creates download record and associated media files.
+     * - Duplicates preview if available.
+     * - Uploads the downloaded file to S3.
+     */
+    static async initDownload(user: User, cvAttributes: PublicCVAttributes, file: Express.Multer.File) {
+        const userRecord = user.get();
 
-        // veryfy if the user is the owner of the CV
-        const isOwner = await CV.findOne({
+        // Verify user owns the CV
+        const ownedCV = await CV.findOne({  
             where: {
-                public_id: downloadedCV.id,
-                user_id: userData.id
-            }
-        })
+                public_id: cvAttributes.id, 
+                user_id: userRecord.id
+            },
+            include: [
+                {
+                    model: MediaFiles,
+                    as: 'mediaFiles'
+                }
+            ],  
+        }) as CVWithMediaFiles;
 
-        if(!isOwner) {
+        if (!ownedCV) {
             throw new AppError(
-                "You are not authorized to download this CV",
+                "You are not authorized to download this CV.",
                 403,
                 ErrorTypes.UNAUTHORIZED
-            )
+            );
         }
 
-        // throws an error if the user does not have permission to download
-        await this.hasDownloadPermission(userData.id);
-        // Check if this download is a duplicate; update the existing record if found
+        // Ensure user has permission to download (subscription or credits)
+        await this.hasDownloadPermission(userRecord.id);
 
-        // add download to the downloads table
-        const newDownload = await Download.create({
-            metadata: downloadedCV,
+        // Prevent duplicate downloads for the same CV attributes
+        const isDuplicate = await this.findDuplicateDownload(cvAttributes);
+        if (isDuplicate) return;
+
+        // Create a new download record
+        const downloadRecord = await Download.create({
+            metadata: cvAttributes,
             fileName: file.originalname,
-            origin_id: downloadedCV.id,
-            user_id: userData.id
+            origin_id: cvAttributes.id,
+            user_id: userRecord.id
         });
 
-        const newDownloadData = newDownload.get();
+        const downloadData = downloadRecord.get();
 
-        const downloadFile = await MediaFilesServices.create({
-            owner_id: newDownloadData.id,
+        // Create media file record for the downloaded file
+        const downloadFileMedia = await MediaFilesServices.create({
+            owner_id: downloadData.id,
             owner_type: OwnerTypes.DOWNLOAD,
             type: MediaTypes.DOWNLOAD_FILE,
             file_name: file.mimetype.split('/')[1]
-        })
+        });
 
-        // to do: duplicate the cv preview photo for the download preview photo
+        // Create media file record for the download preview
+        const downloadPreviewMedia = await MediaFilesServices.create({
+            owner_id: downloadData.id,
+            owner_type: OwnerTypes.DOWNLOAD,
+            type: MediaTypes.DOWNLOAD_FILE_PREVIEW,
+            file_name: file.mimetype.split('/')[1]
+        });
 
+        // Find the source CV preview media file, if it exists
+        const sourceCVPreview = ownedCV.mediaFiles.find(
+            mediaFile => mediaFile.get().type === MediaTypes.CV_PREVIEW
+        );
+
+        // Duplicate the preview file in S3 if available
+        if (sourceCVPreview) {
+            await s3Services.duplicateFile(
+                config.AWS_S3_BUCKET,
+                sourceCVPreview.get().obj_key,
+                downloadPreviewMedia.get().obj_key
+            );
+        }
+
+        // Upload the downloaded file to    
         await s3Services.uploadToS3(
             file,
-            downloadFile.get().obj_key,
+            downloadFileMedia.get().obj_key,
             config.AWS_S3_BUCKET
         );
     }
 
-    static async isDuplicateDownload(downloadData: PublicCVAttributes) {
-        const OriginDownloads = await Download.findAll({
+    /**
+     * Checks if a download for the given CV data already exists.
+     * Duplicate detection is performed by comparing the core CV attributes
+     */
+    static async findDuplicateDownload(cvData: PublicCVAttributes) {
+        const existingDownloads = await Download.findAll({
             where: {
-                origin_id: downloadData.id 
+                origin_id: cvData.id 
             }
-        })
+        });
 
-        // Check if any existing download has the same metadata (origin_id)
+        // Exclude non-essential fields from comparison
+        const { updatedAt, preview, photo, ...cvAttributes } = cvData;
 
+        return existingDownloads.find((download) => {
+            const { updatedAt, preview, photo, ...downloadAttributes } = download.get().metadata;
+            return JSON.stringify(downloadAttributes) === JSON.stringify(cvAttributes);
+        });
     }
 
     static async getUserDownloads(user: User) {

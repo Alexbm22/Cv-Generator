@@ -206,7 +206,7 @@ export class S3Service {
         }
     }
 
-    public async duplicateImage(
+    public async duplicateFile(
         bucketName: string, 
         sourceKey: string, 
         targetKey: string

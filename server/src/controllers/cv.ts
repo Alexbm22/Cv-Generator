@@ -4,7 +4,6 @@ import { PublicCVAttributes } from '../interfaces/cv';
 import { AuthRequest } from '../interfaces/auth';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
-import { MediaFilesServices } from '../services/mediaFiles';
 
 export class CVsController {
 
@@ -20,15 +19,8 @@ export class CVsController {
             }
 
             const importedCVs = await CVsService.createCVs(userInfo.id, cvsToImport);
-            const importedCVsMetaData = importedCVs.map(
-                async (cv) => await CVsService.getCVMetaData(
-                    cv.CVData.get(), 
-                    cv.CVPreview, 
-                    cv.CVPhoto
-                )
-            );
 
-            return res.status(200).json(await Promise.all(importedCVsMetaData));
+            return res.status(200).json(importedCVs);
         } catch (error) {
             return next(error);
         }
@@ -39,13 +31,8 @@ export class CVsController {
         const userInfo = authenticatedUser.get();
 
         try {
-            const { createdCV, createdCVPhoto, createdCVPreview } = await CVsService.createCV(userInfo.id);
+            const publicCVData = await CVsService.createCV(userInfo.id);
 
-            const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(createdCVPhoto);
-            const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(createdCVPreview);
-            
-            const publicCVData = CVsService.mapServerCVToPublicCV(createdCV.get(), publicPhotoData, publicPreviewData);
-            
             return res.status(200).json(publicCVData);
         } catch (error) {
             return next(error);
@@ -57,10 +44,9 @@ export class CVsController {
         const userInfo = authenticatedUser.get();
 
         try {
-            const userCVs = await CVsService.getUserCVs(userInfo.id);
-            const userCVsMetaData = Promise.all(userCVs.map((cv) => CVsService.getCVMetaData(cv.CVData.get(), cv.CVPreview, cv.CVPhoto)));
-
-            return res.status(200).json(await userCVsMetaData);
+            const userCVsMetadata = await CVsService.getCVs(userInfo.id);
+            
+            return res.status(200).json(userCVsMetadata);
         } catch (error) {
             return next(error);
         }
@@ -81,12 +67,7 @@ export class CVsController {
                 );
             }
 
-            const { CVData, CVPhoto, CVPreview } = await CVsService.getCV(userInfo.id, cvPublicId);
-
-            const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(CVPhoto);
-            const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(CVPreview);
-            
-            const publicCVData = CVsService.mapServerCVToPublicCV(CVData.get(), publicPhotoData, publicPreviewData);
+            const publicCVData = await CVsService.getCV(userInfo.id, cvPublicId);
 
             return res.status(200).json(publicCVData);
         } catch (error) {

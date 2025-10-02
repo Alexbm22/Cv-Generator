@@ -1,9 +1,11 @@
 import { MediaFiles } from "../models";
-import { MediaFilesAttributes, MediaFilesCreationAttributes, MediaTypes, OwnerTypes, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
+import { MediaFilesCreationAttributes, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
 import { AppError } from "../middleware/error_middleware";
 import { ErrorTypes } from "../interfaces/error";
 import { S3Service } from "./s3";
 import { config } from "../config/env";
+import mediaFilesRepository from '../repositories/mediaFiles';
+import { generateS3ObjKey } from '../utils/mediaFiles'
 
 const s3Service = new S3Service();
 
@@ -13,14 +15,14 @@ export class MediaFilesServices {
         mediaFileObj: Omit<MediaFilesCreationAttributes, 'obj_key'>
     ) {
         try {
-            const s3ObjKey = this.generateS3ObjKey(mediaFileObj);
+            const s3ObjKey = generateS3ObjKey(mediaFileObj);
 
             const mediaFileData = {
                 ...mediaFileObj,
                 obj_key: s3ObjKey
             }
 
-            return await MediaFiles.create(mediaFileData);
+            return await mediaFilesRepository.createMediaFile(mediaFileData);
         } catch (error) {
             throw new AppError(
                 "Failed to create media file",
@@ -35,7 +37,7 @@ export class MediaFilesServices {
     ) {
         try {
             const mediaFilesData = mediaFileObjects.map((mediaFile) => {
-                const s3ObjKey = this.generateS3ObjKey(mediaFile);
+                const s3ObjKey = generateS3ObjKey(mediaFile);
 
                 const mediaFileData = {
                     ...mediaFile,
@@ -44,7 +46,8 @@ export class MediaFilesServices {
 
                 return mediaFileData;
             })
-            return await MediaFiles.bulkCreate(mediaFilesData);
+            
+            return await mediaFilesRepository.bulkCreateMediaFiles(mediaFilesData);
         } catch (error) {
             throw new AppError(
                 "Failed to create media file",
@@ -56,11 +59,7 @@ export class MediaFilesServices {
 
     static async getMediaFile(public_id: string) {
         try {
-            return await MediaFiles.findOne({
-                where: {
-                    public_id,
-                }
-            });
+            return await mediaFilesRepository.getMediaFile(public_id);
         } catch (error) {
             throw new AppError(
                 "Failed to get media file",
@@ -134,21 +133,5 @@ export class MediaFilesServices {
         );
 
         return presignedUrl.url;
-    }
-
-    private static generateS3ObjKey(
-        mediaFileObj: Omit<MediaFilesCreationAttributes, 'obj_key'>
-    ): string {
-        // safe filename
-        const safeFilename = mediaFileObj.file_name.replace(/\s+/g, "_").toLowerCase();
-
-        // generate unique suffix
-        const uniqueId = Date.now();
-
-        return `myapp/
-        ${mediaFileObj.owner_type}/
-        ${mediaFileObj.owner_id}/
-        ${mediaFileObj.type}/
-        ${uniqueId}_${safeFilename}`
     }
 }
