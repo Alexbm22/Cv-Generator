@@ -1,3 +1,4 @@
+import { Optional } from 'sequelize';
 import { AuthProvider } from './auth';
 import { PaymentAttributes, PublicPaymentData } from './payments';
 import { PublicSubscriptionData, SubscriptionAttributes } from './subscriptions';
@@ -28,3 +29,6 @@ export interface UserAttributes {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export interface UserCreationAttributes extends Optional<UserAttributes, 
+'id' | 'refreshToken' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive'> {}

@@ -5,12 +5,9 @@ import { AuthProvider } from '../interfaces/auth';
 import { AppError } from '../middleware/error_middleware';
 import crypto from 'crypto';
 import { ErrorTypes } from '../interfaces/error';
-import { UserAttributes, UserAccountData } from '../interfaces/user'
+import { UserAttributes, UserAccountData, UserCreationAttributes } from '../interfaces/user'
 import DownloadCredits from './Download_credits';
 import { config } from '../config/env';
-
-interface UserCreationAttributes extends Optional<UserAttributes, 
-'id' | 'refreshToken' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive'> {}
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
     public id!: number;

@@ -1,5 +1,5 @@
 import { AuthRequest } from "../interfaces/auth";
-import { UserServices } from "../services/user";
+import { UserService } from "../services/user";
 import { NextFunction, Response } from "express";
 
 export class UserController {
@@ -8,7 +8,7 @@ export class UserController {
         const userData = req.user;
 
         try {
-            const userProfile = await UserServices.mapToProfile(userData);
+            const userProfile = await UserService.getUserProfile(userData);
             return res.status(200).json(userProfile);
             
         } catch (error) {

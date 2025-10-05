@@ -1,12 +1,53 @@
-import { UserAttributes, UserProfile } from "../interfaces/user";
+import { UserAttributes, UserCreationAttributes, UserProfile } from "../interfaces/user";
 import { User } from "../models";
 import { SubscriptionService } from "./subscriptions";
 import { CreditsService } from "./credits";
 import { PaymentService } from "./payments";
+import { generateRandomSuffix } from '../utils/stringUtils/generateRandomSuffix'
+import userRespository from '../repositories/user';
+import { Op } from "sequelize";
+import { AppError } from "@/middleware/error_middleware";
+import { ErrorTypes } from "@/interfaces/error";
 
-export class UserServices {
+export class UserService {
 
-    static async mapToProfile(user: User): Promise<UserProfile> {
+    static async findUser(criteria: Partial<UserAttributes>): Promise<User | null> {
+        return userRespository.getUserByFields(criteria);
+    }
+
+    static async createUser(userData: UserCreationAttributes) {
+        return await userRespository.createUser(userData);
+    }
+
+    static async saveUserChanges(updates: Partial<UserAttributes>, userInstance: User) {
+        await userRespository.saveUserChanges(updates, userInstance);
+    }
+
+    static async validateNewUserCredentials(email: string, username: string) {
+        const existingUsers = await userRespository.findExistingCredentials(email, username);
+
+        const errors: Record<string, string> = {};
+        
+        existingUsers.forEach(user => {
+            if (user.email === email) {
+                errors.email = 'Email is already registered';
+            }
+            if (user.username === username) {
+                errors.username = 'Username is already taken';
+            }
+        });
+
+        if (Object.keys(errors).length > 0) {
+            throw new AppError(
+                'Validation failed', 
+                409, 
+                ErrorTypes.VALIDATION_ERR, 
+                errors
+            );
+        }
+    }
+
+    static async getUserProfile(user: User): Promise<UserProfile> {
         const userData = user.get()
 
         // add here any user profile data
@@ -15,7 +56,7 @@ export class UserServices {
         const userPayments = await PaymentService.getUserPayments(userData.id);
         const accountData = user.toSafeUser();
 
-        const userProfile = {
+        const userProfileData = {
             username: accountData.username,
             email: accountData.email,
             profilePicture: accountData.profilePicture,
@@ -24,46 +65,60 @@ export class UserServices {
             payments: userPayments
         }
 
-        return userProfile
+        return userProfileData
     }
 
-    async generateUsername(given_name: string, family_name: string): Promise<string> {
-        const baseUsername = [given_name, family_name]
-            .filter(name => name?.trim())
-            .join('-') || 'user';
+    static async generateUsername(given_name?: string, family_name?: string): Promise<string> {
+        try {
+            // Sanitize and normalize input names
+            const sanitizedNames = [given_name, family_name]
+                .map(name => name?.trim().toLowerCase())
+                .filter(Boolean);
 
-        if (await this.isUniqueUsername(baseUsername)) {
-            return baseUsername;
-        }
-        
-        let sufixLen = 4;
-        for(let i = 0; i < 4; i++) {
-            for(let j = 0; j < 4; j++){
-                const resultedUsername = `${baseUsername}.${this.generateRandomSufix(sufixLen)}`;
-                const isUnique = await this.isUniqueUsername(resultedUsername);
-                if(isUnique) return resultedUsername;
+            // Generate base username
+            const baseUsername = sanitizedNames.length > 0 
+                ? sanitizedNames.join('-')
+                : 'user';
+
+            // Try base username first
+            if (await this.isUniqueUsername(baseUsername)) {
+                return baseUsername;
             }
-            sufixLen++;
-        }
 
-        return `user-${Date.now()}.${this.generateRandomSufix(6)}`;
+            // Try with increasing suffix length
+            const maxAttempts = 3;
+            const maxSuffixLength = 8;
+            
+            for (let suffixLen = 4; suffixLen <= maxSuffixLength; suffixLen++) {
+                // Try multiple times with current length
+                for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                    const username = `${baseUsername}-${generateRandomSuffix(suffixLen)}`;
+                    
+                    if (await this.isUniqueUsername(username)) {
+                        return username;
+                    }
+                }
+            }
+
+            // Fallback: timestamp + longer random suffix
+            const timestamp = Date.now().toString(36); // Base36 for shorter string
+            const fallbackUsername = `user-${timestamp}-${generateRandomSuffix(8)}`;
+            
+            if (await this.isUniqueUsername(fallbackUsername)) {
+                return fallbackUsername;
+            }
+
+            throw new Error('Failed to generate unique username after multiple attempts');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(`Username generation failed: ${message}`);
+        }
     }
 
-    async isUniqueUsername(username: string): Promise<boolean> {
+    static async isUniqueUsername(username: string): Promise<boolean> {
         const user = await User.findOne({where: { username }})
         if(user) return false;
         return true;
-    }
-
-    generateRandomSufix(length: number){
-        const chars = 'abcdefghijkmnpqrstuvwxyz23456789';
-        let result = '';
-        
-        for (let i = 0; i < length; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        
-        return result;
     }
 
 }

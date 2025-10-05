@@ -15,3 +15,13 @@ export const parseDurationToSeconds = (duration: string): number => {
         default: return 0;
     }
 }
+
+export const parseDurationToDate = (duration: string): Date => {
+    const durationsToSeconds = parseDurationToSeconds(duration);
+    return new Date(Date.now() + durationsToSeconds * 1000);
+}
+
+export default {
+    parseDurationToDate,
+    parseDurationToSeconds
+}

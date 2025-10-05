@@ -9,205 +9,208 @@ import {
 import { User } from '../models';
 import { Response, Request, NextFunction } from 'express';
 import { config } from 'dotenv'
-import { TokenServices } from './token';
+import { TokenService } from './token';
 import { GoogleServices } from './google';
-import { UserServices } from './user';
+import { UserService } from './user';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
+import userRespository from '../repositories/user';
 
 config()
 
 export class AuthServices {
-    private googleServices: GoogleServices;
-    private userServices: UserServices;
-    private tokenServices: TokenServices;
+    private googleService: GoogleServices;
+    private tokenService: TokenService;
 
     constructor() {
-        this.googleServices = new GoogleServices();
-        this.userServices = new UserServices();
-        this.tokenServices = new TokenServices();
+        this.googleService = new GoogleServices();
+        this.tokenService = new TokenService();
     }
 
     async googleLogin(IdToken: string, res: Response, next: NextFunction): Promise<AuthResponse> {
-        const TokenPayload = await this.googleServices.verifyGoogleToken(IdToken);
+        try {
+            const TokenPayload = await this.googleService.verifyGoogleToken(IdToken);
 
-        let user = await User.findOne({ where: { email: TokenPayload.email }});
-        const isNewUser = !user;
+            let user = await UserService.findUser({ email: TokenPayload.email });
+            const isNewUser = !user;
 
-        if (!user) { // Registering the new Google account
-            const {
-                given_name,
-                family_name,
-                email,
-                picture,
-                google_id
-            } = TokenPayload;
+            if (!user) { // Registering the new Google account
+                const {
+                    given_name,
+                    family_name,
+                    email,
+                    picture,
+                    google_id
+                } = TokenPayload;
 
-            const username = await this.userServices.generateUsername(given_name, family_name)
+                const username = await UserService.generateUsername(given_name, family_name);
 
-            user = await User.create({
-                username: username,
-                email: email,
-                authProvider: AuthProvider.GOOGLE,
-                lastLogin: new Date(),
-                googleId: google_id,
-                isActive: true,
-                profilePicture: picture
-            });
-            
-        } else {
-            if(!user.compareGoogleId(TokenPayload.google_id)) {
-                throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
-            }
-
-            if (!user.get('isActive')) {
-                throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
-            }
-
-            await User.update({
+                user = await UserService.createUser({
+                    username: username,
+                    email: email,
+                    authProvider: AuthProvider.GOOGLE,
                     lastLogin: new Date(),
-                }, {
-                    where: { 
-                        id: user.get().id
-                },
-            });
+                    googleId: google_id,
+                    isActive: true,
+                    profilePicture: picture
+                });
+            } else {
+                if (!user.compareGoogleId(TokenPayload.google_id)) {
+                    throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
+                }
+
+                if (!user.get('isActive')) {
+                    throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
+                }
+
+                await userRespository.saveUserChanges({ lastLogin: new Date() }, user);
+            }
+
+            const accessToken = await this.tokenService.setTokens(user, res);
+
+            return {
+                token: accessToken,
+                firstAuth: isNewUser
+            };
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            } else {
+                // Unexpected errors
+                throw new AppError('Google login failed', 500, ErrorTypes.INTERNAL_ERR, error);
+            }
         }
-
-        const accessToken = await this.tokenServices.setTokens(user, res); 
-
-        return {
-            token: accessToken,
-            firstAuth: isNewUser
-        };
     }
 
     async login(data: loginDto, res: Response): Promise<AuthResponse> {
-        const { email, password } = data;
-
-        const user = await User.findOne({ where: { email }});
-        if (!user) {
-            throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
+        try {
+            const { email, password } = data;
+    
+            const user = await UserService.findUser({ email });
+            if (!user) {
+                throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
+            }
+    
+            if (!user.get('isActive')) {
+                throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
+            }
+    
+            if (user.get('authProvider') !== AuthProvider.LOCAL) {
+                throw new AppError(`Please use ${user.get('authProvider')} login for this account`, 403, ErrorTypes.UNAUTHORIZED);
+            }
+    
+            const isPasswordValid = await user.comparePasswords(password);
+            if(!isPasswordValid){
+                throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
+            }
+    
+            await UserService.saveUserChanges({ lastLogin: new Date() }, user);
+    
+            const accessToken = await this.tokenService.setTokens(user, res);
+    
+            return {
+                token: accessToken
+            };
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            } else {
+                // Unexpected errors
+                throw new AppError('Login failed', 500, ErrorTypes.INTERNAL_ERR, error);
+            }
         }
 
-        if (!user.get('isActive')) {
-            throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
-        }
-
-        if (user.get('authProvider') !== 'local') {
-            throw new AppError(`Please use ${user.get('authProvider')} login for this account`, 403, ErrorTypes.UNAUTHORIZED);
-        }
-
-        const isPasswordValid = await user.comparePasswords(password);
-        if(!isPasswordValid){
-            throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
-        }
-
-        await User.update({
-            lastLogin: new Date(),
-        }, {
-            where: { 
-                id: user.id
-            },
-        });
-
-        const accessToken = await this.tokenServices.setTokens(user, res);
-
-        return {
-            token: accessToken
-        };
     }
 
     async register(data: registerDto, res: Response): Promise<AuthResponse> {
-        const { username, email, password } = data;
-
-        // verifying if the email is used
-        const existingUserByEmail = await User.findOne({ where: { email } });
-        if (existingUserByEmail) {
-            throw new AppError('Email already exists', 409, ErrorTypes.VALIDATION_ERR, {
-                email: 'Email is already registered'
+        try {
+            const { username, email, password } = data;
+    
+            await UserService.validateNewUserCredentials(email, username);
+            
+            const newUser = await UserService.createUser({
+                username: username,
+                email: email,
+                password: password,
+                authProvider: AuthProvider.LOCAL,
+                lastLogin: new Date(),
+                isActive: true,
             });
+            
+            const accessToken = await this.tokenService.setTokens(newUser, res);
+    
+            return {
+                token: accessToken,
+                firstAuth: true
+            };
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            } else {
+                // Unexpected errors
+                throw new AppError('Registration failed', 500, ErrorTypes.INTERNAL_ERR, error);
+            }
         }
-
-        // verifying if the username is used
-        const existingUserByUsername = await User.findOne({ where: { username } });
-        if (existingUserByUsername) {
-            throw new AppError('Username is already taken', 409, ErrorTypes.VALIDATION_ERR, {
-                username: 'Username is already taken'
-            });
-        }
-        
-        const newUser = await User.create({
-            username: username,
-            email: email,
-            password: password,
-            authProvider: AuthProvider.LOCAL,
-            lastLogin: new Date(),
-            isActive: true,
-        });
-        
-        const accessToken = await this.tokenServices.setTokens(newUser, res);
-
-        return {
-            token: accessToken,
-            firstAuth: true
-        };
     }
 
     async logout(user: User, res: Response): Promise<void> {
-        await User.update({
-            refreshToken: null,
-        }, {
-            where: { 
-                id: user.get('id')
-            },
-        })
-
-        res.clearCookie('refreshToken');
+        try {
+            await UserService.saveUserChanges({ refreshToken: null }, user);
+            this.tokenService.clearRefreshToken(res);
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            } else {
+                // Unexpected errors
+                throw new AppError('Logout failed', 500, ErrorTypes.INTERNAL_ERR, error);
+            }
+        }
     }
 
-    async refreshToken(req: Request, res: Response): Promise<AuthResponse> { // refreshing user tokens
-        // extract the user id from the refresh token
-        const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
-
-        if(!decodedToken){
-            res.clearCookie('refreshToken');
-            throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
-        }
-
-        const user = await User.findOne({
-            where: {
-                id: decodedToken.id,
+    // refreshing user tokens
+    async refreshToken(req: Request, res: Response): Promise<PublicTokenData> { 
+        try {
+            // extract the user id from the refresh token
+            const decodedToken = this.tokenService.getDecodedRefreshToken(req) as TokenPayload;
+    
+            if(!decodedToken){
+                this.tokenService.clearRefreshToken(res);
+                throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
             }
-        })
-
-        if (!user) {
-            res.clearCookie('refreshToken');
-            throw new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED);
+    
+            const user = await UserService.findUser({ id: decodedToken.id });
+    
+            if (!user) {
+                this.tokenService.clearRefreshToken(res);
+                throw new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED);
+            }
+    
+            return await this.tokenService.setTokens(user, res);
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error
+            } else {
+                // Unexpected errors
+                throw new AppError('Tokens refresh failed!', 500, ErrorTypes.INTERNAL_ERR, error);
+            }
         }
-
-        const accessToken = await this.tokenServices.setTokens(user, res);
-
-        return {
-            token: accessToken
-        };
     }
 
     async checkAuth(req: Request, res: Response): Promise<PublicTokenData> {
-        const decodedToken = this.tokenServices.getDecodedToken(req) as TokenPayload;
+        const decodedToken = this.tokenService.getDecodedRefreshToken(req) as TokenPayload;
 
         if (!decodedToken) {
+            this.tokenService.clearRefreshToken(res);
             throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
-        const user = await User.findOne({
-            where: {
-                id: decodedToken.id,
-            }
-        });
+        const user = await UserService.findUser({ id: decodedToken.id });
+    
         if (!user) {
+            this.tokenService.clearRefreshToken(res);
             throw new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED);
         }
 
-        return this.tokenServices.generateAccessToken(user);
+        return this.tokenService.generateAccessToken(user);
     }
 }

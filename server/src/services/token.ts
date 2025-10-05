@@ -6,10 +6,11 @@ import {
 import { User } from '../models';
 import { Response, Request } from 'express';
 import jwt from 'jsonwebtoken'
-import { parseDurationToSeconds } from '../utils/date_utils/parseDurationToSeconds';
 import { config } from '../config/env';
+import { UserService } from './user';
+import parseDuration from '../utils/date_utils/parseDuration';
 
-export class TokenServices {
+export class TokenService {
     private readonly JWT_SECRET: string;
     private readonly JWT_REFRESH_SECRET: string;
     private readonly JWT_EXPIRATION: string;
@@ -23,49 +24,55 @@ export class TokenServices {
     }
 
     async setTokens(user: User, res: Response): Promise<PublicTokenData>{ // Generating and setting the tokens
-        const tokens = this.generateTokens(user); // generating the access and refresh tokens
-        
-        // Set the refresh token in the client cookies
-        this.setRefreshToken(tokens.refreshToken, res);
+        try {
+            const tokens = this.generateTokens(user); // generating the access and refresh tokens
+            
+            // Set the refresh token in the client cookies
+            this.setRefreshToken(tokens.refreshToken, res);
 
-        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
-        
-        await User.update({
-            refreshToken: tokens.refreshToken,
-        }, {
-            where: { 
-                id: user.get('id') ? user.get('id') : user.id
-            },
-        })
+            const accessExpirationDate = parseDuration.parseDurationToDate(this.JWT_EXPIRATION);
+            
+            UserService.saveUserChanges({ refreshToken: tokens.refreshToken }, user);
 
-        return {
-            accessToken: tokens.accessToken,
-            tokenExpiry: accessExpirationDate
+            return {
+                accessToken: tokens.accessToken,
+                tokenExpiry: accessExpirationDate
+            }
+        } catch (error) {
+            throw new Error("Failed to set User Tokens!");
         }
     }
 
-    public getDecodedToken(req: Request): TokenPayload | null { 
+    public getDecodedAccessToken(accessToken: string) { 
+        try {
+            return jwt.verify(
+                accessToken,
+                this.JWT_SECRET as string
+            ) as TokenPayload;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    public getDecodedRefreshToken(req: Request): TokenPayload | null { 
         const token = req.cookies.refreshToken;
         if (!token) {
             return null;
         }
 
-        let decodedToken: TokenPayload;
         try {
-            decodedToken = jwt.verify(
+            return jwt.verify(
                 token,
                 this.JWT_REFRESH_SECRET as string
             ) as TokenPayload;
         } catch (error) {
             return null;
         }
-
-        return decodedToken;
     }
 
     public generateTokenPayload(user: User): TokenPayload {
         return {
-            id: user.get('id') ? user.get('id') : user.id,
+            id: user.get().id
         };
     }
 
@@ -75,7 +82,7 @@ export class TokenServices {
             expiresIn: this.JWT_EXPIRATION as any
         });
 
-        const accessExpirationDate = this.getExpirationDate(this.JWT_EXPIRATION);
+        const accessExpirationDate = parseDuration.parseDurationToDate(this.JWT_EXPIRATION);
 
         return {
             accessToken,
@@ -105,12 +112,11 @@ export class TokenServices {
             httpOnly: true,
             secure: config.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: parseDurationToSeconds(this.JWT_REFRESH_EXPIRATION) * 1000,
+            maxAge: parseDuration.parseDurationToSeconds(this.JWT_REFRESH_EXPIRATION) * 1000,
         })
     }
 
-    public getExpirationDate(expiration: string): Date {
-        const expiresIn = parseDurationToSeconds(expiration);
-        return new Date(Date.now() + expiresIn * 1000);
+    public clearRefreshToken(res: Response) {
+        res.clearCookie('refreshToken')
     }
 }

@@ -7,8 +7,15 @@ export class AppError extends Error {
     public readonly isOperational: boolean;
     public readonly errorType: ErrorTypes
     public readonly data?: any;
+    public readonly cause?: any;
 
-    constructor(message: string, statusCode: number, errorType: ErrorTypes, data?: any){
+    constructor(
+        message: string, 
+        statusCode: number, 
+        errorType: ErrorTypes, 
+        data?: any,
+        cause?: Error
+    ){
         super(message);
         this.statusCode = statusCode;
         this.isOperational = true;
@@ -53,6 +60,8 @@ export const errorHandler = (
             errType: ErrorTypes.INTERNAL_ERR,
         })
     }
+
+    // to do: log the cause Error
 }
 
 export const catchAsync = (fn: Function) => {
