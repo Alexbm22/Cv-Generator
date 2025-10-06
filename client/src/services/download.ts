@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 import { apiService } from "./api";
-import { ModifiedCVAttributes, UserCVAttributes } from "../interfaces/cv";
-import { DownloadAttributes } from '../interfaces/downloads';
+import { UserCVAttributes } from "../interfaces/cv";
+import { DownloadAttributes, DownloadValidationResult } from '../interfaces/downloads';
 
 export class DownloadService {
     private static apiUrl = '/protected/downloads';
@@ -9,7 +9,7 @@ export class DownloadService {
     // Sends the document data and PDF blob to the server.
     // The server verifies if the user has an active subscription or sufficient credits.
     // If verification passes, the server records the download and responds with a 204 status.
-    static async createDownload(PdfBlob: Blob, documentData: UserCVAttributes) {
+    static async executeDownload(PdfBlob: Blob, documentData: UserCVAttributes, validationToken: string) {
         // verify if the user has permission to download
 
         const filename = `${documentData.title}.pdf`;
@@ -21,8 +21,9 @@ export class DownloadService {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('documentData', JSON.stringify(documentData));
+        formData.append('validationToken', validationToken);
 
-        return await apiService.post<void, FormData>( 
+        return await apiService.post<DownloadAttributes, FormData>( 
             this.apiUrl + '/',
             formData,
             { 
@@ -31,21 +32,19 @@ export class DownloadService {
         );
     }
 
-    static async downloadFile(download_id: string, filename: string) {
-        const fileBlob = await apiService.get<Blob>(
-            this.apiUrl + `/${download_id}/file`,
-            { responseType: 'blob' },
-        )
-
-        saveAs(fileBlob, filename);
+    static async validateDownload(documentData: UserCVAttributes) {
+        return await apiService.post<DownloadValidationResult, UserCVAttributes>(
+            this.apiUrl + '/validate',
+            documentData
+        );
     }
 
     static async getDownloads() {
         return await apiService.get<DownloadAttributes[]>(this.apiUrl);
     }
 
-    static async downloadPdf(PdfBlob: Blob, documentData: UserCVAttributes | ModifiedCVAttributes) {
-        saveAs(PdfBlob, documentData.title);
+    static downloadPdf(PdfBlob: Blob, fileName: string) {
+        saveAs(PdfBlob, fileName);
     }
 
 }

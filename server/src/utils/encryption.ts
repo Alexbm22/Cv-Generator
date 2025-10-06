@@ -1,4 +1,4 @@
-import { config } from '../config/env';
+import { config } from '@/config/env';
 import crypto from 'crypto';
 
 const ENCRYPTION_KEY_HEX = String(config.ENCRYPTION_KEY);

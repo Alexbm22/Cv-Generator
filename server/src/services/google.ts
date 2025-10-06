@@ -1,8 +1,9 @@
 import { OAuth2Client } from "google-auth-library";
-import { GoogleUserPayload } from '../interfaces/auth'
-import { AppError } from "../middleware/error_middleware";
-import { ErrorTypes } from "../interfaces/error";
-import { config } from "../config/env";
+import { GoogleUserPayload } from '@/interfaces/auth'
+import { AppError } from "@/middleware/error_middleware";
+import { ErrorTypes } from "@/interfaces/error";
+import { config } from "@/config/env";
+import { handleServiceError } from '../utils/serviceErrorHandler';
 
 export class GoogleServices {
     private readonly CLIENT_ID: string;
@@ -13,6 +14,7 @@ export class GoogleServices {
         this.OAuthClient = new OAuth2Client(this.CLIENT_ID);
     }
 
+    @handleServiceError('Google token verification failed')
     async verifyGoogleToken(IdToken: string): Promise<GoogleUserPayload>{
         const ticket = await this.OAuthClient.verifyIdToken({
             idToken: IdToken,

@@ -1,9 +1,10 @@
-import { MediaFilesCreationAttributes } from "../interfaces/mediaFiles";
+import { MediaFilesCreationAttributes } from "@/interfaces/mediaFiles";
 
 const generateS3ObjKey = (
     mediaFileObj: Omit<MediaFilesCreationAttributes, 'obj_key'>
 ): string => {
     // safe filename
+    console.log(mediaFileObj)
     const safeFilename = mediaFileObj.file_name.replace(/\s+/g, "_").toLowerCase();
 
     // generate unique suffix

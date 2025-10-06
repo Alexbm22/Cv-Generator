@@ -1,13 +1,13 @@
-import { UserAttributes, UserCreationAttributes, UserProfile } from "../interfaces/user";
-import { User } from "../models";
-import { SubscriptionService } from "./subscriptions";
-import { CreditsService } from "./credits";
-import { PaymentService } from "./payments";
-import { generateRandomSuffix } from '../utils/stringUtils/generateRandomSuffix'
-import userRespository from '../repositories/user';
-import { Op } from "sequelize";
+import { UserAttributes, UserCreationAttributes, UserProfile } from "@/interfaces/user";
+import { User } from "@/models";
+import { SubscriptionService } from "@/services/subscriptions";
+import { CreditsService } from "@/services/credits";
+import { PaymentService } from "@/services/payments";
+import { generateRandomSuffix } from '@/utils/stringUtils/generateRandomSuffix'
+import userRespository from '@/repositories/user';
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
+import { handleServiceError } from '@/utils/serviceErrorHandler';
 
 export class UserService {
 
@@ -23,6 +23,7 @@ export class UserService {
         await userRespository.saveUserChanges(updates, userInstance);
     }
 
+    @handleServiceError('Failed to validate user credentials')
     static async validateNewUserCredentials(email: string, username: string) {
         const existingUsers = await userRespository.findExistingCredentials(email, username);
 
@@ -47,6 +48,7 @@ export class UserService {
         }
     }
 
+    @handleServiceError('Failed to get user profile')
     static async getUserProfile(user: User): Promise<UserProfile> {
         const userData = user.get()
 
@@ -68,8 +70,8 @@ export class UserService {
         return userProfileData
     }
 
+    @handleServiceError('Failed to generate username')
     static async generateUsername(given_name?: string, family_name?: string): Promise<string> {
-        try {
             // Sanitize and normalize input names
             const sanitizedNames = [given_name, family_name]
                 .map(name => name?.trim().toLowerCase())
@@ -108,13 +110,14 @@ export class UserService {
                 return fallbackUsername;
             }
 
-            throw new Error('Failed to generate unique username after multiple attempts');
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Unknown error';
-            throw new Error(`Username generation failed: ${message}`);
-        }
+            throw new AppError(
+                'Failed to generate unique username after multiple attempts',
+                500,
+                ErrorTypes.INTERNAL_ERR
+            );
     }
 
+    @handleServiceError('Failed to check username uniqueness')
     static async isUniqueUsername(username: string): Promise<boolean> {
         const user = await User.findOne({where: { username }})
         if(user) return false;

@@ -21,7 +21,13 @@ router.post(
     '/',
     RateLimitInstance.globalRateLimit(),
     upload.single('file'),
-    catchAsync(DownloadsController.createDownload)
+    catchAsync(DownloadsController.executeDownload)
+)
+
+router.post(
+    '/validate',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(DownloadsController.validateDownload)
 )
 
 router.get(
@@ -30,10 +36,5 @@ router.get(
     catchAsync(DownloadsController.getDownloads)
 )
 
-router.get(
-    '/:download_id/file',
-    RateLimitInstance.globalRateLimit(),
-    catchAsync(DownloadsController.downloadFile)
-)
 
 export default router;

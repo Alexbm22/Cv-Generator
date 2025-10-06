@@ -1,5 +1,6 @@
 import { Optional } from "sequelize"
 import { PublicMediaFilesAttributes } from "./mediaFiles"
+import { CV, MediaFiles } from "@/models"
 
 export interface Language {
     id: string,
@@ -140,6 +141,10 @@ export interface ServerCVAttributes {
     content: CVContentAttributes,
     createdAt: Date,
     updatedAt: Date
+}
+
+export interface CVWithMediaFiles extends CV {
+  mediaFiles: MediaFiles[];
 }
 
 export interface CVCreationAttributes extends Optional<

@@ -1,5 +1,4 @@
-import { CVWithMediaFiles } from "../models/CV";
-import { ServerCVAttributes } from "../interfaces/cv";
+import { CVWithMediaFiles, ServerCVAttributes } from "../interfaces/cv";
 import { CV, MediaFiles } from "../models";
 import cvFactories from '../factories/cv';
 

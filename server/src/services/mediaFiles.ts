@@ -1,11 +1,11 @@
-import { MediaFiles } from "../models";
-import { MediaFilesCreationAttributes, PublicMediaFilesAttributes } from "../interfaces/mediaFiles";
-import { AppError } from "../middleware/error_middleware";
-import { ErrorTypes } from "../interfaces/error";
-import { S3Service } from "./s3";
-import { config } from "../config/env";
-import mediaFilesRepository from '../repositories/mediaFiles';
-import { generateS3ObjKey } from '../utils/mediaFiles'
+import { MediaFiles } from "@/models";
+import { MediaFilesCreationAttributes, PublicMediaFilesAttributes, PresignedUrlType } from "@/interfaces/mediaFiles";
+import { AppError } from "@/middleware/error_middleware";
+import { ErrorTypes } from "@/interfaces/error";
+import { S3Service } from "@/services/s3";
+import { config } from "@/config/env";
+import mediaFilesRepository from '@/repositories/mediaFiles';
+import { generateS3ObjKey } from '@/utils/mediaFiles'
 
 const s3Service = new S3Service();
 
@@ -24,6 +24,7 @@ export class MediaFilesServices {
 
             return await mediaFilesRepository.createMediaFile(mediaFileData);
         } catch (error) {
+            console.error(error);
             throw new AppError(
                 "Failed to create media file",
                 500,
@@ -69,28 +70,42 @@ export class MediaFilesServices {
         }
     }
 
+    
+
+    // Alternative enum-based approach
     static async getPublicMediaFileData(
-        mediaFile: MediaFiles
+        mediaFile: MediaFiles,
+        urlTypes: PresignedUrlType[] = [PresignedUrlType.GET, PresignedUrlType.PUT, PresignedUrlType.DELETE],
+        timeToLive: number = 5 * 60 * 1000
     ): Promise<PublicMediaFilesAttributes> {
-        const timeToLive = 5 * 60 * 1000;
-
         const expiresAt = Date.now() + timeToLive;
-        const getURL = await this.getMediaPresignedGetUrl(mediaFile, timeToLive);
-        const putURL = await this.getMediaPresignedPutUrl(mediaFile, timeToLive);
-        const deleteUrl = await this.getMediaPresignedDeleteUrl(mediaFile, timeToLive);
-
         const mediaFileData = mediaFile.get();
 
-        return {
+        const result: PublicMediaFilesAttributes = {
             expiresAt,
             id: mediaFileData.public_id,
             owner_type: mediaFileData.owner_type,
             type: mediaFileData.type,
-            file_name: mediaFileData.file_name,
-            presigned_get_URL: getURL,
-            presigned_put_URL: putURL,
-            presigned_delete_URL: deleteUrl
-        }
+            file_name: mediaFileData.file_name
+        };
+
+        // Generate URLs based on requested types
+        const urlPromises = urlTypes.map(async (urlType) => {
+            switch (urlType) {
+                case PresignedUrlType.GET:
+                    result.presigned_get_URL = await this.getMediaPresignedGetUrl(mediaFile, timeToLive);
+                    break;
+                case PresignedUrlType.PUT:
+                    result.presigned_put_URL = await this.getMediaPresignedPutUrl(mediaFile, timeToLive);
+                    break;
+                case PresignedUrlType.DELETE:
+                    result.presigned_delete_URL = await this.getMediaPresignedDeleteUrl(mediaFile, timeToLive);
+                    break;
+            }
+        });
+
+        await Promise.all(urlPromises);
+        return result;
     }
 
     static async getMediaPresignedGetUrl(

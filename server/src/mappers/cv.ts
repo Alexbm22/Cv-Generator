@@ -1,6 +1,5 @@
-import { PublicCVAttributes, PublicCVMetadataAttributes, ServerCVAttributes } from "@/interfaces/cv";
+import { CVWithMediaFiles, PublicCVAttributes, PublicCVMetadataAttributes, ServerCVAttributes } from "@/interfaces/cv";
 import { MediaTypes, PublicMediaFilesAttributes } from "@/interfaces/mediaFiles";
-import { CVWithMediaFiles } from "@/models/CV";
 import { randomUUID } from "crypto";
 
 const mapPublicCVToServerCV = (

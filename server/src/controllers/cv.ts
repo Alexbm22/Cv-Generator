@@ -44,7 +44,7 @@ export class CVsController {
         const userInfo = authenticatedUser.get();
 
         try {
-            const userCVsMetadata = await CVsService.getCVs(userInfo.id);
+            const userCVsMetadata = await CVsService.getAllCVsMetadata(userInfo.id);
             
             return res.status(200).json(userCVsMetadata);
         } catch (error) {
@@ -67,7 +67,7 @@ export class CVsController {
                 );
             }
 
-            const publicCVData = await CVsService.getCV(userInfo.id, cvPublicId);
+            const publicCVData = await CVsService.getDetailedCV(userInfo.id, cvPublicId);
 
             return res.status(200).json(publicCVData);
         } catch (error) {

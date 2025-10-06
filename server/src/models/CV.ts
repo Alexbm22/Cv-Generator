@@ -125,8 +125,5 @@ CV.init({
     }
 })
 
-export interface CVWithMediaFiles extends CV {
-  mediaFiles: MediaFiles[];
-}
 
 export default CV;

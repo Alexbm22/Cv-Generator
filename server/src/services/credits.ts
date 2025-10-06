@@ -1,34 +1,41 @@
-import { AppError } from "../middleware/error_middleware";
-import { DownloadCredits } from "../models";
-import { ErrorTypes } from "../interfaces/error";
+import { AppError } from "@/middleware/error_middleware";
+import { ErrorTypes } from "@/interfaces/error";
+import downloadCreditsRepository from '@/repositories/downloadCredits';
+import { handleServiceError } from '@/utils/serviceErrorHandler';
 
 export class CreditsService {
-
+    @handleServiceError('Failed to get user credits')
     static async getUserCredits(user_id: number): Promise<number> {
-        const userCredits = await DownloadCredits.findOne({ where: { user_id } });
+        const userCredits = await downloadCreditsRepository.getUserCredits(user_id);
         return userCredits ? userCredits.get().credits : 0;
     }
 
-    static async consumeCredit(user_id: number, userCredits: number): Promise<boolean> {
-        const consumedCredits = await DownloadCredits.update({ credits: userCredits - 1 }, { where: { user_id } });
-        return consumedCredits[0] > 0;
+    @handleServiceError('Failed to deduct credit')
+    static async deductCredit(user_id: number, currentCredits?: number): Promise<boolean> {
+        if(!currentCredits) {
+            const userCredits = await this.getUserCredits(user_id);
+            if (userCredits <= 0) {
+                throw new AppError(
+                    "Insufficient credits available for this operation",
+                    403,
+                    ErrorTypes.UNAUTHORIZED
+                );
+            } else {
+                currentCredits = userCredits;
+            }
+        }
+        return await downloadCreditsRepository.updateCredits(user_id, currentCredits - 1);
     }
 
+    @handleServiceError('Failed to add credits')
     static async addCredits(user_id: number, amount: number) {
-        try {
-            const userCredits = await DownloadCredits.findOne({ where: { user_id } });
-            if (userCredits) {
-                userCredits.set('credits', userCredits.credits + amount);
-                await userCredits.save();
-            } else {
-                await DownloadCredits.create({ user_id, credits: amount });
-            }
-        } catch (error) {
-            throw new AppError(
-                "Failed to add credits",
-                500,
-                ErrorTypes.INTERNAL_ERR
-            )
+        const { userCredits, created } = await downloadCreditsRepository.findOrCreateUserCredits(user_id, amount);
+        
+        if (!created) {
+            userCredits.set('credits', userCredits.credits + amount);
+            await userCredits.save();
         }
+        
+        return userCredits;
     }
 }

@@ -7,24 +7,39 @@ import { ErrorTypes } from "../interfaces/error";
 
 export class DownloadsController {
 
-    static async createDownload(req: AuthRequest, res: Response, next: NextFunction) {
+    static async validateDownload(req: AuthRequest, res: Response, next: NextFunction) {
+        const user = req.user;
+        const documentData = req.body.documentData;
+        
+        try {
+            const CVData = JSON.parse(documentData) as PublicCVAttributes;
+            const validationResult = await DownloadsService.validateDownload(user, CVData);
+            return res.status(200).json(validationResult);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    static async executeDownload(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
         const file = req.file;
-        const documentData = req.body.documentData;
+        const {
+            documentData, validationToken
+        } = req.body;
 
-        if(!file) {
+        if(!file || !documentData || !validationToken) {
             return next(new AppError(
-                "No file provided for download.",
+                "Missing required fields for download.",
                 400,
                 ErrorTypes.BAD_REQUEST
-            ))
+            ));
         }
         
         const CVData = JSON.parse(documentData) as PublicCVAttributes;
 
         try {
-            await DownloadsService.initDownload(user, CVData, file); 
-            return res.status(204).end()
+            const downloadPublicData = await DownloadsService.executeDownload(user, CVData, validationToken as string, file); 
+            return res.status(201).json(downloadPublicData);
         } catch (error) {
             return next(error);
         }
@@ -34,32 +49,8 @@ export class DownloadsController {
         const user = req.user;
 
         try {
-            const userDownloads = await DownloadsService.getUserDownloads(user); 
+            const userDownloads = await DownloadsService.getUserDownloadsPublicData(user); 
             return res.status(200).json(userDownloads)
-        } catch (error) {
-            return next(error);
-        }
-    }
-
-    static async downloadFile(req: AuthRequest, res: Response, next: NextFunction) {
-        const download_id = req.params.download_id;
-        if(!download_id) {
-            return next(
-                new AppError(
-                    "Download ID is required.",
-                    400,
-                    ErrorTypes.BAD_REQUEST
-                )
-            )
-        }
-
-        try {
-            const { fileName, fileStream } = await DownloadsService.getDownloadFileStream(download_id);
-
-            res.setHeader("Content-Type", "application/pdf");
-            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-
-            fileStream.pipe(res);
         } catch (error) {
             return next(error);
         }

@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { StripePrice } from "./stripe";
+import { Optional } from "sequelize";
 
 export enum Payment_Interval {
   day = 'day',
@@ -35,6 +36,10 @@ export interface PaymentAttributes {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface PaymentCreationAttributes extends Optional<PaymentAttributes, 
+    'amount_received' | 'payment_method_type' | 'createdAt' | 'updatedAt' | 'id'
+> {}
 
 export interface PublicPaymentData {
     payment_id: string;

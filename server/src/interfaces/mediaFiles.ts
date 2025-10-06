@@ -22,9 +22,9 @@ export interface PublicMediaFilesAttributes {
     file_name: string;
     type: MediaTypes;
     expiresAt: number;
-    presigned_get_URL: string;
-    presigned_put_URL: string;
-    presigned_delete_URL: string;
+    presigned_get_URL?: string;
+    presigned_put_URL?: string;
+    presigned_delete_URL?: string;
 }
 
 export enum MediaTypes {
@@ -38,4 +38,10 @@ export enum OwnerTypes {
     DOWNLOAD = 'DOWNLOAD',
     CV = 'CV',
     USER = 'USER'
+}
+
+export enum PresignedUrlType {
+    GET = 'get',
+    PUT = 'put',
+    DELETE = 'delete'
 }

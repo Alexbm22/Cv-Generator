@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCvEditStore, useCVsStore } from "../../../../../Store";
-import { deleteImage, fetchImage, uploadImage } from "../../../../../services/MediaFiles";
+import { deleteImage, fetchFile, uploadImage } from "../../../../../services/MediaFiles";
 import { useEffect, useState } from "react";
 import { CVStateMode } from "../../../../../interfaces/cv";
 import { blobToBase64 } from "../../../../../utils/blobToBase64";
@@ -19,7 +19,7 @@ export const useCVPhotoState = () => {
 
     const { data, isSuccess, isError, error, refetch } = useQuery({
         queryKey: ['cvPhoto'],
-        queryFn: async () => await fetchImage(UserCVPhoto!),
+        queryFn: async () => await fetchFile(UserCVPhoto!),
         enabled: isFetchEnabled,
         staleTime: 600000,
         retry: false

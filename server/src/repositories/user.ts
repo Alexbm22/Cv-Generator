@@ -3,19 +3,19 @@ import { UserAttributes, UserCreationAttributes } from "../interfaces/user"
 import { User } from "../models"
 
 const getUserByFields = async (fields: Partial<UserAttributes>) => {
-    return User.findOne({
+    return await User.findOne({
         where: fields
     });
 }
 
 const getUsersByFields = async (fields: Partial<UserAttributes>) => {
-    return User.findOne({
+    return await User.findOne({
         where: fields
     });
 }
 
 const findExistingCredentials = async (email: string, username: string) => {
-    return User.findAll({
+    return await User.findAll({
         where: {
             [Op.or]: [
                 { email },

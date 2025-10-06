@@ -39,9 +39,9 @@ export const useCreateUserCV = () => {
             addUserCV(CVMetaData);
             
             navigate(
-                routes.editResume.path.replace(/:id$/, createdCV.id ?? "" ), 
+                routes.editResume.path.replace(/:id$/, createdCV.id), 
                 { replace: true }
-            ) 
+            );
             
             const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
             const CVTemplate = TemplateMap[createdCV.template];

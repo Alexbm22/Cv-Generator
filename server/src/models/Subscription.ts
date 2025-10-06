@@ -3,14 +3,11 @@ import sequelize from '../config/DB/database_config';
 import {
     PublicSubscriptionData,
     SubscriptionAttributes,
+    SubscriptionCreationAttributs,
     SubscriptionStatus
 } from '../interfaces/subscriptions'; 
 import { Payment_Interval } from '../interfaces/payments';
 import { generateUUID } from '../utils/uuid';
-
-interface SubscriptionCreationAttributs extends Optional<SubscriptionAttributes,
-    'auto_renew' | 'createdAt' | 'updatedAt' | 'id' | 'public_id'
-> {}
 
 class Subscription extends Model<SubscriptionAttributes, SubscriptionCreationAttributs> implements SubscriptionAttributes{
     public id!: number;

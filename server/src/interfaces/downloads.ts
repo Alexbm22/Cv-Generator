@@ -1,4 +1,7 @@
+import { Optional } from "sequelize";
 import { ServerCVAttributes, PublicCVAttributes } from "./cv";
+import { Download, MediaFiles } from "@/models";
+import { PublicMediaFilesAttributes } from "./mediaFiles";
 
 export interface DownloadAttributes {
     id: number;
@@ -12,8 +15,25 @@ export interface DownloadAttributes {
     updatedAt: Date
 }
 
+export interface DownloadCreationAttributes extends Optional<DownloadAttributes, 
+    'id' | 'encryptedMetadata' | 'createdAt' | 'updatedAt' | 'public_id'
+> {}
+
+export interface DownloadWithMediaFiles extends Download {
+  mediaFiles: MediaFiles[];
+}
+
+export interface DownloadValidationResult {
+    isDuplicate: boolean;
+    existingDownload?: PublicDownloadData;
+    hasPermission: boolean;
+    validationToken?: string; 
+}
+
 export interface PublicDownloadData {
-    download_id: string;
+    id: string;
     fileName: string;
     createdAt: Date,
+    downloadPreview: PublicMediaFilesAttributes;
+    downloadFile: PublicMediaFilesAttributes;
 }

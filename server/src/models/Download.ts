@@ -1,13 +1,9 @@
-import { DownloadAttributes, PublicDownloadData } from "../interfaces/downloads";
+import { DownloadAttributes, DownloadCreationAttributes, PublicDownloadData } from "../interfaces/downloads";
 import { decrypt, encrypt } from "../utils/encryption";
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from '../config/DB/database_config';
 import { PublicCVAttributes } from "../interfaces/cv";
 import { generateUUID } from "../utils/uuid";
-
-interface DownloadCreationAttributes extends Optional<DownloadAttributes, 
-    'id' | 'encryptedMetadata' | 'createdAt' | 'updatedAt' | 'public_id'
-> {}
 
 // to do add preview image
 class Download extends Model<DownloadAttributes, DownloadCreationAttributes> implements DownloadAttributes {
@@ -33,20 +29,6 @@ class Download extends Model<DownloadAttributes, DownloadCreationAttributes> imp
             return JSON.parse(decrypt(encryptedData));
         }
         return null;
-    }
-
-    public toSafeDownload(): PublicDownloadData {
-        const {
-            public_id: download_id,
-            fileName,
-            createdAt
-        } = this.get();
-
-        return {
-            download_id,
-            fileName,
-            createdAt
-        }
     }
 }
 

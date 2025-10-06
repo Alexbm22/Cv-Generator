@@ -18,7 +18,7 @@ export const uploadImage = async (blobObj: Blob, mediaFile: MediaFilesAttributes
     }
 }
 
-export const fetchImage = async (mediaFile: MediaFilesAttributes) => {
+export const fetchFile = async (mediaFile: MediaFilesAttributes) => {
     try {
         if(mediaFile.expiresAt < Date.now()) {
             mediaFile = await getMediaFileById(mediaFile.id);

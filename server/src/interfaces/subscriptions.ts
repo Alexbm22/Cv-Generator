@@ -1,3 +1,4 @@
+import { Optional } from "sequelize";
 import { Payment_Interval } from "./payments";
 
 export enum SubscriptionStatus {
@@ -22,6 +23,10 @@ export interface SubscriptionAttributes {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface SubscriptionCreationAttributs extends Optional<SubscriptionAttributes,
+    'auto_renew' | 'createdAt' | 'updatedAt' | 'id' | 'public_id'
+> {}
 
 export interface PublicSubscriptionData {
     subscription_id: string;

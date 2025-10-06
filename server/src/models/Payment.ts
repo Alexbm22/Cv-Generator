@@ -2,6 +2,7 @@ import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/DB/database_config';
 import { 
     PaymentAttributes, 
+    PaymentCreationAttributes, 
     PaymentStatus,
     PublicPaymentData
 } from '../interfaces/payments';
@@ -10,9 +11,7 @@ import { StripePrice } from '../interfaces/stripe';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
 
-interface PaymentCreationAttributes extends Optional<PaymentAttributes, 
-    'amount_received' | 'payment_method_type' | 'createdAt' | 'updatedAt' | 'id'
-> {}
+
 
 class Payments extends Model<
     PaymentAttributes, 
