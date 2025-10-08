@@ -9,10 +9,9 @@ export class DownloadsController {
 
     static async validateDownload(req: AuthRequest, res: Response, next: NextFunction) {
         const user = req.user;
-        const documentData = req.body.documentData;
+        const CVData = req.body;
         
         try {
-            const CVData = JSON.parse(documentData) as PublicCVAttributes;
             const validationResult = await DownloadsService.validateDownload(user, CVData);
             return res.status(200).json(validationResult);
         } catch (error) {

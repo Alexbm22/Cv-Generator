@@ -124,6 +124,7 @@ export interface CVContentAttributes {
 }
 
 export interface CVPersonalInfoAttributes {
+    photo_last_uploaded?: Date,
     firstName: string,
     lastName: string,
     email: string,
@@ -172,6 +173,7 @@ export interface CVEditStoreContentActions {
 }
 
 export interface CVEditStorePersonalInfoActions {
+    setPhotoLastUploaded: (date: Date) => void;
     setFirstName: (firstName: string) => void;
     setLastName: (lastName: string) => void;
     setEmail: (email: string) => void;

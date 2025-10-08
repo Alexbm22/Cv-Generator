@@ -1,16 +1,17 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from '../config/DB/database_config';
-import { MediaFilesAttributes, MediaFilesCreationAttributes, MediaTypes, OwnerTypes } from "../interfaces/mediaFiles";
+import { FileType, MediaFilesAttributes, MediaFilesCreationAttributes, MediaType, OwnerType } from "../interfaces/mediaFiles";
 import { generateUUID } from "../utils/uuid";
 
 class MediaFiles extends Model<MediaFilesAttributes, MediaFilesCreationAttributes> implements MediaFilesAttributes {
     public id!: number;
     public public_id!: string;
     public owner_id!: number;
-    public owner_type!: OwnerTypes;
+    public owner_type!: OwnerType;
     public file_name!: string;
+    public file_type!: FileType;
     public obj_key!: string;
-    public type!: MediaTypes;
+    public type!: MediaType;
     public createdAt!: Date;
     public updatedAt!: Date;
 }
@@ -32,11 +33,15 @@ MediaFiles.init({
         allowNull: false,
     },
     owner_type: {
-        type: DataTypes.ENUM(...Object.values(OwnerTypes)),
+        type: DataTypes.ENUM(...Object.values(OwnerType)),
         allowNull: false,
     },
     file_name: {
         type: DataTypes.STRING(255),
+        allowNull: false,
+    },
+    file_type: {
+        type: DataTypes.ENUM(...Object.values(FileType)),
         allowNull: false,
     },
     obj_key: {
@@ -45,7 +50,7 @@ MediaFiles.init({
         allowNull: false,
     },
     type: {
-        type: DataTypes.ENUM(...Object.values(MediaTypes)),
+        type: DataTypes.ENUM(...Object.values(MediaType)),
         allowNull: false,
     },
     createdAt: {

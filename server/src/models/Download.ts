@@ -46,7 +46,7 @@ Download.init({
         defaultValue: () => generateUUID(),
     },
     origin_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     user_id: {

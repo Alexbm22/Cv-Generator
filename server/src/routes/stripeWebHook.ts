@@ -12,7 +12,6 @@ const endpointSecret = config.STRIPE_WEBHOOK_SECRET;
 
 const stripeWebHook = async (req: Request, res: Response) => {
     const signature = req.headers['stripe-signature'] as string;
-    
     if(endpointSecret){
         try {
             const event = stripe.webhooks.constructEvent(
@@ -30,17 +29,30 @@ const stripeWebHook = async (req: Request, res: Response) => {
                         break;
                     case 'payment_intent.succeeded':
                         const succeededPaymentIntent = event.data.object as Stripe.PaymentIntent;
-                        const succeededPayment = await PaymentService.updatePayment(succeededPaymentIntent);
+                        
+                        await PaymentService.updatePayment(succeededPaymentIntent);
+                        
+                        const updatedPayment = await PaymentService.getPayment(succeededPaymentIntent.id);
+                        
+                        if(!updatedPayment) {
+                            throw new AppError(
+                                "Payment not found after update.",
+                                404,
+                                ErrorTypes.NOT_FOUND
+                            );
+                        }
 
-                        if( succeededPayment?.price.type === 'recurring' ) {
+                        const updatedPaymentData = updatedPayment.get();
+                        
+                        if( updatedPaymentData?.price.type === 'recurring' ) {
                             // Handle recurring payment success
-                            await SubscriptionService.createSubscription(succeededPayment);
+                            await SubscriptionService.createSubscription(updatedPaymentData);
 
-                        } else if( succeededPayment?.price.type === 'one_time' ) {
+                        } else if( updatedPaymentData?.price.type === 'one_time' ) {
                             // Handle one-time payment success
                             await CreditsService.addCredits(
-                                succeededPayment.user_id,
-                                succeededPayment.quantity!
+                                updatedPaymentData.user_id,
+                                updatedPaymentData.quantity!
                             )
                         }
                         break;
@@ -54,12 +66,11 @@ const stripeWebHook = async (req: Request, res: Response) => {
                 error && typeof error === "object" && "message" in error
                     ? (error as { message: string }).message
                     : "Failed to construct event";
-            new AppError(
+            throw new AppError(
                 "Webhook Error: " + errorMessage,
                 400,
                 ErrorTypes.BAD_REQUEST
             );
-            res.sendStatus(400);
         }
     }
 

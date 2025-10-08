@@ -1,12 +1,13 @@
 import { CVCreationAttributes, CVTemplates } from "../interfaces/cv";
-import { MediaFilesCreationAttributes, MediaTypes, OwnerTypes } from "../interfaces/mediaFiles";
+import { FileType, MediaFilesCreationAttributes, MediaType, OwnerType } from "../interfaces/mediaFiles";
 
 const createCVPhotoMediaFileObj = (cvId: number, cv_title: string): Omit<MediaFilesCreationAttributes, 'obj_key'> => {
     return {
         owner_id: cvId,
         file_name: cv_title,
-        owner_type: OwnerTypes.CV,
-        type: MediaTypes.CV_PHOTO,
+        owner_type: OwnerType.CV,
+        file_type: FileType.PNG,
+        type: MediaType.CV_PHOTO,
     };
 }
 
@@ -14,14 +15,13 @@ const createCVPreviewMediaFileObj = (cvId: number, cv_title: string): Omit<Media
     return {
         owner_id: cvId,
         file_name: cv_title,
-        owner_type: OwnerTypes.CV,
-        type: MediaTypes.CV_PREVIEW,
+        owner_type: OwnerType.CV,
+        file_type: FileType.PNG,
+        type: MediaType.CV_PREVIEW,
     };
 }
 
 const createDefaultCVObject = (): Omit<CVCreationAttributes, 'user_id'> => ({
-    jobTitle: '',
-    title: '',
     template: CVTemplates.CASTOR,
     content: {
         professionalSummary: '',

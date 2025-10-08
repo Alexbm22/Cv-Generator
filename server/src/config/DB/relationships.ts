@@ -1,4 +1,4 @@
-import { OwnerTypes } from '../../interfaces/mediaFiles';
+import { OwnerType } from '../../interfaces/mediaFiles';
 import * as Models from '../../models'
 
 export const defineTablesRelationships = () => {
@@ -70,9 +70,8 @@ export const defineTablesRelationships = () => {
         Models.MediaFiles,
         {
             foreignKey: 'owner_id',
-            constraints: true,
-            scope: { owner_type: OwnerTypes.CV },
-            onDelete: 'CASCADE',
+            constraints: false,
+            scope: { owner_type: OwnerType.CV },
             as: 'mediaFiles',
         }
     )
@@ -81,8 +80,8 @@ export const defineTablesRelationships = () => {
         Models.CV, 
         { 
             foreignKey: 'owner_id',
-            constraints: true, 
-            scope: { owner_type: OwnerTypes.CV },
+            constraints: false,
+            scope: { owner_type: OwnerType.CV },
             as: 'cv' 
         }
     );
@@ -91,9 +90,8 @@ export const defineTablesRelationships = () => {
         Models.MediaFiles,
         {
             foreignKey: 'owner_id',
-            constraints: true,
-            scope: { owner_type: OwnerTypes.DOWNLOAD },
-            onDelete: 'CASCADE',
+            constraints: false,
+            scope: { owner_type: OwnerType.DOWNLOAD },
             as: 'mediaFiles'
         }
     )
@@ -102,8 +100,8 @@ export const defineTablesRelationships = () => {
         Models.Download, 
         { 
             foreignKey: 'owner_id',
-            constraints: true, 
-            scope: { owner_type: OwnerTypes.DOWNLOAD },
+            constraints: false,
+            scope: { owner_type: OwnerType.DOWNLOAD },
             as: 'download' 
         }
     );

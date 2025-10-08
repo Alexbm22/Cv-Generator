@@ -1,5 +1,5 @@
 import { CVWithMediaFiles, PublicCVAttributes, PublicCVMetadataAttributes, ServerCVAttributes } from "@/interfaces/cv";
-import { MediaTypes, PublicMediaFilesAttributes } from "@/interfaces/mediaFiles";
+import { MediaType, PublicMediaFilesAttributes } from "@/interfaces/mediaFiles";
 import { randomUUID } from "crypto";
 
 const mapPublicCVToServerCV = (
@@ -12,6 +12,7 @@ const mapPublicCVToServerCV = (
         jobTitle: cv.jobTitle,
         template: cv.template,
         user_id: userId,
+        photo_last_uploaded: cv.photo_last_uploaded,
         content: {
             professionalSummary: cv.professionalSummary,
             languages: cv.languages,
@@ -42,6 +43,7 @@ const mapServerCVToPublicCV = (
         preview,
         id: cv.public_id,
         title: cv.title,
+        photo_last_uploaded: cv.photo_last_uploaded,
         jobTitle: cv.jobTitle,
         template: cv.template,
         updatedAt: cv.updatedAt,
@@ -68,8 +70,8 @@ const mapServerCVToPublicCVMetadata = (
 }
 
 const extractCVMediaFiles = (cv: CVWithMediaFiles) => {
-    const photo = cv.mediaFiles.find(mediaFile => mediaFile.get().type === MediaTypes.CV_PHOTO)!;
-    const preview = cv.mediaFiles.find(mediaFile => mediaFile.get().type === MediaTypes.CV_PREVIEW)!;
+    const photo = cv.mediaFiles.find(mediaFile => mediaFile.get().type === MediaType.CV_PHOTO)!;
+    const preview = cv.mediaFiles.find(mediaFile => mediaFile.get().type === MediaType.CV_PREVIEW)!;
 
     return {
         CVData: cv,

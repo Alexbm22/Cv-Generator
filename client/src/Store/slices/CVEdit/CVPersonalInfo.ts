@@ -9,7 +9,7 @@ export const createPersonalInfoSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
     (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
 }): CVEditStorePersonalInfoSliceAttributes => ({
-    photo: DEFAULT_CV_EDITOR_STATE.photo,
+    photo_last_uploaded: DEFAULT_CV_EDITOR_STATE.photo_last_uploaded,
     firstName: DEFAULT_CV_EDITOR_STATE.firstName,
     lastName: DEFAULT_CV_EDITOR_STATE.lastName,
     email: DEFAULT_CV_EDITOR_STATE.email,
@@ -18,9 +18,7 @@ export const createPersonalInfoSlice = (set: {
     birthDate: DEFAULT_CV_EDITOR_STATE.birthDate,
     socialLinks: DEFAULT_CV_EDITOR_STATE.socialLinks,
     
-    setPhoto: (url) => {
-        set({ UserPhoto: url });
-    },
+    setPhotoLastUploaded: (date: Date) => set({ photo_last_uploaded: date }),
     setFirstName: (firstName: string) => set({ firstName }),
     setLastName: (lastName: string) => set({ lastName }),
     setEmail: (email: string) => set({ email }),

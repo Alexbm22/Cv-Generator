@@ -24,7 +24,6 @@ export class MediaFilesServices {
 
             return await mediaFilesRepository.createMediaFile(mediaFileData);
         } catch (error) {
-            console.error(error);
             throw new AppError(
                 "Failed to create media file",
                 500,

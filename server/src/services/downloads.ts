@@ -1,4 +1,4 @@
-import { PublicCVAttributes } from "../interfaces/cv";
+import { CVWithMediaFiles, PublicCVAttributes } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
 import { AppError } from "../middleware/error_middleware";
 import { MediaFiles, User } from "../models";
@@ -6,7 +6,7 @@ import { CreditsService } from "./credits";
 import { S3Service } from "./s3";
 import { config } from "../config/env";
 import { MediaFilesServices } from "./mediaFiles";
-import { MediaTypes, OwnerTypes, PresignedUrlType } from "@/interfaces/mediaFiles";
+import { FileType, MediaType, OwnerType, PresignedUrlType } from "@/interfaces/mediaFiles";
 import { CVsService } from "./cv";
 import { downloadRepository } from "@/repositories";
 import { SubscriptionService } from "./subscriptions";
@@ -103,28 +103,28 @@ export class DownloadsService {
 
         try {
             // Create download record
-            downloadRecord = await downloadRepository.createDownload({
+            const downloadRecord = await downloadRepository.createDownload({
                 metadata: cvAttributes,
-                fileName: file.originalname,
+                fileName: `${cvAttributes.title}.pdf`,
                 origin_id: cvAttributes.id,
                 user_id: userRecord.id
             });
 
-            const downloadData = downloadRecord.get();
-
             // Create media file records
             [downloadFileMedia, downloadPreviewMedia] = await Promise.all([
                 MediaFilesServices.create({
-                    owner_id: downloadData.id,
-                    owner_type: OwnerTypes.DOWNLOAD,
-                    type: MediaTypes.DOWNLOAD_FILE,
-                    file_name: file.mimetype.split('/')[1]
+                    owner_id: downloadRecord.id,
+                    owner_type: OwnerType.DOWNLOAD,
+                    type: MediaType.DOWNLOAD_FILE,
+                    file_type: FileType.PDF,
+                    file_name: file.originalname
                 }),
                 MediaFilesServices.create({
-                    owner_id: downloadData.id,
-                    owner_type: OwnerTypes.DOWNLOAD,
-                    type: MediaTypes.DOWNLOAD_FILE_PREVIEW,
-                    file_name: file.mimetype.split('/')[1]
+                    owner_id: downloadRecord.id,
+                    owner_type: OwnerType.DOWNLOAD,
+                    type: MediaType.DOWNLOAD_FILE_PREVIEW,
+                    file_type: FileType.PNG,
+                    file_name: `preview_${file.originalname}`
                 })
             ]);
 
@@ -132,7 +132,7 @@ export class DownloadsService {
             await this.handleS3Operations(file, ownedCV, downloadFileMedia, downloadPreviewMedia);
 
             // Return the download with media files
-            const downloadObject = await downloadRepository.getDownloadWithMediaFiles({ id: downloadData.id });
+            const downloadObject = await downloadRepository.getDownloadWithMediaFiles({ id: downloadRecord.id });
             if (!downloadObject) {
                 throw new AppError(
                     "Download record not found after creation.",
@@ -160,15 +160,16 @@ export class DownloadsService {
         }
     }
 
+    @handleServiceError("S3 Operations Failed")
     private static async handleS3Operations(
         file: Express.Multer.File,
-        ownedCV: any,
+        ownedCV: CVWithMediaFiles,
         downloadFileMedia: MediaFiles,
         downloadPreviewMedia: MediaFiles
     ) {
         // Find the source CV preview media file
         const sourceCVPreview = ownedCV.mediaFiles.find(
-            (mediaFile: MediaFiles) => mediaFile.get().type === MediaTypes.CV_PREVIEW
+            (mediaFile: MediaFiles) => mediaFile.get().type === MediaType.CV_PREVIEW
         );
 
         const operations = [
@@ -230,11 +231,11 @@ export class DownloadsService {
         const existingDownloads = await downloadRepository.getDownloadsWithMediaFiles({ origin_id: cvData.id });
 
         // Exclude non-essential fields from comparison
-        const { updatedAt, preview, photo, ...cvAttributes } = cvData;
+        const { updatedAt, createdAt, id, preview, photo, ...cvAttributes } = cvData;
 
         return existingDownloads.find((download) => {
-            const { updatedAt, preview, photo, ...downloadAttributes } = download.get().metadata;
-            return JSON.stringify(downloadAttributes) === JSON.stringify(cvAttributes);
+            const { updatedAt, createdAt, id, preview, photo, ...downloadCVAttributes } = download.get().metadata;
+            return JSON.stringify(downloadCVAttributes) === JSON.stringify(cvAttributes);
         });
     }
 

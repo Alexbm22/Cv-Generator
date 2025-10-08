@@ -2,6 +2,7 @@
 export interface MediaFilesAttributes {
     id: string;
     owner_type: OwnerTypes;
+    file_name: string;
     type: MediaTypes;
     expiresAt: number;
     presigned_get_URL: string;

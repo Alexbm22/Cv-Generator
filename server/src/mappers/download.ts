@@ -1,5 +1,5 @@
 import { DownloadAttributes, DownloadWithMediaFiles, PublicDownloadData } from "@/interfaces/downloads"
-import { MediaTypes, PublicMediaFilesAttributes } from "@/interfaces/mediaFiles"
+import { MediaType, PublicMediaFilesAttributes } from "@/interfaces/mediaFiles"
 
 const mapServerDownloadToPublicDownloadData = (
     download: DownloadAttributes, 
@@ -16,8 +16,8 @@ const mapServerDownloadToPublicDownloadData = (
 }
 
 const extractDownloadMediaFiles = (download: DownloadWithMediaFiles) => {
-    const file = download.mediaFiles.find(mediaFile => mediaFile.get().type === MediaTypes.DOWNLOAD_FILE)!;
-    const preview = download.mediaFiles.find(mediaFile => mediaFile.get().type === MediaTypes.DOWNLOAD_FILE_PREVIEW)!;
+    const file = download.mediaFiles.find(mediaFile => mediaFile.get().type === MediaType.DOWNLOAD_FILE)!;
+    const preview = download.mediaFiles.find(mediaFile => mediaFile.get().type === MediaType.DOWNLOAD_FILE_PREVIEW)!;
 
     return {
         DownloadData: download,

@@ -305,6 +305,7 @@ export const CV_EDITOR_TEMPLATE_CONSTANTS = {
 
 export const DEFAULT_CV_EDITOR_STATE = {
     title: 'Untitled',
+    photo_last_uploaded: undefined,
     jobTitle: '',
     template: CVTemplates.CASTOR,
     professionalSummary: '',

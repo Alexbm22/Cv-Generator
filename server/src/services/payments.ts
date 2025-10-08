@@ -31,7 +31,7 @@ export class PaymentService {
         paymentIntent: Stripe.PaymentIntent,
     ) {
         try {
-            const [_, [updatedPayment]] = await paymentRepository.updatePaymentByFields({
+            const [affectedCount, affectedRows] = await paymentRepository.updatePaymentByFields({
                 status: paymentIntent.status,
                 customer_id: 
                     typeof paymentIntent.customer === 'string' ? paymentIntent.customer : null,
@@ -43,8 +43,15 @@ export class PaymentService {
                 payment_id: paymentIntent.id 
             });
 
-            return updatedPayment?.get();
+            if (affectedCount === 0) {
+                throw new AppError(
+                    "Payment not found or no changes made.",
+                    404,
+                    ErrorTypes.NOT_FOUND
+                );
+            }
         } catch (error) {
+            console.error("Error updating payment:", error);
             throw new AppError(
                 "Failed to confirm payment in the database.",
                 500,
@@ -56,6 +63,11 @@ export class PaymentService {
     static async getUserPayments(user_id: number) {
         const payments = await paymentRepository.getPayments({ user_id: user_id })
         return payments.map((payment) => payment.toSafePayment());
+    }
+
+    static async getPayment(payment_id: string) {
+        const payment = await paymentRepository.getPayment({ payment_id: payment_id })
+        return payment
     }
 
 }

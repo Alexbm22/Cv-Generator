@@ -21,7 +21,8 @@ export class CVLocalService {
                 const updatedCV = getUserCVObject();
 
                 const selectedCV = CVState.selectedCV;
-                if(JSON.stringify(selectedCV) === JSON.stringify(updatedCV)) return;
+                // verify if there are changes
+                if(JSON.stringify(selectedCV) === JSON.stringify(updatedCV)) return; 
 
                 await CVServerService.sync(updatedCV);
                 setUserSelectedCV(updatedCV);
@@ -29,9 +30,8 @@ export class CVLocalService {
                 const updatedCV = getGuestCVObject();
 
                 const selectedCV = CVState.selectedCV;
+                // verify if there are changes
                 if(JSON.stringify(selectedCV) === JSON.stringify(updatedCV)) return;
-
-                console.log('is updating')
 
                 updateGuestCV(updatedCV);
                 setGuestSelectedCV(updatedCV);

@@ -23,21 +23,17 @@ export class S3Service {
         s3ObjKey: string,
         bucketName: string,
     ) {
+        console.error(s3ObjKey);
         try {
-            const fileName = `${Date.now().toString()}.${file.mimetype.split('/')[1]}`;
-    
             const params = {
                 Bucket: bucketName,
-                Key: fileName,
+                Key: s3ObjKey,
                 Body: file.buffer
             }
 
             const command = new PutObjectCommand(params);
     
             await this.s3Client.send(command);
-
-            return fileName
-
         } catch (error) {
 
             const errorMessage = error && typeof error === "object" && "message" in error ? 
@@ -221,7 +217,6 @@ export class S3Service {
 
         try {
             await this.s3Client.send(copyCommand);
-            return targetKey;
         } catch (error) {
             const errorMessage = error && typeof error === "object" && "message" in error ?
                 error.message : "Failed to generate presigned URL";

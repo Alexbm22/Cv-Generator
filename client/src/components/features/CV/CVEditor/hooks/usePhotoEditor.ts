@@ -41,6 +41,7 @@ export const useCVPhotoState = () => {
 
     const handleUserCropSuccess = async (cropResult: Blob) => {
         await uploadImage(cropResult, UserCVPhoto!);
+        useCvEditStore.getState().setPhotoLastUploaded(new Date());
         refetch();
     } 
 

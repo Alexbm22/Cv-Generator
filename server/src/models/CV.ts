@@ -8,13 +8,13 @@ import {
     CVCreationAttributes
 } from '../interfaces/cv';
 import { generateUUID } from '../utils/uuid';
-import MediaFiles from './Media_files';
 
 class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements ServerCVAttributes {
     public id!: number;
     public public_id!: string;
     public user_id!: number;
     public title!: string;
+    public photo_last_uploaded?: Date;
     public jobTitle!: string;
     public template!: CVTemplates;
     public content!: CVContentAttributes;
@@ -56,13 +56,20 @@ CV.init({
             key: 'id'
         }
     },
+    photo_last_uploaded: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
+    },
     title: {
         type: DataTypes.STRING(255),
         allowNull: false,
+        defaultValue: 'Untitled'
     },
     jobTitle: {
         type: DataTypes.STRING(255),
         allowNull: false,
+        defaultValue: 'Untitled'
     },
     template: {
         type: DataTypes.ENUM(...Object.values(CVTemplates)),
