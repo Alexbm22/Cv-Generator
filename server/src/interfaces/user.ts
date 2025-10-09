@@ -1,7 +1,7 @@
 import { Optional } from 'sequelize';
 import { AuthProvider } from './auth';
-import { PaymentAttributes, PublicPaymentData } from './payments';
-import { PublicSubscriptionData, SubscriptionAttributes } from './subscriptions';
+import { PublicPaymentData } from './payments';
+import { PublicSubscriptionData } from './subscriptions';
 
 export interface UserAccountData {
     username: string;
@@ -9,18 +9,18 @@ export interface UserAccountData {
     profilePicture?: string | null;
 }
 
-export interface UserProfile extends UserAccountData {
+export interface UserProfile {
     subscription: PublicSubscriptionData | null,
+    payments: PublicPaymentData[],
     credits: number,
-    payments: PublicPaymentData[]
 }
 
-export interface UserAttributes {
+export interface ServerUserAttributes {
     id: number;
+    public_id: string;
     username: string;
     email: string;
     password: string | null;
-    refreshToken: string | null;
     googleId: string | null;
     profilePicture: string | null;
     authProvider: AuthProvider;
@@ -30,5 +30,12 @@ export interface UserAttributes {
     updatedAt?: Date;
 }
 
-export interface UserCreationAttributes extends Optional<UserAttributes, 
-'id' | 'refreshToken' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive'> {}
+export interface PublicUserAttributes {
+    id: string;
+    username: string;
+    email: string;
+    profilePicture: string | null;
+}
+
+export interface UserCreationAttributes extends Optional<ServerUserAttributes, 
+'id' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive' | 'public_id'> {}

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../Store/useAuthStore';
-import { AuthResponse } from '../interfaces/auth';
+import { TokenClientData } from '../interfaces/auth';
 import { useErrorStore } from '../Store';
 import { APIError } from '../interfaces/api';
 import { ErrorTypes } from '../interfaces/error';
@@ -22,7 +22,7 @@ class ApiService {
   private DEFAULT_TIMEOUT: number;
   private REFRESH_TOKEN_TIMEOUT: number;
 
-  private refreshingPromise?: Promise<AuthResponse>;
+  private refreshingPromise?: Promise<TokenClientData>;
 
   constructor() {
     this.API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -68,22 +68,22 @@ class ApiService {
       token, 
       isTokenExpired, 
       setIsLoadingAuth, 
-      handleAuthSuccess
+      setToken
      } = useAuthStore.getState();
 
     if(isTokenExpired() || !token){
       try {
         setIsLoadingAuth(true); // Set loading state
-        const response =  await this.refreshTokenOnce()
+        const token =  await this.refreshTokenOnce()
 
-        if (typeof response.token?.accessToken !== 'string' || !response.token) {
-          // to implement logging error handling 
+        if (typeof token.accessToken !== 'string' || !token) {
+          // to do: improve error handling 
           throw new Error('Invalid token structure received from server');
         }
 
-        handleAuthSuccess(response.token);
+        setToken(token);
 
-        config.headers.Authorization = `Bearer ${response.token.accessToken}`;
+        config.headers.Authorization = `Bearer ${token.accessToken}`;
 
       } catch (error) {
         this.handleAPIError(error as APIError);
@@ -107,12 +107,9 @@ class ApiService {
       return Promise.reject(error);
     }
 
-    if (error.config.url?.includes('/check_auth')){
-      return Promise.reject(error);
-    }
-
-    if(error.config.url?.includes('/refresh_token')) {
-      this.handleAPIError(error as APIError)
+    if(error.config.url?.includes('/refresh_token') || error.config.url?.includes('/checkAuth')) {
+      this.handleAPIError(error as APIError);
+      useAuthStore.getState().clearAuthenticatedUser();
       return Promise.reject(error);
     }
 
@@ -124,21 +121,21 @@ class ApiService {
 
       const { 
         setIsLoadingAuth,
-        handleAuthSuccess
+        setToken
       } = useAuthStore.getState();
 
       try {
         setIsLoadingAuth(true); // Set loading state
 
-        const response = await this.refreshTokenOnce();
+        const token = await this.refreshTokenOnce();
 
-        if (typeof response.token?.accessToken !== 'string' || !response.token) {
+        if (typeof token.accessToken !== 'string' || !token) {
           throw new Error('Invalid token structure received from server');
         }
 
-        handleAuthSuccess(response.token);
+        setToken(token);
 
-        originalRequest.headers.Authorization = `Bearer ${response.token.accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${token.accessToken}`;
 
         return this.client(originalRequest);
       } catch (refreshError) {
@@ -156,14 +153,14 @@ class ApiService {
   }
 
   // Ensure only one token refresh request is in-flight at a time
-  private async refreshTokenOnce(): Promise<AuthResponse> {
+  private async refreshTokenOnce(): Promise<TokenClientData> {
     if (!this.refreshingPromise) {
       this.refreshingPromise = this.refreshToken();
     }
     return this.refreshingPromise;
   }
   
-  private async refreshToken(): Promise<AuthResponse> {
+  private async refreshToken(): Promise<TokenClientData> {
     try {
       // Create separate instance to avoid interceptor loops
       const refreshClient = axios.create({
@@ -179,7 +176,7 @@ class ApiService {
         throw new Error('Invalid token structure received from server');
       }
 
-      const newToken: AuthResponse = response.data;
+      const newToken: TokenClientData = response.data;
       return newToken;
     } catch (error) {
       if (axios.isAxiosError(error)) {

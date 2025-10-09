@@ -28,7 +28,7 @@ export class AuthController {
         const IdToken: string = req.body.credential;
 
         try {
-            const loginResult = await this.authServices.googleLogin(IdToken, res, next);
+            const loginResult = await this.authServices.googleLogin(IdToken, res);
             return res.status(200).json(loginResult);
         } catch (error) {
             return next(error)
@@ -46,11 +46,9 @@ export class AuthController {
         }
     }
 
-    async logout(req: AuthRequest, res: Response, next: NextFunction) {
-        const user = req.user;
-        
+    async logout(req: Request, res: Response, next: NextFunction) {
         try {
-            await this.authServices.logout(user, res);
+            await this.authServices.logout(res);
             return res.status(204).end();
         } catch (error) {
             return next(error)
@@ -60,20 +58,17 @@ export class AuthController {
     async refreshToken(req: AuthRequest, res: Response, next: NextFunction){
         try {
             const refreshResult = await this.authServices.refreshToken(req, res);   
-            if (refreshResult) {
-                return res.status(200).json(refreshResult);
-            } else {
-                return res.status(200);
-            }
+            return res.status(200).json(refreshResult);
         } catch (error) {
             return next(error);
         }
     }
 
     async checkAuth(req: Request, res: Response, next: NextFunction){
+
         try {
-            const tokenData = await this.authServices.checkAuth(req, res);   
-            return res.status(200).json(tokenData);
+            const publicUserData = await this.authServices.checkAuth(req, res);   
+            return res.status(200).json(publicUserData);
         } catch (error) {
             return next(error);
         }

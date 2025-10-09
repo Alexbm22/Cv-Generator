@@ -1,4 +1,4 @@
-import { UserAttributes, UserCreationAttributes, UserProfile } from "@/interfaces/user";
+import { PublicUserAttributes, ServerUserAttributes, UserCreationAttributes, UserProfile } from "@/interfaces/user";
 import { User } from "@/models";
 import { SubscriptionService } from "@/services/subscriptions";
 import { CreditsService } from "@/services/credits";
@@ -8,10 +8,11 @@ import userRespository from '@/repositories/user';
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
 import { handleServiceError } from '@/utils/serviceErrorHandler';
+import { userMappers } from "@/mappers";
 
 export class UserService {
 
-    static async findUser(criteria: Partial<UserAttributes>): Promise<User | null> {
+    static async findUser(criteria: Partial<ServerUserAttributes>): Promise<User | null> {
         return userRespository.getUserByFields(criteria);
     }
 
@@ -19,8 +20,12 @@ export class UserService {
         return await userRespository.createUser(userData);
     }
 
-    static async saveUserChanges(updates: Partial<UserAttributes>, userInstance: User) {
+    static async saveUserChanges(updates: Partial<ServerUserAttributes>, userInstance: User) {
         await userRespository.saveUserChanges(updates, userInstance);
+    }
+
+    static getUserPublicData(userInstance: User): PublicUserAttributes {
+        return userMappers.mapServerUserToPublicUser(userInstance.get());
     }
 
     @handleServiceError('Failed to validate user credentials')
@@ -56,18 +61,12 @@ export class UserService {
         const userActiveSubscription = await SubscriptionService.getUserSubscription(userData.id);
         const userCredits = await CreditsService.getUserCredits(userData.id);
         const userPayments = await PaymentService.getUserPayments(userData.id);
-        const accountData = user.toSafeUser();
 
-        const userProfileData = {
-            username: accountData.username,
-            email: accountData.email,
-            profilePicture: accountData.profilePicture,
+        return {
             subscription: userActiveSubscription,
             credits: userCredits,
             payments: userPayments
         }
-
-        return userProfileData
     }
 
     @handleServiceError('Failed to generate username')
@@ -119,9 +118,8 @@ export class UserService {
 
     @handleServiceError('Failed to check username uniqueness')
     static async isUniqueUsername(username: string): Promise<boolean> {
-        const user = await User.findOne({where: { username }})
-        if(user) return false;
-        return true;
+        const user = await User.findOne({where: { username }});
+        return !user;
     }
 
 }

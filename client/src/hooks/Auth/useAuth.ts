@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore, useCVsStore, useErrorStore } from '../../Store';
-import { AuthResponse, AuthCredentials, TokenClientData } from '../../interfaces/auth';
+import { AuthResponse, AuthCredentials } from '../../interfaces/auth';
 import { APIError } from '../../interfaces/api';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '../../router/routes';
@@ -50,7 +50,7 @@ export const useAuthAndSync = <T extends AuthCredentials>(
             }
 
             // handle auth after syncing data 
-            if(authResponse.token) handleAuthSuccess(authResponse.token);
+            if(authResponse.token) handleAuthSuccess(authResponse);
         },
         onSettled: () => useAuthStore.getState().setIsLoadingAuth(false),
     })
@@ -83,7 +83,7 @@ export const useCheckAuth = () => {
     const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser) 
     const migrateUserToGuest = useCVsStore(state => state.migrateUserToGuest) 
 
-    return useMutation<TokenClientData, APIError>({
+    return useMutation<AuthResponse, APIError>({
         mutationFn: async () => {
             setIsLoadingAuth(true);
             return await AuthService.checkAuth();

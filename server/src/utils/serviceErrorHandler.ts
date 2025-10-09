@@ -38,6 +38,7 @@ export function handleServiceError(errorMessage: string) {
             try {
                 return await originalMethod.apply(this, args);
             } catch (error) {
+                console.error(`Error in service method: ${errorMessage}`, error);
                 if (error instanceof AppError) {
                     throw error;
                 } else {

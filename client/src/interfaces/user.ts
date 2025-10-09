@@ -1,13 +1,14 @@
 import { PaymentAttributes } from "./payments";
 import { SubscriptionAttributes } from "./subscription";
 
-export interface UserAccount {
+export interface UserAttributes {
+    id: string;
     username: string | null;
     email: string | null;
     profilePicture: string | null;
 }
 
-export interface UserProfile extends UserAccount {
+export interface UserProfile {
     subscription: SubscriptionAttributes | null;
     credits: number;
     payments: PaymentAttributes[];

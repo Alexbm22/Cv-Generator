@@ -1,6 +1,6 @@
 import { PublicCVAttributes, ServerCVAttributes, PublicCVMetadataAttributes } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
-import { UserAttributes } from "../interfaces/user";
+import { ServerUserAttributes } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
 import { CV, MediaFiles } from "../models";
 import { MediaFilesServices } from "./mediaFiles";
@@ -85,7 +85,7 @@ export class CVsService {
 
     @handleServiceError('CV deletion failed')
     static async deleteCV(
-        user: UserAttributes, 
+        user: ServerUserAttributes, 
         cvPublicId: string, 
     ): Promise<void> {
         const deletedCount = await cvRepository.deleteCV(user.id, cvPublicId);

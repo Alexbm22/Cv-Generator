@@ -5,15 +5,16 @@ import { AuthProvider } from '../interfaces/auth';
 import { AppError } from '../middleware/error_middleware';
 import crypto from 'crypto';
 import { ErrorTypes } from '../interfaces/error';
-import { UserAttributes, UserAccountData, UserCreationAttributes } from '../interfaces/user'
+import { ServerUserAttributes, UserAccountData, UserCreationAttributes } from '../interfaces/user'
 import DownloadCredits from './Download_credits';
 import { config } from '../config/env';
+import { generateUUID } from '@/utils/uuid';
 
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class User extends Model<ServerUserAttributes, UserCreationAttributes> implements ServerUserAttributes {
     public id!: number;
+    public public_id!: string;
     public username!: string;
     public email!: string;
-    public refreshToken!: string | null;
     public googleId!: string | null;
     public profilePicture!: string | null;
     public authProvider!: AuthProvider;
@@ -40,16 +41,6 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
         return currentID === hashedID;
     }
 
-    public toSafeUser(): UserAccountData {
-        const { username, email, profilePicture } = this.get() as UserAttributes;
-        
-        return {
-            username,
-            email,
-            profilePicture
-        }
-    }
-
     public hashGoogleId(googleId: string): string {
         const GOOGLE_ID_SALT =  config.GOOGLE_ID_SALT;
 
@@ -65,6 +56,12 @@ User.init({
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
+    },
+    public_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        defaultValue: () => generateUUID(),
     },
     username: {
         type: DataTypes.STRING(255),
@@ -94,10 +91,6 @@ User.init({
                 }
             }
         }
-    },
-    refreshToken: {
-        type: DataTypes.STRING(255),
-        allowNull: true,
     },
     googleId: {
         type: DataTypes.STRING(255),

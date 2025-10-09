@@ -1,5 +1,5 @@
 import { CredentialResponse } from "@react-oauth/google";
-import { AuthResponse, loginDto, registerDto, TokenClientData } from "../interfaces/auth";
+import { AuthResponse, loginDto, registerDto } from "../interfaces/auth";
 import { apiService } from "./api";
 import { useAuthStore, useCVsStore } from "../Store";
 import { routes } from "../router/routes";
@@ -34,8 +34,8 @@ export class AuthService {
         );
     }
 
-    public static async checkAuth(): Promise<TokenClientData>{
-        return await apiService.get<TokenClientData>(
+    public static async checkAuth(): Promise<AuthResponse>{
+        return await apiService.get<AuthResponse>(
             this.apiUrl + 'check_auth'
         );
     }

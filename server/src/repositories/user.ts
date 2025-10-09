@@ -1,14 +1,14 @@
 import { Op } from "sequelize";
-import { UserAttributes, UserCreationAttributes } from "../interfaces/user"
+import { ServerUserAttributes, UserCreationAttributes } from "../interfaces/user"
 import { User } from "../models"
 
-const getUserByFields = async (fields: Partial<UserAttributes>) => {
+const getUserByFields = async (fields: Partial<ServerUserAttributes>) => {
     return await User.findOne({
         where: fields
     });
 }
 
-const getUsersByFields = async (fields: Partial<UserAttributes>) => {
+const getUsersByFields = async (fields: Partial<ServerUserAttributes>) => {
     return await User.findOne({
         where: fields
     });
@@ -28,28 +28,23 @@ const findExistingCredentials = async (email: string, username: string) => {
 
 const createUser = async (userData: UserCreationAttributes) => {
     return await User.create({
-        username: userData.username,
-        email: userData.email,
-        authProvider: userData.authProvider,
-        lastLogin: new Date(),
-        googleId: userData.googleId,
-        isActive: userData.isActive,
-        profilePicture: userData.profilePicture
+        ...userData,
+        lastLogin: new Date()
     });
 }
  
-const saveUserChanges = async (updates: Partial<UserAttributes>, userInstance: User) => {
+const saveUserChanges = async (updates: Partial<ServerUserAttributes>, userInstance: User) => {
     return await userInstance.update(updates);
 }
 
-const saveUserChangesWithHooks = async (updates: Partial<UserAttributes>, userInstance: User) => {
+const saveUserChangesWithHooks = async (updates: Partial<ServerUserAttributes>, userInstance: User) => {
     userInstance.set(updates);
     return await userInstance.save();
 }
 
 const updateUserByFields = async (
-    updates: Partial<UserAttributes>,
-    whereConditions: Partial<UserAttributes> 
+    updates: Partial<ServerUserAttributes>,
+    whereConditions: Partial<ServerUserAttributes> 
 ) => {
     return await User.update(updates, {
         where: whereConditions

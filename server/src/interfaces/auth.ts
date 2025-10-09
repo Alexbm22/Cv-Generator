@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { PublicCVAttributes } from './cv';
 import { User } from '../models';
+import { PublicUserAttributes } from './user';
 
 export interface loginDto {
     email: string;
@@ -27,6 +28,7 @@ export interface GoogleUserPayload {
 export interface AuthResponse {
     token?: PublicTokenData,
     firstAuth?: boolean, 
+    user: PublicUserAttributes
 }
 
 
@@ -37,6 +39,7 @@ export enum AuthProvider {
 
 export interface TokenPayload {
     id: number;
+    isFirstAuth?: boolean;
     exp?: number;
 }
 

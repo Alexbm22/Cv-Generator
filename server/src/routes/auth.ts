@@ -38,7 +38,6 @@ router.post(
 
 router.post(
     '/logout',
-    authMiddleware,
     RateLimitInstance.logoutLimit(),
     createRouterHandler(AuthController.prototype.logout)
 )

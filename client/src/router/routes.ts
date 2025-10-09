@@ -2,6 +2,7 @@ import * as Pages from '../pages/index'
 
 export const routes = {
     home: { path: '/', element: Pages.HomePage, protected: false },
+    profile: { path: '/profile', element: Pages.ProfilePage, protected: true },
     login: { path: '/login', element: Pages.Login, protected: false },
     signup: { path: '/signup', element: Pages.SignUp, protected: false },
     resumes: { path: '/resumes', element: Pages.CVsPage, protected: false },

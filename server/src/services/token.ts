@@ -23,16 +23,14 @@ export class TokenService {
         this.JWT_REFRESH_EXPIRATION = config.JWT_REFRESH_EXPIRATION;
     }
 
-    async setTokens(user: User, res: Response): Promise<PublicTokenData>{ // Generating and setting the tokens
+async setTokens(user: User, res: Response, isFirstAuth?: boolean): Promise<PublicTokenData>{ // Generating and setting the tokens
         try {
-            const tokens = this.generateTokens(user); // generating the access and refresh tokens
-            
+            const tokens = this.generateTokens(user, isFirstAuth); // generating the access and refresh tokens
+
             // Set the refresh token in the client cookies
             this.setRefreshToken(tokens.refreshToken, res);
 
             const accessExpirationDate = parseDuration.parseDurationToDate(this.JWT_EXPIRATION);
-            
-            UserService.saveUserChanges({ refreshToken: tokens.refreshToken }, user);
 
             return {
                 accessToken: tokens.accessToken,
@@ -70,14 +68,15 @@ export class TokenService {
         }
     }
 
-    public generateTokenPayload(user: User): TokenPayload {
+    public generateTokenPayload(user: User, isFirstAuth?: boolean): TokenPayload {
         return {
-            id: user.get().id
+            id: isFirstAuth ? user.id : user.get().id,
+            isFirstAuth
         };
     }
 
-    public generateAccessToken(user: User): PublicTokenData {
-        const payload = this.generateTokenPayload(user);
+    public generateAccessToken(user: User, isFirstAuth?: boolean): PublicTokenData {
+        const payload = this.generateTokenPayload(user, isFirstAuth);
         const accessToken = jwt.sign(payload, this.JWT_SECRET as jwt.Secret, {
             expiresIn: this.JWT_EXPIRATION as any
         });
@@ -90,8 +89,8 @@ export class TokenService {
         };
     }
 
-    public generateTokens(user: User): TokenData {
-        const payload = this.generateTokenPayload(user);
+    public generateTokens(user: User, isFirstAuth?: boolean): TokenData {
+        const payload = this.generateTokenPayload(user, isFirstAuth);
 
         const accessToken = jwt.sign(payload, this.JWT_SECRET as jwt.Secret, {
             expiresIn: this.JWT_EXPIRATION as any

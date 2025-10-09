@@ -28,6 +28,15 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
 
         const user = await UserService.findUser({ id: decodedAccessToken.id });
         if (!user) {
+            if (decodedAccessToken.isFirstAuth) {
+                // Wait for a short duration before retrying
+                await new Promise(resolve => setTimeout(resolve, 300));
+                const retryUser = await UserService.findUser({ id: decodedAccessToken.id });
+                if (retryUser) {
+                    req.user = retryUser;
+                    return next();
+                }
+            }
             return next(new AppError('User not found', 401, ErrorTypes.UNAUTHORIZED));
         }  
     

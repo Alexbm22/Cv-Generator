@@ -5,9 +5,6 @@ import { UserProfile, UserStore } from '../interfaces/user';
 export const useUserStore = create<UserStore>()(
     devtools(
         (set, get) => ({
-            username: null,
-            email: null,
-            profilePicture: null,
             subscription: null,
             credits: 0,
             payments: [],
@@ -17,9 +14,6 @@ export const useUserStore = create<UserStore>()(
                 ...userProfileData
             })),
             clearUserProfile: () => set({
-                username: null,
-                email: null,
-                profilePicture: null,
                 subscription: null,
                 credits: 0,
                 payments: [],
