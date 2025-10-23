@@ -110,7 +110,6 @@ const PersonalInfos: React.FC = () => {
 
                     <PhotoEditor isSelectingPhoto={isSelectingPhoto} setIsSelectingPhoto={setIsSelectingPhoto} />
 
-
                     <div className="col-span-2 flex flex-col space-y1 w-full mt-2">
                         <label className="text-lg text-gray-[#154D71] font-bold">{fieldsConstants.social_links.title}</label>
                         <p className="text-sm text-[#3a6985] mb-4e">{fieldsConstants.social_links.description}</p>

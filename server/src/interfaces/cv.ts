@@ -100,7 +100,7 @@ export interface CVContentAttributes {
 
 
 export interface PublicCVContentAttributes {
-    photo_last_uploaded?: Date,
+    photo_last_uploaded: Date | null,
     firstName: string,
     lastName: string,
     email: string,
@@ -135,7 +135,7 @@ export interface ServerCVAttributes {
     id: number,
     public_id: string,
     user_id: number,
-    photo_last_uploaded?: Date,
+    photo_last_uploaded: Date | null,
     jobTitle: string;
     title: string,
     template: CVTemplates;
@@ -158,5 +158,6 @@ export interface CVCreationAttributes extends Optional<
     'public_id' | 
     'content' |
     'title' |
-    'jobTitle'
+    'jobTitle' | 
+    'photo_last_uploaded'
 > {}

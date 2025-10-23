@@ -10,7 +10,6 @@ interface MainComponentProps {
 export default function MainComponent({htmlContent, onHtmlChange, placeholder}: MainComponentProps) {
   const quillRef = useRef<QuillInstance>(null);
 
-  if(!htmlContent) return;
 
   return (
     <section className="editor-container" dir="ltr">

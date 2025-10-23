@@ -3,12 +3,16 @@ import { useCvEditStore, useCVsStore } from "../../../../../Store";
 import { deleteImage, fetchFile, uploadImage } from "../../../../../services/MediaFiles";
 import { useEffect, useState } from "react";
 import { CVStateMode } from "../../../../../interfaces/cv";
-import { blobToBase64 } from "../../../../../utils/blobToBase64";
+import { blobToBase64 } from "../../../../../utils/blob";
+import { uploadDefaultPhoto } from "../../../../../utils/cvDefaults";
 
 export const useCVPhotoState = () => {
 
     const CVState = useCVsStore(state => state.CVState)
-    const UserCVPhoto =  useCvEditStore((state) => state.UserPhoto);
+
+    const UserCVPhoto = useCvEditStore((state) => state.UserPhoto);
+    const photo_last_uploaded = useCvEditStore(state => state.photo_last_uploaded);
+
     const GuestCVPhoto = useCvEditStore((state) => state.GuestPhoto);
     const setGuestPhoto = useCvEditStore((state) => state.setGuestPhoto);
 
@@ -31,10 +35,10 @@ export const useCVPhotoState = () => {
     useEffect(() => {
         if(isUser) {
             setCvPhotoBlobUrl(
-                data && isSuccess ? URL.createObjectURL(data) : null
+                data && isSuccess && photo_last_uploaded ? URL.createObjectURL(data) : null
             );
         } else {
-            setCvPhotoBlobUrl(GuestCVPhoto ? GuestCVPhoto : null)
+            setCvPhotoBlobUrl(GuestCVPhoto)
         }
         setIsLoadingPhotoUrl(false)
     }, [isUser, GuestCVPhoto, data, isError, isSuccess]);
@@ -54,6 +58,8 @@ export const useCVPhotoState = () => {
 
     const handleUserPhotoDelete = async () => {
         await deleteImage(UserCVPhoto!);
+        useCvEditStore.getState().setPhotoLastUploaded(null);
+        uploadDefaultPhoto(UserCVPhoto!);
         refetch();
     }
 

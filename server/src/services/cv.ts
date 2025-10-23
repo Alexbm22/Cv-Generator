@@ -1,4 +1,4 @@
-import { PublicCVAttributes, ServerCVAttributes, PublicCVMetadataAttributes } from "../interfaces/cv";
+import { PublicCVAttributes, ServerCVAttributes, PublicCVMetadataAttributes, CVCreationAttributes } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
 import { ServerUserAttributes } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
@@ -45,7 +45,7 @@ export class CVsService {
     }
 
     @handleServiceError('CV creation failed')
-    static async createCV(userId: number) {
+    static async createDefaultCV(userId: number) {
         const cv = await cvRepository.createCV(userId);
         const photo = await MediaFilesServices.create(cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title));
         const preview = await MediaFilesServices.create(cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title));
@@ -81,6 +81,23 @@ export class CVsService {
         }
 
         return updatedFields;
+    }
+
+    static async duplicateCV(
+        CVAttributes: CVCreationAttributes, 
+        CVPreviewMedia: MediaFiles, 
+        CVPhotoMedia: MediaFiles
+    ) {
+        const cv = await cvRepository.createCV(CVAttributes.user_id, CVAttributes);
+        const photo = await MediaFilesServices.duplicateMediaFile(
+            cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title),
+            CVPhotoMedia.get(),
+        )
+        const preview = await MediaFilesServices.duplicateMediaFile(
+            cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title),
+            CVPreviewMedia.get(),
+        )
+        return await this.getPublicCVData(cv, preview, photo);
     }
 
     @handleServiceError('CV deletion failed')

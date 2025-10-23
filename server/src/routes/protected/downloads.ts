@@ -36,5 +36,17 @@ router.get(
     catchAsync(DownloadsController.getDownloads)
 )
 
+router.delete(
+    '/:id',
+    RateLimitInstance.CVsRateLimit(),
+    catchAsync(DownloadsController.deleteDownload)
+)
+
+router.post(
+    '/duplicate/:id',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(DownloadsController.duplicateDownload)
+)
+
 
 export default router;

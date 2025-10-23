@@ -1,11 +1,12 @@
 import { MediaFilesAttributes } from "./mediaFiles";
 
 export interface DownloadAttributes {
-    download_id: string;
+    id: string;
     fileName: string;
     createdAt: Date,
     downloadPreview: MediaFilesAttributes;
     downloadFile: MediaFilesAttributes;
+    downloadPhoto: MediaFilesAttributes;
 }
 
 export interface DownloadValidationResult {
@@ -13,4 +14,10 @@ export interface DownloadValidationResult {
     existingDownload?: DownloadAttributes;
     hasPermission: boolean;
     validationToken?: string; 
+}
+
+export interface DownloadsStore {
+    downloads: DownloadAttributes[];
+    setDownloads: (downloads: DownloadAttributes[]) => void;
+    deleteDownload: (downloadId: string) => void;
 }

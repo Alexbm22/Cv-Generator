@@ -8,6 +8,7 @@ import { uploadImage } from "../../services/MediaFiles";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/routes";
 import { createDefaultCVObject } from "../../utils/cv";
+import { uploadDefaultPhoto, getDefaultPhotoPath } from "../../utils/cvDefaults";
 
 export const useCreateUserCV = () => {
     const addUserCV = useCVsStore(state => state.addUserCV);
@@ -48,7 +49,7 @@ export const useCreateUserCV = () => {
 
             const CVData = {
                 ...createdCV, 
-                photo: "/Images/anonymous_Picture.png"
+                photo: getDefaultPhotoPath()
             }
 
             const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });
@@ -59,7 +60,9 @@ export const useCreateUserCV = () => {
                     if(!blob) return;
                     uploadImage(blob, createdCV.preview!)
                 }, "image/png")
-            }                
+            }               
+
+            uploadDefaultPhoto(createdCV.photo!);
         }
     })
 }
@@ -103,7 +106,7 @@ export const useCreateGuestCV = () => {
 
             const CVData = {
                 ...createdCV, 
-                photo: "/Images/anonymous_Picture.png"
+                photo: getDefaultPhotoPath()
             }
 
             const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });
@@ -152,7 +155,7 @@ export const useInitialCVsSync = () => {
     
                 const CVData = {
                     ...createdCV, 
-                    photo: "/Images/anonymous_Picture.png"
+                    photo: getDefaultPhotoPath()
                 }
     
                 const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });

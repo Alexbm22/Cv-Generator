@@ -21,7 +21,7 @@ const CheckoutForm: React.FC = () => {
         const { error: stripeError } = await stripe.confirmPayment({
             elements,
             confirmParams: {
-                return_url: `${import.meta.env.VITE_APP_BASE_URL}/${routes.resumes.path}`,
+                return_url: `${import.meta.env.VITE_APP_BASE_URL}${routes.resumes.path}`,
             },
         });
 

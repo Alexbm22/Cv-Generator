@@ -1,4 +1,4 @@
-import { CVWithMediaFiles, ServerCVAttributes } from "../interfaces/cv";
+import { CVCreationAttributes, CVWithMediaFiles, ServerCVAttributes } from "../interfaces/cv";
 import { CV, MediaFiles } from "../models";
 import cvFactories from '../factories/cv';
 
@@ -8,11 +8,12 @@ const createCVs = async (cvs: Omit<ServerCVAttributes, 'id' | 'encryptedContent'
     });
 }
 
-const createCV = async (userId: number) => {
+const createCV = async (userId: number, data?: Partial<CVCreationAttributes>) => {
     return await CV.create({
         user_id: userId,
-        ...cvFactories.createDefaultCVObject()
-    })
+        ...cvFactories.createDefaultCVObject(),
+        ...data
+    });
 }
 
 const getCVsWithMediaFiles = async (userId: number) => {

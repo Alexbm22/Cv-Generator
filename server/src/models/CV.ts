@@ -14,7 +14,7 @@ class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements Serv
     public public_id!: string;
     public user_id!: number;
     public title!: string;
-    public photo_last_uploaded?: Date;
+    public photo_last_uploaded!: Date | null;
     public jobTitle!: string;
     public template!: CVTemplates;
     public content!: CVContentAttributes;

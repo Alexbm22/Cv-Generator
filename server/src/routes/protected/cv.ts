@@ -26,7 +26,7 @@ router.patch(
 router.post(
     '',
     RateLimitInstance.CVsRateLimit(),
-    catchAsync(CVsController.create)
+    catchAsync(CVsController.createDefaultCV)
 )
 
 router.post(

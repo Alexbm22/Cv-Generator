@@ -32,7 +32,7 @@ const PricingPage: React.FC = () => {
           <button onClick={() => {
             setSelectedPlan(price.id)
           }}>
-            { price.id }
+            { `${price.id} - ${price.amount} - ${price.currency} - ${price.interval} - ${price.type}` }
           </button>
         </div>
       ))}

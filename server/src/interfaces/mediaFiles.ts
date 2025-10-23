@@ -47,6 +47,7 @@ export enum MediaType {
     CV_PHOTO = 'cv_photo',
     CV_PREVIEW = 'cv_preview',
     DOWNLOAD_FILE_PREVIEW = 'download_file_preview',
+    DOWNLOAD_FILE_PHOTO = 'download_file_photo',
     DOWNLOAD_FILE = 'download_file'
 }
 

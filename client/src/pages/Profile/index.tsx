@@ -27,7 +27,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
-      {profile ? profile.username : 'No Profile Data'}
+      {profile ? profile.credits : 'No Profile Data'}
     </>
   )
 

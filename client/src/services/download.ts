@@ -2,6 +2,7 @@ import { saveAs } from 'file-saver';
 import { apiService } from "./api";
 import { UserCVAttributes } from "../interfaces/cv";
 import { DownloadAttributes, DownloadValidationResult } from '../interfaces/downloads';
+import { fetchFile } from './MediaFiles';
 
 export class DownloadService {
     private static apiUrl = '/protected/downloads';
@@ -32,6 +33,11 @@ export class DownloadService {
         );
     }
 
+    static async redownloadFile(download: DownloadAttributes) {
+        const downloadFileBlob = await fetchFile(download.downloadFile);
+        saveAs(downloadFileBlob, download.fileName);
+    }
+
     static async validateDownload(documentData: UserCVAttributes) {
         return await apiService.post<DownloadValidationResult, UserCVAttributes>(
             this.apiUrl + '/validate',
@@ -41,6 +47,14 @@ export class DownloadService {
 
     static async getDownloads() {
         return await apiService.get<DownloadAttributes[]>(this.apiUrl);
+    }
+
+    static async deleteDownload(downloadId: string) {
+        return await apiService.delete<void>(`${this.apiUrl}/${downloadId}`);
+    }
+
+    static async duplicateDownload(downloadId: string) {
+        return await apiService.post<UserCVAttributes, void>(`${this.apiUrl}/duplicate/${downloadId}`);
     }
 
     static downloadPdf(PdfBlob: Blob, fileName: string) {

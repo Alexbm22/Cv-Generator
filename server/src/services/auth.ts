@@ -115,22 +115,22 @@ export class AuthServices {
 
         await UserService.validateNewUserCredentials(email, username);
             
-            const newUser = await UserService.createUser({
-                username: username,
-                email: email,
-                password: password,
-                authProvider: AuthProvider.LOCAL,
-                lastLogin: new Date(),
-                isActive: true,
-            });
-            
-            const accessToken = await this.tokenService.setTokens(newUser, res);
-    
-            return {
-                token: accessToken,
-                firstAuth: true,
-                user: UserService.getUserPublicData(newUser)
-            };
+        const newUser = await UserService.createUser({
+            username: username,
+            email: email,
+            password: password,
+            authProvider: AuthProvider.LOCAL,
+            lastLogin: new Date(),
+            isActive: true,
+        });
+        
+        const accessToken = await this.tokenService.setTokens(newUser, res, true);
+
+        return {
+            token: accessToken,
+            firstAuth: true,
+            user: UserService.getUserPublicData(newUser)
+        };
     }
 
     @handleServiceError('Logout failed')

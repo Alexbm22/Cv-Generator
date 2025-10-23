@@ -54,4 +54,45 @@ export class DownloadsController {
             return next(error);
         }
     }
+
+    static async duplicateDownload(req: AuthRequest, res: Response, next: NextFunction) {
+        const user = req.user;
+        const downloadId: string = req.params.id;
+
+        try {
+            if (!downloadId) {
+                throw new AppError(
+                    "Download id is required!", 
+                    400, 
+                    ErrorTypes.BAD_REQUEST
+                );
+            }
+            
+            const duplicatedCV = await DownloadsService.duplicateDownload(user, downloadId);
+            return res.status(200).json(duplicatedCV);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    static async deleteDownload(req: AuthRequest, res: Response, next: NextFunction) {
+        const authenticatedUser = req.user;
+
+        const downloadId = req.params.id;
+        
+        try {
+            if (!downloadId) {
+                throw new AppError(
+                    "Download id is required!", 
+                    400, 
+                    ErrorTypes.BAD_REQUEST
+                );
+            }
+
+            const deleteResult = await DownloadsService.deleteDownload(authenticatedUser, downloadId);
+            return res.status(200).json(deleteResult);
+        } catch (error) {
+            return next(error);
+        }
+    }
 }

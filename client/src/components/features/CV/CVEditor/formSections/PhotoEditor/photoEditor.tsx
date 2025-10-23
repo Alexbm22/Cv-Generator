@@ -3,6 +3,7 @@ import PhotoSelector from "./photoSelector";
 import CVPhotoCropper from './PhotoCropper.tsx'
 import { useCVPhotoState } from "../../hooks/usePhotoEditor.ts";
 import AddSectionButton from "../../../../../UI/AddSectionButton.tsx";
+import { Edit, Trash2 } from 'lucide-react';
 
 type ComponentProps = {
     setIsSelectingPhoto: React.Dispatch<React.SetStateAction<boolean>>;
@@ -50,24 +51,26 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
                                 !cvPhotoBlobUrl ? (
                                     <AddSectionButton OnClick={() => setIsSelectingPhoto(true)} sectionName={'Photo'} />
                                 ) : (
-                                    <div className="flex flex-col left-0 justify-start items-start">
+                                    <div className="flex flex-col gap-1 left-0 justify-start items-start">
                                         <button
                                             onClick={() => {
                                                 setIsSelectingPhoto(true);
                                                 setSelectedPhoto(cvPhotoBlobUrl)
                                             }}
-                                            className="text-[#007dff] font-medium text-md cursor-pointer"
+                                            className="flex flex-row items-center gap-2 text-[#007dff] font-medium text-md cursor-pointer"
                                         >
-                                            Icon Edit
+                                            <Edit className="w-4 h-4 sm:w-5 sm:h-5" /> 
+                                            <span>Edit</span>
                                         </button>
                                         <button
                                             onClick={async () => {
                                                 setSelectedPhoto(null)
                                                 await handleCVPhotoDelete();
                                             }}
-                                            className="text-[#727272] font-medium text-md cursor-pointer"
+                                            className="flex flex-row items-center gap-2 text-[#727272] font-medium text-md cursor-pointer"
                                         >
-                                            Icon Delete
+                                            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /> 
+                                            <span>Delete</span>
                                         </button>
                                     </div>
                                 )

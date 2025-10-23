@@ -19,17 +19,15 @@ const CheckoutPage: React.FC = () => {
         }
     }, [mutate])
 
+    if(!clientSecret) {
+        return <div>Loading...</div>
+    }
+
     return  (
         <>
-            {
-                clientSecret ? (
-                    <Elements stripe={stripePromise} options={{clientSecret}}>
-                        <CheckoutForm />
-                    </Elements>
-                ) : (
-                    <div>Loading..</div>
-                )
-            }
+            <Elements stripe={stripePromise} options={{clientSecret}}>
+                <CheckoutForm />
+            </Elements>
         </>
         
     )

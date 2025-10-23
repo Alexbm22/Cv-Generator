@@ -2,8 +2,8 @@ import app from './app';
 import sequelize from './config/DB/database_config';
 import https from 'https';
 import fs from 'fs';
-import { initModels } from './models';
 import { config } from './config/env';
+import { initModels } from './config/DB/database_init';
 
 const PORT: number = config.PORT;
 
@@ -25,7 +25,7 @@ const startServer = async () => {
         await initModels();
 
         https.createServer(sslOptions, app).listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
+          console.log(`Server is running on port ${PORT}`);
         });
     } catch (error) {
         console.error("Unable to start the server", error);

@@ -1,8 +1,7 @@
-import { DownloadAttributes, DownloadCreationAttributes, PublicDownloadData } from "../interfaces/downloads";
+import { DownloadAttributes, DownloadCreationAttributes, DownloadMetadataCVAttributes, PublicDownloadData } from "../interfaces/downloads";
 import { decrypt, encrypt } from "../utils/encryption";
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import sequelize from '../config/DB/database_config';
-import { PublicCVAttributes } from "../interfaces/cv";
 import { generateUUID } from "../utils/uuid";
 
 // to do add preview image
@@ -11,13 +10,13 @@ class Download extends Model<DownloadAttributes, DownloadCreationAttributes> imp
     public public_id!: string;
     public origin_id!: string;
     public user_id!: number;
-    public metadata!: PublicCVAttributes;
+    public metadata!: DownloadMetadataCVAttributes;
     public encryptedMetadata!: string;
     public fileName!: string;
     public createdAt!: Date;
     public updatedAt!: Date;
 
-    public setMetadata(value: PublicCVAttributes) {
+    public setMetadata(value: DownloadMetadataCVAttributes) {
         if (value) {
             this.setDataValue('encryptedMetadata', encrypt(JSON.stringify(value)));
         }
@@ -62,7 +61,7 @@ Download.init({
         get() {
             return this.getMetadata();
         },
-        set(value: PublicCVAttributes) {
+        set(value: DownloadMetadataCVAttributes) {
             return this.setMetadata(value);
         }
     },

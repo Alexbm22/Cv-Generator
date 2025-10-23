@@ -1,47 +1,20 @@
-import { useEffect, useState } from "react";
-import { CVStateMode, GuestCVAttributes, UserCVMetadataAttributes } from "../../interfaces/cv";
-import { useCVsStore } from "../../Store";
+import { GuestCVAttributes, UserCVMetadataAttributes } from "../../interfaces/cv";
+import { useCVPreviewImage } from "../../hooks/useCVPreviewImage";
 
 type ComponentProps = {
   CV: GuestCVAttributes | UserCVMetadataAttributes;
   FallbackComponent: React.ComponentType;
+  className?: string;
+  alt?: string;
 };
 
-const CVPreviewImage: React.FC<ComponentProps> = ({ CV, FallbackComponent }) => {
-  const CVState = useCVsStore((state) => state.CVState);
-
-  const [cvPreviewSrc, setCvPreviewSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    if(!CV) return setCvPreviewSrc(null);
-    if (CVState.mode === CVStateMode.USER) {
-      const userCV = CV as UserCVMetadataAttributes;
-      if (userCV.preview?.presigned_get_URL) {
-        setCvPreviewSrc(userCV.preview.presigned_get_URL);
-      } else {
-        setCvPreviewSrc(null);
-      }
-    } else {
-      const guestCV = CV as GuestCVAttributes;
-      if (guestCV.preview) {
-        setCvPreviewSrc(guestCV.preview);
-      } else {
-        setCvPreviewSrc(null);
-      }
-    }
-  }, [CV, CVState.mode]);
-
-  if (!cvPreviewSrc || !CV) {
-    return <FallbackComponent />;
-  }
-
-  return (
-    <img
-      src={cvPreviewSrc}
-      alt="preview image"
-      onError={() => setCvPreviewSrc(null)}
-    />
-  );
+const CVPreviewImage: React.FC<ComponentProps> = ({ CV, FallbackComponent, className, alt }) => {
+  return useCVPreviewImage({
+    CV,
+    FallbackComponent,
+    className,
+    alt
+  });
 };
 
 export default CVPreviewImage;

@@ -18,13 +18,13 @@ export const createPersonalInfoSlice = (set: {
     birthDate: DEFAULT_CV_EDITOR_STATE.birthDate,
     socialLinks: DEFAULT_CV_EDITOR_STATE.socialLinks,
     
-    setPhotoLastUploaded: (date: Date) => set({ photo_last_uploaded: date }),
-    setFirstName: (firstName: string) => set({ firstName }),
-    setLastName: (lastName: string) => set({ lastName }),
-    setEmail: (email: string) => set({ email }),
-    setPhoneNumber: (phoneNumber: string) => set({ phoneNumber }),
-    setAddress: (address: string) => set({ address }),
-    setBirthDate: (birthDate: Date) => set({ birthDate }),
+    setPhotoLastUploaded: (date) => set({ photo_last_uploaded: date }),
+    setFirstName: (firstName) => set({ firstName }),
+    setLastName: (lastName) => set({ lastName }),
+    setEmail: (email) => set({ email }),
+    setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
+    setAddress: (address) => set({ address }),
+    setBirthDate: (birthDate) => set({ birthDate }),
 
     addSocialLink: () => {
         const newSocialLink: SocialLink = {

@@ -4,6 +4,7 @@ import CVPreview from "../../components/features/CV/CVEditor/CVPreview/CVPreview
 import useFetchCV from "./useFetchCV";
 import { useCVsStore } from "../../Store";
 import { useEffect, useState } from "react";
+import { FileText, Minimize2 } from 'lucide-react';
 import CVPreviewImage from "../../components/UI/CVPreviewImage";
 
 const CVEditPage = () => {
@@ -39,13 +40,11 @@ const CVEditPage = () => {
                 "  
             >
                 {
-                    isShowingPreview ? "Icon" : (
+                    isShowingPreview ? <Minimize2 size={35} className="text-[#d3e8ff]"/> : (
                         
                         <div className="flex items-center justify-center  w-10 ">
                             <CVPreviewImage CV={CVState.selectedCV!} FallbackComponent={() => (
-                                <>
-                                    Some Icon
-                                </>
+                                <FileText size={40} className="text-[#d3e8ff]"/>
                             )}/>
                         </div>
                     )

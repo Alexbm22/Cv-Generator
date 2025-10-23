@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { Trash2 } from 'lucide-react';
 
 interface CollapsableProps {
   title: string;
@@ -36,7 +37,9 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
             <div className="flex items-center pt-5 justify-between col-span-2 cursor-pointer"  onClick={() => setIsOpen(!isOpen)}>
                 <span className="text-lg font-medium text-gray-700">{title}</span>
                 <div className="flex gap-x-4">
-                    {onDelete && <button onClick={onDelete}><span className="text-red-500 hover:cursor-pointer">del</span></button>}
+                    {onDelete && <button onClick={onDelete} className="cursor-pointer">
+                        <Trash2 className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>}
                     <button><span 
                         className={`inline-block text-gray-500 hover:cursor-pointer transition-transform duration-200`}
                         style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}

@@ -25,8 +25,13 @@ const getDownloadWithMediaFiles = async (criteria: Partial<DownloadAttributes>) 
     }) as DownloadWithMediaFiles | null;
 }
 
+const deleteDownload = async (userId: number, downloadId: string) => {
+    return await Download.destroy({ where: { public_id: downloadId, user_id: userId } });
+}
+
 export default {
     createDownload,
     getDownloadsWithMediaFiles,
-    getDownloadWithMediaFiles
+    getDownloadWithMediaFiles,
+    deleteDownload
 }

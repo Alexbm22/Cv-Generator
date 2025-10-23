@@ -305,7 +305,7 @@ export const CV_EDITOR_TEMPLATE_CONSTANTS = {
 
 export const DEFAULT_CV_EDITOR_STATE = {
     title: 'Untitled',
-    photo_last_uploaded: undefined,
+    photo_last_uploaded: null,
     jobTitle: '',
     template: CVTemplates.CASTOR,
     professionalSummary: '',
@@ -339,6 +339,7 @@ export const DEFAULT_CV_DATA = {
     jobTitle: '',
     template: CVTemplates.CASTOR,
     professionalSummary: '',
+    photo_last_uploaded: null,
     sectionsOrder: [],
     languages: [],
     skills: [],

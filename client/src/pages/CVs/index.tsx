@@ -9,18 +9,23 @@ const CVsPage: React.FC = () => {
 
   return (
     <>
-      <h1>CVs Page</h1>
-      <div className="flex flex-row">
-        {
-          CVs.map((cv) => (
-            <div key={cv.id}>
-              <CVCard CV={cv}/>
-            </div>
-          ))
-        }
+      <div className="w-full min-h-screen bg-[#f7fbff] p-4 sm:p-6 lg:p-8">
+        <div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6
+          gap-5 sm:gap-7 mb-6">
+            {CVs.map((cv) => (
+              <CVCard key={cv.id} CV={cv}/>
+            ))}
+          </div>
+          
+          <div className="flex">
+            <CreateCVButton />
+          </div>
+        </div>
       </div>
-      <CreateCVButton />
     </>
+        
   );
 }
 

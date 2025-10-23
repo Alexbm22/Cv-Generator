@@ -1,7 +1,5 @@
 import { Sequelize, Options } from "sequelize";
-import dotenv from "dotenv";
 import { config } from "../env";
-dotenv.config();
 
 const dbConfig: Options = {
     dialect: "mysql",

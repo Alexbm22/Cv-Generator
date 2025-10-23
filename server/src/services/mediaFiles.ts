@@ -1,5 +1,5 @@
 import { MediaFiles } from "@/models";
-import { MediaFilesCreationAttributes, PublicMediaFilesAttributes, PresignedUrlType } from "@/interfaces/mediaFiles";
+import { MediaFilesCreationAttributes, PublicMediaFilesAttributes, PresignedUrlType, MediaFilesAttributes } from "@/interfaces/mediaFiles";
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
 import { S3Service } from "@/services/s3";
@@ -24,12 +24,28 @@ export class MediaFilesServices {
 
             return await mediaFilesRepository.createMediaFile(mediaFileData);
         } catch (error) {
+            console.log(error)
             throw new AppError(
                 "Failed to create media file",
                 500,
                 ErrorTypes.INTERNAL_ERR
             );
         }
+    }
+
+    static async duplicateMediaFile(
+        newMediaFileData: Omit<MediaFilesCreationAttributes, 'obj_key'>,
+        duplicatedMediaFile: MediaFilesAttributes
+    ) {
+        const createdMediaFile = await this.create(newMediaFileData);
+
+        s3Service.duplicateFile(
+            config.AWS_S3_BUCKET,
+            duplicatedMediaFile.obj_key,
+            createdMediaFile.get().obj_key
+        )
+
+        return createdMediaFile;
     }
 
     static async bulkCreate(
