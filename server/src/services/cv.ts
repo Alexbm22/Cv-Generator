@@ -103,8 +103,8 @@ export class CVsService {
     @handleServiceError('CV deletion failed')
     static async deleteCV(
         user: ServerUserAttributes, 
-        cvPublicId: string, 
-    ): Promise<void> {
+        cvPublicId?: string, 
+    ) {
         const deletedCount = await cvRepository.deleteCV(user.id, cvPublicId);
         
         if(deletedCount <= 0) {
@@ -115,7 +115,6 @@ export class CVsService {
             );
         }   
     }
-    
     
     static async getCVWithMediaFiles(userId: number, cvPublicId: string) {
         return await cvRepository.getCVWithMediaFiles(userId, cvPublicId);
@@ -165,5 +164,17 @@ export class CVsService {
         const publicPhoto = await MediaFilesServices.getPublicMediaFileData(photo);
 
         return cvMapper.mapServerCVToPublicCVMetadata(cv, publicPhoto, publicPreview);
+    }
+
+    static async deleteUserCVs(user_id: number) {
+        const deletedCount = await cvRepository.deleteCV(user_id);
+        
+        if(deletedCount <= 0) {
+            throw new AppError(
+                'Something went wrong. Please contact support.',
+                400,
+                ErrorTypes.BAD_REQUEST
+            );
+        }   
     }
 }

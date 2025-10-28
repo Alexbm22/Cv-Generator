@@ -65,26 +65,25 @@ class ApiService {
       return config
 
     const { 
-      token, 
+      tokenData, 
       isTokenExpired, 
       setIsLoadingAuth, 
       setToken
      } = useAuthStore.getState();
 
-    if(isTokenExpired() || !token){
+    if(isTokenExpired() || !tokenData){
       try {
         setIsLoadingAuth(true); // Set loading state
-        const token =  await this.refreshTokenOnce()
+        const tokenData = await this.refreshTokenOnce()
 
-        if (typeof token.accessToken !== 'string' || !token) {
+        if (typeof tokenData.token !== 'string' || !tokenData) {
           // to do: improve error handling 
           throw new Error('Invalid token structure received from server');
         }
 
-        setToken(token);
+        setToken(tokenData);
 
-        config.headers.Authorization = `Bearer ${token.accessToken}`;
-
+        config.headers.Authorization = `Bearer ${tokenData.token}`;
       } catch (error) {
         this.handleAPIError(error as APIError);
         await AuthService.forceLogout();
@@ -95,7 +94,7 @@ class ApiService {
         this.refreshingPromise = undefined; // Reset the promise after refresh
       }
     } else  {
-      config.headers.Authorization = `Bearer ${token.accessToken}`;
+      config.headers.Authorization = `Bearer ${tokenData.token}`;
     }
 
     return config;
@@ -127,15 +126,15 @@ class ApiService {
       try {
         setIsLoadingAuth(true); // Set loading state
 
-        const token = await this.refreshTokenOnce();
+        const tokenData = await this.refreshTokenOnce();
 
-        if (typeof token.accessToken !== 'string' || !token) {
+        if (typeof tokenData.token !== 'string' || !tokenData) {
           throw new Error('Invalid token structure received from server');
         }
 
-        setToken(token);
+        setToken(tokenData);
 
-        originalRequest.headers.Authorization = `Bearer ${token.accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${tokenData.token}`;
 
         return this.client(originalRequest);
       } catch (refreshError) {
@@ -170,9 +169,10 @@ class ApiService {
       });
 
       const response = await refreshClient.get('/auth/refresh_token');
+      const tokenData = response.data as TokenClientData;
 
       // Validate response structure
-      if (!response.data?.token?.accessToken) {
+      if (!tokenData?.token) {
         throw new Error('Invalid token structure received from server');
       }
 

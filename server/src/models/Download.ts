@@ -3,6 +3,8 @@ import { decrypt, encrypt } from "../utils/encryption";
 import { DataTypes, Model } from "sequelize";
 import sequelize from '../config/DB/database_config';
 import { generateUUID } from "../utils/uuid";
+import { MediaFilesServices } from "@/services/mediaFiles";
+import { OwnerType } from "@/interfaces/mediaFiles";
 
 // to do add preview image
 class Download extends Model<DownloadAttributes, DownloadCreationAttributes> implements DownloadAttributes {
@@ -111,6 +113,9 @@ Download.init({
                     download.metadata = download.getMetadata();
                 }
             }
+        },
+        beforeDestroy: async (download: Download) => {
+            await MediaFilesServices.deleteOwnerMediaFiles(download.get().id, OwnerType.DOWNLOAD);
         }
     }
 })

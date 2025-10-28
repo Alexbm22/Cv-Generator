@@ -29,9 +29,17 @@ const findOrCreateUserCredits = async (user_id: number, defaultCredits: number =
     return { userCredits, created };
 };
 
+const deleteUserCredits = async (user_id: number) => {
+    return await DownloadCredits.destroy({
+        where: { user_id },
+        individualHooks: true
+    });
+};
+
 export default {
     getUserCredits,
     updateCredits,
     createUserCredits,
-    findOrCreateUserCredits
+    findOrCreateUserCredits,
+    deleteUserCredits
 };

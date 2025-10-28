@@ -15,53 +15,45 @@ export const defineTablesRelationships = () => {
 
     Models.User.hasMany(Models.Subscription, {
         foreignKey: 'user_id',
-        onDelete: 'CASCADE',
         as: 'subscriptions',
     });
 
     Models.Subscription.belongsTo(Models.User, {
         foreignKey: 'user_id',
         as: 'user',
-        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 
     Models.User.hasOne(Models.DownloadCredits, {
         foreignKey: 'user_id',
-        onDelete: 'CASCADE',
         as: 'download_credits',
     });
 
     Models.DownloadCredits.belongsTo(Models.User, {
         foreignKey: 'user_id',
         as: 'user',
-        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 
     Models.User.hasMany(Models.Payment, {
         foreignKey: 'user_id',
-        onDelete: 'CASCADE',
         as: 'payments',
     });
     
     Models.Payment.belongsTo(Models.User, {
         foreignKey: 'user_id',
         as: 'user',
-        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 
     Models.User.hasMany(Models.Download, {
         foreignKey: 'user_id',
-        onDelete: 'CASCADE',
         as: 'downloads',
     });
 
     Models.Download.belongsTo(Models.User, {
         foreignKey: 'user_id',
         as: 'user',
-        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     });
 

@@ -1,38 +1,32 @@
 import { MediaFiles } from "@/models";
-import { MediaFilesCreationAttributes, PublicMediaFilesAttributes, PresignedUrlType, MediaFilesAttributes } from "@/interfaces/mediaFiles";
+import { MediaFilesCreationAttributes, PublicMediaFilesAttributes, PresignedUrlType, MediaFilesAttributes, OwnerType } from "@/interfaces/mediaFiles";
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
 import { S3Service } from "@/services/s3";
 import { config } from "@/config/env";
 import mediaFilesRepository from '@/repositories/mediaFiles';
-import { generateS3ObjKey } from '@/utils/mediaFiles'
+import { generateS3ObjKey } from '@/utils/mediaFiles';
+import { handleServiceError } from '@/utils/serviceErrorHandler';
 
 const s3Service = new S3Service();
 
 export class MediaFilesServices {
 
+    @handleServiceError('Failed to create media file')
     static async create(
         mediaFileObj: Omit<MediaFilesCreationAttributes, 'obj_key'>
     ) {
-        try {
-            const s3ObjKey = generateS3ObjKey(mediaFileObj);
+        const s3ObjKey = generateS3ObjKey(mediaFileObj);
 
-            const mediaFileData = {
-                ...mediaFileObj,
-                obj_key: s3ObjKey
-            }
-
-            return await mediaFilesRepository.createMediaFile(mediaFileData);
-        } catch (error) {
-            console.log(error)
-            throw new AppError(
-                "Failed to create media file",
-                500,
-                ErrorTypes.INTERNAL_ERR
-            );
+        const mediaFileData = {
+            ...mediaFileObj,
+            obj_key: s3ObjKey
         }
+
+        return await mediaFilesRepository.createMediaFile(mediaFileData);
     }
 
+    @handleServiceError('Failed to duplicate media file')
     static async duplicateMediaFile(
         newMediaFileData: Omit<MediaFilesCreationAttributes, 'obj_key'>,
         duplicatedMediaFile: MediaFilesAttributes
@@ -48,46 +42,43 @@ export class MediaFilesServices {
         return createdMediaFile;
     }
 
+    @handleServiceError('Failed to bulk create media files')
     static async bulkCreate(
         mediaFileObjects: Omit<MediaFilesCreationAttributes, 'obj_key'>[]
     ) {
-        try {
-            const mediaFilesData = mediaFileObjects.map((mediaFile) => {
-                const s3ObjKey = generateS3ObjKey(mediaFile);
+        const mediaFilesData = mediaFileObjects.map((mediaFile) => {
+            const s3ObjKey = generateS3ObjKey(mediaFile);
 
-                const mediaFileData = {
-                    ...mediaFile,
-                    obj_key: s3ObjKey
-                }
+            const mediaFileData = {
+                ...mediaFile,
+                obj_key: s3ObjKey
+            }
 
-                return mediaFileData;
-            })
-            
-            return await mediaFilesRepository.bulkCreateMediaFiles(mediaFilesData);
-        } catch (error) {
-            throw new AppError(
-                "Failed to create media file",
-                500,
-                ErrorTypes.INTERNAL_ERR
-            );
-        }
+            return mediaFileData;
+        })
+        
+        return await mediaFilesRepository.bulkCreateMediaFiles(mediaFilesData);
     }
 
+    @handleServiceError('Failed to delete owner media files')
+    static async deleteOwnerMediaFiles(ownerId: number, owner_type: OwnerType) {
+        return await mediaFilesRepository.deleteOwnerMediaFiles(ownerId, owner_type);
+    }
+
+    @handleServiceError('Failed to delete file from S3')
+    static async deleteFileFromS3(obj_key: string) {
+        return await s3Service.deleteFile(
+            obj_key,
+            config.AWS_S3_BUCKET
+        );
+    }
+
+    @handleServiceError('Failed to get media file')
     static async getMediaFile(public_id: string) {
-        try {
-            return await mediaFilesRepository.getMediaFile(public_id);
-        } catch (error) {
-            throw new AppError(
-                "Failed to get media file",
-                500,
-                ErrorTypes.INTERNAL_ERR
-            );
-        }
+        return await mediaFilesRepository.getMediaFile(public_id);
     }
 
-    
-
-    // Alternative enum-based approach
+    @handleServiceError('Failed to get public media file data')
     static async getPublicMediaFileData(
         mediaFile: MediaFiles,
         urlTypes: PresignedUrlType[] = [PresignedUrlType.GET, PresignedUrlType.PUT, PresignedUrlType.DELETE],
@@ -123,6 +114,7 @@ export class MediaFilesServices {
         return result;
     }
 
+    @handleServiceError('Failed to get media presigned GET URL')
     static async getMediaPresignedGetUrl(
         mediaFile: MediaFiles, 
         timeToLive: number
@@ -137,6 +129,7 @@ export class MediaFilesServices {
         return presignedUrl.url;
     }
 
+    @handleServiceError('Failed to get media presigned PUT URL')
     static async getMediaPresignedPutUrl(
         mediaFile: MediaFiles,
         timeToLive: number
@@ -151,6 +144,7 @@ export class MediaFilesServices {
         return presignedUrl.url;
     }
 
+    @handleServiceError('Failed to get media presigned DELETE URL')
     static async getMediaPresignedDeleteUrl(
         mediaFile: MediaFiles,
         timeToLive: number

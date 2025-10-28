@@ -12,7 +12,7 @@ export const useAuthStore = create<AuthStore>()(
 
         isAuthenticated: false,
         isLoadingAuth: true,
-        token: null,
+        tokenData: null,
 
         clearAuthenticatedUser: () => {
             const { clearUserProfile } = useUserStore.getState();
@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthStore>()(
                 email: null,
                 profilePicture: null,
                 isAuthenticated: false, 
-                token: null, 
+                tokenData: null, 
             })
         },
 
@@ -39,9 +39,9 @@ export const useAuthStore = create<AuthStore>()(
         handleAuthSuccess(authData) {
             if(authData.token) {
                 set({  
-                    token: {
-                        accessToken: authData.token.accessToken,
-                        tokenExpiry: authData.token.tokenExpiry
+                    tokenData: {
+                        token: authData.token.token,
+                        expiresIn: authData.token.expiresIn
                     },
                     isAuthenticated: true, 
                     id: authData.user.id,
@@ -52,11 +52,11 @@ export const useAuthStore = create<AuthStore>()(
             }
         },
 
-        setToken: (token: TokenClientData) => set({token: token}),
+        setToken: (token: TokenClientData) => set({ tokenData: token }),
 
         isTokenExpired: () => {
-            const { token } = get();
-            return token ? new Date() >= token.tokenExpiry : true;
+            const { tokenData } = get();
+            return tokenData ? new Date() >= tokenData.expiresIn : true;
         },
 
     }), { 

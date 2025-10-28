@@ -1,4 +1,4 @@
-import { MediaFilesCreationAttributes } from "@/interfaces/mediaFiles";
+import { MediaFilesCreationAttributes, OwnerType } from "@/interfaces/mediaFiles";
 import { MediaFiles } from "../models";
 
 const getMediaFile = async (public_id: string) => {
@@ -17,8 +17,16 @@ const bulkCreateMediaFiles = async (mediaFiles: MediaFilesCreationAttributes[]) 
     return await MediaFiles.bulkCreate(mediaFiles);
 }
 
+const deleteOwnerMediaFiles = async (owner_id: number, owner_type: OwnerType) => {
+    return await MediaFiles.destroy({
+        where: { owner_id, owner_type },
+        individualHooks: true
+    });
+}
+
 export default {
     getMediaFile,
     createMediaFile,
-    bulkCreateMediaFiles
+    bulkCreateMediaFiles,
+    deleteOwnerMediaFiles
 }

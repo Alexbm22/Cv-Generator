@@ -38,4 +38,10 @@ export class CreditsService {
         
         return userCredits;
     }
+
+    @handleServiceError('Failed to delete user credits')
+    static async deleteUserCredits(user_id: number) {
+        const deletedCount = await downloadCreditsRepository.deleteUserCredits(user_id);
+        return deletedCount;
+    }
 }

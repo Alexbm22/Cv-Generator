@@ -11,7 +11,15 @@ const createSubscription = async (subscriptionData: SubscriptionCreationAttribut
     return await Subscription.create(subscriptionData)
 }
 
+const deleteUserSubscriptions = async (user_id: number) => {
+    return await Subscription.destroy({
+        where: { user_id },
+        individualHooks: true
+    });
+}
+
 export default {
     getSubscription,
-    createSubscription
+    createSubscription,
+    deleteUserSubscriptions
 }

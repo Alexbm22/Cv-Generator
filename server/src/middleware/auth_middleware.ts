@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { AppError, catchAsync } from './error_middleware';
 import { AuthRequest } from '../interfaces/auth';
 import { ErrorTypes } from '../interfaces/error';
-import { TokenService } from '@/services/token';
 import { UserService } from '@/services/user';
+import { AuthTokenService } from '@/services/tokens';
 
-const tokenService = new TokenService();
+const tokenService = new AuthTokenService();
 
 export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
     
@@ -21,17 +21,17 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
             throw new AppError('Token is missing', 401, ErrorTypes.UNAUTHORIZED);
         }
 
-        const decodedAccessToken = tokenService.getDecodedAccessToken(accessToken);
+        const decodedAccessToken = tokenService.decodeAccessToken(accessToken);
         if(!decodedAccessToken) {
             throw new AppError('Invalid token', 401, ErrorTypes.UNAUTHORIZED);
         }
 
-        const user = await UserService.findUser({ id: decodedAccessToken.id });
+        const user = await UserService.findUser({ id: decodedAccessToken.user_id });
         if (!user) {
             if (decodedAccessToken.isFirstAuth) {
                 // Wait for a short duration before retrying
                 await new Promise(resolve => setTimeout(resolve, 300));
-                const retryUser = await UserService.findUser({ id: decodedAccessToken.id });
+                const retryUser = await UserService.findUser({ id: decodedAccessToken.user_id });
                 if (retryUser) {
                     req.user = retryUser;
                     return next();

@@ -70,4 +70,10 @@ export class PaymentService {
         return payment
     }
 
+    @handleServiceError("Failed to delete user payments")
+    static async deleteUserPayments(user_id: number) {
+        const deletedCount = await paymentRepository.deleteUserPayments(user_id);
+        return deletedCount;
+    }
+
 }

@@ -50,12 +50,15 @@ const updateCV = async (cv: CVWithMediaFiles, updatedFields: Partial<ServerCVAtt
     await cv.save();
 }
 
-const deleteCV = async (userId: number, cvPublicId: string) => {
+const deleteCV = async (userId: number, cvPublicId?: string) => {
+    const whereClause = {
+        user_id: userId,
+        ...(cvPublicId && { public_id: cvPublicId }) // if no cvPublicId is provided, delete all CVs for this user
+    };
+
     return await CV.destroy({
-        where: {
-            user_id: userId,
-            public_id: cvPublicId
-        }
+        where: whereClause,
+        individualHooks: true 
     });
 }
 

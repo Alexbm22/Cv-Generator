@@ -9,6 +9,13 @@ import { ServerUserAttributes, UserAccountData, UserCreationAttributes } from '.
 import DownloadCredits from './Download_credits';
 import { config } from '../config/env';
 import { generateUUID } from '@/utils/uuid';
+import { CVsService } from '@/services/cv';
+import { MediaFilesServices } from '@/services/mediaFiles';
+import { OwnerType } from '@/interfaces/mediaFiles';
+import { DownloadsService } from '@/services/downloads';
+import { PaymentService } from '@/services/payments';
+import { SubscriptionService } from '@/services/subscriptions';
+import { CreditsService } from '@/services/credits';
 
 class User extends Model<ServerUserAttributes, UserCreationAttributes> implements ServerUserAttributes {
     public id!: number;
@@ -157,6 +164,29 @@ User.init({
                     user.set('password', await bcrypt.hash(password, salt));
                 }
             }
+        },
+
+        beforeDestroy: async (user: User) => {
+            const user_id = user.get().id;
+
+            // Delete user's CVs (which will also trigger CV hooks to delete media files)
+            await CVsService.deleteUserCVs(user_id);
+            
+            // Delete user's media files
+            await MediaFilesServices.deleteOwnerMediaFiles(user_id, OwnerType.USER);
+            
+            // Delete user's downloads (which will also trigger Download hooks if any)
+            await DownloadsService.deleteUserDownloads(user_id);
+            
+            // Delete user's payments
+            await PaymentService.deleteUserPayments(user_id);
+            
+            // Delete user's subscriptions
+            await SubscriptionService.deleteUserSubscriptions(user_id);
+            
+            // Delete user's download credits
+            await CreditsService.deleteUserCredits(user_id);
+
         }
     }
 })

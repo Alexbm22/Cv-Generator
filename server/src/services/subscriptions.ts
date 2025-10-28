@@ -35,4 +35,10 @@ export class SubscriptionService {
 
         return newSubscription;
     }
+
+    @handleServiceError('Failed to delete user subscriptions')
+    static async deleteUserSubscriptions(user_id: number) {
+        const deletedCount = await subscriptionRepository.deleteUserSubscriptions(user_id);
+        return deletedCount;
+    }
 }

@@ -25,8 +25,16 @@ const getDownloadWithMediaFiles = async (criteria: Partial<DownloadAttributes>) 
     }) as DownloadWithMediaFiles | null;
 }
 
-const deleteDownload = async (userId: number, downloadId: string) => {
-    return await Download.destroy({ where: { public_id: downloadId, user_id: userId } });
+const deleteDownload = async (user_id: number, downloadId?: string) => {
+    const whereClause = {
+        user_id,
+        ...(downloadId && { public_id: downloadId }) // if no downloadId is provided, delete all downloads for this user
+    };
+
+    return await Download.destroy({ 
+        where: whereClause,
+        individualHooks: true 
+    });
 }
 
 export default {

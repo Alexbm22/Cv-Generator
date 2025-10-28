@@ -229,4 +229,24 @@ export class S3Service {
         }
     }
 
+    public async deleteFile(obj_key: string, bucketName: string): Promise<boolean> {
+        const params = {
+            Bucket: bucketName,
+            Key: obj_key
+        };
+
+        const deleteCommand = new DeleteObjectCommand(params);
+
+        try {
+            await this.s3Client.send(deleteCommand);
+            return true;
+        } catch (error) {
+            // TODO: Add error logging here
+            const errorMessage = error && typeof error === "object" && "message" in error ?
+                error.message : "Failed to delete file from S3";
+            console.error(`Failed to delete file: ${errorMessage}`);
+            return false;
+        }
+    }
+
 }

@@ -21,8 +21,8 @@ export interface AuthResponse {
 }
 
 export interface TokenClientData {
-    accessToken: string;
-    tokenExpiry: Date;
+    token: string;
+    expiresIn: Date;
 }
 
 export interface AuthStoreAttributes {
@@ -33,7 +33,7 @@ export interface AuthStoreAttributes {
 
     isAuthenticated: boolean,
     isLoadingAuth: boolean,
-    token: TokenClientData | null
+    tokenData: TokenClientData | null
 }
 
 export interface AuthStoreActions {

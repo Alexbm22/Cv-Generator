@@ -8,6 +8,8 @@ import {
     CVCreationAttributes
 } from '../interfaces/cv';
 import { generateUUID } from '../utils/uuid';
+import { MediaFilesServices } from '@/services/mediaFiles';
+import { OwnerType } from '@/interfaces/mediaFiles';
 
 class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements ServerCVAttributes {
     public id!: number;
@@ -126,9 +128,13 @@ CV.init({
             else{
                 if (cv.encryptedContent) {
                     cv.content = cv.getContent();
-                }
+                }               
             }
+        },
+        beforeDestroy: async (cv: CV) => {
+            await MediaFilesServices.deleteOwnerMediaFiles(cv.get().id, OwnerType.CV);
         }
+        
     }
 })
 

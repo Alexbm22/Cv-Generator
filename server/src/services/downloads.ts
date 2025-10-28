@@ -13,8 +13,10 @@ import { SubscriptionService } from "./subscriptions";
 import { handleServiceError } from "@/utils/serviceErrorHandler";
 import { cvMappers, downloadMappers } from "@/mappers";
 import { DownloadValidationResult, DownloadWithMediaFiles, DownloadMetadataCVAttributes } from "@/interfaces/downloads";
+import { DownloadValidationTokenService } from "./tokens/DownloadValidationService";
 
 const s3Service = new S3Service();
+const ValidationTokenService = new DownloadValidationTokenService();
 
 export class DownloadsService {
 
@@ -44,7 +46,7 @@ export class DownloadsService {
 
         // Ensure user has permission to download (subscription or credits)
         if(await this.hasDownloadPermission(userRecord.id)) {
-            const validationToken = this.generateValidationToken(userRecord.id, cvAttributes);
+            const validationToken = ValidationTokenService.generateToken(userRecord.id, cvAttributes);
             return {
                 isDuplicate: false,
                 hasPermission: true,
@@ -67,7 +69,7 @@ export class DownloadsService {
     ) {
         const userRecord = user.get();
 
-        if (!this.verifyValidationToken(validationToken, userRecord.id, cvAttributes)) {
+        if (!ValidationTokenService.verifyToken(validationToken, userRecord.id, cvAttributes)) {
             throw new AppError(
                 "Invalid or expired validation token.",
                 403,
@@ -263,6 +265,19 @@ export class DownloadsService {
         }  
     }
 
+    @handleServiceError("Downloads Deletion Failed")
+    static async deleteUserDownloads(user_id: number) {
+        const deletedCount = await downloadRepository.deleteDownload(user_id);
+                
+        if(deletedCount <= 0) {
+            throw new AppError(
+                'Something went wrong. Please contact support.',
+                400,
+                ErrorTypes.BAD_REQUEST
+            );
+        }  
+    }
+
     /**
      * Checks if a download for the given CV data already exists for the specific user.
      * Duplicate detection is performed by comparing the core CV attributes
@@ -374,37 +389,5 @@ export class DownloadsService {
         const userCredits = await CreditsService.getUserCredits(user_id);
 
         return (!!hasSubscription || userCredits > 0);
-    }
-
-    private static generateValidationToken(userId: number, cvAttributes: PublicCVAttributes): string {
-        const payload = {
-            userId,
-            cvId: cvAttributes.id,
-            timestamp: Date.now(),
-            hash: this.createAttributesHash(cvAttributes)
-        };
-        return Buffer.from(JSON.stringify(payload)).toString('base64');
-    }
-
-    private static verifyValidationToken(token: string, userId: number, cvAttributes: PublicCVAttributes): boolean {
-        try {
-            const payload = JSON.parse(Buffer.from(token, 'base64').toString());
-            const tokenAge = Date.now() - payload.timestamp;
-            const maxAge = 5 * 60 * 1000; // 5 minutes
-
-            return (
-                payload.userId === userId &&
-                payload.cvId === cvAttributes.id &&
-                tokenAge <= maxAge &&
-                payload.hash === this.createAttributesHash(cvAttributes)
-            );
-        } catch {
-            return false;
-        }
-    }
-
-    private static createAttributesHash(cvAttributes: PublicCVAttributes): string {
-        const { updatedAt, preview, photo, ...essentialAttributes } = cvAttributes;
-        return Buffer.from(JSON.stringify(essentialAttributes)).toString('base64');
     }
 }

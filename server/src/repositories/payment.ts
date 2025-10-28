@@ -27,9 +27,17 @@ const updatePaymentByFields = async (
     });
 }
 
+const deleteUserPayments = async (user_id: number) => {
+    return await Payment.destroy({
+        where: { user_id },
+        individualHooks: true
+    });
+}
+
 export default {
     createPayment,
     getPayment,
     getPayments,
-    updatePaymentByFields
+    updatePaymentByFields,
+    deleteUserPayments
 }

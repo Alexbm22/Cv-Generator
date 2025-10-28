@@ -2,37 +2,33 @@ import {
     loginDto,
     registerDto,
     AuthResponse,
-    TokenPayload,
     AuthProvider,
-    PublicTokenData,
-} from '../interfaces/auth';
-import { User } from '../models';
-import { Response, Request, NextFunction } from 'express';
-import { config } from 'dotenv'
-import { TokenService } from './token';
+} from '../interfaces/auth'
+import { Response, Request } from 'express';
 import { GoogleServices } from './google';
 import { UserService } from './user';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
 import userRespository from '../repositories/user';
 import { handleServiceError } from '@/utils/serviceErrorHandler';
-
-config()
+import { AuthTokenService } from './tokens';
+import { CookieService } from './cookie';
+import { PublicTokenData } from '@/interfaces/token';
 
 export class AuthServices {
     private googleService: GoogleServices;
-    private tokenService: TokenService;
+    private tokenService: AuthTokenService;
 
     constructor() {
         this.googleService = new GoogleServices();
-        this.tokenService = new TokenService();
+        this.tokenService = new AuthTokenService();
     }
 
     @handleServiceError('Google login failed')
     async googleLogin(IdToken: string, res: Response): Promise<AuthResponse> {
-        const TokenPayload = await this.googleService.verifyGoogleToken(IdToken);
+        const googleTokenPayload = await this.googleService.verifyGoogleToken(IdToken);
 
-        let user = await UserService.findUser({ email: TokenPayload.email });
+        let user = await UserService.findUser({ email: googleTokenPayload.email });
         const isNewUser = !user;
 
         if (!user) { // Registering the new Google account
@@ -42,7 +38,7 @@ export class AuthServices {
                 email,
                 picture,
                 google_id
-            } = TokenPayload;
+            } = googleTokenPayload;
 
             const username = await UserService.generateUsername(given_name, family_name);
 
@@ -57,7 +53,7 @@ export class AuthServices {
             });
             
         } else {
-            if (!user.compareGoogleId(TokenPayload.google_id)) {
+            if (!user.compareGoogleId(googleTokenPayload.google_id)) {
                 throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
             }
 
@@ -68,7 +64,10 @@ export class AuthServices {
             await userRespository.saveUserChanges({ lastLogin: new Date() }, user);
         }
 
-        const accessToken = await this.tokenService.setTokens(user, res, isNewUser);
+        const accessToken = this.tokenService.generateAccessToken(user.get('id'), isNewUser);
+        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'));   
+
+        CookieService.setRefreshToken(refreshToken.token, refreshToken.expiresIn, res);
 
         return {
             token: accessToken,
@@ -101,7 +100,10 @@ export class AuthServices {
 
         await UserService.saveUserChanges({ lastLogin: new Date() }, user);
 
-        const accessToken = await this.tokenService.setTokens(user, res);
+        const accessToken = this.tokenService.generateAccessToken(user.get('id'));
+        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'));   
+
+        CookieService.setRefreshToken(refreshToken.token, refreshToken.expiresIn, res);
 
         return {
             token: accessToken,
@@ -124,7 +126,10 @@ export class AuthServices {
             isActive: true,
         });
         
-        const accessToken = await this.tokenService.setTokens(newUser, res, true);
+        const accessToken = this.tokenService.generateAccessToken(newUser.get('id'), true);
+        const refreshToken = this.tokenService.generateRefreshToken(newUser.get('id'));
+
+        CookieService.setRefreshToken(refreshToken.token, refreshToken.expiresIn, res);
 
         return {
             token: accessToken,
@@ -135,47 +140,53 @@ export class AuthServices {
 
     @handleServiceError('Logout failed')
     async logout(res: Response): Promise<void> {
-        this.tokenService.clearRefreshToken(res);
+        CookieService.clearRefreshToken(res);
     }
 
     // refreshing user tokens
     @handleServiceError('Token refresh failed')
     async refreshToken(req: Request, res: Response): Promise<PublicTokenData> {
         // extract the user id from the refresh token
-        const decodedToken = this.tokenService.getDecodedRefreshToken(req) as TokenPayload;
+        const decodedToken = this.tokenService.decodeRefreshToken(req.cookies.refreshToken) ;
     
         if(!decodedToken){
-            this.tokenService.clearRefreshToken(res);
+            CookieService.clearRefreshToken(res);
             throw new AppError('Session ended', 401, ErrorTypes.MISSING_TOKEN);
         }
 
-        const user = await UserService.findUser({ id: decodedToken.id });
+        const user = await UserService.findUser({ id: decodedToken.user_id });
 
         if (!user) {
-            this.tokenService.clearRefreshToken(res);
+            CookieService.clearRefreshToken(res);
             throw new AppError('User not found', 401 , ErrorTypes.UNAUTHORIZED);
         }
 
-        return await this.tokenService.setTokens(user, res);
+        const accessToken = this.tokenService.generateAccessToken(user.get('id'), true);
+        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'));
+
+        CookieService.setRefreshToken(refreshToken.token, refreshToken.expiresIn, res);
+
+        return accessToken;
     }
 
+    @handleServiceError('Auth check failed')
     async checkAuth(req: Request, res: Response): Promise<AuthResponse> {
-        const decodedToken = this.tokenService.getDecodedRefreshToken(req) as TokenPayload;
+        const decodedToken = this.tokenService.decodeRefreshToken(req.cookies.refreshToken);
 
         if (!decodedToken) {
-            this.tokenService.clearRefreshToken(res);
+            CookieService.clearRefreshToken(res);
             throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
-        const user = await UserService.findUser({ id: decodedToken.id });
+        const user = await UserService.findUser({ id: decodedToken.user_id });
     
         if (!user) {
-            this.tokenService.clearRefreshToken(res);
+            CookieService.clearRefreshToken(res);
             throw new AppError('User not found', 404, ErrorTypes.UNAUTHORIZED);
         }
 
         return {
-            token: this.tokenService.generateAccessToken(user),
+            token: this.tokenService.generateAccessToken(user.get('id')),
             user: UserService.getUserPublicData(user)
         };
     }
