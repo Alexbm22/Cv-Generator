@@ -101,7 +101,7 @@ const useFetchCV: React.FC<ComponentProps> = ({ id }) => {
 
     useEffect(() => {
         if(!id) {
-            navigate(routes.notFound.path, { replace: true });
+            navigate(routes.notFound.path);
             addError({
                 name: "BadRequestError",
                 message: "No Id passed!",
@@ -113,7 +113,7 @@ const useFetchCV: React.FC<ComponentProps> = ({ id }) => {
 
         if(CVStoreMode === CVStateMode.USER) {
             if(!UserFetch.CV && !UserFetch.isLoading) {
-                navigate(routes.notFound.path, { replace: true });
+                navigate(routes.notFound.path);
                 addError({
                     name: "NotFoundError",
                     message: "No User CV Found",
@@ -124,7 +124,7 @@ const useFetchCV: React.FC<ComponentProps> = ({ id }) => {
             }
         } else {
             if(!GuestFetch.CV && !GuestFetch.isLoading) {
-                navigate(routes.notFound.path, { replace: true });
+                navigate(routes.notFound.path);
                 addError({
                     name: "NotFoundError",
                     message: "No Guest CV Found",

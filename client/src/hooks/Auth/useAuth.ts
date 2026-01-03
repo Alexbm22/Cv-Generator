@@ -63,7 +63,7 @@ export const useLogout = () => {
     return useMutation<void, APIError>({
         mutationFn: async () => await AuthService.logout(),
         onSuccess: () => {
-            navigate(routes.login.path, { replace: true });
+            navigate(routes.login.path);
         },
         onSettled: () => {
             useAuthStore.getState().clearAuthenticatedUser();

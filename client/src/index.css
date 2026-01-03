@@ -6,3 +6,62 @@
     --breakpoint-lg: 1600px;
     --breakpoint-xl: 1800px;
 }
+
+:root {
+    --cv-editor-padding: 10px;
+}
+
+@media (min-width: 850px) {  
+    :root {
+        --cv-editor-padding: 20px;
+    }
+}
+
+@media (min-width: 1000px) {  
+    :root {
+        --cv-editor-padding: 35px;
+    }
+}
+
+@media (min-width: 1300px) {  
+    :root {
+        --cv-editor-padding: 45px;
+    }
+}
+
+@media (min-width: 1600px) {  
+    :root {
+        --cv-editor-padding: 55px;
+    }
+}
+
+/* CSS Classes pentru cv-editor-padding */
+.p-cv-editor-padding {
+    padding: var(--cv-editor-padding);
+}
+
+.px-cv-editor-padding {
+    padding-left: var(--cv-editor-padding);
+    padding-right: var(--cv-editor-padding);
+}
+
+.py-cv-editor-padding {
+    padding-top: var(--cv-editor-padding);
+    padding-bottom: var(--cv-editor-padding);
+}
+
+.pt-cv-editor-padding {
+    padding-top: var(--cv-editor-padding);
+}
+
+.pb-cv-editor-padding {
+    padding-bottom: var(--cv-editor-padding);
+}
+
+.pl-cv-editor-padding {
+    padding-left: var(--cv-editor-padding);
+}
+
+.pr-cv-editor-padding {
+    padding-right: var(--cv-editor-padding);
+}

@@ -2,7 +2,8 @@ import React from "react";
 import { useCreateUserCV, useCreateGuestCV } from "../../../hooks/CVs/useCVs";
 import { useCVsStore } from "../../../Store";
 import { CVStateMode } from "../../../interfaces/cv";
-import Button from "../../UI/button";
+import Button from "../../UI/Button";
+import { ButtonStyles } from "../../../constants/CV/buttonStyles";
 
 const CreateCVBtn: React.FC = () => {
     const { mutate: createUserCV } = useCreateUserCV();
@@ -14,6 +15,7 @@ const CreateCVBtn: React.FC = () => {
             onClick={() => {
                 CVState.mode === CVStateMode.USER ? createUserCV() : createGuestCV()
             }}
+            buttonStyle={ButtonStyles.primary}
             className="p-2"
         >
             + Create New CV

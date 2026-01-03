@@ -8,7 +8,7 @@ export const useAuthGuard = () => {
 
     const requireAuth = () => {
         if (!isAuthenticated) {
-            navigate(routes.login.path, { replace: true });
+            navigate(routes.login.path);
             return false;
         }
         return true;
