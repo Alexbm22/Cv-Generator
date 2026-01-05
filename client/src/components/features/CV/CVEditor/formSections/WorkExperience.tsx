@@ -2,7 +2,7 @@ import React from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../../UI/Collapsable';
-import TextInputField from '../../../../UI/textInputField';
+import InputField from '../../../../UI/InputField';
 import AddSectionButton from '../../../../UI/AddSectionButton';
 import { sanitizeHtml } from '../../../../../utils';
 import { WorkExperience } from '../../../../../interfaces/cv';
@@ -22,7 +22,7 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
     return (
         <div className='p-0.5'>
             <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
-                <TextInputField
+                <InputField
                     id={`title-${work.id}`}
                     label={fieldsConstants.job_title.label}
                     placeholder={fieldsConstants.job_title.placeholder}
@@ -30,7 +30,7 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
                     onChange={(e) => updateWorkExperience(work.id, { jobTitle: e.target.value })}
                 />
 
-                <TextInputField
+                <InputField
                     id={`company-${work.id}`}
                     label={fieldsConstants.company_name.label}
                     placeholder={fieldsConstants.company_name.placeholder}
@@ -38,7 +38,7 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
                     onChange={(e) => updateWorkExperience(work.id, { company: e.target.value })}
                 />
 
-                <TextInputField
+                <InputField
                     type='date'
                     id={`startDate-${work.id}`}
                     label={fieldsConstants.start_date.label}
@@ -47,7 +47,7 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
                     onChange={(e) => updateWorkExperience(work.id, { startDate: new Date(e.target.value) })}
                 />
 
-                <TextInputField
+                <InputField
                     type='date'
                     id={`endDate-${work.id}`}
                     placeholder={fieldsConstants.end_date.placeholder}
@@ -88,7 +88,7 @@ const WorkExperienceMain: React.FC = () => {
                         </div>
                     ))
                 }
-                <AddSectionButton OnClick={() => addWorkExperience()} sectionName={'Work Experience'} />
+                <AddSectionButton onClick={() => addWorkExperience()} sectionName={'Work Experience'} />
             </div>
         </div>
     );

@@ -2,7 +2,7 @@ import React from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../../UI/Collapsable';
-import TextInputField from '../../../../UI/textInputField';
+import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { Project } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
@@ -22,7 +22,7 @@ const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
     return (
         <div className='p-0.5'>
             <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
-                <TextInputField
+                <InputField
                     id={`title-${project.id}`}
                     label={fieldsConstants.project_name.label}
                     placeholder={fieldsConstants.project_name.placeholder}
@@ -30,7 +30,7 @@ const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
                     onChange={(e) => updateProject(project.id, { name: e.target.value })}
                 />
 
-                <TextInputField
+                <InputField
                     id={`URL-${project.id}`}
                     label={fieldsConstants.url.label}
                     placeholder={fieldsConstants.url.placeholder}
@@ -38,7 +38,7 @@ const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
                     onChange={(e) => updateProject(project.id, { url: e.target.value })}
                 />
 
-                <TextInputField
+                <InputField
                     type={fieldsConstants.start_date.type}
                     id={`startDate-${project.id}`}
                     label={fieldsConstants.start_date.label}
@@ -47,7 +47,7 @@ const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
                     onChange={(e) => updateProject(project.id, { startDate: new Date(e.target.value) })}
                 />
 
-                <TextInputField
+                <InputField
                     type={fieldsConstants.end_date.type}
                     id={`endDate-${project.id}`}
                     placeholder={fieldsConstants.end_date.placeholder}
@@ -89,7 +89,7 @@ const EducationMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <AddSectionButton OnClick={() => addProject()} sectionName={'Project'} />
+                <AddSectionButton onClick={() => addProject()} sectionName={'Project'} />
             </div>
         </div>
     )

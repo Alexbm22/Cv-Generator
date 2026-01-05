@@ -49,7 +49,7 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
 
                             {
                                 !cvPhotoBlobUrl ? (
-                                    <AddSectionButton OnClick={() => setIsSelectingPhoto(true)} sectionName={'Photo'} />
+                                    <AddSectionButton onClick={() => setIsSelectingPhoto(true)} sectionName={'Photo'} />
                                 ) : (
                                     <div className="flex flex-col gap-1 left-0 justify-start items-start">
                                         <button

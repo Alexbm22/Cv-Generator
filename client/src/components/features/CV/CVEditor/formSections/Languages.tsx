@@ -65,7 +65,7 @@ const LanguageMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <AddSectionButton OnClick={() => addLanguage()} sectionName={'Language'} />
+                <AddSectionButton onClick={() => addLanguage()} sectionName={'Language'} />
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
 import Collapsable from "./Collapsable"
 import Editor from "./TextEditor/EditorComponent"
-import TextInputField from "./textInputField"
+import InputField from "./InputField"
 import SliderPicker from "./SliderPicker"
 
-export { Collapsable, TextInputField, Editor, SliderPicker }
+export { Collapsable, InputField as TextInputField, Editor, SliderPicker }

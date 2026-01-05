@@ -2,7 +2,7 @@ import React from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../../UI/Collapsable';
-import TextInputField from '../../../../UI/textInputField';
+import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { CustomSectionAttributes } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
@@ -23,7 +23,7 @@ const CustomSectionComponent:React.FC<ComponentProps> = ({ customSection }) => {
     return (
         <div className='p-0.5' dir='ltr'>
             <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid mb-5 mt-4'>
-                <TextInputField
+                <InputField
                     id={`Title-${customSection.id}`}
                     label={fieldsConstants.title.label}
                     placeholder={fieldsConstants.title.placeholder}
@@ -32,7 +32,7 @@ const CustomSectionComponent:React.FC<ComponentProps> = ({ customSection }) => {
                 />
 
                 <div className='flex flex-col s:grid grid-cols-2 gap-x-8 gap-y-3'>
-                    <TextInputField
+                    <InputField
                         type={fieldsConstants.start_date.type}
                         id={`startDate-${customSection.id}`}
                         label={fieldsConstants.start_date.label}
@@ -41,7 +41,7 @@ const CustomSectionComponent:React.FC<ComponentProps> = ({ customSection }) => {
                         onChange={(e) => updateCustomSectionAttributes(customSection.id, { startDate: new Date(e.target.value) })}
                     />
 
-                    <TextInputField
+                    <InputField
                         type={fieldsConstants.end_date.type}
                         id={`endDate-${customSection.id}`}
                         placeholder={fieldsConstants.end_date.placeholder}
@@ -89,7 +89,7 @@ const CustomSectionMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <AddSectionButton OnClick={() => addCustomSectionAttributes()} sectionName={'Custom Section'} />
+                <AddSectionButton onClick={() => addCustomSectionAttributes()} sectionName={'Custom Section'} />
             </div>
         </div>
     )

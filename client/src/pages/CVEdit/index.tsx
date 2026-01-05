@@ -6,6 +6,9 @@ import { useCVsStore } from "../../Store";
 import { useEffect, useState } from "react";
 import { FileText, Minimize2 } from 'lucide-react';
 import CVPreviewImage from "../../components/UI/CVPreviewImage";
+import { CVEditNav } from "../../components/navigation";
+
+const PagePadding = 'p-10';
 
 const CVEditPage = () => {
     const { id } = useParams<{id: string}>();
@@ -29,28 +32,32 @@ const CVEditPage = () => {
     useFetchCV({id});
 
     return (
-        <div className="flex flex-column transition-all duration-1000 w-full h-full relative">
-            <CVEditorForm isShowingPreview={isShowingPreview}/>
-            <CVPreview isShowingPreview={isShowingPreview}/>
-            <button 
-                onClick={() => setIsShowingPreview(!isShowingPreview)}
-                className="fixed cursor-pointer w-22 h-22 bg-[#007dff] rounded-full bottom-5 right-5 
-                    text-2xl z-50 shadow-2xl opacity-[70%] hover:opacity-100 transition-all duration-300 p-4
-                    flex items-center justify-center
-                "  
-            >
-                {
-                    isShowingPreview ? <Minimize2 size={35} className="text-[#d3e8ff]"/> : (
-                        
-                        <div className="flex items-center justify-center  w-10 ">
-                            <CVPreviewImage CV={CVState.selectedCV!} FallbackComponent={() => (
-                                <FileText size={40} className="text-[#d3e8ff]"/>
-                            )}/>
-                        </div>
-                    )
-                }
-            </button>
-        </div>
+        <>
+            <div className="flex flex-col">
+                <CVEditNav />
+                <div className="flex transition-all duration-1000 w-full h-fit relative">
+                    <CVEditorForm isShowingPreview={isShowingPreview} />
+                    <CVPreview isShowingPreview={isShowingPreview}/>
+                    <button 
+                        onClick={() => setIsShowingPreview(!isShowingPreview)}
+                        className="fixed cursor-pointer w-22 h-22 bg-[#007dff] rounded-full bottom-5 right-5 
+                            text-2xl z-50 shadow-2xl opacity-[70%] hover:opacity-100 transition-all duration-300 p-4
+                            flex items-center justify-center"  
+                    >
+                        {
+                            isShowingPreview ? <Minimize2 size={35} className="text-[#d3e8ff]"/> : (
+                                
+                                <div className="flex items-center justify-center  w-10 ">
+                                    <CVPreviewImage CV={CVState.selectedCV!} FallbackComponent={() => (
+                                        <FileText size={40} className="text-[#d3e8ff]"/>
+                                    )}/>
+                                </div>
+                            )
+                        }
+                    </button>
+                </div>
+            </div>
+        </>
     );
 }
 

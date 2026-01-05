@@ -28,7 +28,7 @@ export const useDownloadCV = () => {
             if(validateRes.isDuplicate && validateRes.existingDownload) {
                 return validateRes.existingDownload;
             } else if(!(validateRes.hasPermission && validateRes.validationToken)) {
-                return navigate(routes.prices.path, { replace: true });
+                return navigate(routes.prices.path);
             }
 
             const PdfBlob = await generatePdfBlob(TemplateComponent, {CV: CVToDownload})

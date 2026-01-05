@@ -2,7 +2,7 @@ import React from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../../UI/Collapsable';
-import TextInputField from '../../../../UI/textInputField';
+import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { Education } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
@@ -22,7 +22,7 @@ const EducationComponent:React.FC<ComponentProps> = ({ education }) => {
     return (
         <div className='p-0.5'>
             <div className='flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2 mb-5 mt-4'>
-                <TextInputField
+                <InputField
                     id={`degree-${education.id}`}
                     label={fieldsConstants.degree.label}
                     placeholder={fieldsConstants.degree.placeholder}
@@ -30,7 +30,7 @@ const EducationComponent:React.FC<ComponentProps> = ({ education }) => {
                     onChange={(e) => updateEducation(education.id, { degree: e.target.value })}
                 />
 
-                <TextInputField
+                <InputField
                     id={`institution-${education.id}`}
                     label={fieldsConstants.institution.label}
                     placeholder={fieldsConstants.institution.placeholder}
@@ -38,7 +38,7 @@ const EducationComponent:React.FC<ComponentProps> = ({ education }) => {
                     onChange={(e) => updateEducation(education.id, { institution: e.target.value })}
                 />
 
-                <TextInputField
+                <InputField
                     type={fieldsConstants.start_date.type}
                     id={`startDate-${education.id}`}
                     label={fieldsConstants.start_date.label}
@@ -47,7 +47,7 @@ const EducationComponent:React.FC<ComponentProps> = ({ education }) => {
                     onChange={(e) => updateEducation(education.id, { startDate: new Date(e.target.value) })}
                 />
 
-                <TextInputField
+                <InputField
                     type={fieldsConstants.end_date.type}
                     id={`endDate-${education.id}`}
                     placeholder={fieldsConstants.end_date.placeholder}
@@ -88,7 +88,7 @@ const EducationMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <AddSectionButton OnClick={() => addEducation()} sectionName={'Education'} />
+                <AddSectionButton onClick={() => addEducation()} sectionName={'Education'} />
             </div>
         </div>
     )

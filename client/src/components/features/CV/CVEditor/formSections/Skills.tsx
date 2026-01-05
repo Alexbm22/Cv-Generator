@@ -65,7 +65,7 @@ const SkillMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <AddSectionButton OnClick={() => addSkill()} sectionName={'Skill'} />
+                <AddSectionButton onClick={() => addSkill()} sectionName={'Skill'} />
             </div>
         </div>
     )

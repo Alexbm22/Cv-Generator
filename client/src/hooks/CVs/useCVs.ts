@@ -41,7 +41,6 @@ export const useCreateUserCV = () => {
             
             navigate(
                 routes.editResume.path.replace(/:id$/, createdCV.id), 
-                { replace: true }
             );
             
             const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
@@ -98,7 +97,6 @@ export const useCreateGuestCV = () => {
             
             navigate(
                 routes.editResume.path.replace(/:id$/, createdCV.id ?? "" ), 
-                { replace: true }
             ) 
             
             const { TemplateMap } = await import("../../constants/CV/TemplatesMap");

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useCvEditStore } from "../../../../../Store";
-import TextInputField from "../../../../UI/textInputField";
+import InputField from "../../../../UI/InputField";
 import { SocialLink } from "../../../../../interfaces/cv";
 import AddSectionButton from "../../../../UI/AddSectionButton";
 import { CV_EDITOR_FORM_CONSTANTS } from "../../../../../constants/CV/CVEditor";
 import PhotoEditor from "./PhotoEditor/photoEditor";
+import { Trash2 } from "lucide-react";
 
 const { personal_infos: personalInfosConstants } = CV_EDITOR_FORM_CONSTANTS.sections;
 const { fields: fieldsConstants } = personalInfosConstants;
@@ -38,7 +39,7 @@ const PersonalInfos: React.FC = () => {
                 <h2 className="text-xl text-[#154D71] font-bold mb-2">{personalInfosConstants.title}</h2>
                 <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-2">
 
-                    <TextInputField
+                    <InputField
                         id={personalInfosConstants.fields.title.label}
                         label={personalInfosConstants.fields.title.label}
                         value={title}
@@ -46,7 +47,7 @@ const PersonalInfos: React.FC = () => {
                         placeholder={fieldsConstants.title.placeholder}
                     />
 
-                    <TextInputField
+                    <InputField
                         id={fieldsConstants.job_title.label}
                         label={fieldsConstants.job_title.label}
                         value={jobTitle}
@@ -54,7 +55,7 @@ const PersonalInfos: React.FC = () => {
                         placeholder={fieldsConstants.job_title.placeholder}
                     />
                     
-                    <TextInputField
+                    <InputField
                         id={personalInfosConstants.fields.first_name.label}
                         label={personalInfosConstants.fields.first_name.label}
                         value={firstName}
@@ -62,7 +63,7 @@ const PersonalInfos: React.FC = () => {
                         placeholder={fieldsConstants.first_name.placeholder}
                     />
 
-                    <TextInputField
+                    <InputField
                         id={fieldsConstants.last_name.label}
                         label={fieldsConstants.last_name.label}
                         value={lastName}
@@ -71,7 +72,7 @@ const PersonalInfos: React.FC = () => {
                     />
 
                     
-                    <TextInputField
+                    <InputField
                         id={fieldsConstants.email.label}
                         type={fieldsConstants.email.type}
                         label={fieldsConstants.email.label}
@@ -80,7 +81,7 @@ const PersonalInfos: React.FC = () => {
                         placeholder={fieldsConstants.email.placeholder}
                     />
 
-                    <TextInputField
+                    <InputField
                         id={fieldsConstants.phone_number.label}
                         type={fieldsConstants.phone_number.type}
                         label={fieldsConstants.phone_number.label}
@@ -90,7 +91,7 @@ const PersonalInfos: React.FC = () => {
                     />
 
                     <div className="flex flex-col h-fit gap-x-8 gap-y-4 s:grid grid-cols-1">
-                        <TextInputField
+                        <InputField
                             id="address"
                             label={fieldsConstants.address.label}
                             value={address}
@@ -98,7 +99,7 @@ const PersonalInfos: React.FC = () => {
                             placeholder={fieldsConstants.address.placeholder}
                         />
 
-                        <TextInputField
+                        <InputField
                             type={fieldsConstants.birth_date.type}
                             id={fieldsConstants.birth_date.label}
                             label={fieldsConstants.birth_date.label}
@@ -121,7 +122,7 @@ const PersonalInfos: React.FC = () => {
                                     </div>
                                 ))
                             }
-                            <AddSectionButton OnClick={() => addSocialLink()} sectionName={'link'} />
+                            <AddSectionButton onClick={() => addSocialLink()} sectionName={'link'} />
                         </div>
                     </div>
                 </div>
@@ -143,17 +144,17 @@ const SocialLinkComponent: React.FC<ComponentProps> = ({ socialLink }) => {
         <>
             <div className="flex items-center justify-between col-span-2">
                 <span className="text-lg font-medium text-gray-700">{socialLink.platform == '' ? 'Untitled' : socialLink.platform }</span>
-                <button onClick={() => removeSocialLink(socialLink.id)}><span className="text-red-500 hover:cursor-pointer">del</span></button>
+                <button onClick={() => removeSocialLink(socialLink.id)}><Trash2 className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" /></button>
             </div>
 
-            <TextInputField
+            <InputField
                 id={`platform-${socialLink.id}`}
                 label={fieldsConstants.social_links.fields.platform.label}
                 placeholder={fieldsConstants.social_links.fields.platform.placeholder}
                 value={socialLink.platform}
                 onChange={(e) => updateSocialLink(socialLink.id, { platform: e.target.value })}
             />
-            <TextInputField
+            <InputField
                 id={`url-${socialLink.id}`}
                 label={fieldsConstants.social_links.fields.url.label}
                 placeholder={fieldsConstants.social_links.fields.url.placeholder}
