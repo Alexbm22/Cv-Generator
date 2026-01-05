@@ -9,6 +9,7 @@ type ButtonProps = {
     ariaLabel?: string;
     title?: string;
     disabled?: boolean;
+    type?: "button" | "submit" | "reset";
 }
 
 const Button: React.FC<ButtonProps> = ({ 
@@ -18,7 +19,8 @@ const Button: React.FC<ButtonProps> = ({
     className = "",
     disabled = false,
     ariaLabel,
-    title
+    title,
+    type
 }) => {
     
     const disabledClasses = disabled ? "opacity-50 cursor-not-allowed hover:bg-current" : "";
@@ -29,6 +31,7 @@ const Button: React.FC<ButtonProps> = ({
             disabled={disabled}
             aria-label={ariaLabel}
             title={title}
+            type={type}
             className={twMerge(buttonStyle, className, disabledClasses)}
         >
             {children}

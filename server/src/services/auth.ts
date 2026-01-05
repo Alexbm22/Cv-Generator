@@ -146,12 +146,19 @@ export class AuthServices {
     // refreshing user tokens
     @handleServiceError('Token refresh failed')
     async refreshToken(req: Request, res: Response): Promise<PublicTokenData> {
+        const token = req.cookies.refreshToken;
+
+        if(!token){
+            CookieService.clearRefreshToken(res);
+            throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
+        }
+
         // extract the user id from the refresh token
-        const decodedToken = this.tokenService.decodeRefreshToken(req.cookies.refreshToken) ;
+        const decodedToken = this.tokenService.decodeRefreshToken(token) ;
     
         if(!decodedToken){
             CookieService.clearRefreshToken(res);
-            throw new AppError('Session ended', 401, ErrorTypes.MISSING_TOKEN);
+            throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
         const user = await UserService.findUser({ id: decodedToken.user_id });

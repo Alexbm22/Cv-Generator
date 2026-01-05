@@ -59,31 +59,31 @@ class ApiService {
 
   private async requestInterceptor(config: InternalAxiosRequestConfig) {
     if (config.url?.includes('/auth/refresh_token')) 
-      return config
+      return config;
 
     if(!config.url?.includes('/protected') && !config.url?.includes('/logout'))
-      return config
+      return config;
 
     const { 
       tokenData, 
       isTokenExpired, 
       setIsLoadingAuth, 
       setToken
-     } = useAuthStore.getState();
+    } = useAuthStore.getState();
 
     if(isTokenExpired() || !tokenData){
       try {
         setIsLoadingAuth(true); // Set loading state
-        const tokenData = await this.refreshTokenOnce()
+        const newTokenData = await this.refreshTokenOnce()
 
-        if (typeof tokenData.token !== 'string' || !tokenData) {
+        if (typeof newTokenData.token !== 'string' || !newTokenData) {
           // to do: improve error handling 
           throw new Error('Invalid token structure received from server');
         }
 
-        setToken(tokenData);
+        setToken(newTokenData);
 
-        config.headers.Authorization = `Bearer ${tokenData.token}`;
+        config.headers.Authorization = `Bearer ${newTokenData.token}`;
       } catch (error) {
         this.handleAPIError(error as APIError);
         await AuthService.forceLogout();

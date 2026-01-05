@@ -17,14 +17,14 @@ const GoogleLoginBtn: React.FC = () => {
     }
 
     return (
-        <>
-            <GoogleLogin
-                onSuccess={handleSuccess}
-                onError={() => {
-                    console.log("fasfsa")
-                }}
-            />
-        </>
+        <GoogleLogin
+            width='385'
+            shape='square'
+            onSuccess={handleSuccess}
+            onError={() => {
+                console.log("Google Login Failed");
+            }}
+        />
     )
 } 
 

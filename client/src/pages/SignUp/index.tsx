@@ -5,6 +5,10 @@ import { registerDto } from "../../interfaces/auth";
 import Field from '../../components/features/AuthForm/formField'
 import { registrationSchema } from "../../utils/validations";
 import { AuthService } from "../../services/auth";
+import bg from '../../assets/Images/login-bg.png'
+import Button from "../../components/UI/Button";
+import { ButtonStyles } from "../../constants/CV/buttonStyles";
+import { Eye, EyeOff } from 'lucide-react';
 
 const SignUp: React.FC = () =>{
 
@@ -38,61 +42,89 @@ const SignUp: React.FC = () =>{
     )
 
     return (
-        <>
-            <form name="register" onSubmit={(e) => {
-                handleSubmit(formData)(e)
-            }}>
+        <div style={{backgroundImage: `url(${bg})`}} className="min-h-screen flex items-center justify-center bg-cover bg-center px-4 py-8 md:justify-end relative overflow-hidden before:absolute before:inset-0 before:bg-black/40">
+            <div className="absolute inset-0 bg-[#13025965]"></div>
+            <h1 className="hidden mr-auto ml-100 transform -translate-x-1/2 text-white font-serif text-2xl md:text-4xl font-semibold text-center max-w-md z-10 md:flex"
+            >
+                Join us today and get started with your CV.
+            </h1>
+            <div className="flex flex-col items-center bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md gap-4 md:mr-40 lg:mr-50 relative z-20">
+                <h1 className="font-serif text-4xl mb-3 text-[#00409f]">Sign Up</h1>
+                <form className="w-full flex flex-col gap-3" name="register" onSubmit={(e) => {
+                    handleSubmit(formData)(e)
+                }}>
 
-                <Field 
-                    name="username" 
-                    type="input"
-                    formOrigin="register"
-                    label="Username"
-                    placeholder="your username"
-                    value={formData.username}
-                    onChange={(e) => {
-                        setFormData((formData) => ({
-                            ...formData,
-                            [e.target.name]: e.target.value
-                        }))
-                    }}
-                />
+                    <Field 
+                        name="username" 
+                        type="text"
+                        formOrigin="register"
+                        label="Username"
+                        placeholder="your username"
+                        value={formData.username}
+                        onChange={(e) => {
+                            setFormData((formData) => ({
+                                ...formData,
+                                [e.target.name]: e.target.value
+                            }))
+                        }}
+                    />
 
-                <Field 
-                    name="email" 
-                    type="email"
-                    formOrigin="register"
-                    label="email"
-                    placeholder="yourEmail@gmail.com"
-                    value={formData.email}
-                    onChange={(e) => {
-                        setFormData((formData) => ({
-                            ...formData,
-                            [e.target.name]: e.target.value
-                        }))
-                    }}
-                />
+                    <Field 
+                        name="email" 
+                        type="email"
+                        formOrigin="register"
+                        label="Email"
+                        placeholder="yourEmail@gmail.com"
+                        value={formData.email}
+                        onChange={(e) => {
+                            setFormData((formData) => ({
+                                ...formData,
+                                [e.target.name]: e.target.value
+                            }))
+                        }}
+                    />
 
-                <Field 
-                    name="password" 
-                    type={ showPassword ? 'text' : "password" } 
-                    formOrigin="register"
-                    label="password"
-                    placeholder="your password"
-                    value={formData.password}
-                    onChange={(e) => {
-                        setFormData((formData) => ({
-                            ...formData,
-                            [e.target.name]: e.target.value
-                        }))
-                    }}
-                />
+                    <div className="relative w-full h-fit">
+                        <Field 
+                            name="password" 
+                            type={ showPassword ? 'text' : "password" } 
+                            formOrigin="register"
+                            label="Password"
+                            className="gap-1"
+                            placeholder="your password"
+                            value={formData.password}
+                            onChange={(e) => {
+                                setFormData((formData) => ({
+                                    ...formData,
+                                    [e.target.name]: e.target.value
+                                }))
+                            }}
+                        >
+                            <button 
+                                type="button" 
+                                onClick={toggleShowPassword}
+                                className="cursor-pointer text-gray-500 hover:text-[#237bff] focus:outline-none transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </Field>
+                    </div>
 
-                <button onClick={toggleShowPassword}>view</button>
+                    <Button 
+                        type="submit" 
+                        onClick={() => {}}
+                        buttonStyle={ButtonStyles.primary}
+                        className="w-full h-12 py-2 mt-6 !max-w-none"
+                    >
+                        Sign Up
+                    </Button>
+                </form>
 
-                <button type="submit">Submit</button>
-            </form>
-        </>
+                <p className="text-gray-600 text-sm text-center">
+                    Already have an account? <a href="/login" className="text-[#237bff] font-semibold hover:underline transition-all">Log in</a>
+                </p>
+            </div>
+        </div>
     )
 }
 

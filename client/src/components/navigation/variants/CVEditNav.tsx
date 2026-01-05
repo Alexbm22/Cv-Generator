@@ -30,14 +30,14 @@ const CVEditNav = () => {
                             
                             <DownloadBtn 
                                 CVId={cvId} 
-                                className="bg-transparent sm:hover:bg-transparent hover:opacity-65 hover:bg-transparent"
-                                iconClassName="w-6 h-6 sm:w-6.5 h-6.5"
+                                className="bg-transparent sm:hover:bg-transparent hover:bg-transparent"
+                                iconClassName="w-6 h-6"
                             />
 
                             <DeleteBtn 
                                 CVId={cvId}
-                                className="bg-transparent h-fit hover:bg-transparent hover:opacity-65 sm:hover:bg-transparent"
-                                iconClassName="w-6 h-6 sm:w-7 h-7"
+                                className="bg-transparent h-fit hover:bg-transparent sm:hover:bg-transparent"
+                                iconClassName="w-6 h-6"
                             />
                         </div>
                     )
