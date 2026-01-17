@@ -3,9 +3,7 @@ import { MediaFiles } from "../models";
 
 const getMediaFile = async (public_id: string) => {
     return await MediaFiles.findOne({
-        where: {
-            public_id,
-        }
+        where: { public_id }
     });
 }
 

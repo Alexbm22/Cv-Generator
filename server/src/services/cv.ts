@@ -18,11 +18,11 @@ export class CVsService {
         const serverCVs = publicCVs.map(cv => cvMapper.mapPublicCVToServerCV(cv, userId));
         const createdCVs = await cvRepository.createCVs(serverCVs);
 
-        const photoMediaFileObjs = createdCVs.map(cv => cvFactories.createCVPhotoMediaFileObj(cv.get().id, cv.get().title));
-        const createdPhotos = await MediaFilesServices.bulkCreate(photoMediaFileObjs);
+        const photoMediaFile = createdCVs.map(cv => cvFactories.createCVPhotoMediaFileObj(cv.get().id, cv.get().title, userId, 0));
+        const createdPhotos = await MediaFilesServices.bulkCreate(photoMediaFile);
 
-        const previewMediaFileObjs = createdCVs.map(cv => cvFactories.createCVPreviewMediaFileObj(cv.get().id, cv.get().title));
-        const createdPreviews = await MediaFilesServices.bulkCreate(previewMediaFileObjs);
+        const previewMediaFile = createdCVs.map(cv => cvFactories.createCVPreviewMediaFileObj(cv.get().id, cv.get().title, userId, 0));
+        const createdPreviews = await MediaFilesServices.bulkCreate(previewMediaFile);
 
         const photoMap = new Map(createdPhotos.map(photo => [photo.get().owner_id, photo]));
         const previewMap = new Map(createdPreviews.map(preview => [preview.get().owner_id, preview]));
@@ -47,8 +47,8 @@ export class CVsService {
     @handleServiceError('CV creation failed')
     static async createDefaultCV(userId: number) {
         const cv = await cvRepository.createCV(userId);
-        const photo = await MediaFilesServices.create(cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title));
-        const preview = await MediaFilesServices.create(cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title));
+        const photo = await MediaFilesServices.create(cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId, 0));
+        const preview = await MediaFilesServices.create(cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title, userId, 0));
         return await this.getPublicCVData(cv, preview, photo);
     }
     
@@ -90,11 +90,11 @@ export class CVsService {
     ) {
         const cv = await cvRepository.createCV(CVAttributes.user_id, CVAttributes);
         const photo = await MediaFilesServices.duplicateMediaFile(
-            cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title),
+            cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, CVAttributes.user_id),
             CVPhotoMedia.get(),
         )
         const preview = await MediaFilesServices.duplicateMediaFile(
-            cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title),
+            cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title, CVAttributes.user_id),
             CVPreviewMedia.get(),
         )
         return await this.getPublicCVData(cv, preview, photo);

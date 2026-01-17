@@ -28,9 +28,12 @@ export const useFormSubmission = <T>(
 }
 
 export const useAuthAndSync = <T extends AuthCredentials>(
-    authFunction: (authCredentials: T) => Promise<AuthResponse>
+    authFunction: (authCredentials: T) => Promise<AuthResponse>,
+    options?: {
+        onSuccess?: () => void;
+    }
 ) => {
-    const { mutate: mutateSync } = useInitialCVsSync();
+    const { mutateAsync: mutateSyncAsync } = useInitialCVsSync();
     const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser)  
     
     return useMutation<void, APIError, T>({
@@ -43,15 +46,17 @@ export const useAuthAndSync = <T extends AuthCredentials>(
             setToken(authResponse.token!);
 
             if(authResponse.firstAuth) {                
-                // sync the user data 
-                mutateSync();
+                await mutateSyncAsync();
             } else {
                 migrateGuestToUser();
             }
 
             // handle auth after syncing data 
-            if(authResponse.token) handleAuthSuccess(authResponse);
+            if(authResponse.token) {
+                handleAuthSuccess(authResponse);
+            }
         },
+        onSuccess: options?.onSuccess,
         onSettled: () => useAuthStore.getState().setIsLoadingAuth(false),
     })
 }
@@ -78,6 +83,7 @@ export const useCheckAuth = () => {
         setIsLoadingAuth, 
         handleAuthSuccess,
         clearAuthenticatedUser,
+        setAuthChecked,
     } = useAuthStore.getState();
 
     const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser) 
@@ -102,6 +108,7 @@ export const useCheckAuth = () => {
         },
         onSettled: () => {
             setIsLoadingAuth(false);
+            setAuthChecked(true);
         }
     })
 }

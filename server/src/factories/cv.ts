@@ -1,23 +1,31 @@
 import { CVCreationAttributes, CVTemplates } from "../interfaces/cv";
-import { FileType, MediaFilesCreationAttributes, MediaType, OwnerType } from "../interfaces/mediaFiles";
+import { MimeType, MediaFilesCreationAttributes, MediaType, OwnerType } from "../interfaces/mediaFiles";
 
-const createCVPhotoMediaFileObj = (cvId: number, cv_title: string): Omit<MediaFilesCreationAttributes, 'obj_key'> => {
+const createCVPhotoMediaFileObj = (cvId: number, cv_title: string, userId: number, size?: number)
+: Omit<MediaFilesCreationAttributes, 's3_key'> => {
     return {
+        user_id: userId,
         owner_id: cvId,
-        file_name: cv_title,
+        filename: cv_title,
         owner_type: OwnerType.CV,
-        file_type: FileType.PNG,
+        mime_type: MimeType.IMAGE_PNG,
         type: MediaType.CV_PHOTO,
+        size: size,
+        is_active: true,
     };
 }
 
-const createCVPreviewMediaFileObj = (cvId: number, cv_title: string): Omit<MediaFilesCreationAttributes, 'obj_key'> => {
+const createCVPreviewMediaFileObj = (cvId: number, cv_title: string, userId: number, size?: number)
+: Omit<MediaFilesCreationAttributes, 's3_key'> => {
     return {
+        user_id: userId,
         owner_id: cvId,
-        file_name: cv_title,
+        filename: cv_title,
         owner_type: OwnerType.CV,
-        file_type: FileType.PNG,
+        mime_type: MimeType.IMAGE_PNG,
         type: MediaType.CV_PREVIEW,
+        size: size,
+        is_active: true,
     };
 }
 

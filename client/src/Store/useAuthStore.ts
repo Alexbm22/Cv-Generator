@@ -12,7 +12,8 @@ export const useAuthStore = create<AuthStore>()(
 
         isAuthenticated: false,
         isLoadingAuth: true,
-        tokenData: null,
+        isAuthChecked: false,
+        tokenData: null,    
 
         clearAuthenticatedUser: () => {
             const { clearUserProfile } = useUserStore.getState();
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
+        setAuthChecked: (isAuthChecked: boolean) => set({ isAuthChecked }),
         setUserData: (userData) => set({
             id: userData.id,
             username: userData.username,
@@ -44,6 +46,8 @@ export const useAuthStore = create<AuthStore>()(
                         expiresIn: authData.token.expiresIn
                     },
                     isAuthenticated: true, 
+                    isAuthChecked: true,
+                    isLoadingAuth: false,
                     id: authData.user.id,
                     username: authData.user.username,
                     email: authData.user.email,

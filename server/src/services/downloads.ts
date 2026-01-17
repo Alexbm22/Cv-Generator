@@ -6,7 +6,7 @@ import { CreditsService } from "./credits";
 import { S3Service } from "./s3";
 import { config } from "../config/env";
 import { MediaFilesServices } from "./mediaFiles";
-import { FileType, MediaType, OwnerType, PresignedUrlType } from "@/interfaces/mediaFiles";
+import { MimeType, MediaType, OwnerType, PresignedUrlType } from "@/interfaces/mediaFiles";
 import { CVsService } from "./cv";
 import { downloadRepository } from "@/repositories";
 import { SubscriptionService } from "./subscriptions";
@@ -132,16 +132,16 @@ export class DownloadsService {
                     owner_id: downloadRecord.id,
                     owner_type: OwnerType.DOWNLOAD,
                     type: MediaType.DOWNLOAD_FILE,
-                    file_type: FileType.PDF,
-                    file_name: file.originalname
+                    mime_type: MimeType.PDF,
+                    filename: file.originalname
                 }),
                 MediaFilesServices.duplicateMediaFile(
                     {
                         owner_id: downloadRecord.id,
                         owner_type: OwnerType.DOWNLOAD,
                         type: MediaType.DOWNLOAD_FILE_PREVIEW,
-                        file_type: FileType.PNG,
-                        file_name: file.originalname
+                        mime_type: MimeType.PNG,
+                        filename: file.originalname
                     }, 
                     ownedCVData.CVPreview.get()
                 ),
@@ -150,8 +150,8 @@ export class DownloadsService {
                         owner_id: downloadRecord.id,
                         owner_type: OwnerType.DOWNLOAD,
                         type: MediaType.DOWNLOAD_FILE_PHOTO,
-                        file_type: FileType.PNG,
-                        file_name: file.originalname
+                        mime_type: MimeType.PNG,
+                        filename: file.originalname
                     }, 
                     ownedCVData.CVPhoto.get()
                 )
@@ -160,7 +160,7 @@ export class DownloadsService {
             // Upload the main file
             await s3Service.uploadToS3(
                 file,
-                downloadFileMedia.get().obj_key,
+                downloadFileMedia.get().s3_key,
                 config.AWS_S3_BUCKET
             )
 
@@ -229,15 +229,15 @@ export class DownloadsService {
             // Note: For now, we'll log the cleanup operations
             // In a production environment, you'd want to implement proper cleanup
             if (downloadFileMedia) {
-                console.warn('Download file cleanup needed for:', downloadFileMedia.get().obj_key);
+                console.warn('Download file cleanup needed for:', downloadFileMedia.get().s3_key);
             }
 
             if (downloadPhotoMedia) {
-                console.warn('Download file cleanup needed for:', downloadPhotoMedia.get().obj_key);
+                console.warn('Download file cleanup needed for:', downloadPhotoMedia.get().s3_key);
             }
 
             if (downloadPreviewMedia) {
-                console.warn('Preview file cleanup needed for:', downloadPreviewMedia.get().obj_key);
+                console.warn('Preview file cleanup needed for:', downloadPreviewMedia.get().s3_key);
             }
 
             if (downloadRecord) {

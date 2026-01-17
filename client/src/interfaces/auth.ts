@@ -33,6 +33,7 @@ export interface AuthStoreAttributes {
 
     isAuthenticated: boolean,
     isLoadingAuth: boolean,
+    isAuthChecked: boolean,
     tokenData: TokenClientData | null
 }
 
@@ -40,6 +41,7 @@ export interface AuthStoreActions {
     setUserData: (userData: UserAttributes) => void;
     clearAuthenticatedUser: () => void;
     setIsLoadingAuth: (isLoadingAuth: boolean) => void,
+    setAuthChecked: (isAuthChecked: boolean) => void,
     setToken: (token: TokenClientData) => void,
     isTokenExpired: () => boolean,
     handleAuthSuccess: (authData: AuthResponse) => void;
