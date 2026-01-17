@@ -171,6 +171,9 @@ export const useInitialCVsSync = () => {
 
             const cvs = await Promise.all(cvsPromise);
             migrateGuestToUser(cvs);
+        },
+        onError: (error) => {
+            console.error("Error during initial CVs sync:", error);
         }
     })
 }

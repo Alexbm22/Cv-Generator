@@ -3,18 +3,21 @@ import { Optional } from "sequelize";
 export interface MediaFilesAttributes {
     id: number;
     public_id: string,
+    user_id: number;
     owner_id: number;
-    obj_key: string;
-    file_name: string;
+    s3_key: string;
+    filename: string;
     owner_type: OwnerType;
-    file_type: FileType;
+    mime_type: MimeType;
     type: MediaType;
+    size: number | null;
+    is_active: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
 
 export interface MediaFilesCreationAttributes extends Optional<MediaFilesAttributes, 
-    'id' | 'createdAt' | 'updatedAt' | 'public_id'
+    'id' | 'createdAt' | 'updatedAt' | 'public_id' | 'size'
 > {}
 
 export interface PublicMediaFilesAttributes {
@@ -28,19 +31,16 @@ export interface PublicMediaFilesAttributes {
     presigned_delete_URL?: string;
 }
 
-export enum FileType {
-    PNG = 'png',
-    JPG = 'jpg',
-    JPEG = 'jpeg',
-    GIF = 'gif',
-    WEBP = 'webp',
-    SVG = 'svg',
-    PDF = 'pdf',
-    DOC = 'doc',
-    DOCX = 'docx',
-    TXT = 'txt',
-    JSON = 'json',
-    XML = 'xml'
+export enum MimeType {
+    IMAGE_PNG = 'image/png',
+    IMAGE_JPG = 'image/jpg',
+    IMAGE_JPEG = 'image/jpeg',
+    IMAGE_GIF = 'image/gif',
+    APPLICATION_PDF = 'application/pdf',
+    APPLICATION_MSWORD = 'application/msword',
+    APPLICATION_JSON = 'application/json',
+    TEXT_PLAIN = 'text/plain',
+    APPLICATION_XML = 'application/xml'
 }
 
 export enum MediaType {

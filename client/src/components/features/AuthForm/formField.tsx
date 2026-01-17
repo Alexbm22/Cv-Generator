@@ -44,7 +44,9 @@ const Field: React.FC<componentProps> = ({formOrigin, name, label, type, placeho
                         </div>
                     )}
                 </div>
-                <p>{error?.message}</p>
+                {error?.message && (
+                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
+                )}
             </div>
         </>
     )

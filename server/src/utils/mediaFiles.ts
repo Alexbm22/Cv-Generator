@@ -1,26 +1,30 @@
-import { MediaFilesCreationAttributes } from "@/interfaces/mediaFiles";
+import { MediaFilesCreationAttributes, MediaType, MimeType, OwnerType } from "@/interfaces/mediaFiles";
 
 const generateS3ObjKey = (
-    mediaFileObj: Omit<MediaFilesCreationAttributes, 'obj_key'>
+    owner_type: OwnerType,
+    owner_id: number,
+    type: MediaType,
+    filename: string,
+    mime_type: MimeType
 ): string => {
     // safe filename
-    const safeFilename = mediaFileObj.file_name.replace(/\s+/g, "_").toLowerCase();
+    const safeFilename = filename.replace(/\s+/g, "_").toLowerCase();
 
     // generate unique suffix
     const uniqueId = Date.now();
 
     return `myapp/${
-        mediaFileObj.owner_type
+        owner_type
     }/${
-        mediaFileObj.owner_id
+        owner_id
     }/${
-        mediaFileObj.type
+        type
     }_${
         safeFilename
     }_${
         uniqueId
     }.${
-        mediaFileObj.file_type
+        mime_type.split('/')[1]
     }`;
 }
 
