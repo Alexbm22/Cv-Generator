@@ -9,6 +9,7 @@ export const useAuthStore = create<AuthStore>()(
         username: null,
         email: null,
         profilePicture: null,
+        needsInitialSync: false,
 
         isAuthenticated: false,
         isLoadingAuth: true,
@@ -16,14 +17,14 @@ export const useAuthStore = create<AuthStore>()(
         tokenData: null,    
 
         clearAuthenticatedUser: () => {
-            const { clearUserProfile } = useUserStore.getState();
+            useUserStore.getState().clearUserProfile(); 
             
-            clearUserProfile(); 
             set({ 
                 id: null,
                 username: null,
                 email: null,
                 profilePicture: null,
+                needsInitialSync: false,
                 isAuthenticated: false, 
                 tokenData: null, 
             })
@@ -35,23 +36,25 @@ export const useAuthStore = create<AuthStore>()(
             id: userData.id,
             username: userData.username,
             email: userData.email,
-            profilePicture: userData.profilePicture
+            profilePicture: userData.profilePicture,
+            needsInitialSync: userData.needsInitialSync
         }),
 
         handleAuthSuccess(authData) {
             if(authData.token) {
                 set({  
                     tokenData: {
-                        token: authData.token.token,
+                        token: authData.token?.token,
                         expiresIn: authData.token.expiresIn
                     },
                     isAuthenticated: true, 
                     isAuthChecked: true,
                     isLoadingAuth: false,
-                    id: authData.user.id,
-                    username: authData.user.username,
-                    email: authData.user.email,
-                    profilePicture: authData.user.profilePicture
+                    id: authData.user?.id,
+                    username: authData.user?.username,
+                    email: authData.user?.email,
+                    profilePicture: authData.user?.profilePicture,
+                    needsInitialSync: authData.user?.needsInitialSync ?? false
                 })
             }
         },

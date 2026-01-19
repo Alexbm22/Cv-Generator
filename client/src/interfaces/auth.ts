@@ -15,9 +15,9 @@ export interface registerDto {
 export type AuthCredentials = registerDto | loginDto | CredentialResponse;
 
 export interface AuthResponse {
-    token?: TokenClientData;
-    firstAuth?: boolean;
-    user: UserAttributes;
+    message?: string,
+    token?: TokenClientData,
+    user?: UserAttributes;
 }
 
 export interface TokenClientData {
@@ -30,6 +30,7 @@ export interface AuthStoreAttributes {
     username: string | null;
     email: string | null;
     profilePicture: string | null;
+    needsInitialSync: boolean;
 
     isAuthenticated: boolean,
     isLoadingAuth: boolean,

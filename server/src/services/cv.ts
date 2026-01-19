@@ -8,6 +8,7 @@ import cvRepository from '../repositories/cv';
 import cvMapper from '../mappers/cv';
 import cvFactories from '../factories/cv';
 import { handleServiceError } from '../utils/serviceErrorHandler';
+import { PresignedUrlType } from "@/interfaces/mediaFiles";
 
 export class CVsService {
     @handleServiceError('Failed to create CVs')
@@ -37,11 +38,11 @@ export class CVsService {
             }
         });
 
-        return await Promise.all(result.map(async (cv) => await CVsService.getCVMetadata(
+        return Promise.all(result.map(async (cv) => cvMapper.mapServerCVToPublicCV(
             cv.CVData.get(),  
-            cv.CVPreview, 
-            cv.CVPhoto
-        )));
+            await MediaFilesServices.getPublicMediaFileData(cv.CVPreview, [PresignedUrlType.GET, PresignedUrlType.PUT]), 
+            await MediaFilesServices.getPublicMediaFileData(cv.CVPreview, [PresignedUrlType.GET, PresignedUrlType.PUT, PresignedUrlType.DELETE]),
+        )))
     }
 
     @handleServiceError('CV creation failed')

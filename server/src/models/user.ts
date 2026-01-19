@@ -26,6 +26,7 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
     public profilePicture!: string | null;
     public authProvider!: AuthProvider;
     public isActive!: boolean;
+    public needsInitialSync!: boolean;
     public lastLogin!: Date | null;
     public password!: string | null;
     public readonly createdAt!: Date;
@@ -114,6 +115,11 @@ User.init({
         defaultValue: 'local',
     },
     isActive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    needsInitialSync: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,

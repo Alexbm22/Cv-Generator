@@ -4,11 +4,11 @@ import { UserCVAttributes, CVStateMode, GuestCVAttributes, UserCVMetadataAttribu
 import { ApiError } from "../../interfaces/error";
 import { CVServerService } from "../../services/CVServer";
 import { generatePdfBlob, pdfBlobToCanvas } from "../../services/Pdf";
-import { uploadImage } from "../../services/MediaFiles";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/routes";
 import { createDefaultCVObject } from "../../utils/cv";
 import { uploadDefaultPhoto, getDefaultPhotoPath } from "../../utils/cvDefaults";
+import { generateAndUploadCVPreview } from "../../services/CVLocal";
 
 export const useCreateUserCV = () => {
     const addUserCV = useCVsStore(state => state.addUserCV);
@@ -46,21 +46,7 @@ export const useCreateUserCV = () => {
             const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
             const CVTemplate = TemplateMap[createdCV.template];
 
-            const CVData = {
-                ...createdCV, 
-                photo: getDefaultPhotoPath()
-            }
-
-            const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });
-            const CVCanvas = await pdfBlobToCanvas(cvBlob);
-
-            if (CVCanvas) {
-                CVCanvas.toBlob(async (blob) => {
-                    if(!blob) return;
-                    uploadImage(blob, createdCV.preview!)
-                }, "image/png")
-            }               
-
+            generateAndUploadCVPreview(createdCV, CVTemplate)
             uploadDefaultPhoto(createdCV.photo!);
         }
     })
@@ -114,66 +100,6 @@ export const useCreateGuestCV = () => {
                 setGuestCV(createdCV);
                 setGuestPreview(CVCanvas.toDataURL());
             }                
-        }
-    })
-}
-
-export const useInitialCVsSync = () => {
-
-    const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser);
-    const CVState = useCVsStore(state => state.CVState);
-
-    return useMutation<UserCVAttributes[], ApiError>({
-        mutationFn: async () => { 
-            if(CVState.mode === CVStateMode.GUEST) {
-                const sanitizedCVs = CVState.cvs.map((cv) => {
-                    const { photo, preview, ...rest } = cv; // scoatem câmpurile mari
-                    return rest;
-                });
-                return await CVServerService.createCVs(sanitizedCVs);
-            } else {
-                throw new Error("Initial data sync is only supported for guest mode.");
-            }
-        },
-        onSuccess: async (createdCVs) => {
-            const cvsPromise = createdCVs.map(async (createdCV) => {
-                const CVMetaData: UserCVMetadataAttributes = {
-                    id: createdCV.id,
-                    jobTitle: createdCV.jobTitle,
-                    title:createdCV.title,
-                    template: createdCV.template,
-                    photo: createdCV.photo,
-                    preview: createdCV.preview,
-                    updatedAt: createdCV.updatedAt,
-                    createdAt: createdCV.createdAt
-                }
-    
-                const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
-                const CVTemplate = TemplateMap[createdCV.template];
-    
-                const CVData = {
-                    ...createdCV, 
-                    photo: getDefaultPhotoPath()
-                }
-    
-                const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });
-                const CVCanvas = await pdfBlobToCanvas(cvBlob);
-    
-                if (CVCanvas) {
-                    CVCanvas.toBlob(async (blob) => {
-                        if(!blob) return;
-                        uploadImage(blob, createdCV.preview!)
-                    }, "image/png")
-                }      
-                
-                return CVMetaData;
-            }) 
-
-            const cvs = await Promise.all(cvsPromise);
-            migrateGuestToUser(cvs);
-        },
-        onError: (error) => {
-            console.error("Error during initial CVs sync:", error);
         }
     })
 }

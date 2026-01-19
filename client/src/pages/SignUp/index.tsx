@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuthAndSync, useFormSubmission } from "../../hooks/Auth/useAuth";
 import { useAuthStore } from '../../Store'
 import { registerDto } from "../../interfaces/auth";
@@ -14,15 +14,10 @@ import { routes } from "../../router/routes";
 import GoogleLoginBtn from "../Login/GoogleAuth/GoogleLoginBtn";
 
 const SignUp: React.FC = () =>{
-    const navigate = useNavigate();
     const register = AuthService.register.bind(AuthService); 
 
     const setIsLoadingAuth = useAuthStore(state => state.setIsLoadingAuth);
-    const { mutate: mutateRegistration, isPending } = useAuthAndSync(register, {
-        onSuccess: () => {
-            navigate(routes.home.path);
-        }
-    });
+    const { mutate: mutateRegistration, isPending } = useAuthAndSync(register);
     
     useEffect(() => {
         setIsLoadingAuth(isPending);

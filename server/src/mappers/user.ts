@@ -5,7 +5,8 @@ const mapServerUserToPublicUser = (user: ServerUserAttributes): PublicUserAttrib
         id: user.public_id,
         email: user.email,
         username: user.username,
-        profilePicture: user.profilePicture
+        profilePicture: user.profilePicture,
+        needsInitialSync: user.needsInitialSync
     };
 }
 

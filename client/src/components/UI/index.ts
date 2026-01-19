@@ -5,3 +5,4 @@ import InputField from "./InputField"
 import SliderPicker from "./SliderPicker"
 
 export { Collapsable, Dropdown, InputField as TextInputField, Editor, SliderPicker }
+export { LoadingSpinner } from "./LoadingSpinner"
