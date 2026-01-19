@@ -2,6 +2,7 @@ import { Optional } from 'sequelize';
 import { AuthProvider } from './auth';
 import { PublicPaymentData } from './payments';
 import { PublicSubscriptionData } from './subscriptions';
+import { PublicCVAttributes, PublicCVMetadataAttributes } from './cv';
 
 export interface UserAccountData {
     username: string;
@@ -25,6 +26,7 @@ export interface ServerUserAttributes {
     profilePicture: string | null;
     authProvider: AuthProvider;
     isActive: boolean;
+    needsInitialSync: boolean;
     lastLogin: Date | null;
     createdAt?: Date;
     updatedAt?: Date;
@@ -35,7 +37,16 @@ export interface PublicUserAttributes {
     username: string;
     email: string;
     profilePicture: string | null;
+    needsInitialSync: boolean;
+}
+
+export interface SyncedDataAttributes {
+    cvs: PublicCVMetadataAttributes[];
+}
+
+export interface InitialDataSyncAttributes {
+    cvs: PublicCVAttributes[];
 }
 
 export interface UserCreationAttributes extends Optional<ServerUserAttributes, 
-'id' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive' | 'public_id'> {}
+'id' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'public_id'> {}

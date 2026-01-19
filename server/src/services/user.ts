@@ -1,4 +1,4 @@
-import { PublicUserAttributes, ServerUserAttributes, UserCreationAttributes, UserProfile } from "@/interfaces/user";
+import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, SyncedDataAttributes, UserCreationAttributes, UserProfile } from "@/interfaces/user";
 import { User } from "@/models";
 import { SubscriptionService } from "@/services/subscriptions";
 import { CreditsService } from "@/services/credits";
@@ -9,6 +9,7 @@ import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
 import { handleServiceError } from '@/utils/serviceErrorHandler';
 import { userMappers } from "@/mappers";
+import { CVsService } from "./cv";
 
 export class UserService {
 
@@ -26,6 +27,18 @@ export class UserService {
 
     static getUserPublicData(userInstance: User): PublicUserAttributes {
         return userMappers.mapServerUserToPublicUser(userInstance.get());
+    }
+
+    static async syncInitialData(user: ServerUserAttributes, dataToSync: InitialDataSyncAttributes): Promise<SyncedDataAttributes> {
+        const importedCVs = await CVsService.createCVs(user.id, dataToSync.cvs);
+        await userRespository.updateUserByFields(
+            { needsInitialSync: false }, 
+            { id: user.id }
+        );
+
+        return {
+            cvs: importedCVs
+        }
     }
 
     @handleServiceError('Failed to validate user credentials')

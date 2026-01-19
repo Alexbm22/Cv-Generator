@@ -11,4 +11,10 @@ router.get(
     catchAsync(UserController.getUserProfile)
 );
 
+router.post(
+    '/sync_initial_data',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(UserController.syncInitialData)
+);
+
 export default router;

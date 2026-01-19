@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '../../router/routes';
 import * as yup from 'yup';
 import { AuthService } from '../../services/auth';
-import { useInitialCVsSync } from '../CVs/useCVs';
 
 export const useFormSubmission = <T>(
     schema: yup.ObjectSchema<{}, T, {}, "">,
@@ -33,31 +32,24 @@ export const useAuthAndSync = <T extends AuthCredentials>(
         onSuccess?: () => void;
     }
 ) => {
-    const { mutateAsync: mutateSyncAsync } = useInitialCVsSync();
-    const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser)  
+    const navigate = useNavigate();
+    const { setIsLoadingAuth } = useAuthStore.getState();
     
-    return useMutation<void, APIError, T>({
+    return useMutation<AuthResponse, APIError, T>({
         mutationFn: async (authCredentials: T) => {
-            const { handleAuthSuccess, setToken, setIsLoadingAuth } = useAuthStore.getState();
-            
-            // authenticate the user on the server side
             setIsLoadingAuth(true); 
-            const authResponse = await authFunction(authCredentials);
-            setToken(authResponse.token!);
-
-            if(authResponse.firstAuth) {                
-                await mutateSyncAsync();
+            return await authFunction(authCredentials);
+        },
+        onSuccess: options?.onSuccess ?? ((authResponse: AuthResponse) => {
+            const { handleAuthSuccess } = useAuthStore.getState();
+            if(!authResponse.token) {
+                return navigate(routes.login.path);
             } else {
-                migrateGuestToUser();
-            }
-
-            // handle auth after syncing data 
-            if(authResponse.token) {
                 handleAuthSuccess(authResponse);
             }
-        },
-        onSuccess: options?.onSuccess,
-        onSettled: () => useAuthStore.getState().setIsLoadingAuth(false),
+        }),
+        onSettled: () => setIsLoadingAuth(false),
+        onError: () => navigate(routes.login.path),
     })
 }
 

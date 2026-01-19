@@ -3,6 +3,7 @@ import { useUserStore } from "./useUserStore";
 import { useErrorStore } from "./useErrorStore";
 import { useAuthStore } from "./useAuthStore";
 import { useCVsStore } from "./useCVsStore";
+import { useLoadingStore } from "./useLoadingStore";
 
 export { 
     useCvEditStore, 
@@ -10,4 +11,5 @@ export {
     useUserStore,
     useErrorStore,
     useAuthStore,
+    useLoadingStore,
 };

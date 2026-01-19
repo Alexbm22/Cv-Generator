@@ -31,7 +31,8 @@ export class AuthServices {
         let user = await UserService.findUser({ email: googleTokenPayload.email });
         const isNewUser = !user;
 
-        if (!user) { // Registering the new Google account
+        if (!user) {
+            // Registering the new Google account
             const {
                 given_name,
                 family_name,
@@ -49,7 +50,8 @@ export class AuthServices {
                 lastLogin: new Date(),
                 googleId: google_id,
                 isActive: true,
-                profilePicture: picture
+                profilePicture: picture,
+                needsInitialSync: true
             });
             
         } else {
@@ -71,7 +73,6 @@ export class AuthServices {
 
         return {
             token: accessToken,
-            firstAuth: isNewUser,
             user: UserService.getUserPublicData(user)
         };
     }
@@ -117,24 +118,18 @@ export class AuthServices {
 
         await UserService.validateNewUserCredentials(email, username);
             
-        const newUser = await UserService.createUser({
+        await UserService.createUser({
             username: username,
             email: email,
             password: password,
             authProvider: AuthProvider.LOCAL,
             lastLogin: new Date(),
             isActive: true,
+            needsInitialSync: true
         });
         
-        const accessToken = this.tokenService.generateAccessToken(newUser.get('id'), true);
-        const refreshToken = this.tokenService.generateRefreshToken(newUser.get('id'));
-
-        CookieService.setRefreshToken(refreshToken.token, refreshToken.expiresIn, res);
-
         return {
-            token: accessToken,
-            firstAuth: true,
-            user: UserService.getUserPublicData(newUser)
+            message: 'User registered successfully'
         };
     }
 

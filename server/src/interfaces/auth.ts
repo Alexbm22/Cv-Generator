@@ -27,11 +27,15 @@ export interface GoogleUserPayload {
 }
 
 export interface AuthResponse {
+    message?: string,
     token?: PublicTokenData,
-    firstAuth?: boolean, 
-    user: PublicUserAttributes
+    user?: PublicUserAttributes
 }
 
+export enum AuthStatus {
+    SUCCESS = 'success',
+    FAILURE = 'failure'
+}
 
 export enum AuthProvider {
     LOCAL = 'local',
