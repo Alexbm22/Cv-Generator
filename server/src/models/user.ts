@@ -1,11 +1,11 @@
-import { Model, DataTypes, Optional} from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/DB/database_config';
 import bcrypt from 'bcrypt';
 import { AuthProvider } from '../interfaces/auth';
 import { AppError } from '../middleware/error_middleware';
 import crypto from 'crypto';
 import { ErrorTypes } from '../interfaces/error';
-import { ServerUserAttributes, UserAccountData, UserCreationAttributes } from '../interfaces/user'
+import { ServerUserAttributes, UserCreationAttributes } from '../interfaces/user'
 import DownloadCredits from './Download_credits';
 import { config } from '../config/env';
 import { generateUUID } from '@/utils/uuid';
@@ -23,11 +23,11 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
     public username!: string;
     public email!: string;
     public googleId!: string | null;
-    public profilePicture!: string | null;
     public authProvider!: AuthProvider;
     public isActive!: boolean;
     public needsInitialSync!: boolean;
     public lastLogin!: Date | null;
+    public googleProfilePictureURL!: string | null;
     public password!: string | null;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -105,8 +105,8 @@ User.init({
         allowNull: true,
         unique: true,
     },
-    profilePicture: {
-        type: DataTypes.STRING(255),
+    googleProfilePictureURL: {
+        type: DataTypes.STRING(512),
         allowNull: true,
     },
     authProvider: {

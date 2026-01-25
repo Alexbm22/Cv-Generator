@@ -14,6 +14,8 @@ import { handleServiceError } from '@/utils/serviceErrorHandler';
 import { AuthTokenService } from './tokens';
 import { CookieService } from './cookie';
 import { PublicTokenData } from '@/interfaces/token';
+import { MediaFilesServices } from './mediaFiles';
+import { MediaType, MimeType, OwnerType } from '@/interfaces/mediaFiles';
 
 export class AuthServices {
     private googleService: GoogleServices;
@@ -28,7 +30,7 @@ export class AuthServices {
     async googleLogin(IdToken: string, res: Response): Promise<AuthResponse> {
         const googleTokenPayload = await this.googleService.verifyGoogleToken(IdToken);
 
-        let user = await UserService.findUser({ email: googleTokenPayload.email });
+        let user = await UserService.getUserWithMediaFile({ email: googleTokenPayload.email });
         const isNewUser = !user;
 
         if (!user) {
@@ -42,18 +44,29 @@ export class AuthServices {
             } = googleTokenPayload;
 
             const username = await UserService.generateUsername(given_name, family_name);
-
+ 
             user = await UserService.createUser({
                 username: username,
                 email: email,
                 authProvider: AuthProvider.GOOGLE,
                 lastLogin: new Date(),
                 googleId: google_id,
+                googleProfilePictureURL: picture,
                 isActive: true,
-                profilePicture: picture,
                 needsInitialSync: true
             });
-            
+
+            await MediaFilesServices.create({
+                user_id: user.id,
+                owner_id: user.id,
+                filename: user.get('username'),
+                owner_type: OwnerType.USER,
+                mime_type: MimeType.IMAGE_PNG,
+                type: MediaType.PROFILE_PHOTO,
+                is_active: true,
+            });
+
+            user = await UserService.getUserWithMediaFile({ id: user.id });
         } else {
             if (!user.compareGoogleId(googleTokenPayload.google_id)) {
                 throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
@@ -66,6 +79,10 @@ export class AuthServices {
             await userRespository.saveUserChanges({ lastLogin: new Date() }, user);
         }
 
+        if (!user) {
+            throw new AppError('User not found', 500, ErrorTypes.UNAUTHORIZED);
+        }
+
         const accessToken = this.tokenService.generateAccessToken(user.get('id'), isNewUser);
         const refreshToken = this.tokenService.generateRefreshToken(user.get('id'));   
 
@@ -73,7 +90,7 @@ export class AuthServices {
 
         return {
             token: accessToken,
-            user: UserService.getUserPublicData(user)
+            user: await UserService.getUserPublicData(user)
         };
     }
 
@@ -81,7 +98,7 @@ export class AuthServices {
     async login(data: loginDto, res: Response): Promise<AuthResponse> {
         const { email, password } = data;
 
-        const user = await UserService.findUser({ email });
+        const user = await UserService.getUserWithMediaFile({ email });
         if (!user) {
             throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
         }
@@ -108,17 +125,17 @@ export class AuthServices {
 
         return {
             token: accessToken,
-            user: UserService.getUserPublicData(user)
+            user: await UserService.getUserPublicData(user)
         };
     }
 
     @handleServiceError('Registration failed')
-    async register(data: registerDto, res: Response): Promise<AuthResponse> {
+    async register(data: registerDto): Promise<AuthResponse> {
         const { username, email, password } = data;
 
         await UserService.validateNewUserCredentials(email, username);
             
-        await UserService.createUser({
+        const user = await UserService.createUser({
             username: username,
             email: email,
             password: password,
@@ -126,6 +143,16 @@ export class AuthServices {
             lastLogin: new Date(),
             isActive: true,
             needsInitialSync: true
+        });
+
+        await MediaFilesServices.create({
+            user_id: user.id,
+            owner_id: user.id,
+            filename: user.get('username'),
+            owner_type: OwnerType.USER,
+            mime_type: MimeType.IMAGE_PNG,
+            type: MediaType.PROFILE_PHOTO,
+            is_active: true,
         });
         
         return {
@@ -156,7 +183,7 @@ export class AuthServices {
             throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
-        const user = await UserService.findUser({ id: decodedToken.user_id });
+        const user = await UserService.getUser({ id: decodedToken.user_id });
 
         if (!user) {
             CookieService.clearRefreshToken(res);
@@ -180,7 +207,7 @@ export class AuthServices {
             throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
-        const user = await UserService.findUser({ id: decodedToken.user_id });
+        const user = await UserService.getUserWithMediaFile({ id: decodedToken.user_id });
     
         if (!user) {
             CookieService.clearRefreshToken(res);
@@ -189,7 +216,7 @@ export class AuthServices {
 
         return {
             token: this.tokenService.generateAccessToken(user.get('id')),
-            user: UserService.getUserPublicData(user)
+            user: await UserService.getUserPublicData(user)
         };
     }
 }

@@ -6,7 +6,7 @@ import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { CustomSectionAttributes } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
-import AddSectionButton from '../../../../UI/AddSectionButton';
+import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     customSection: CustomSectionAttributes

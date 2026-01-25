@@ -1,14 +1,12 @@
 import { useParams } from "react-router-dom";
-import CVEditorForm  from "../..//components/features/CV/CVEditor/CVForm";
-import CVPreview from "../../components/features/CV/CVEditor/CVPreview/CVPreview";
+import CVEditorForm  from "./CVForm";
+import CVPreview from "../../components/features/CV/CVPreview";
 import useFetchCV from "./useFetchCV";
 import { useCVsStore } from "../../Store";
 import { useEffect, useState } from "react";
 import { FileText, Minimize2 } from 'lucide-react';
-import CVPreviewImage from "../../components/UI/CVPreviewImage";
 import { CVEditNav } from "../../components/navigation";
-
-const PagePadding = 'p-10';
+import CVPreviewImage from "../../components/features/CV/CVPreviewImage";
 
 const CVEditPage = () => {
     const { id } = useParams<{id: string}>();
@@ -33,9 +31,9 @@ const CVEditPage = () => {
 
     return (
         <>
-            <div className="flex flex-col">
+            <div className="flex flex-col h-screen">
                 <CVEditNav />
-                <div className="flex transition-all duration-1000 w-full h-fit relative">
+                <div className="flex transition-all duration-1000 w-full flex-1 relative pt-15">
                     <CVEditorForm isShowingPreview={isShowingPreview} />
                     <CVPreview isShowingPreview={isShowingPreview}/>
                     <button 

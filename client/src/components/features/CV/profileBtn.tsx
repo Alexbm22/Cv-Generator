@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { UserRound } from 'lucide-react';
 import { routes } from "../../../router/routes";
-import Button from "../../UI/Button";
+import Button from "../../UI/Buttons/Button";
 import { ButtonStyles } from "../../../constants/CV/buttonStyles";
 import { useAuthStore } from "../../../Store";
 import { useLogout } from "../../../hooks/Auth/useAuth";

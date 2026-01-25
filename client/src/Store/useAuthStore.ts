@@ -30,6 +30,11 @@ export const useAuthStore = create<AuthStore>()(
             })
         },
 
+        getAuthenticatedUser: () => {
+            const { id, username, email, profilePicture, needsInitialSync } = get();
+            return { id, username, email, profilePicture, needsInitialSync };
+        },
+
         setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
         setAuthChecked: (isAuthChecked: boolean) => set({ isAuthChecked }),
         setUserData: (userData) => set({

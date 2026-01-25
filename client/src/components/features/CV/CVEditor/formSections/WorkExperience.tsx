@@ -3,10 +3,10 @@ import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
 import Collapsable from '../../../../UI/Collapsable';
 import InputField from '../../../../UI/InputField';
-import AddSectionButton from '../../../../UI/AddSectionButton';
 import { sanitizeHtml } from '../../../../../utils';
 import { WorkExperience } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     work: WorkExperience

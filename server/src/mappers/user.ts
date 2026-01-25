@@ -1,12 +1,24 @@
-import { PublicUserAttributes, ServerUserAttributes } from "@/interfaces/user";
+import { PresignedUrlType } from "@/interfaces/mediaFiles";
+import { PublicUserAttributes, UserWithMediaFiles } from "@/interfaces/user";
+import { MediaFilesServices } from "@/services/mediaFiles";
 
-const mapServerUserToPublicUser = (user: ServerUserAttributes): PublicUserAttributes => {
+const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<PublicUserAttributes> => {
+    
+    const userData = user.get();
+
+    const profilePictureMediaFile= user.mediaFile?.is_active ? await MediaFilesServices.getPublicMediaFileData(
+        user.mediaFile,
+        [PresignedUrlType.GET, PresignedUrlType.PUT, PresignedUrlType.DELETE]
+    ) : undefined;
+
+    const userProfilePhoto = profilePictureMediaFile ?? userData.googleProfilePictureURL;
+
     return {
-        id: user.public_id,
-        email: user.email,
-        username: user.username,
-        profilePicture: user.profilePicture,
-        needsInitialSync: user.needsInitialSync
+        id: userData.public_id,
+        email: userData.email,
+        username: userData.username,
+        profilePicture: userProfilePhoto ?? undefined,
+        needsInitialSync: userData.needsInitialSync
     };
 }
 

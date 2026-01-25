@@ -39,7 +39,7 @@ export class AuthController {
         const registerDto: registerDto = req.body;
 
         try {
-            const registrationResult = await this.authServices.register(registerDto, res);
+            const registrationResult = await this.authServices.register(registerDto);
             return res.status(201).json(registrationResult);
         } catch (error) {
             return next(error)

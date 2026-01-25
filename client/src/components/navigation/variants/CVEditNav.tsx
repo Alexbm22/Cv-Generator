@@ -1,9 +1,8 @@
 import { useCvEditStore } from "../../../Store";
 import DownloadBtn from "../../features/CV/downloadBtn";
-import { BaseNav } from "../shared";
+import { BaseNav, ProfileDropdown } from "../shared";
 import DeleteBtn from "../../features/CV/deleteBtn";
-import ProfileBtn from "../../features/CV/profileBtn";
-import BackBtn from "../../features/CV/backBtn";
+import BackBtn from "../../UI/Buttons/backBtn";
 
 const CVEditNav = () => {
 
@@ -12,21 +11,21 @@ const CVEditNav = () => {
 
     return (
         <BaseNav
-            position="sticky"
+            position="fixed"
             height="h-15"
             backgroundColor="bg-[#eff5ff7c]"
             blur={true}
             border={true}
             shadow={true}
             zIndex={50}
-            className="top-0 text-[#2e69c8]"
+            className="top-0 left-0 right-0 text-[#2e69c8]"
             responsiveStyle={`px-cv-editor-padding pt-2 pb-2`}
             itemsContainerStyle="h-full"
             rightItems={[
                 {
                     id: 'download',
                     component: (
-                        <div className="flex flex-row items-center rounded-md px-1.5 py-1 h-full gap-1 sm:font-medium text-[#007dff] bg-[#e2f0ffda]">
+                        <div className="flex flex-row items-center rounded-lg px-1 py-0.5 h-full gap-1 sm:font-medium text-[#007dff] bg-[#e2f0ffda]">
                             
                             <DownloadBtn 
                                 CVId={cvId} 
@@ -42,11 +41,9 @@ const CVEditNav = () => {
                         </div>
                     )
                 }, {
-                    id: 'profile-btn',
+                    id: 'profile-dropdown',
                     component: (
-                        <ProfileBtn 
-                            iconClassName="w-6 h-6 sm:w-7 h-7"
-                        />
+                        <ProfileDropdown />
                     )
                 }
             ]}

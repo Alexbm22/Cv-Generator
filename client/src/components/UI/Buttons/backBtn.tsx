@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from 'lucide-react';
-import Button from "../../UI/Button";
+import Button from "./Button";
 import { ButtonStyles } from "../../../constants/CV/buttonStyles";
 
 type BackBtnProps = {

@@ -2,7 +2,7 @@ import React from "react";
 import { useCreateUserCV, useCreateGuestCV } from "../../../hooks/CVs/useCVs";
 import { useCVsStore } from "../../../Store";
 import { CVStateMode } from "../../../interfaces/cv";
-import Button from "../../UI/Button";
+import Button from "../../UI/Buttons/Button";
 import { ButtonStyles } from "../../../constants/CV/buttonStyles";
 
 const CreateCVBtn: React.FC = () => {

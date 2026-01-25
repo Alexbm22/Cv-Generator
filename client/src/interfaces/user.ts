@@ -1,12 +1,13 @@
 import { PaymentAttributes } from "./payments";
 import { SubscriptionAttributes } from "./subscription";
 import { GuestCVAttributes, UserCVAttributes } from "./cv";
+import { MediaFilesAttributes } from "./mediaFiles";
 
 export interface UserAttributes {
     id: string;
-    username: string | null;
-    email: string | null;
-    profilePicture: string | null;
+    username: string;
+    email: string;
+    profilePicture?: MediaFilesAttributes | string;
     needsInitialSync: boolean;
 }
 

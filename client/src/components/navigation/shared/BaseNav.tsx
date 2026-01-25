@@ -50,6 +50,15 @@ const BaseNav: React.FC<BaseNavProps> = ({
 }) => {
   
   // Build base classes
+  const zIndexClass = {
+    10: 'z-10',
+    20: 'z-20',
+    30: 'z-30',
+    40: 'z-40',
+    50: 'z-50',
+    auto: 'z-auto',
+  }[zIndex] || 'z-50';
+
   const baseClasses = [
     'flex',
     'items-center',
@@ -57,7 +66,7 @@ const BaseNav: React.FC<BaseNavProps> = ({
     height,
     position,
     backgroundColor,
-    `z-${zIndex}`,
+    zIndexClass,
     responsiveStyle
   ];
 

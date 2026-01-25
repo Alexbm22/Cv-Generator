@@ -2,7 +2,7 @@ import React from "react";
 import { useDownloadCV } from "../../../hooks/useDownload";
 import { Download } from 'lucide-react';
 import useAuthGuard from "../../../hooks/Auth/useAuthGuard";
-import Button from "../../UI/Button";
+import Button from "../../UI/Buttons/Button";
 import { ButtonStyles } from "../../../constants/CV/buttonStyles";
 
 type DownloadBtnProps = {

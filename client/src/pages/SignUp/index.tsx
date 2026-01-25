@@ -7,7 +7,7 @@ import Field from '../../components/features/AuthForm/formField'
 import { registrationSchema } from "../../utils/validations";
 import { AuthService } from "../../services/auth";
 import bg from '../../assets/Images/login-bg.png'
-import Button from "../../components/UI/Button";
+import Button from "../../components/UI/Buttons/Button";
 import { ButtonStyles } from "../../constants/CV/buttonStyles";
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { routes } from "../../router/routes";
