@@ -1,7 +1,7 @@
 import React from "react";
 import { useDeleteCV } from "../../../hooks/CVs/useCVs";
 import { Trash2 } from 'lucide-react';
-import Button from "../../UI/Button";
+import Button from "../../UI/Buttons/Button";
 import { ButtonStyles } from "../../../constants/CV/buttonStyles";
 
 type DeleteBtnProps = {

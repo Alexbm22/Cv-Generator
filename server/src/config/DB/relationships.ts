@@ -88,6 +88,16 @@ export const defineTablesRelationships = () => {
         }
     )
 
+    Models.User.hasOne(
+        Models.MediaFiles,
+        {
+            foreignKey: 'owner_id',
+            constraints: false,
+            scope: { owner_type: OwnerType.USER },
+            as: 'mediaFile'
+        }
+    )
+
     Models.MediaFiles.belongsTo(
         Models.Download, 
         { 
@@ -95,6 +105,16 @@ export const defineTablesRelationships = () => {
             constraints: false,
             scope: { owner_type: OwnerType.DOWNLOAD },
             as: 'download' 
+        }
+    );
+
+    Models.MediaFiles.belongsTo(
+        Models.User, 
+        { 
+            foreignKey: 'owner_id',
+            constraints: false,
+            scope: { owner_type: OwnerType.USER },
+            as: 'user' 
         }
     );
 

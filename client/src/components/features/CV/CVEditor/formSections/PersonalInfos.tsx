@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { useCvEditStore } from "../../../../../Store";
 import InputField from "../../../../UI/InputField";
 import { SocialLink } from "../../../../../interfaces/cv";
-import AddSectionButton from "../../../../UI/AddSectionButton";
 import { CV_EDITOR_FORM_CONSTANTS } from "../../../../../constants/CV/CVEditor";
 import PhotoEditor from "./PhotoEditor/photoEditor";
 import { Trash2 } from "lucide-react";
+import AddSectionButton from "../../../../UI/Buttons/AddSectionButton";
 
 const { personal_infos: personalInfosConstants } = CV_EDITOR_FORM_CONSTANTS.sections;
 const { fields: fieldsConstants } = personalInfosConstants;

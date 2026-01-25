@@ -5,6 +5,7 @@
     --breakpoint-md: 1300px;
     --breakpoint-lg: 1600px;
     --breakpoint-xl: 1800px;
+    --spacing-1.75: 7px;
 }
 
 :root {

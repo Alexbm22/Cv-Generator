@@ -1,4 +1,4 @@
-import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, SyncedDataAttributes, UserCreationAttributes, UserProfile } from "@/interfaces/user";
+import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, UserWithMediaFiles, SyncedDataAttributes, UserCreationAttributes, UserProfile } from "@/interfaces/user";
 import { User } from "@/models";
 import { SubscriptionService } from "@/services/subscriptions";
 import { CreditsService } from "@/services/credits";
@@ -13,8 +13,12 @@ import { CVsService } from "./cv";
 
 export class UserService {
 
-    static async findUser(criteria: Partial<ServerUserAttributes>): Promise<User | null> {
+    static async getUser(criteria: Partial<ServerUserAttributes>): Promise<User | null> {
         return userRespository.getUserByFields(criteria);
+    }
+
+    static async getUserWithMediaFile(criteria: Partial<ServerUserAttributes>) {
+        return userRespository.getUserWithMediaFile(criteria);
     }
 
     static async createUser(userData: UserCreationAttributes) {
@@ -25,10 +29,11 @@ export class UserService {
         await userRespository.saveUserChanges(updates, userInstance);
     }
 
-    static getUserPublicData(userInstance: User): PublicUserAttributes {
-        return userMappers.mapServerUserToPublicUser(userInstance.get());
+    static async getUserPublicData(userInstance: UserWithMediaFiles): Promise<PublicUserAttributes> {
+        return await userMappers.mapServerUserToPublicUser(userInstance);
     }
 
+    @handleServiceError('Failed to sync initial user data')
     static async syncInitialData(user: ServerUserAttributes, dataToSync: InitialDataSyncAttributes): Promise<SyncedDataAttributes> {
         const importedCVs = await CVsService.createCVs(user.id, dataToSync.cvs);
         await userRespository.updateUserByFields(

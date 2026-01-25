@@ -26,12 +26,12 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
             throw new AppError('Invalid token', 401, ErrorTypes.UNAUTHORIZED);
         }
 
-        const user = await UserService.findUser({ id: decodedAccessToken.user_id });
+        const user = await UserService.getUser({ id: decodedAccessToken.user_id });
         if (!user) {
             if (decodedAccessToken.isFirstAuth) {
                 // Wait for a short duration before retrying
                 await new Promise(resolve => setTimeout(resolve, 300));
-                const retryUser = await UserService.findUser({ id: decodedAccessToken.user_id });
+                const retryUser = await UserService.getUser({ id: decodedAccessToken.user_id });
                 if (retryUser) {
                     req.user = retryUser;
                     return next();

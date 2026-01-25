@@ -8,7 +8,7 @@ import {
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
 import { SkillsLevelsMap } from '../../../../../constants/CV/skillLevelsMap';
-import AddSectionButton from '../../../../UI/AddSectionButton';
+import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     skill: Skill

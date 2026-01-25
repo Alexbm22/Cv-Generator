@@ -4,10 +4,10 @@ import { routes } from "../../router/routes";
 import { GuestCVAttributes, UserCVMetadataAttributes } from "../../interfaces/cv";
 import DownloadBtn from "../../components/features/CV/downloadBtn";
 import DeleteBtn from "../../components/features/CV/deleteBtn";
-import CVPreviewImage from "../../components/UI/CVPreviewImage";
 import { Edit } from 'lucide-react';
-import Button from "../../components/UI/Button";
+import Button from "../../components/UI/Buttons/Button";
 import { ButtonStyles } from "../../constants/CV/buttonStyles";
+import CVPreviewImage from "../../components/features/CV/CVPreviewImage";
 
 type CVCardProps = {
     CV: GuestCVAttributes | UserCVMetadataAttributes;
@@ -59,7 +59,7 @@ const CVCard: React.FC<CVCardProps> = ({ CV }) => {
                 role="button"
                 aria-label={`Edit CV: ${cvTitle}`}
             >       
-                <CVPreviewImage 
+                <CVPreviewImage
                     CV={CV} 
                     FallbackComponent={() => (
                         <div className="flex w-full h-full bg-white justify-center items-center rounded-md border-2 border-dashed border-gray-300">

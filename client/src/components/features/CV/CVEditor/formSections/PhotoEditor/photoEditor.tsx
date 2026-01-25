@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import PhotoSelector from "./photoSelector";
 import CVPhotoCropper from './PhotoCropper.tsx'
 import { useCVPhotoState } from "../../hooks/usePhotoEditor.ts";
-import AddSectionButton from "../../../../../UI/AddSectionButton.tsx";
 import { Edit, Trash2 } from 'lucide-react';
-import Button from "../../../../../UI/Button.tsx";
+import Button from "../../../../../UI/Buttons/Button.tsx";
 import { ButtonStyles } from "../../../../../../constants/CV/buttonStyles.ts";
+import AddSectionButton from "../../../../../UI/Buttons/AddSectionButton.tsx";
 
 type ComponentProps = {
     setIsSelectingPhoto: React.Dispatch<React.SetStateAction<boolean>>;

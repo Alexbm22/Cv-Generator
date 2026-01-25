@@ -1,11 +1,21 @@
 import { Op } from "sequelize";
-import { ServerUserAttributes, UserCreationAttributes } from "../interfaces/user"
-import { User } from "../models"
+import { ServerUserAttributes, UserWithMediaFiles, UserCreationAttributes } from "../interfaces/user"
+import { MediaFiles, User } from "../models"
 
 const getUserByFields = async (fields: Partial<ServerUserAttributes>) => {
     return await User.findOne({
         where: fields
     });
+}
+
+const getUserWithMediaFile = async (fields: Partial<ServerUserAttributes>) => {
+    return await User.findOne({
+        where: fields,
+        include: [{
+            model: MediaFiles,
+            as: 'mediaFile'
+        }]
+    }) as UserWithMediaFiles | null;
 }
 
 const getUsersByFields = async (fields: Partial<ServerUserAttributes>) => {
@@ -54,6 +64,7 @@ const updateUserByFields = async (
 export default {
     getUserByFields,
     getUsersByFields,
+    getUserWithMediaFile,
     findExistingCredentials,
     createUser, 
     saveUserChanges,

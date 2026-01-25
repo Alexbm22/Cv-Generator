@@ -3,6 +3,8 @@ import { AuthProvider } from './auth';
 import { PublicPaymentData } from './payments';
 import { PublicSubscriptionData } from './subscriptions';
 import { PublicCVAttributes, PublicCVMetadataAttributes } from './cv';
+import { PublicMediaFilesAttributes } from './mediaFiles';
+import { MediaFiles, User } from '@/models';
 
 export interface UserAccountData {
     username: string;
@@ -23,8 +25,8 @@ export interface ServerUserAttributes {
     email: string;
     password: string | null;
     googleId: string | null;
-    profilePicture: string | null;
     authProvider: AuthProvider;
+    googleProfilePictureURL: string | null;
     isActive: boolean;
     needsInitialSync: boolean;
     lastLogin: Date | null;
@@ -32,11 +34,15 @@ export interface ServerUserAttributes {
     updatedAt?: Date;
 }
 
+export interface UserWithMediaFiles extends User {
+    mediaFile?: MediaFiles;
+}
+
 export interface PublicUserAttributes {
     id: string;
     username: string;
     email: string;
-    profilePicture: string | null;
+    profilePicture?: PublicMediaFilesAttributes | string;
     needsInitialSync: boolean;
 }
 
@@ -49,4 +55,4 @@ export interface InitialDataSyncAttributes {
 }
 
 export interface UserCreationAttributes extends Optional<ServerUserAttributes, 
-'id' | 'googleId' | 'password' | 'profilePicture' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'public_id'> {}
+'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'public_id' | 'googleProfilePictureURL'> {}
