@@ -3,6 +3,7 @@ import { useDeleteCV } from "../../../hooks/CVs/useCVs";
 import { Trash2 } from 'lucide-react';
 import Button from "../../UI/Buttons/Button";
 import { ButtonStyles } from "../../../constants/CV/buttonStyles";
+import { twMerge } from "tailwind-merge";
 
 type DeleteBtnProps = {
     CVId: string;
@@ -36,16 +37,16 @@ const DeleteBtn: React.FC<DeleteBtnProps> = ({
 
     return (
         <Button 
-            buttonStyle={ButtonStyles.danger}
-            className={className}
+            buttonStyle={ButtonStyles.secondary}
+            className={twMerge("text-red-500", className)}
             onClick={handleDeleteClick}
             disabled={isDeleting}
             aria-label={`Delete ${CVId}`}
             title={`Delete ${CVId}`}
             >
             <Trash2 
-                size={size} 
-                className={`${iconClassName} ${isDeleting ? 'animate-pulse' : ''}`} 
+            size={size} 
+            className={twMerge(iconClassName, isDeleting ? 'animate-pulse' : '')} 
             />
         </Button>
     );

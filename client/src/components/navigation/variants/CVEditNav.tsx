@@ -25,17 +25,17 @@ const CVEditNav = () => {
                 {
                     id: 'download',
                     component: (
-                        <div className="flex flex-row items-center rounded-lg px-1 py-0.5 h-full gap-1 sm:font-medium text-[#007dff] bg-[#e2f0ffda]">
+                        <div className="flex flex-row shadow-xs border border-[#bababa5b] items-center rounded-lg px-1 py-0.5 h-full sm:font-medium text-[#007dff] bg-[#e2f0ffda]">
                             
                             <DownloadBtn 
                                 CVId={cvId} 
-                                className="bg-transparent sm:hover:bg-transparent hover:bg-transparent"
+                                className="bg-transparent shadow-none border-none sm:hover:bg-transparent hover:bg-transparent"
                                 iconClassName="w-6 h-6"
                             />
 
                             <DeleteBtn 
                                 CVId={cvId}
-                                className="bg-transparent h-fit hover:bg-transparent sm:hover:bg-transparent"
+                                className="bg-transparent shadow-none border-none sm:hover:bg-transparent hover:bg-transparent"
                                 iconClassName="w-6 h-6"
                             />
                         </div>
@@ -43,7 +43,9 @@ const CVEditNav = () => {
                 }, {
                     id: 'profile-dropdown',
                     component: (
-                        <ProfileDropdown />
+                        <div className="flex w-full h-full">
+                            <ProfileDropdown />
+                        </div>
                     )
                 }
             ]}
