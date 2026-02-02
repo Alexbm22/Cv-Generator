@@ -44,11 +44,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
     };
 
     const profilePictureUrl = getProfilePictureUrl();
-
-    // Handle click on trigger button: toggle dropdown
+    
     const handleButtonClick = () => { setIsOpen(!isOpen) };
 
-    // Click outside to close dropdown
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -84,7 +82,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
         <div className="p-0.5 w-full">
             <button
                 onClick={onClick}
-                className={twMerge("flex items-center cursor-pointer gap-3 rounded-lg w-full px-2.5 py-1.75 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150", className)}
+                className={twMerge(ButtonStyles.navigationMenu, className)}
             >
                 {children}
             </button>
@@ -101,11 +99,11 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
             className={twMerge("flex-1 min-w-0 items-center", className)}
         >
             {isAuthenticated ? (
-                <div className={twMerge("border w-full flex flex-col items-center border-[#cacaca] bg-white transition-all duration-200 rounded-lg", isOpen ? 'shadow-lg' : 'shadow-sm')}>
+                <div className={twMerge("border w-full flex flex-col items-center border-[#bababa5b] bg-white transition-all duration-200 rounded-lg", isOpen ? 'shadow-lg' : 'shadow-xs')}>
                     {/* Button as part of the dropdown */}
                     <button
                         onClick={handleButtonClick}
-                        className="w-full flex items-center cursor-pointer gap-2.5 px-2.5 py-1 justify-evenly transition-colors duration-200"
+                        className="w-full flex items-center h-fit cursor-pointer gap-2.5 px-2.5 py-1 justify-evenly transition-colors duration-200"
                         aria-label="Profile menu"
                         aria-expanded={isOpen}
                     >
@@ -121,8 +119,8 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                             )}
                         </div>
 
-                        <div className="hidden sm:flex flex-col items-start min-w-0 w-full">
-                            <span className="text-sm font-semibold text-gray-900 truncate max-w-[120px]">
+                        <div className="hidden sm:flex gap-0.5 flex-col items-start min-w-0 w-full">
+                            <span className="text-sm max-h-4 font-semibold text-gray-900 truncate max-w-[120px]">
                                 {username || "User"}
                             </span>
                             <span className="text-xs text-gray-500 truncate max-w-[120px]">
@@ -145,19 +143,19 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                         {/* Menu Links */}
                         <div className="w-full mx-auto">
                             <Dropdown
-                                onClick={() => handleNavigation(routes.profile.path)}
+                                onClick={() => handleNavigation(`${routes.settings.path}?section=account`)}
                             >
                                 <span className="text-gray-600"><User className="w-4 h-4" /></span>
                                 <span>User Profile</span>
                             </Dropdown>
                             <Dropdown
-                                onClick={() => handleNavigation(routes.downloads.path)}
+                                onClick={() => handleNavigation(`${routes.settings.path}?section=downloads`)}
                             >
                                 <span className="text-gray-600"><Download className="w-4 h-4" /></span>
                                 <span>Downloads</span>
                             </Dropdown>
                             <Dropdown
-                                onClick={() => handleNavigation(routes.prices.path)}
+                                onClick={() => handleNavigation(`${routes.settings.path}?section=subscription`)}
                             >
                                 <span className="text-gray-600"><CreditCard className="w-4 h-4" /></span>
                                 <span>Subscription</span>
@@ -167,7 +165,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                         <Separator />
 
                         <Dropdown
-                            onClick={() => handleNavigation(routes.profile.path)}
+                            onClick={() => handleNavigation(routes.settings.path)}
                         >
                             <span className="text-gray-600"><Settings className="w-4 h-4" /></span>
                             <span>Settings</span>
@@ -204,19 +202,19 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                     </div>
                 </div>
             ) : (
-                <div className="flex items-center gap-2">
-                    <div className="p-3 space-y-2">
+                <div className="w-full h-full flex items-center justify-center px-2 py-1.5 shadow-xs border border-[#bababa5b] bg-[#e2f0ffda] rounded-lg">
+                    <div className="flex flex-row gap-1 w-full h-full">
                         <Button
                             onClick={() => handleNavigation(routes.login.path)}
                             buttonStyle={ButtonStyles.primary}
-                            className="w-full justify-center"
+                            className="w-60 p-3 justify-center items-center flex"
                         >
                             Login
                         </Button>
                         <Button
                             onClick={() => handleNavigation(routes.signup.path)}
                             buttonStyle={ButtonStyles.secondary}
-                            className="w-full justify-center"
+                            className="w-30 p-3 justify-center items-center flex bg-[#7790b9] text-white"
                         >
                             Sign Up
                         </Button>
