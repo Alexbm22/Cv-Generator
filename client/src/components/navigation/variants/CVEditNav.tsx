@@ -13,30 +13,30 @@ const CVEditNav = () => {
         <BaseNav
             position="fixed"
             height="h-15"
-            backgroundColor="bg-[#eff5ff7c]"
+            backgroundColor="bg-gradient-to-b backdrop-blur-md"
             blur={true}
             border={true}
             shadow={true}
             zIndex={50}
-            className="top-0 left-0 right-0 text-[#2e69c8]"
-            responsiveStyle={`px-cv-editor-padding pt-2 pb-2`}
+            className="top-0 left-0 right-0 border-blue-100/50"
+            responsiveStyle={`px-cv-editor-padding py-1.5`}
             itemsContainerStyle="h-full"
             rightItems={[
                 {
                     id: 'download',
                     component: (
-                        <div className="flex flex-row shadow-xs border border-[#bababa5b] items-center rounded-lg px-1 py-0.5 h-full sm:font-medium text-[#007dff] bg-[#e2f0ffda]">
+                        <div className="flex flex-row h-full shadow-xs border border-blue-200/40 items-center rounded-lg px-2 py-1.5 gap-1 sm:font-medium text-[#007dff] bg-white/60 transition-all duration-500 hover:shadow-xs hover:bg-white/80">
                             
                             <DownloadBtn 
                                 CVId={cvId} 
-                                className="bg-transparent shadow-none border-none sm:hover:bg-transparent hover:bg-transparent"
-                                iconClassName="w-6 h-6"
+                                className="bg-transparent shadow-none border-none hover:bg-[#c5deff] rounded-lg transition-colors duration-150"
+                                iconClassName="w-6 h-6 text-[#0056b3]"
                             />
 
                             <DeleteBtn 
                                 CVId={cvId}
-                                className="bg-transparent shadow-none border-none sm:hover:bg-transparent hover:bg-transparent"
-                                iconClassName="w-6 h-6"
+                                className="bg-transparent shadow-none border-none hover:bg-red-100 rounded-lg transition-colors duration-150"
+                                iconClassName="w-6 h-6 text-[#d32f2f]"
                             />
                         </div>
                     )
@@ -54,7 +54,7 @@ const CVEditNav = () => {
                     id: 'back-btn',
                     component: (
                         <BackBtn 
-                            className=""
+                            className="px-2.5"
                             iconClassName="w-6 h-6 sm:w-6.5 h-6.5"
                         />
                     )

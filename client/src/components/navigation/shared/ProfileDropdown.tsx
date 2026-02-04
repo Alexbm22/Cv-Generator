@@ -103,7 +103,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                     {/* Button as part of the dropdown */}
                     <button
                         onClick={handleButtonClick}
-                        className="w-full flex items-center h-fit cursor-pointer gap-2.5 px-2.5 py-1 justify-evenly transition-colors duration-200"
+                        className="w-full h-full flex items-center cursor-pointer gap-2.5 px-2.5 py-1.5 justify-evenly transition-colors duration-200"
                         aria-label="Profile menu"
                         aria-expanded={isOpen}
                     >
