@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCvEditStore, useCVsStore } from "../../../../../Store";
-import { deleteImage, fetchFile, uploadImage } from "../../../../../services/MediaFiles";
+import { deleteImage, fetchFile, markMediaFileActiveStatus, uploadImage } from "../../../../../services/MediaFiles";
 import { useEffect, useState } from "react";
 import { CVStateMode } from "../../../../../interfaces/cv";
 import { blobToBase64 } from "../../../../../utils/blob";
 import { uploadDefaultPhoto } from "../../../../../utils/cvDefaults";
+import { queryClient } from "../../../../../queryClient";
 
 export const useCVPhotoState = () => {
 
@@ -18,12 +19,11 @@ export const useCVPhotoState = () => {
 
     const isUser = CVState.mode === CVStateMode.USER;
 
-    const isFetchEnabled = !!UserCVPhoto?.presigned_get_URL 
-        && isUser; 
+    const isFetchEnabled = !!UserCVPhoto?.get_URL && isUser && UserCVPhoto.is_active;
 
     const { data, isSuccess, isError, error, refetch } = useQuery({
         queryKey: ['cvPhoto'],
-        queryFn: async () => await fetchFile(UserCVPhoto!),
+        queryFn: async () => await fetchFile(UserCVPhoto?.get_URL!),
         enabled: isFetchEnabled,
         staleTime: 600000,
         retry: false
@@ -44,10 +44,18 @@ export const useCVPhotoState = () => {
     }, [isUser, GuestCVPhoto, data, isError, isSuccess]);
 
     const handleUserCropSuccess = async (cropResult: Blob) => {
-        await uploadImage(cropResult, UserCVPhoto!);
-        useCvEditStore.getState().setPhotoLastUploaded(new Date());
-        refetch();
-    } 
+        try {
+            await uploadImage(cropResult, UserCVPhoto!);
+            
+            await markMediaFileActiveStatus(UserCVPhoto!.id, true);
+            useCvEditStore.getState().setPhotoLastUploaded(new Date());
+            refetch();
+        } catch (error) {
+            const { id } = useCvEditStore.getState();
+            queryClient.refetchQueries({queryKey: [`CV:${id}`]});
+            throw error;
+        }
+    }
 
     const handleGuestCropSuccess = async (cropResult: Blob) => {
         const base64Image = await blobToBase64(cropResult)
@@ -57,10 +65,16 @@ export const useCVPhotoState = () => {
     const handleCropSuccess = isUser ? handleUserCropSuccess : handleGuestCropSuccess
 
     const handleUserPhotoDelete = async () => {
-        await deleteImage(UserCVPhoto!);
-        useCvEditStore.getState().setPhotoLastUploaded(null);
-        uploadDefaultPhoto(UserCVPhoto!);
-        refetch();
+        try {
+            await deleteImage(UserCVPhoto!);
+            await uploadDefaultPhoto(UserCVPhoto!);
+            useCvEditStore.getState().setPhotoLastUploaded(null);
+            refetch();
+        } catch (error) {
+            const { id } = useCvEditStore.getState();
+            queryClient.refetchQueries({queryKey: [`CV:${id}`]});
+            throw error;
+        }
     }
 
     const handleGuestPhotoDelete = async () => {

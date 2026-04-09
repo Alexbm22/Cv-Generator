@@ -7,6 +7,7 @@ export const initModels = async () => {
 
     switch (config.NODE_ENV) {
         case 'development':
+            //await sequelize.sync({alter: true , force: true});
             await sequelize.sync({});
             break;
         case 'test':

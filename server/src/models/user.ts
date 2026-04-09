@@ -27,7 +27,6 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
     public isActive!: boolean;
     public needsInitialSync!: boolean;
     public lastLogin!: Date | null;
-    public googleProfilePictureURL!: string | null;
     public password!: string | null;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -104,10 +103,6 @@ User.init({
         type: DataTypes.STRING(255),
         allowNull: true,
         unique: true,
-    },
-    googleProfilePictureURL: {
-        type: DataTypes.STRING(512),
-        allowNull: true,
     },
     authProvider: {
         type: DataTypes.ENUM(...Object.values(AuthProvider)),

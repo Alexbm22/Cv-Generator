@@ -1,8 +1,6 @@
 import { MediaFilesServices } from "../services/mediaFiles";
 import { AuthRequest } from "../interfaces/auth";
 import { Response, NextFunction } from "express";
-import { AppError } from "../middleware/error_middleware";
-import { ErrorTypes } from "../interfaces/error";
 
 export class MediaFilesController {
 
@@ -10,21 +8,48 @@ export class MediaFilesController {
         const mediaFilePublicId = req.params.id;
 
         try {
-            const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
-            if(!mediaFile) {
-                throw new AppError(
-                    'Media file not found',
-                    404,
-                    ErrorTypes.NOT_FOUND
-                );
-            }
-
-            const PublicMediaFileData = await MediaFilesServices.getPublicMediaFileData(mediaFile);
-
+            const PublicMediaFileData = await MediaFilesServices.getPublicMediaFileData(mediaFilePublicId);
             res.status(200).json(PublicMediaFileData);
-
         } catch (error) {
             return next(error)
+        }
+    }
+
+    static async deleteMediaFile(req: AuthRequest, res: Response, next: NextFunction) {
+        const mediaFilePublicId = req.params.id;
+
+        try{
+            await MediaFilesServices.deleteMediaFileS3Content(mediaFilePublicId);
+            res.status(204).send();
+        }
+        catch(error) {
+            return next(error);
+        }
+    }
+
+    static async getMediaFilePutUrl(req: AuthRequest, res: Response, next: NextFunction) {
+        const mediaFilePublicId = req.params.id;
+
+        try {
+            const putUrl = await MediaFilesServices.getMediaFilePutUrl(mediaFilePublicId);
+            res.status(200).json(putUrl);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    static async markMediaFileActiveStatus(req: AuthRequest, res: Response, next: NextFunction) {
+        const mediaFilePublicId = req.params.id;
+        const { is_active } = req.body;
+
+        try {
+            await MediaFilesServices.setMediaFileActiveStatus(
+                mediaFilePublicId,
+                is_active
+            );
+            res.status(200).send();
+        } catch (error) {
+            return next(error);
         }
     }
 } 

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { devtools } from "zustand/middleware";
 import { AuthStore, TokenClientData } from '../interfaces/auth'
 import { useUserStore } from './useUserStore';
+import { UserAttributes } from '../interfaces/user';
 
 export const useAuthStore = create<AuthStore>()(
     devtools<AuthStore>((set, get) => ({
@@ -32,7 +33,7 @@ export const useAuthStore = create<AuthStore>()(
 
         getAuthenticatedUser: () => {
             const { id, username, email, profilePicture, needsInitialSync } = get();
-            return { id, username, email, profilePicture, needsInitialSync };
+            return { id, username, email, profilePicture, needsInitialSync } as UserAttributes;
         },
 
         setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
@@ -65,6 +66,8 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         setToken: (token: TokenClientData) => set({ tokenData: token }),
+
+        setProfilePicture: (profilePicture) => set({ profilePicture }),
 
         isTokenExpired: () => {
             const { tokenData } = get();

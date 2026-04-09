@@ -51,12 +51,11 @@ export class AuthServices {
                 authProvider: AuthProvider.GOOGLE,
                 lastLogin: new Date(),
                 googleId: google_id,
-                googleProfilePictureURL: picture,
                 isActive: true,
                 needsInitialSync: true
             });
 
-            await MediaFilesServices.create({
+            const mediaFile =await MediaFilesServices.create({
                 user_id: user.id,
                 owner_id: user.id,
                 filename: user.get('username'),
@@ -65,6 +64,8 @@ export class AuthServices {
                 type: MediaType.PROFILE_PHOTO,
                 is_active: true,
             });
+
+            await this.googleService.uploadGoogleProfilePicture(mediaFile.id, picture);
 
             user = await UserService.getUserWithMediaFile({ id: user.id });
         } else {
@@ -103,7 +104,7 @@ export class AuthServices {
             throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
         }
 
-        if (!user.get('isActive')) {
+        if (!user.get('is_active')) {
             throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
         }
 

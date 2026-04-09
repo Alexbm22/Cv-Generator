@@ -7,6 +7,10 @@ const getMediaFile = async (public_id: string) => {
     });
 }
 
+const getMediaFileById = async (id: number) => {
+    return await MediaFiles.findByPk(id);
+}
+
 const createMediaFile = async (mediaFile: MediaFilesCreationAttributes) => {
     return await MediaFiles.create(mediaFile);
 }
@@ -22,9 +26,18 @@ const deleteOwnerMediaFiles = async (owner_id: number, owner_type: OwnerType) =>
     });
 }
 
+const updateMediaFile = async (id: number, updates: Partial<MediaFilesCreationAttributes>) => {
+    return await MediaFiles.update(updates, {
+        where: { id },
+        returning: true
+    });
+}
+
 export default {
     getMediaFile,
+    getMediaFileById,
     createMediaFile,
     bulkCreateMediaFiles,
-    deleteOwnerMediaFiles
+    deleteOwnerMediaFiles,
+    updateMediaFile
 }

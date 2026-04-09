@@ -45,6 +45,14 @@ const getCVWithMediaFiles = async (userId: number, cvPublicId: string) => {
     }) as CVWithMediaFiles;
 }
 
+const countUserCVs = async (userId: number) => {
+    return await CV.count({
+        where: {
+            user_id: userId
+        }
+    });
+}
+
 const updateCV = async (cv: CVWithMediaFiles, updatedFields: Partial<ServerCVAttributes>) => {
     cv.set(updatedFields);
     await cv.save();
@@ -62,7 +70,8 @@ const deleteCV = async (userId: number, cvPublicId?: string) => {
     });
 }
 
-export default { 
+export default {
+    countUserCVs, 
     createCVs, 
     createCV,
     getCVsWithMediaFiles, 

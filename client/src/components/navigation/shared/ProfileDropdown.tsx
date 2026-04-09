@@ -9,7 +9,6 @@ import {
     LogOut, 
     Moon, 
     Sun,
-    Crown,
     ChevronDown 
 } from "lucide-react";
 import { useAuthStore } from "../../../Store";
@@ -17,6 +16,7 @@ import { useLogout } from "../../../hooks/Auth/useAuth";
 import { routes } from "../../../router/routes";
 import Button from "../../UI/Buttons/Button";
 import { ButtonStyles } from "../../../constants/CV/buttonStyles";
+import useProfilePictureUrl from "../../../hooks/useProfilePictureUrl";
 
 interface ProfileDropdownProps {
     className?: string;
@@ -31,19 +31,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
     const isAuthenticated = useAuthStore(state => state.isAuthenticated);
     const username = useAuthStore(state => state.username);
     const email = useAuthStore(state => state.email);
-    const profilePicture = useAuthStore(state => state.profilePicture);
     const { mutate: logout } = useLogout();
 
-    // Extract profile picture URL
-    const getProfilePictureUrl = (): string | null => {
-        if (typeof profilePicture === 'string') {
-          return profilePicture;  
-        } else {
-            return profilePicture?.presigned_get_URL ?? null;
-        }
-    };
-
-    const profilePictureUrl = getProfilePictureUrl();
+    const { profilePictureUrl } = useProfilePictureUrl();
     
     const handleButtonClick = () => { setIsOpen(!isOpen) };
 
@@ -108,15 +98,15 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                         aria-expanded={isOpen}
                     >
                         <div className="w-8 h-8 rounded-full to-blue-600 flex items-center justify-center overflow-hidden flex-shrink-0">
-                            {profilePictureUrl ? (
-                                <img 
-                                    src={profilePictureUrl} 
-                                    alt={username || "/Images/anonymous_Picture.png"} 
-                                    className="w-full h-full object-cover"
+                            <div
+                                className={`w-8 h-8 rounded-full border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center flex-shrink-0`}
+                            >
+                                <img
+                                    src={profilePictureUrl}
+                                    alt={username || "Profile Picture"}
+                                    className="w-full h-full object-cover rounded-full"
                                 />
-                            ) : (
-                                <User className="w-4 h-4 text-white" />
-                            )}
+                            </div>
                         </div>
 
                         <div className="hidden sm:flex gap-0.5 flex-col items-start min-w-0 w-full">

@@ -37,9 +37,16 @@ const deleteDownload = async (user_id: number, downloadId?: string) => {
     });
 }
 
+const countUserDownloads = async (user_id: number) => {
+    return await Download.count({
+        where: { user_id }
+    });
+}
+
 export default {
     createDownload,
     getDownloadsWithMediaFiles,
     getDownloadWithMediaFiles,
-    deleteDownload
+    deleteDownload,
+    countUserDownloads
 }

@@ -1,11 +1,12 @@
 import { config } from '../config/env';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
 import { Readable } from 'stream';
 
-export class S3Service {
+class S3Service {
     private s3Client: S3Client;
 
     constructor() {
@@ -44,6 +45,36 @@ export class S3Service {
                 500,
                 ErrorTypes.BAD_REQUEST
             )
+        }
+    }
+
+    public async uploadStreamToS3(
+        stream: Readable,
+        s3ObjKey: string,
+        bucketName: string,
+        contentType?: string
+    ) {
+        try {
+            const upload = new Upload({
+                client: this.s3Client,
+                params: {
+                    Bucket: bucketName,
+                    Key: s3ObjKey,
+                    Body: stream,
+                    ContentType: contentType
+                }
+            });
+
+            await upload.done();
+        } catch (error) {
+            const errorMessage = error && typeof error === "object" && "message" in error ? 
+                error.message : "Failed to upload stream";
+
+            throw new AppError(
+                `Error uploading stream: ${errorMessage}`,
+                500,
+                ErrorTypes.BAD_REQUEST
+            );
         }
     }
 
@@ -250,3 +281,5 @@ export class S3Service {
     }
 
 }
+
+export default new S3Service();

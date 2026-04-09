@@ -3,7 +3,7 @@ import { ErrorTypes } from "../interfaces/error";
 import { AppError } from "../middleware/error_middleware";
 import { CV, MediaFiles, User } from "../models";
 import { CreditsService } from "./credits";
-import { S3Service } from "./s3";
+import S3Service from "./s3";
 import { config } from "../config/env";
 import { MediaFilesServices } from "./mediaFiles";
 import { MimeType, MediaType, OwnerType, PresignedUrlType } from "@/interfaces/mediaFiles";
@@ -15,7 +15,6 @@ import { cvMappers, downloadMappers } from "@/mappers";
 import { DownloadValidationResult, DownloadWithMediaFiles, DownloadMetadataCVAttributes } from "@/interfaces/downloads";
 import { DownloadValidationTokenService } from "./tokens/DownloadValidationService";
 
-const s3Service = new S3Service();
 const ValidationTokenService = new DownloadValidationTokenService();
 
 export class DownloadsService {
@@ -129,36 +128,42 @@ export class DownloadsService {
             // Create media file records
             [downloadFileMedia, downloadPreviewMedia, downloadPhotoMedia] = await Promise.all([
                 MediaFilesServices.create({
+                    user_id: userRecord.id,
                     owner_id: downloadRecord.id,
                     owner_type: OwnerType.DOWNLOAD,
                     type: MediaType.DOWNLOAD_FILE,
-                    mime_type: MimeType.PDF,
-                    filename: file.originalname
+                    mime_type: MimeType.APPLICATION_PDF,
+                    filename: file.originalname,
+                    is_active: true
                 }),
                 MediaFilesServices.duplicateMediaFile(
                     {
+                        user_id: userRecord.id,
                         owner_id: downloadRecord.id,
                         owner_type: OwnerType.DOWNLOAD,
                         type: MediaType.DOWNLOAD_FILE_PREVIEW,
-                        mime_type: MimeType.PNG,
-                        filename: file.originalname
+                        mime_type: MimeType.IMAGE_JPEG,
+                        filename: file.originalname,
+                        is_active: true
                     }, 
                     ownedCVData.CVPreview.get()
                 ),
                 MediaFilesServices.duplicateMediaFile(
                     {
+                        user_id: userRecord.id,
                         owner_id: downloadRecord.id,
                         owner_type: OwnerType.DOWNLOAD,
                         type: MediaType.DOWNLOAD_FILE_PHOTO,
-                        mime_type: MimeType.PNG,
-                        filename: file.originalname
+                        mime_type: MimeType.IMAGE_JPEG,
+                        filename: file.originalname,
+                        is_active: true
                     }, 
                     ownedCVData.CVPhoto.get()
                 )
             ]);
 
             // Upload the main file
-            await s3Service.uploadToS3(
+            await S3Service.uploadToS3(
                 file,
                 downloadFileMedia.get().s3_key,
                 config.AWS_S3_BUCKET
@@ -363,18 +368,10 @@ export class DownloadsService {
     static async getDownloadPublicData(download: DownloadWithMediaFiles) {
         const downloadData = downloadMappers.extractDownloadMediaFiles(download);
 
-        const publicFileData = await MediaFilesServices.getPublicMediaFileData(
-            downloadData.DownloadFile, [PresignedUrlType.GET]
-        );
-        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(
-            downloadData.DownloadPreview, [PresignedUrlType.GET]
-        );
-
-        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(
-            downloadData.DownloadPhoto, [PresignedUrlType.GET]
-        );
+        const publicFileData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadFile.get().public_id);
+        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadPreview.get().public_id);
+        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadPhoto.get().public_id);
         
-
         return downloadMappers.mapServerDownloadToPublicDownloadData(
             download.get(), 
             publicFileData, 
@@ -389,5 +386,10 @@ export class DownloadsService {
         const userCredits = await CreditsService.getUserCredits(user_id);
 
         return (!!hasSubscription || userCredits > 0);
+    }
+
+    @handleServiceError("Error counting user downloads")
+    static async countTotalUserDownloads(user_id: number) {
+        return await downloadRepository.countUserDownloads(user_id);
     }
 }

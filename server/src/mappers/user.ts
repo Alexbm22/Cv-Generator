@@ -5,19 +5,13 @@ import { MediaFilesServices } from "@/services/mediaFiles";
 const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<PublicUserAttributes> => {
     
     const userData = user.get();
-
-    const profilePictureMediaFile= user.mediaFile?.is_active ? await MediaFilesServices.getPublicMediaFileData(
-        user.mediaFile,
-        [PresignedUrlType.GET, PresignedUrlType.PUT, PresignedUrlType.DELETE]
-    ) : undefined;
-
-    const userProfilePhoto = profilePictureMediaFile ?? userData.googleProfilePictureURL;
+    const userProfilePhoto= user.mediaFile?.get('is_active') ? await MediaFilesServices.getPublicMediaFileData(user.mediaFile.get('public_id')) : undefined;
 
     return {
         id: userData.public_id,
         email: userData.email,
         username: userData.username,
-        profilePicture: userProfilePhoto ?? undefined,
+        profilePicture: userProfilePhoto,
         needsInitialSync: userData.needsInitialSync
     };
 }

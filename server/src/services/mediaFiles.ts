@@ -1,14 +1,12 @@
 import { MediaFiles } from "@/models";
 import { MediaFilesCreationAttributes, PublicMediaFilesAttributes, PresignedUrlType, MediaFilesAttributes, OwnerType } from "@/interfaces/mediaFiles";
-import { S3Service } from "@/services/s3";
+import S3Service from "@/services/s3";
 import { config } from "@/config/env";
 import mediaFilesRepository from '@/repositories/mediaFiles';
 import { generateS3ObjKey } from '@/utils/mediaFiles';
 import { handleServiceError } from '@/utils/serviceErrorHandler';
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
-
-const s3Service = new S3Service();
 
 export class MediaFilesServices {
 
@@ -35,7 +33,7 @@ export class MediaFilesServices {
     ) {
         const createdMediaFile = await this.create(newMediaFileData);
 
-        await s3Service.duplicateFile(
+        await S3Service.duplicateFile(
             config.AWS_S3_BUCKET,
             duplicatedMediaFile.s3_key,
             createdMediaFile.get().s3_key
@@ -68,11 +66,6 @@ export class MediaFilesServices {
         return await mediaFilesRepository.deleteOwnerMediaFiles(ownerId, owner_type);
     }
 
-    @handleServiceError('Failed to delete file from S3')
-    static async deleteFileFromS3(s3_key: string) {
-        return await s3Service.deleteFile( s3_key, config.AWS_S3_BUCKET );
-    }
-
     @handleServiceError('Failed to get media file')
     static async getMediaFile(public_id: string) {
         return await mediaFilesRepository.getMediaFile(public_id);
@@ -80,40 +73,64 @@ export class MediaFilesServices {
 
     @handleServiceError('Failed to get public media file data')
     static async getPublicMediaFileData(
-        mediaFile: MediaFiles,
-        urlTypes: PresignedUrlType[] = [PresignedUrlType.GET, PresignedUrlType.PUT, PresignedUrlType.DELETE],
+        mediaFilePublicId: string,
         timeToLive: number = 5 * 60 * 1000
     ): Promise<PublicMediaFilesAttributes> {
         const expiresAt = Date.now() + timeToLive;
+
+        const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
+        if(!mediaFile) {
+            throw new AppError(
+                'Media file not found',
+                404,
+                ErrorTypes.NOT_FOUND
+            );
+        }
+
         const mediaFileData = mediaFile.get();
+        const get_URL = await this.getMediaPresignedUrl(mediaFile, PresignedUrlType.GET, timeToLive);
 
         const result: PublicMediaFilesAttributes = {
             expiresAt,
+            is_active: mediaFileData.is_active,
             id: mediaFileData.public_id,
             owner_type: mediaFileData.owner_type,
             type: mediaFileData.type,
-            file_name: mediaFileData.filename
+            file_name: mediaFileData.filename,  
+            get_URL
         };
 
-        // Generate URLs based on requested types
-        const urlPromises = urlTypes.map(async (urlType) => {
-            const url = await this.getMediaPresignedUrl(mediaFile, urlType, timeToLive);
-            
-            switch (urlType) {
-                case PresignedUrlType.GET:
-                    result.presigned_get_URL = url;
-                    break;
-                case PresignedUrlType.PUT:
-                    result.presigned_put_URL = url;
-                    break;
-                case PresignedUrlType.DELETE:
-                    result.presigned_delete_URL = url;
-                    break;
-            }
-        });
-
-        await Promise.all(urlPromises);
         return result;
+    }
+
+    @handleServiceError('Failed to upload file')
+    static async uploadFile(
+        mediaFileId: number,
+        stream: NodeJS.ReadableStream,
+        contentType?: string
+    ): Promise<void> {
+        const mediaFile = await mediaFilesRepository.getMediaFileById(mediaFileId);
+        
+        if (!mediaFile) {
+            throw new AppError('Media file not found', 404, ErrorTypes.NOT_FOUND);
+        }
+
+        const mediaFileData = mediaFile.get();
+        
+        if (contentType && mediaFileData.mime_type !== contentType) {
+            throw new AppError(
+                `Content type mismatch: expected ${mediaFileData.mime_type}, received ${contentType}`,
+                400,
+                ErrorTypes.BAD_REQUEST
+            );
+        }
+
+        await S3Service.uploadStreamToS3(
+            stream as import('stream').Readable,
+            mediaFileData.s3_key,
+            config.AWS_S3_BUCKET,
+            contentType || mediaFileData.mime_type
+        );
     }
 
     @handleServiceError('Failed to get media presigned URL')
@@ -121,17 +138,13 @@ export class MediaFilesServices {
         mediaFile: MediaFiles,
         urlType: PresignedUrlType,
         timeToLive: number
-    ): Promise<string> {
+    ): Promise<string | null> {
         if(!mediaFile || !mediaFile.get().s3_key) {
             throw new AppError('Media file not found', 404, ErrorTypes.NOT_FOUND);
         }
         
-        if(mediaFile.get().is_active === false) {
-            throw new AppError(
-                'Media file is inactive and cannot generate presigned URL',
-                400,
-                ErrorTypes.INVALID_OPERATION
-            );
+        if(mediaFile.get().is_active === false && urlType == PresignedUrlType.GET) {
+            return null;
         }
 
         const s3Key = mediaFile.get().s3_key;
@@ -141,16 +154,62 @@ export class MediaFilesServices {
 
         switch (urlType) {
             case PresignedUrlType.GET:
-                presignedUrl = await s3Service.generatePresignedGetUrl(s3Key, bucket, timeToLive);
+                presignedUrl = await S3Service.generatePresignedGetUrl(s3Key, bucket, timeToLive);
                 break;
             case PresignedUrlType.PUT:
-                presignedUrl = await s3Service.generatePresignedPutUrl(s3Key, bucket, timeToLive);
+                presignedUrl = await S3Service.generatePresignedPutUrl(s3Key, bucket, timeToLive);
                 break;
             case PresignedUrlType.DELETE:
-                presignedUrl = await s3Service.generatePresignedDeleteUrl(s3Key, bucket, timeToLive);
+                presignedUrl = await S3Service.generatePresignedDeleteUrl(s3Key, bucket, timeToLive);
                 break;
         }
 
         return presignedUrl.url;
+    }
+    
+    @handleServiceError('Failed to delete media file')
+    public static async deleteMediaFileS3Content(mediaFilePublicId: string) {
+        const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
+
+        if(!mediaFile) {
+            throw new AppError('Media file not found', 404, ErrorTypes.NOT_FOUND);
+        }
+
+        await mediaFilesRepository.updateMediaFile(mediaFile.get().id, { is_active: false });  
+
+        await S3Service.deleteFile(mediaFile.get().s3_key, config.AWS_S3_BUCKET);
+    }
+
+    @handleServiceError('Failed to get media file PUT URL')
+    static async getMediaFilePutUrl(
+        mediaFilePublicId: string,
+        timeToLive: number = 5 * 60 * 1000
+    ) {
+        const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
+        if(!mediaFile) {
+            throw new AppError(
+                'Media file not found',
+                404,
+                ErrorTypes.NOT_FOUND
+            );
+        }
+
+        const putUrl = await this.getMediaPresignedUrl(mediaFile, PresignedUrlType.PUT, timeToLive);
+        return { url: putUrl };
+    }
+
+    @handleServiceError('Failed to update media file active status')
+    static async setMediaFileActiveStatus(mediaFilePublicId: string, isActive: boolean) {
+        const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
+        if(!mediaFile) {
+            throw new AppError(
+                'Media file not found',
+                404,
+                ErrorTypes.NOT_FOUND
+            );
+        }
+
+        const mediaFileData = mediaFile.get();
+        await mediaFilesRepository.updateMediaFile(mediaFileData.id, { is_active: isActive });
     }
 }

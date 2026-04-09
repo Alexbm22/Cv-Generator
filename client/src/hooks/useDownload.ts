@@ -21,7 +21,7 @@ export const useDownloadCV = () => {
             const TemplateComponent = TemplateMap[CVData.template];
             const CVToDownload = {
                 ...CVData,
-                photo: CVData.photo?.presigned_get_URL!
+                photo: CVData.photo?.get_URL!
             };
 
             const validateRes = await DownloadService.validateDownload(CVData);
@@ -38,7 +38,7 @@ export const useDownloadCV = () => {
         onSuccess: async (DownloadData) => {
             if(!DownloadData) return;
             const { fileName, downloadFile } = DownloadData;
-            const fileBlob = await fetchFile(downloadFile)
+            const fileBlob = await fetchFile(downloadFile.get_URL)
             DownloadService.downloadPdf(fileBlob, fileName);
         }, 
         onError: (error) => {

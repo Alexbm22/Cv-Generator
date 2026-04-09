@@ -5,13 +5,12 @@ import { NextFunction, Response } from "express";
 
 export class UserController {
 
-    static async getUserProfile( req: AuthRequest, res: Response, next: NextFunction) {
+    static async getAccountData(req: AuthRequest, res: Response, next: NextFunction) {
         const userData = req.user;
 
         try {
-            const userProfile = await UserService.getUserProfile(userData);
-            return res.status(200).json(userProfile);
-            
+            const accountData = await UserService.getAccountData(userData);
+            return res.status(200).json(accountData);
         } catch (error) {
             return next(error);
         }

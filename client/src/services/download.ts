@@ -34,7 +34,8 @@ export class DownloadService {
     }
 
     static async redownloadFile(download: DownloadAttributes) {
-        const downloadFileBlob = await fetchFile(download.downloadFile);
+        const downloadFile = download.downloadFile;
+        const downloadFileBlob = await fetchFile(downloadFile.get_URL);
         saveAs(downloadFileBlob, download.fileName);
     }
 

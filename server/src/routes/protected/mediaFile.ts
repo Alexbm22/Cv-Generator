@@ -11,4 +11,22 @@ router.get(
     catchAsync(MediaFilesController.getMediaFile)
 )
 
+router.delete(
+    '/:id',
+    RateLimitInstance.CVsRateLimit(),
+    catchAsync(MediaFilesController.deleteMediaFile)
+)
+
+router.get(
+    '/:id/put_url',
+    RateLimitInstance.CVsRateLimit(),
+    catchAsync(MediaFilesController.getMediaFilePutUrl)
+)
+
+router.patch(
+    '/:id/active',
+    RateLimitInstance.CVsRateLimit(),
+    catchAsync(MediaFilesController.markMediaFileActiveStatus)
+)
+
 export default router;

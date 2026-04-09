@@ -1,8 +1,5 @@
-import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, UserWithMediaFiles, SyncedDataAttributes, UserCreationAttributes, UserProfile } from "@/interfaces/user";
+import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, UserWithMediaFiles, SyncedDataAttributes, UserCreationAttributes, UserAccountDetails } from "@/interfaces/user";
 import { User } from "@/models";
-import { SubscriptionService } from "@/services/subscriptions";
-import { CreditsService } from "@/services/credits";
-import { PaymentService } from "@/services/payments";
 import { generateRandomSuffix } from '@/utils/stringUtils/generateRandomSuffix'
 import userRespository from '@/repositories/user';
 import { AppError } from "@/middleware/error_middleware";
@@ -10,15 +7,16 @@ import { ErrorTypes } from "@/interfaces/error";
 import { handleServiceError } from '@/utils/serviceErrorHandler';
 import { userMappers } from "@/mappers";
 import { CVsService } from "./cv";
+import { DownloadsService } from "./downloads";
 
 export class UserService {
 
     static async getUser(criteria: Partial<ServerUserAttributes>): Promise<User | null> {
-        return userRespository.getUserByFields(criteria);
+        return await userRespository.getUserByFields(criteria);
     }
 
     static async getUserWithMediaFile(criteria: Partial<ServerUserAttributes>) {
-        return userRespository.getUserWithMediaFile(criteria);
+        return await userRespository.getUserWithMediaFile(criteria);
     }
 
     static async createUser(userData: UserCreationAttributes) {
@@ -72,18 +70,18 @@ export class UserService {
     }
 
     @handleServiceError('Failed to get user profile')
-    static async getUserProfile(user: User): Promise<UserProfile> {
-        const userData = user.get()
-
-        // add here any user profile data
-        const userActiveSubscription = await SubscriptionService.getUserSubscription(userData.id);
-        const userCredits = await CreditsService.getUserCredits(userData.id);
-        const userPayments = await PaymentService.getUserPayments(userData.id);
+    static async getAccountData(user: UserWithMediaFiles): Promise<UserAccountDetails> {
+        const userData = await userMappers.mapServerUserToPublicUser(user);
+        const activeCVs = await CVsService.countUserCVs(user.get().id);
+        const totalDownloads = await DownloadsService.countTotalUserDownloads(user.get().id);
 
         return {
-            subscription: userActiveSubscription,
-            credits: userCredits,
-            payments: userPayments
+            username: userData.username,
+            email: userData.email,
+            profilePicture: userData.profilePicture,
+            activeCVs,
+            totalDownloads,
+            memberSince: user.get()?.createdAt ? user.get().createdAt!.toDateString() : '',
         }
     }
 

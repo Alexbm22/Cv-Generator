@@ -24,8 +24,8 @@ export const useCVPreviewImage = ({
     
     if (CVState.mode === CVStateMode.USER) {
       const userCV = CV as UserCVMetadataAttributes;
-      if (userCV.preview?.presigned_get_URL) {
-        setCvPreviewSrc(userCV.preview.presigned_get_URL);
+      if (userCV.preview?.get_URL) {
+        setCvPreviewSrc(userCV.preview.get_URL);
       } else {
         setCvPreviewSrc(null);
       }
