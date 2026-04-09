@@ -7,8 +7,17 @@ export interface UserAttributes {
     id: string;
     username: string;
     email: string;
-    profilePicture?: MediaFilesAttributes | string;
+    profilePicture?: MediaFilesAttributes | null;
     needsInitialSync: boolean;
+}
+
+export interface UserAccountDetails {
+    username: string;
+    email: string;
+    profilePicture?: MediaFilesAttributes | null;
+    activeCVs: number;
+    totalDownloads: number;
+    memberSince: string;
 }
 
 export interface UserProfile {

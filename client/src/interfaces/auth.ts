@@ -30,7 +30,7 @@ export interface AuthStoreAttributes {
     id: string | null;
     username: string | null;
     email: string | null;
-    profilePicture: MediaFilesAttributes | string | null;
+    profilePicture: MediaFilesAttributes | null;
     needsInitialSync: boolean;
 
     isAuthenticated: boolean,
@@ -48,6 +48,7 @@ export interface AuthStoreActions {
     setToken: (token: TokenClientData) => void,
     isTokenExpired: () => boolean,
     handleAuthSuccess: (authData: AuthResponse) => void;
+    setProfilePicture: (profilePicture: MediaFilesAttributes) => void;
 }
 
 export interface AuthStore extends AuthStoreActions, AuthStoreAttributes {}

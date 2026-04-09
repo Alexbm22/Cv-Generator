@@ -6,9 +6,9 @@ import { UserController } from '../../controllers/user';
 const router = express.Router();
 
 router.get(
-    '/profile',
+    '/account',
     RateLimitInstance.globalRateLimit(),
-    catchAsync(UserController.getUserProfile)
+    catchAsync(UserController.getAccountData)
 );
 
 router.post(

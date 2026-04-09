@@ -26,9 +26,8 @@ export interface PublicMediaFilesAttributes {
     file_name: string;
     type: MediaType;
     expiresAt: number;
-    presigned_get_URL?: string;
-    presigned_put_URL?: string;
-    presigned_delete_URL?: string;
+    is_active: boolean;
+    get_URL: string | null;
 }
 
 export enum MimeType {

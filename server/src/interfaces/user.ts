@@ -12,10 +12,13 @@ export interface UserAccountData {
     profilePicture?: string | null;
 }
 
-export interface UserProfile {
-    subscription: PublicSubscriptionData | null,
-    payments: PublicPaymentData[],
-    credits: number,
+export interface UserAccountDetails {
+    username: string;
+    email: string;
+    profilePicture?: string | PublicMediaFilesAttributes | undefined;
+    activeCVs: number;
+    totalDownloads: number;
+    memberSince: string;
 }
 
 export interface ServerUserAttributes {
@@ -26,7 +29,6 @@ export interface ServerUserAttributes {
     password: string | null;
     googleId: string | null;
     authProvider: AuthProvider;
-    googleProfilePictureURL: string | null;
     isActive: boolean;
     needsInitialSync: boolean;
     lastLogin: Date | null;
@@ -42,7 +44,7 @@ export interface PublicUserAttributes {
     id: string;
     username: string;
     email: string;
-    profilePicture?: PublicMediaFilesAttributes | string;
+    profilePicture?: PublicMediaFilesAttributes;
     needsInitialSync: boolean;
 }
 
@@ -55,4 +57,4 @@ export interface InitialDataSyncAttributes {
 }
 
 export interface UserCreationAttributes extends Optional<ServerUserAttributes, 
-'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'public_id' | 'googleProfilePictureURL'> {}
+'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'public_id'> {}

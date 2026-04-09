@@ -28,6 +28,16 @@ const generateS3ObjKey = (
     }`;
 }
 
+const isValidImageUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 export {
-    generateS3ObjKey
+    generateS3ObjKey,
+    isValidImageUrl
 }

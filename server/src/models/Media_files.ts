@@ -2,7 +2,8 @@ import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from '../config/DB/database_config';
 import { MimeType, MediaFilesAttributes, MediaFilesCreationAttributes, MediaType, OwnerType } from "../interfaces/mediaFiles";
 import { generateUUID } from "../utils/uuid";
-import { MediaFilesServices } from "@/services/mediaFiles";
+import S3Service from "@/services/s3";
+import { config } from "@/config/env";
 
 class MediaFiles extends Model<MediaFilesAttributes, MediaFilesCreationAttributes> implements MediaFilesAttributes {
     public id!: number;
@@ -88,10 +89,7 @@ MediaFiles.init({
     hooks: {
         beforeDestroy: async (mediaFile: MediaFiles) => {
             const mediaFileData = mediaFile.get();
-            // Delete the file from S3 when the record is deleted
-            await MediaFilesServices.deleteFileFromS3(
-                mediaFileData.s3_key,
-            );
+            await S3Service.deleteFile( mediaFileData.s3_key, config.AWS_S3_BUCKET );
         }
     }
 })

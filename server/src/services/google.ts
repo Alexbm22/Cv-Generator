@@ -4,6 +4,9 @@ import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
 import { config } from "@/config/env";
 import { handleServiceError } from '../utils/serviceErrorHandler';
+import axios from "axios";
+import { MediaFilesServices } from "./mediaFiles";
+import { isValidImageUrl } from "@/utils/mediaFiles";
 
 export class GoogleServices {
     private readonly CLIENT_ID: string;
@@ -60,5 +63,29 @@ export class GoogleServices {
             email_verified,
             email
         } as GoogleUserPayload
+    }
+
+    @handleServiceError('Failed to upload Google profile picture')
+    async uploadGoogleProfilePicture(mediaFileId: number, imageUrl?: string): Promise<void> {
+        if (!imageUrl || !isValidImageUrl(imageUrl)) {
+            throw new AppError(
+                'Invalid profile picture URL',
+                400,
+                ErrorTypes.BAD_REQUEST
+            );
+        }
+
+        const response = await axios.get(imageUrl, { 
+            responseType: 'stream',
+            headers: { 'Accept': 'image/png' }
+        });
+        
+        const contentType = 'image/png';
+        
+        await MediaFilesServices.uploadFile(
+            mediaFileId, 
+            response.data, 
+            contentType
+        );
     }
 }

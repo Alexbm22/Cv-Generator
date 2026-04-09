@@ -40,8 +40,8 @@ export class CVsService {
 
         return Promise.all(result.map(async (cv) => cvMapper.mapServerCVToPublicCV(
             cv.CVData.get(),  
-            await MediaFilesServices.getPublicMediaFileData(cv.CVPreview, [PresignedUrlType.GET, PresignedUrlType.PUT]), 
-            await MediaFilesServices.getPublicMediaFileData(cv.CVPreview, [PresignedUrlType.GET, PresignedUrlType.PUT, PresignedUrlType.DELETE]),
+            await MediaFilesServices.getPublicMediaFileData(cv.CVPreview.get().public_id), 
+            await MediaFilesServices.getPublicMediaFileData(cv.CVPhoto.get().public_id),
         )))
     }
 
@@ -142,8 +142,8 @@ export class CVsService {
     }
 
     static async getPublicCVData(cvData: CV, cvPreview: MediaFiles, cvPhoto: MediaFiles) {
-        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(cvPhoto);
-        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(cvPreview);
+        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(cvPhoto.get().public_id);
+        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(cvPreview.get().public_id);
         
         return cvMapper.mapServerCVToPublicCV(cvData.get(), publicPhotoData, publicPreviewData);
     }
@@ -161,8 +161,8 @@ export class CVsService {
     }
 
     static async getCVMetadata(cv: ServerCVAttributes, preview: MediaFiles, photo: MediaFiles): Promise<PublicCVMetadataAttributes> {
-        const publicPreview = await MediaFilesServices.getPublicMediaFileData(preview);
-        const publicPhoto = await MediaFilesServices.getPublicMediaFileData(photo);
+        const publicPreview = await MediaFilesServices.getPublicMediaFileData(preview.get().public_id);
+        const publicPhoto = await MediaFilesServices.getPublicMediaFileData(photo.get().public_id);
 
         return cvMapper.mapServerCVToPublicCVMetadata(cv, publicPhoto, publicPreview);
     }
@@ -177,5 +177,9 @@ export class CVsService {
                 ErrorTypes.BAD_REQUEST
             );
         }   
+    }
+
+    static async countUserCVs(user_id: number) {
+        return await cvRepository.countUserCVs(user_id);
     }
 }
