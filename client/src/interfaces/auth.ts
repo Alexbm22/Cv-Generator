@@ -26,12 +26,15 @@ export interface TokenClientData {
     expiresIn: Date;
 }
 
+export type AuthProvider = 'local' | 'google';
+
 export interface AuthStoreAttributes {
     id: string | null;
     username: string | null;
     email: string | null;
     profilePicture: MediaFilesAttributes | null;
     needsInitialSync: boolean;
+    authProvider: AuthProvider | null;
 
     isAuthenticated: boolean,
     isLoadingAuth: boolean,

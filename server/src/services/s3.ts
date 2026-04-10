@@ -138,7 +138,7 @@ class S3Service {
     public async generatePresignedGetUrl(
         key: string,
         bucketName: string,
-        expiresIn: number = 5 * 60 * 1000
+        expiresIn: number = 5 * 60
     ) {
         try {
             const params = {
@@ -149,7 +149,7 @@ class S3Service {
             const command = new GetObjectCommand(params);
 
             const url = await getSignedUrl(this.s3Client, command, { expiresIn });
-            const expiresAt = new Date(Date.now() + expiresIn).getTime();
+            const expiresAt = new Date(Date.now() + expiresIn * 1000).getTime();
 
             return {
                 url,
@@ -170,7 +170,7 @@ class S3Service {
     public async generatePresignedPutUrl(
         key: string,
         bucketName: string,
-        expiresIn: number = 5 * 60 * 1000
+        expiresIn: number = 5 * 60
     ) {
         try {
             const params = {
@@ -182,7 +182,7 @@ class S3Service {
             const command = new PutObjectCommand(params);
 
             const url = await getSignedUrl(this.s3Client, command, { expiresIn });
-            const expiresAt = new Date(Date.now() + expiresIn).getTime();
+            const expiresAt = new Date(Date.now() + expiresIn * 1000).getTime();
 
             return {
                 url,
@@ -203,7 +203,7 @@ class S3Service {
     public async generatePresignedDeleteUrl(
         key: string,
         bucketName: string,
-        expiresIn: number = 5 * 60 * 1000
+        expiresIn: number = 5 * 60
     ) {
         try {
             const params = {
@@ -215,7 +215,7 @@ class S3Service {
             const command = new DeleteObjectCommand(params);
 
             const url = await getSignedUrl(this.s3Client, command, { expiresIn });
-            const expiresAt = new Date(Date.now() + expiresIn).getTime();
+            const expiresAt = new Date(Date.now() + expiresIn * 1000).getTime();
 
             return {
                 url,

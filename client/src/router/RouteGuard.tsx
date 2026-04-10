@@ -1,5 +1,5 @@
 import { useAuthStore } from '../Store';
-import { route, routes } from './routes';
+import { route } from './routes';
 import { Navigate, useLocation } from 'react-router-dom';
 
 export interface componentProps {
@@ -9,7 +9,6 @@ export interface componentProps {
 
 const RouteGuard:React.FC<componentProps> = ({children, route}: componentProps ) => {
     
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
     // to do: add loading UI
     const isLoadingAuth = useAuthStore(state => state.isLoadingAuth);
 
@@ -17,24 +16,13 @@ const RouteGuard:React.FC<componentProps> = ({children, route}: componentProps )
 
     if(isLoadingAuth) {
         return <>Loading...</>
-    } else if (!isAuthenticated && route.protected) {
-        return <Navigate 
-            to={routes.login.path} 
-            state={{ from: location }} 
-            replace 
-        />;
-    } else if(
-        isAuthenticated && 
-        (
-            route.path === routes.login.path ||
-            route.path === routes.signup.path
-        )
-    ) {
-        return <Navigate 
-            to={routes.resumes.path} 
-            state={{ from: location }} 
-            replace 
-        />;
+    }
+
+    for (const guard of route.guards) {
+        const result = guard();
+        if (result !== true) {
+            return <Navigate to={result.redirectTo} state={{ from: location }} replace />;
+        }
     }
 
     return <>{children}</>;

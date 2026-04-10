@@ -31,7 +31,9 @@ export interface ServerUserAttributes {
     authProvider: AuthProvider;
     isActive: boolean;
     needsInitialSync: boolean;
+    useProfilePictureAsDefault: boolean;
     lastLogin: Date | null;
+    tokenVersion: number;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -46,6 +48,7 @@ export interface PublicUserAttributes {
     email: string;
     profilePicture?: PublicMediaFilesAttributes;
     needsInitialSync: boolean;
+    authProvider: AuthProvider;
 }
 
 export interface SyncedDataAttributes {
@@ -57,4 +60,4 @@ export interface InitialDataSyncAttributes {
 }
 
 export interface UserCreationAttributes extends Optional<ServerUserAttributes, 
-'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'public_id'> {}
+'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'useProfilePictureAsDefault' | 'public_id' | 'tokenVersion'> {}

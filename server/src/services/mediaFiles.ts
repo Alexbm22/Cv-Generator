@@ -36,7 +36,7 @@ export class MediaFilesServices {
         await S3Service.duplicateFile(
             config.AWS_S3_BUCKET,
             duplicatedMediaFile.s3_key,
-            createdMediaFile.get().s3_key
+            createdMediaFile.get('s3_key')
         )
 
         return createdMediaFile;
@@ -88,7 +88,7 @@ export class MediaFilesServices {
         }
 
         const mediaFileData = mediaFile.get();
-        const get_URL = await this.getMediaPresignedUrl(mediaFile, PresignedUrlType.GET, timeToLive);
+        const get_URL = await this.getMediaPresignedUrl(mediaFile, PresignedUrlType.GET, Math.floor(timeToLive / 1000));
 
         const result: PublicMediaFilesAttributes = {
             expiresAt,
@@ -178,6 +178,10 @@ export class MediaFilesServices {
         await mediaFilesRepository.updateMediaFile(mediaFile.get().id, { is_active: false });  
 
         await S3Service.deleteFile(mediaFile.get().s3_key, config.AWS_S3_BUCKET);
+    }
+
+    public static async getUserProfilePicture(userId: number): Promise<MediaFiles | null> {
+        return await mediaFilesRepository.getUserProfilePicture(userId);
     }
 
     @handleServiceError('Failed to get media file PUT URL')

@@ -17,6 +17,7 @@ export const uploadImage = async (blobObj: Blob, mediaFile: MediaFilesAttributes
         // Mark media file as active after successful upload
         await markMediaFileActiveStatus(mediaFile.id, true);
     } catch (error) {
+        console.error("Error uploading image:", error);
         throw error;
     }
 }

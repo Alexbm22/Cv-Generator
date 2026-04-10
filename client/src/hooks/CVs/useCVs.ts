@@ -47,7 +47,6 @@ export const useCreateUserCV = () => {
             const CVTemplate = TemplateMap[createdCV.template];
 
             generateAndUploadCVPreview(createdCV, CVTemplate)
-            uploadDefaultPhoto(createdCV.photo!);
         }
     })
 }

@@ -1,7 +1,9 @@
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../../Store";
 import { Trash2, LogOut, Lock, AlertTriangle } from "lucide-react";
+import { routes } from "../../../../router/routes";
 import { ButtonStyles } from "../../../../constants/CV/buttonStyles";
 import Button from "../../../../components/UI/Buttons/Button";
 import { useLogout } from "../../../../hooks/Auth/useAuth";
@@ -9,6 +11,7 @@ import { UserServerService } from "../../../../services/UserServer";
 import { ProfilePictureEditor } from "../../../../components/UI";
 
 const AccountSettings: React.FC = () => {
+  const navigate = useNavigate();
   const { mutate: logout } = useLogout();
   
   const { data: accountData, isLoading, error } = useQuery({
@@ -18,6 +21,23 @@ const AccountSettings: React.FC = () => {
     retry: true,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  const authProvider = useAuthStore((state) => state.authProvider);
+
+  const [useProfilePictureAsDefault, setUseProfilePictureAsDefault] = useState(false);
+
+  const { mutate: updateProfilePicturePreference, isPending: isUpdatingPreference } = useMutation<{ useProfilePictureAsDefault: boolean }, unknown, boolean>({
+    mutationFn: (value: boolean) => UserServerService.updateProfilePicturePreference(value),
+    onSuccess: (data) => setUseProfilePictureAsDefault(data.useProfilePictureAsDefault),
+  });
+
+  useEffect(() => {
+    if ((accountData as any)?.useProfilePictureAsDefault !== undefined) {
+      setUseProfilePictureAsDefault((accountData as any).useProfilePictureAsDefault);
+    }
+  }, [accountData]);
+
+
 
   if (isLoading) return <div className="text-gray-600">Loading...</div>;
   if (error) return <div className="text-red-600">Error loading account data</div>;
@@ -90,15 +110,18 @@ const AccountSettings: React.FC = () => {
       {/* Account Actions Section */}
       <section className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
         <h2 className="text-base font-semibold text-gray-900 mb-6">Account Actions</h2>
+
         <div className="flex gap-4">
-          <Button
-            onClick={() => {}}
-            buttonStyle={ButtonStyles.primary}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm"
-          >
-            <Lock className="w-4 h-4" />
-            <span>Change Password</span>
-          </Button>
+          {authProvider === 'local' && (
+            <Button
+              onClick={() => navigate(routes.changePassword.path)}
+              buttonStyle={ButtonStyles.primary}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm"
+            >
+              <Lock className="w-4 h-4" />
+              <span>Change Password</span>
+            </Button>
+          )}
           <Button
             onClick={() => logout?.()}
             buttonStyle={ButtonStyles.secondary}
@@ -107,6 +130,33 @@ const AccountSettings: React.FC = () => {
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
           </Button>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-100 my-5" />
+
+        {/* Profile Picture Default Preference */}
+        <div className="flex items-center justify-between gap-6">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-medium text-gray-800">Use profile picture as default for future CVs</span>
+            <span className="text-xs text-gray-500">Automatically apply your profile picture when creating new CVs</span>
+          </div>
+          <button
+            onClick={() => updateProfilePicturePreference(!useProfilePictureAsDefault)}
+            disabled={isUpdatingPreference}
+            aria-label="Toggle profile picture as default for future CVs"
+            className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+              useProfilePictureAsDefault ? 'bg-blue-500' : 'bg-gray-200'
+            } ${
+              isUpdatingPreference ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out ${
+                useProfilePictureAsDefault ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
         </div>
       </section>
 

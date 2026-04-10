@@ -27,5 +27,29 @@ export class UserController {
         } catch (error) {
             return next(error);
         }
-    } 
+    }
+    
+    static async changePassword(req: AuthRequest, res: Response, next: NextFunction) {
+        const authenticatedUser = req.user;
+        const { currentPassword, newPassword } = req.body;
+
+        try {
+            await UserService.changePassword(authenticatedUser, currentPassword, newPassword);
+            return res.status(200).json({ message: "Password changed successfully" });
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    static async updateProfilePicturePreference(req: AuthRequest, res: Response, next: NextFunction) {
+        const authenticatedUser = req.user;
+        const { useAsDefault } = req.body;
+
+        try {
+            const result = await UserService.updateProfilePicturePreference(authenticatedUser, useAsDefault);
+            return res.status(200).json(result);
+        } catch (error) {
+            return next(error);
+        }
+    }
 }

@@ -11,7 +11,7 @@ interface ProfilePictureEditorProps {
 const ProfilePictureEditor: React.FC<ProfilePictureEditorProps> = memo(({
   className = '',
 }) => {
-  const { profilePictureUrl, isProfilePictureValid } = useProfilePictureUrl();
+  const { profilePictureUrl } = useProfilePictureUrl();
   
   const {
     isDialogOpen,
@@ -25,7 +25,7 @@ const ProfilePictureEditor: React.FC<ProfilePictureEditorProps> = memo(({
     goToStep,
     handleSave,
   } = useProfilePhotoEditor();
-
+  
   return (
     <>
       {/* Profile Picture Container */}

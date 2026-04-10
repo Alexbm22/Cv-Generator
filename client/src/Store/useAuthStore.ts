@@ -11,6 +11,7 @@ export const useAuthStore = create<AuthStore>()(
         email: null,
         profilePicture: null,
         needsInitialSync: false,
+        authProvider: null,
 
         isAuthenticated: false,
         isLoadingAuth: true,
@@ -26,14 +27,15 @@ export const useAuthStore = create<AuthStore>()(
                 email: null,
                 profilePicture: null,
                 needsInitialSync: false,
+                authProvider: null,
                 isAuthenticated: false, 
                 tokenData: null, 
             })
         },
 
         getAuthenticatedUser: () => {
-            const { id, username, email, profilePicture, needsInitialSync } = get();
-            return { id, username, email, profilePicture, needsInitialSync } as UserAttributes;
+            const { id, username, email, profilePicture, needsInitialSync, authProvider } = get();
+            return { id, username, email, profilePicture, needsInitialSync, authProvider } as UserAttributes;
         },
 
         setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
@@ -43,7 +45,8 @@ export const useAuthStore = create<AuthStore>()(
             username: userData.username,
             email: userData.email,
             profilePicture: userData.profilePicture,
-            needsInitialSync: userData.needsInitialSync
+            needsInitialSync: userData.needsInitialSync,
+            authProvider: userData.authProvider
         }),
 
         handleAuthSuccess(authData) {
@@ -60,7 +63,8 @@ export const useAuthStore = create<AuthStore>()(
                     username: authData.user?.username,
                     email: authData.user?.email,
                     profilePicture: authData.user?.profilePicture,
-                    needsInitialSync: authData.user?.needsInitialSync ?? false
+                    needsInitialSync: authData.user?.needsInitialSync ?? false,
+                    authProvider: authData.user?.authProvider ?? null,
                 })
             }
         },

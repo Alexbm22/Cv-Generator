@@ -45,14 +45,14 @@ class ApiService {
   private setupInterceptors() {
     // Request interceptor for auth tokens
     this.client.interceptors.request.use(
-      this.requestInterceptor,
+      (config) => this.requestInterceptor(config),
       (error) => Promise.reject(error)
     );
 
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
-      this.responseErrorInterceptor
+      (error) => this.responseErrorInterceptor(error)
     );
       
   }
@@ -100,13 +100,14 @@ class ApiService {
     return config;
   }
 
-  private async responseErrorInterceptor(error: AxiosError) {
+  private async responseErrorInterceptor(error: APIError) {
+    console.error('API Error Intercepted:', error);
     if (!error.config) {
       this.handleAPIError(error as APIError)
       return Promise.reject(error);
     }
 
-    if(error.config.url?.includes('/refresh_token') || error.config.url?.includes('/checkAuth')) {
+    if(error.config.url?.includes('/refresh_token') || error.config.url?.includes('/check_auth')) {
       this.handleAPIError(error as APIError);
       useAuthStore.getState().clearAuthenticatedUser();
       return Promise.reject(error);
@@ -146,8 +147,7 @@ class ApiService {
         this.refreshingPromise = undefined; // Reset the promise after refresh
       }
     }
-    
-    this.handleAPIError(error as APIError)
+    this.handleAPIError(error as APIError);
     return Promise.reject(error);
   }
 
@@ -189,6 +189,7 @@ class ApiService {
   }
   
   private handleAPIError (error: APIError) {
+    console.error('API Error:', error);
     const statusCode = error.response?.status || 500;
     const message = error.response?.data?.message || 'An unexpected error occurred';
     const errType = error.response?.data?.errType || ErrorTypes.INTERNAL_ERR;
