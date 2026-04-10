@@ -1,8 +1,8 @@
 import { PublicCVAttributes, ServerCVAttributes, PublicCVMetadataAttributes, CVCreationAttributes } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
-import { ServerUserAttributes } from "../interfaces/user";
+import { ServerUserAttributes, UserWithMediaFiles } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
-import { CV, MediaFiles } from "../models";
+import { CV, MediaFiles, User } from "../models";
 import { MediaFilesServices } from "./mediaFiles";
 import cvRepository from '../repositories/cv';
 import cvMapper from '../mappers/cv';
@@ -46,9 +46,20 @@ export class CVsService {
     }
 
     @handleServiceError('CV creation failed')
-    static async createDefaultCV(userId: number) {
+    static async createDefaultCV(user: User) {
+        const userId = user.get('id');
+
         const cv = await cvRepository.createCV(userId);
-        const photo = await MediaFilesServices.create(cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId, 0));
+
+        let photo: MediaFiles;
+        if(user.get('useProfilePictureAsDefault')) {
+            photo = await MediaFilesServices.duplicateMediaFile(
+                cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId),
+                (await MediaFilesServices.getUserProfilePicture(userId) as MediaFiles).get(),
+            )
+        } else {
+            photo = await MediaFilesServices.create(cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId, 0));
+        }
         const preview = await MediaFilesServices.create(cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title, userId, 0));
         return await this.getPublicCVData(cv, preview, photo);
     }

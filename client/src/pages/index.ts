@@ -8,4 +8,5 @@ export { default as Prices} from "./Pricing"
 export { default as Checkout} from "./Checkout";
 export { default as Downloads } from './Settings/sections/Downloads'
 export { default as SettingsPage } from './Settings'
+export { default as ChangePassword } from './ChangePassword'
 

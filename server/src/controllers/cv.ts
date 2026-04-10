@@ -28,10 +28,9 @@ export class CVsController {
 
     static async createDefaultCV(req: AuthRequest, res: Response, next: NextFunction) {
         const authenticatedUser = req.user;
-        const userInfo = authenticatedUser.get();
 
         try {
-            const publicCVData = await CVsService.createDefaultCV(userInfo.id);
+            const publicCVData = await CVsService.createDefaultCV(authenticatedUser);
 
             return res.status(200).json(publicCVData);
         } catch (error) {

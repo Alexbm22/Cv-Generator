@@ -26,8 +26,10 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
     public authProvider!: AuthProvider;
     public isActive!: boolean;
     public needsInitialSync!: boolean;
+    public useProfilePictureAsDefault!: boolean;
     public lastLogin!: Date | null;
     public password!: string | null;
+    public tokenVersion!: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
@@ -35,7 +37,7 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
         const currentPassword = this.get('password');
     
         // Check if password exists and user is not using Google auth
-        if (!currentPassword || this.get('authProvider') === AuthProvider.GOOGLE) {
+        if (!currentPassword || this.get('authProvider') === 'google') {
             return false;
         }
         
@@ -93,7 +95,7 @@ User.init({
         allowNull: true,
         validate: {
             customValidator(value: string | null) {
-                if (this.authProvider === AuthProvider.LOCAL && !value) {
+                if (this.authProvider === 'local' && !value) {
                     throw new AppError('Password is required for local authentication', 400, ErrorTypes.VALIDATION_ERR);
                 }
             }
@@ -105,7 +107,7 @@ User.init({
         unique: true,
     },
     authProvider: {
-        type: DataTypes.ENUM(...Object.values(AuthProvider)),
+        type: DataTypes.ENUM(...Object.values(['local', 'google'] as const)),
         allowNull: false,
         defaultValue: 'local',
     },
@@ -119,9 +121,19 @@ User.init({
         allowNull: false,
         defaultValue: true,
     },
+    useProfilePictureAsDefault: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
     lastLogin: {
         type: DataTypes.DATE,
         allowNull: true,
+    },
+    tokenVersion: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE

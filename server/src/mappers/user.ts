@@ -1,6 +1,7 @@
 import { PresignedUrlType } from "@/interfaces/mediaFiles";
 import { PublicUserAttributes, UserWithMediaFiles } from "@/interfaces/user";
 import { MediaFilesServices } from "@/services/mediaFiles";
+import { auth } from "google-auth-library";
 
 const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<PublicUserAttributes> => {
     
@@ -12,7 +13,8 @@ const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<Publ
         email: userData.email,
         username: userData.username,
         profilePicture: userProfilePhoto,
-        needsInitialSync: userData.needsInitialSync
+        needsInitialSync: userData.needsInitialSync,
+        authProvider: userData.authProvider
     };
 }
 

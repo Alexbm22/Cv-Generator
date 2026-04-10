@@ -7,3 +7,4 @@ import ProfilePictureEditor from "./ProfilePictureEditor"
 
 export { Collapsable, Dropdown, InputField as TextInputField, Editor, SliderPicker, ProfilePictureEditor }
 export { LoadingSpinner } from "./LoadingSpinner"
+export { default as ConfirmationDialog } from "./ConfirmationDialog"

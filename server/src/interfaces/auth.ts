@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import { PublicCVAttributes } from './cv';
 import { User } from '../models';
-import { PublicUserAttributes } from './user';
+import { PublicUserAttributes, UserWithMediaFiles } from './user';
 import { AuthTokenPayload, PublicTokenData } from './token';
 
 export interface loginDto {
@@ -37,10 +37,7 @@ export enum AuthStatus {
     FAILURE = 'failure'
 }
 
-export enum AuthProvider {
-    LOCAL = 'local',
-    GOOGLE = 'google'
-}
+export type AuthProvider = 'local' | 'google';
 
 export interface AuthRequest extends Request {
     user: User;

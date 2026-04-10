@@ -2,6 +2,7 @@ import { PaymentAttributes } from "./payments";
 import { SubscriptionAttributes } from "./subscription";
 import { GuestCVAttributes, UserCVAttributes } from "./cv";
 import { MediaFilesAttributes } from "./mediaFiles";
+import { AuthProvider } from "./auth";
 
 export interface UserAttributes {
     id: string;
@@ -9,6 +10,7 @@ export interface UserAttributes {
     email: string;
     profilePicture?: MediaFilesAttributes | null;
     needsInitialSync: boolean;
+    authProvider: AuthProvider | null;
 }
 
 export interface UserAccountDetails {

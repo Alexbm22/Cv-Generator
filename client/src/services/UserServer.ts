@@ -11,10 +11,21 @@ export class UserServerService {
         )
     }
 
+    public static async changePassword(data: { currentPassword: string; newPassword: string }): Promise<void> {
+        return await apiService.post<void>(this.apiUrl + '/change_password', data);
+    }
+    
     public static async getAccountData() {
         return await apiService.get<UserAccountDetails>(
             this.apiUrl + '/account',
         )
+    }
+
+    public static async updateProfilePicturePreference(useAsDefault: boolean): Promise<{useProfilePictureAsDefault: boolean}> {
+        return await apiService.post<{useProfilePictureAsDefault: boolean}>(
+            this.apiUrl + '/preferences/profile_picture_default',
+            { useAsDefault }
+        );
     }
 
 }

@@ -5,6 +5,7 @@ export interface TokenPayload {
 export interface AuthTokenPayload extends TokenPayload {
     user_id: number,
     isFirstAuth?: boolean
+    version: number;
 }
 
 export interface ValidationTokenPayload extends TokenPayload {
@@ -13,10 +14,7 @@ export interface ValidationTokenPayload extends TokenPayload {
     hash: string;
 }
 
-export enum AuthTokenType {
-    ACCESS = 'accessToken',
-    REFRESH = 'refreshToken'
-}
+export type AuthTokenType = 'access' | 'refresh';
 
 export interface PublicTokenData {
     token: string;

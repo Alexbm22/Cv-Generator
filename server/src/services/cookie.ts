@@ -14,12 +14,12 @@ export class CookieService {
     }
 
     static setRefreshToken(token: string, expiration: Date, res: Response): void {
-        this.setSecureCookie(AuthTokenType.REFRESH, token, res, {
+        this.setSecureCookie('refresh', token, res, {
             maxAge: expiration.getTime() - Date.now(),
         });
     }
 
     static clearRefreshToken(res: Response): void {
-        res.clearCookie(AuthTokenType.REFRESH);
+        res.clearCookie('refresh');
     }
 }

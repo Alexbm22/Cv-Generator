@@ -48,7 +48,7 @@ export class AuthServices {
             user = await UserService.createUser({
                 username: username,
                 email: email,
-                authProvider: AuthProvider.GOOGLE,
+                authProvider: 'google',
                 lastLogin: new Date(),
                 googleId: google_id,
                 isActive: true,
@@ -84,8 +84,8 @@ export class AuthServices {
             throw new AppError('User not found', 500, ErrorTypes.UNAUTHORIZED);
         }
 
-        const accessToken = this.tokenService.generateAccessToken(user.get('id'), isNewUser);
-        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'));   
+        const accessToken = this.tokenService.generateAccessToken(user.get('id'), user.get('tokenVersion'), isNewUser);
+        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'), user.get('tokenVersion'));   
 
         CookieService.setRefreshToken(refreshToken.token, refreshToken.expiresIn, res);
 
@@ -104,11 +104,11 @@ export class AuthServices {
             throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
         }
 
-        if (!user.get('is_active')) {
+        if (!user.get('isActive')) {
             throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
         }
 
-        if (user.get('authProvider') !== AuthProvider.LOCAL) {
+        if (user.get('authProvider') !== 'local') {
             throw new AppError(`Please use ${user.get('authProvider')} login for this account`, 403, ErrorTypes.UNAUTHORIZED);
         }
 
@@ -119,8 +119,8 @@ export class AuthServices {
 
         await UserService.saveUserChanges({ lastLogin: new Date() }, user);
 
-        const accessToken = this.tokenService.generateAccessToken(user.get('id'));
-        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'));   
+        const accessToken = this.tokenService.generateAccessToken(user.get('id'), user.get('tokenVersion'));
+        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'), user.get('tokenVersion'));   
 
         CookieService.setRefreshToken(refreshToken.token, refreshToken.expiresIn, res);
 
@@ -140,7 +140,7 @@ export class AuthServices {
             username: username,
             email: email,
             password: password,
-            authProvider: AuthProvider.LOCAL,
+            authProvider: 'local',
             lastLogin: new Date(),
             isActive: true,
             needsInitialSync: true
@@ -153,7 +153,7 @@ export class AuthServices {
             owner_type: OwnerType.USER,
             mime_type: MimeType.IMAGE_PNG,
             type: MediaType.PROFILE_PHOTO,
-            is_active: true,
+            is_active: false,
         });
         
         return {
@@ -184,15 +184,15 @@ export class AuthServices {
             throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
-        const user = await UserService.getUser({ id: decodedToken.user_id });
+        const user = await UserService.getUser({ id: decodedToken.user_id, tokenVersion: decodedToken.version });
 
         if (!user) {
             CookieService.clearRefreshToken(res);
             throw new AppError('User not found', 401 , ErrorTypes.UNAUTHORIZED);
         }
 
-        const accessToken = this.tokenService.generateAccessToken(user.get('id'), true);
-        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'));
+        const accessToken = this.tokenService.generateAccessToken(user.get('id'), user.get('tokenVersion'), true);
+        const refreshToken = this.tokenService.generateRefreshToken(user.get('id'), user.get('tokenVersion'));
 
         CookieService.setRefreshToken(refreshToken.token, refreshToken.expiresIn, res);
 
@@ -201,14 +201,14 @@ export class AuthServices {
 
     @handleServiceError('Auth check failed')
     async checkAuth(req: Request, res: Response): Promise<AuthResponse> {
-        const decodedToken = this.tokenService.decodeRefreshToken(req.cookies.refreshToken);
+        const decodedToken = this.tokenService.decodeRefreshToken(req.cookies.refresh);
 
         if (!decodedToken) {
             CookieService.clearRefreshToken(res);
             throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
 
-        const user = await UserService.getUserWithMediaFile({ id: decodedToken.user_id });
+        const user = await UserService.getUserWithMediaFile({ id: decodedToken.user_id, tokenVersion: decodedToken.version });
     
         if (!user) {
             CookieService.clearRefreshToken(res);
@@ -216,7 +216,7 @@ export class AuthServices {
         }
 
         return {
-            token: this.tokenService.generateAccessToken(user.get('id')),
+            token: this.tokenService.generateAccessToken(user.get('id'), user.get('tokenVersion')),
             user: await UserService.getUserPublicData(user)
         };
     }

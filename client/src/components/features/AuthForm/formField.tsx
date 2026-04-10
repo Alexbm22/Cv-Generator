@@ -10,9 +10,10 @@ interface componentProps {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     children?: React.ReactNode;
+    onFocus?: () => void;
 }
 
-const Field: React.FC<componentProps> = ({formOrigin, name, label, type, placeholder, value, onChange, className, children}: componentProps) => {
+const Field: React.FC<componentProps> = ({formOrigin, name, label, type, placeholder, value, onChange, className, children, onFocus}: componentProps) => {
 
     const errors = useErrorStore(state => state.errors);
     const removeFieldError = useErrorStore(state => state.removeFieldError);
@@ -28,6 +29,7 @@ const Field: React.FC<componentProps> = ({formOrigin, name, label, type, placeho
                         type={type ?? 'text'}
                         placeholder={placeholder}
                         value={value}
+                        onFocus={onFocus}
                         onChange={(e) => {
                             onChange(e)
                             removeFieldError({

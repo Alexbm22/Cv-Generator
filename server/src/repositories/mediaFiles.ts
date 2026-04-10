@@ -33,11 +33,18 @@ const updateMediaFile = async (id: number, updates: Partial<MediaFilesCreationAt
     });
 }
 
+const getUserProfilePicture = async (userId: number): Promise<MediaFiles | null> => {
+    return await MediaFiles.findOne({
+        where: { owner_id: userId, owner_type: OwnerType.USER }
+    });
+}
+
 export default {
     getMediaFile,
     getMediaFileById,
     createMediaFile,
     bulkCreateMediaFiles,
     deleteOwnerMediaFiles,
-    updateMediaFile
+    updateMediaFile, 
+    getUserProfilePicture
 }

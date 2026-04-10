@@ -18,14 +18,15 @@ export class AuthTokenService extends BaseTokenService {
         this.refreshExpiration = config.JWT_REFRESH_EXPIRATION;
     }
 
-    generateToken(user_id: number, tokenType: AuthTokenType, isFirstAuth?: boolean) {
+    generateToken(user_id: number, tokenType: AuthTokenType, version: number, isFirstAuth?: boolean): PublicTokenData {
         const payload = this.generatePayload({
             user_id,
-            isFirstAuth: isFirstAuth
+            isFirstAuth: isFirstAuth,
+            version: version
         });
 
-        const tokenSecret = tokenType === AuthTokenType.REFRESH ? this.refreshSecret : this.secret;
-        const tokenExpiration = tokenType === AuthTokenType.REFRESH ? this.refreshExpiration : this.expiration;
+        const tokenSecret = tokenType === 'refresh' ? this.refreshSecret : this.secret;
+        const tokenExpiration = tokenType === 'refresh' ? this.refreshExpiration : this.expiration;
 
         const token = jwt.sign(payload, tokenSecret as jwt.Secret, {
             expiresIn: tokenExpiration as any
@@ -38,7 +39,7 @@ export class AuthTokenService extends BaseTokenService {
     }
 
     decodeToken(token: string, tokenType: AuthTokenType) {
-        const tokenSecret = tokenType === AuthTokenType.REFRESH ? this.refreshSecret : this.secret;
+        const tokenSecret = tokenType === 'refresh' ? this.refreshSecret : this.secret;
 
         try {
             return jwt.verify(
@@ -51,7 +52,7 @@ export class AuthTokenService extends BaseTokenService {
     }
 
     verifyToken(token: string, tokenType: AuthTokenType): boolean {
-        const tokenSecret = tokenType === AuthTokenType.REFRESH ? this.refreshSecret : this.secret;
+        const tokenSecret = tokenType === 'refresh' ? this.refreshSecret : this.secret;
 
         try {
             jwt.verify(
@@ -64,19 +65,20 @@ export class AuthTokenService extends BaseTokenService {
         }
     }
 
-    public generateAccessToken(user_id: number, isFirstAuth?: boolean) {
-        return this.generateToken(user_id, AuthTokenType.ACCESS, isFirstAuth);
+    public generateAccessToken(user_id: number, version: number, isFirstAuth?: boolean) {
+        return this.generateToken(user_id, 'access', version, isFirstAuth);
     }
 
-    public generateRefreshToken(user_id: number) {
-        return this.generateToken(user_id, AuthTokenType.REFRESH);
+    public generateRefreshToken(user_id: number, version: number) {
+        return this.generateToken(user_id, 'refresh', version);
+
     }
 
     public decodeAccessToken(token: string) {
-        return this.decodeToken(token, AuthTokenType.ACCESS);
+        return this.decodeToken(token, 'access');
     }
 
     public decodeRefreshToken(token: string) {
-        return this.decodeToken(token, AuthTokenType.REFRESH);
+        return this.decodeToken(token, 'refresh');
     }
 }
