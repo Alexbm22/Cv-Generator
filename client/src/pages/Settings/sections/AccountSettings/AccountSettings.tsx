@@ -14,7 +14,7 @@ const AccountSettings: React.FC = () => {
   const navigate = useNavigate();
   const { mutate: logout } = useLogout();
   
-  const { data: accountData, isLoading, error } = useQuery({
+  const { data: accountData, isLoading, error, refetch } = useQuery({
     queryKey: ['accountSettings'],
     queryFn: UserServerService.getAccountData.bind(UserServerService),
     enabled: useAuthStore.getState().isAuthenticated,
@@ -24,18 +24,16 @@ const AccountSettings: React.FC = () => {
 
   const authProvider = useAuthStore((state) => state.authProvider);
 
-  const [useProfilePictureAsDefault, setUseProfilePictureAsDefault] = useState(false);
-
-  const { mutate: updateProfilePicturePreference, isPending: isUpdatingPreference } = useMutation<{ useProfilePictureAsDefault: boolean }, unknown, boolean>({
+  const { mutate: updateProfilePicturePreference, isPending: isUpdatingPreference } = useMutation<void, unknown, boolean>({
     mutationFn: (value: boolean) => UserServerService.updateProfilePicturePreference(value),
-    onSuccess: (data) => setUseProfilePictureAsDefault(data.useProfilePictureAsDefault),
+    onSuccess: () => {
+      refetch();
+    },
+    onError: (error) => {
+      console.error("Failed to update profile picture preference:", error);
+    }
   });
 
-  useEffect(() => {
-    if ((accountData as any)?.useProfilePictureAsDefault !== undefined) {
-      setUseProfilePictureAsDefault((accountData as any).useProfilePictureAsDefault);
-    }
-  }, [accountData]);
 
 
 
@@ -142,18 +140,18 @@ const AccountSettings: React.FC = () => {
             <span className="text-xs text-gray-500">Automatically apply your profile picture when creating new CVs</span>
           </div>
           <button
-            onClick={() => updateProfilePicturePreference(!useProfilePictureAsDefault)}
+            onClick={() => updateProfilePicturePreference(!accountData?.useProfilePictureAsDefault)}
             disabled={isUpdatingPreference}
             aria-label="Toggle profile picture as default for future CVs"
             className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-              useProfilePictureAsDefault ? 'bg-blue-500' : 'bg-gray-200'
+              accountData?.useProfilePictureAsDefault ? 'bg-blue-500' : 'bg-gray-200'
             } ${
               isUpdatingPreference ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
             }`}
           >
             <span
               className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out ${
-                useProfilePictureAsDefault ? 'translate-x-5' : 'translate-x-0'
+                accountData?.useProfilePictureAsDefault ? 'translate-x-5' : 'translate-x-0'
               }`}
             />
           </button>

@@ -7,7 +7,7 @@ import { generatePdfBlob, pdfBlobToCanvas } from "../../services/Pdf";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/routes";
 import { createDefaultCVObject } from "../../utils/cv";
-import { uploadDefaultPhoto, getDefaultPhotoPath } from "../../utils/cvDefaults";
+import { getDefaultPhotoPath } from "../../utils/cvDefaults";
 import { generateAndUploadCVPreview } from "../../services/CVLocal";
 
 export const useCreateUserCV = () => {

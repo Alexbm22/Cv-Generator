@@ -19,6 +19,7 @@ export interface UserAccountDetails {
     activeCVs: number;
     totalDownloads: number;
     memberSince: string;
+    useProfilePictureAsDefault: boolean;
 }
 
 export interface ServerUserAttributes {
@@ -49,6 +50,7 @@ export interface PublicUserAttributes {
     profilePicture?: PublicMediaFilesAttributes;
     needsInitialSync: boolean;
     authProvider: AuthProvider;
+    useProfilePictureAsDefault: boolean;
 }
 
 export interface SyncedDataAttributes {

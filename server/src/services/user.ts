@@ -97,6 +97,7 @@ export class UserService {
             activeCVs,
             totalDownloads,
             memberSince: user.get()?.createdAt ? user.get().createdAt!.toDateString() : '',
+            useProfilePictureAsDefault: user.get().useProfilePictureAsDefault
         }
     }
 

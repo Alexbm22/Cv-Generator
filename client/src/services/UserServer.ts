@@ -21,8 +21,8 @@ export class UserServerService {
         )
     }
 
-    public static async updateProfilePicturePreference(useAsDefault: boolean): Promise<{useProfilePictureAsDefault: boolean}> {
-        return await apiService.post<{useProfilePictureAsDefault: boolean}>(
+    public static async updateProfilePicturePreference(useAsDefault: boolean): Promise<void> {
+        return await apiService.post<void>(
             this.apiUrl + '/preferences/profile_picture_default',
             { useAsDefault }
         );
