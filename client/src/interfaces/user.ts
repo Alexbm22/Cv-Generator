@@ -11,6 +11,7 @@ export interface UserAttributes {
     profilePicture?: MediaFilesAttributes | null;
     needsInitialSync: boolean;
     authProvider: AuthProvider | null;
+    useProfilePictureAsDefault: boolean;
 }
 
 export interface UserAccountDetails {
@@ -20,6 +21,7 @@ export interface UserAccountDetails {
     activeCVs: number;
     totalDownloads: number;
     memberSince: string;
+    useProfilePictureAsDefault: boolean;
 }
 
 export interface UserProfile {
