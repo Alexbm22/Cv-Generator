@@ -6,7 +6,6 @@ import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { CustomSectionAttributes } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
-import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     customSection: CustomSectionAttributes
@@ -64,20 +63,11 @@ const CustomSectionComponent:React.FC<ComponentProps> = ({ customSection }) => {
 const CustomSectionMain:React.FC = () => {
 
     const customSections = useCvEditStore((state) => state.customSections);
-    const addCustomSectionAttributes = useCvEditStore((state) => state.addCustomSectionAttributes);
     const removeCustomSectionAttributes = useCvEditStore((state) => state.removeCustomSectionAttributes);
-    const setCustomSectionTitle = useCvEditStore((state) => state.setCustomSectionTitle);
 
     return (
-        <div className="mt-5">
-            <input 
-                className="text-xl text-gray-600 placeholder-gray-600 font-bold focus:outline-none" 
-                onChange={(e) => setCustomSectionTitle(e.target.value)}
-                value={customSections.title}
-                placeholder={custonSectionConstants.section_title_placeholder}
-            />
-            <p className="text-sm text-gray-500 mb-4">{custonSectionConstants.description}</p>
-            <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
+        <div className="mt-3">
+            <div className="flex flex-col content-start gap-x-8 gap-y-4">
                 {
                     customSections && customSections.content.map((sec) => (
                         <div key={sec.id} >
@@ -89,7 +79,6 @@ const CustomSectionMain:React.FC = () => {
                         </div>
                     ))
                 }
-                <AddSectionButton onClick={() => addCustomSectionAttributes()} sectionName={'Custom Section'} />
             </div>
         </div>
     )

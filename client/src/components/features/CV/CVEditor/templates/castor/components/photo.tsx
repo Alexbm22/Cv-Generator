@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     width: '75%',
     height: 'auto',
     alignContent: 'center',
-    marginTop: 25,
+    marginBottom: 26,
   },
   photoStyles: {
     width: '100%',

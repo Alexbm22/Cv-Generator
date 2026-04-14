@@ -8,7 +8,6 @@ import {
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
 import { SkillsLevelsMap } from '../../../../../constants/CV/skillLevelsMap';
-import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     skill: Skill
@@ -50,23 +49,18 @@ const SkillMain:React.FC = () => {
     const skills = useCvEditStore((state) => state.skills);
 
     return (
-        <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">{skillsConstants.title}</h2>
-            <p className="text-sm text-gray-500 mb-4">{skillsConstants.description}</p>
-            <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
-                {
-                    skills.map((skill) => (
-                        <div key={skill.id} >
-                            <Collapsable
-                                title={skill.name ? skill.name : "Untitled"}
-                                children={<SkillComponent skill={skill} />}
-                                onDelete={() => removeSkill(skill.id)}
-                            />
-                        </div>
-                    ))
-                }
-                <AddSectionButton onClick={() => addSkill()} sectionName={'Skill'} />
-            </div>
+        <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
+            {
+                skills.map((skill) => (
+                    <div key={skill.id} >
+                        <Collapsable
+                            title={skill.name ? skill.name : "Untitled"}
+                            children={<SkillComponent skill={skill} />}
+                            onDelete={() => removeSkill(skill.id)}
+                        />
+                    </div>
+                ))
+            }
         </div>
     )
 }

@@ -6,7 +6,7 @@ import { auth } from "google-auth-library";
 const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<PublicUserAttributes> => {
     
     const userData = user.get();
-    const userProfilePhoto= user.mediaFile?.get('is_active') ? await MediaFilesServices.getPublicMediaFileData(user.mediaFile.get('public_id')) : undefined;
+    const userProfilePhoto= user.mediaFile?.get('is_active') ? await MediaFilesServices.getPublicMediaFileData(user.mediaFile) : undefined;
 
     return {
         id: userData.public_id,
@@ -14,7 +14,8 @@ const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<Publ
         username: userData.username,
         profilePicture: userProfilePhoto,
         needsInitialSync: userData.needsInitialSync,
-        authProvider: userData.authProvider
+        authProvider: userData.authProvider,
+        useProfilePictureAsDefault: userData.useProfilePictureAsDefault,
     };
 }
 

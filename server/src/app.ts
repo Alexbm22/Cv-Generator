@@ -8,6 +8,7 @@ import { config } from './config/env';
 import helmet from 'helmet';
 import { AppError, errorHandler, notFound } from './middleware/error_middleware';
 import RateLimitInstance from './middleware/rate_limit_middleware';
+import logger from './middleware/logger_middleware';
 
 export const stripe = new Stripe(config.STRIPE_SECRET_KEY);
 
@@ -23,6 +24,7 @@ app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(RateLimitInstance.globalRateLimit());
+app.use(logger);
 
 app.use(
     '/webhook', 

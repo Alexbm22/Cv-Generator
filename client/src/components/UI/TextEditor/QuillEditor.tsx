@@ -79,7 +79,24 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       };
     }, [ref]);
 
-    return <div ref={containerRef} className="border border-gray-300 rounded-lg overflow-hidden shadow-sm focus:outline-none"></div>;
+    // If htmlContent arrives after the editor has already mounted (e.g. async store load),
+    // populate it — but only when the editor is still empty to avoid overwriting user input.
+    useEffect(() => {
+      if (!quillRef.current || !htmlContent) return;
+      const currentHtml = quillRef.current.root.innerHTML;
+      const editorIsEmpty = currentHtml === '<p><br></p>' || currentHtml === '';
+      if (editorIsEmpty) {
+        quillRef.current.clipboard.dangerouslyPasteHTML(htmlContent);
+      }
+    }, [htmlContent]);
+
+    return (
+      <div
+        ref={containerRef}
+        className="border border-gray-300 rounded-lg overflow-hidden shadow-sm focus:outline-none hover:cursor-text"
+        onClick={() => quillRef.current?.focus()}
+      />
+    );
   }
 );
 

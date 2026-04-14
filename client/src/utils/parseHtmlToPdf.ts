@@ -67,10 +67,10 @@ interface ListCounters {
     [key: string]: number;
 }
 
-const createStyles = (): StyleSheet => ({
+const createStyles = (baseFontSize = 12): StyleSheet => ({
     paragraph: {
         marginBottom: 8,
-        fontSize: 12,
+        fontSize: baseFontSize,
         lineHeight: 1.4,
     },
     bold: {
@@ -109,7 +109,8 @@ const createStyles = (): StyleSheet => ({
     },
     listItem: {
         marginBottom: 4,
-        fontSize: 12,
+        fontSize: baseFontSize,
+        lineHeight: 1.4,
     },
     blockquote: {
         marginLeft: 20,
@@ -157,8 +158,8 @@ class QuillHTMLToPDFParser {
     private styles: StyleSheet;
     private listCounters: ListCounters;
 
-    constructor() {
-        this.styles = createStyles();
+    constructor(baseFontSize?: number) {
+        this.styles = createStyles(baseFontSize);
         this.listCounters = {};
     }
 
@@ -193,7 +194,7 @@ class QuillHTMLToPDFParser {
 
     private parseElement(node: Node, parentStyle: PDFStyle = {}): ParsedContent {
         if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent?.trim();
+            const text = node.textContent?.replace(/\s+/g, ' ') ?? '';
             return text || null;
         }
 
@@ -432,7 +433,23 @@ class QuillHTMLToPDFParser {
 
         const key = index !== undefined ? `list-item-${listId}-${index}` : Math.random().toString(36).substr(2, 9);
 
-        return React.createElement(Text, { style: itemStyle, key }, bullet, children as ReactNode);
+        const { marginBottom, marginTop, marginLeft, marginRight, ...textStyle } = itemStyle;
+
+        return React.createElement(
+            View,
+            {
+                key,
+                style: {
+                    flexDirection: 'row',
+                    marginBottom: itemStyle.marginBottom,
+                    marginTop: itemStyle.marginTop,
+                    marginLeft: itemStyle.marginLeft,
+                    marginRight: itemStyle.marginRight,
+                },
+            },
+            React.createElement(Text, { style: textStyle }, bullet),
+            React.createElement(Text, { style: { ...textStyle, flex: 1 } }, children as ReactNode)
+        );
     }
 
     private createContainer(element: Element, style: PDFStyle): ReactElement | ParsedContent {
@@ -446,8 +463,8 @@ class QuillHTMLToPDFParser {
     }
 }
 
-export const parseQuillToReactPDF = (quillHTML: string): ParsedContent => {
-    const parser = new QuillHTMLToPDFParser();
+export const parseQuillToReactPDF = (quillHTML: string, baseFontSize?: number): ParsedContent => {
+    const parser = new QuillHTMLToPDFParser(baseFontSize);
     return parser.parseQuillHTML(quillHTML);
 };
 

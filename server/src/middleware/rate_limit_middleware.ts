@@ -45,8 +45,8 @@ export class RateLimitMiddleware {
       REFRESH_TOKEN_LIMIT: config.RATE_LIMIT_REFRESH_TOKEN_LIMIT,
       CHECK_AUTH_WINDOW_MS: config.RATE_LIMIT_CHECK_AUTH_WINDOW_MS,
       CHECK_AUTH_LIMIT: config.RATE_LIMIT_CHECK_AUTH_LIMIT,
-      CVS_WINDOW_MS: config.RATE_LIMIT_CVS_LIMIT,
-      CVS_LIMIT: config.RATE_LIMIT_CVS_WINDOW_MS,
+      CVS_WINDOW_MS: config.RATE_LIMIT_CVS_WINDOW_MS,
+      CVS_LIMIT: config.RATE_LIMIT_CVS_LIMIT,
     };
   }
 
@@ -82,8 +82,8 @@ export class RateLimitMiddleware {
 
     public CVsRateLimit() {
         return this.createRateLimit({
-            windowMs: this.config.DEFAULT_WINDOW_MS,
-            limit: this.config.DEFAULT_LIMIT,
+            windowMs: this.config.CVS_WINDOW_MS,
+            limit: this.config.CVS_LIMIT,
             message: 'Too many requests from this IP, please try again later!',
         });
     }

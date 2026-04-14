@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { useCvEditStore } from "../../../../../Store";
 import InputField from "../../../../UI/InputField";
-import { SocialLink } from "../../../../../interfaces/cv";
 import { CV_EDITOR_FORM_CONSTANTS } from "../../../../../constants/CV/CVEditor";
 import PhotoEditor from "./PhotoEditor/photoEditor";
-import { Trash2 } from "lucide-react";
-import AddSectionButton from "../../../../UI/Buttons/AddSectionButton";
 
 const { personal_infos: personalInfosConstants } = CV_EDITOR_FORM_CONSTANTS.sections;
 const { fields: fieldsConstants } = personalInfosConstants;
@@ -21,21 +18,19 @@ const PersonalInfos: React.FC = () => {
     const phoneNumber = useCvEditStore((state) => state.phoneNumber);
     const address = useCvEditStore((state) => state.address);
     const birthDate = useCvEditStore((state) => state.birthDate);
-    const socialLinks = useCvEditStore((state) => state.socialLinks);
     const setFirstName = useCvEditStore((state) => state.setFirstName);
     const setLastName = useCvEditStore((state) => state.setLastName);
     const setEmail = useCvEditStore((state) => state.setEmail);
     const setPhoneNumber = useCvEditStore((state) => state.setPhoneNumber);
     const setAddress = useCvEditStore((state) => state.setAddress);
     const setBirthDate = useCvEditStore((state) => state.setBirthDate);
-    const addSocialLink = useCvEditStore((state) => state.addSocialLink);
 
     
     const [ isSelectingPhoto, setIsSelectingPhoto ] = useState<boolean>(false); // used to manage form fileds positioning
     
     return (
         <>
-            <div className="font-sans w-full h-full">
+            <div className="font-sans w-full h-full mb-5">
                 <h2 className="text-xl text-[#154D71] font-bold mb-2">{personalInfosConstants.title}</h2>
                 <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-2">
 
@@ -110,57 +105,8 @@ const PersonalInfos: React.FC = () => {
                     </div>
 
                     <PhotoEditor isSelectingPhoto={isSelectingPhoto} setIsSelectingPhoto={setIsSelectingPhoto} />
-
-                    <div className="col-span-2 flex flex-col space-y1 w-full mt-2">
-                        <label className="text-lg text-gray-[#154D71] font-bold">{fieldsConstants.social_links.title}</label>
-                        <p className="text-sm text-[#3a6985] mb-4e">{fieldsConstants.social_links.description}</p>
-                        <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
-                            {
-                                socialLinks.map((link) => (
-                                    <div key={link.id} className="border rounded-lg p-5 border-gray-300 shadow-sm flex flex-col gap-x-8 gap-y-3 font-sans s:grid grid-cols-2">
-                                        <SocialLinkComponent socialLink={link} />
-                                    </div>
-                                ))
-                            }
-                            <AddSectionButton onClick={() => addSocialLink()} sectionName={'link'} />
-                        </div>
-                    </div>
                 </div>
             </div>
-        </>
-    );
-} 
-
-interface ComponentProps {
-    socialLink: SocialLink;
-}
-
-const SocialLinkComponent: React.FC<ComponentProps> = ({ socialLink }) => {
-
-    const removeSocialLink = useCvEditStore((state) => state.removeSocialLink);
-    const updateSocialLink = useCvEditStore((state) => state.updateSocialLink);
-
-    return (
-        <>
-            <div className="flex items-center justify-between col-span-2">
-                <span className="text-lg font-medium text-gray-700">{socialLink.platform == '' ? 'Untitled' : socialLink.platform }</span>
-                <button onClick={() => removeSocialLink(socialLink.id)}><Trash2 className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" /></button>
-            </div>
-
-            <InputField
-                id={`platform-${socialLink.id}`}
-                label={fieldsConstants.social_links.fields.platform.label}
-                placeholder={fieldsConstants.social_links.fields.platform.placeholder}
-                value={socialLink.platform}
-                onChange={(e) => updateSocialLink(socialLink.id, { platform: e.target.value })}
-            />
-            <InputField
-                id={`url-${socialLink.id}`}
-                label={fieldsConstants.social_links.fields.url.label}
-                placeholder={fieldsConstants.social_links.fields.url.placeholder}
-                value={socialLink.url}
-                onChange={(e) => updateSocialLink(socialLink.id, { url: e.target.value })}
-            />
         </>
     );
 }

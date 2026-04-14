@@ -368,9 +368,9 @@ export class DownloadsService {
     static async getDownloadPublicData(download: DownloadWithMediaFiles) {
         const downloadData = downloadMappers.extractDownloadMediaFiles(download);
 
-        const publicFileData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadFile.get().public_id);
-        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadPreview.get().public_id);
-        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadPhoto.get().public_id);
+        const publicFileData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadFile);
+        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadPreview);
+        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(downloadData.DownloadPhoto);
         
         return downloadMappers.mapServerDownloadToPublicDownloadData(
             download.get(), 

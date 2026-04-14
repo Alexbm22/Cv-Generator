@@ -8,7 +8,7 @@ export class MediaFilesController {
         const mediaFilePublicId = req.params.id;
 
         try {
-            const PublicMediaFileData = await MediaFilesServices.getPublicMediaFileData(mediaFilePublicId);
+            const PublicMediaFileData = await MediaFilesServices.getPublicMediaFileDataById(mediaFilePublicId);
             res.status(200).json(PublicMediaFileData);
         } catch (error) {
             return next(error)

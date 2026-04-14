@@ -8,7 +8,6 @@ import {
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
 import { LanguageLevelsMap } from '../../../../../constants/CV/languageLevelsMap';
-import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     language: Language
@@ -50,23 +49,18 @@ const LanguageMain:React.FC = () => {
     const removeLanguage = useCvEditStore((state) => state.removeLanguage);
 
     return (
-        <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">{languagesConstants.title}</h2>
-            <p className="text-sm text-gray-500 mb-4">{languagesConstants.description}</p>
-            <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
-                {
-                    languages.map((language) => (
-                        <div key={language.id} >
-                            <Collapsable 
-                                title={language.name ? language.name : "Untitled"} 
-                                children={<LanguageComponent language={language}/>} 
-                                onDelete={() => removeLanguage(language.id)}
-                            />
-                        </div>
-                    ))
-                }
-                <AddSectionButton onClick={() => addLanguage()} sectionName={'Language'} />
-            </div>
+        <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
+            {
+                languages.map((language) => (
+                    <div key={language.id} >
+                        <Collapsable 
+                            title={language.name ? language.name : "Untitled"} 
+                            children={<LanguageComponent language={language}/>} 
+                            onDelete={() => removeLanguage(language.id)}
+                        />
+                    </div>
+                ))
+            }
         </div>
     )
 }

@@ -1,12 +1,10 @@
 import { useCvEditStore, useCVsStore } from "../../../../../Store";
-import { deleteImage, markMediaFileActiveStatus, uploadImage } from "../../../../../services/MediaFiles";
-import { useEffect, useState } from "react";
+import { deleteImage, getMediaFileById, markMediaFileActiveStatus, uploadImage } from "../../../../../services/MediaFiles";
 import { CVStateMode } from "../../../../../interfaces/cv";
 import { blobToBase64 } from "../../../../../utils/blob";
-import { uploadDefaultPhoto } from "../../../../../utils/cvDefaults";
-import { queryClient } from "../../../../../queryClient";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { isUrlValid } from "../../../../../utils/urls";
-
 const DEFAULT_PHOTO = "/Images/anonymous_Picture.png";
 
 export const useCVPhotoState = () => {
@@ -17,46 +15,44 @@ export const useCVPhotoState = () => {
     const GuestCVPhoto = useCvEditStore((state) => state.GuestPhoto);
     const setGuestPhoto = useCvEditStore((state) => state.setGuestPhoto);
 
+    const [cvPhotoBlobUrl, setCvPhotoBlobUrl] = useState<string>(DEFAULT_PHOTO);
+    const [isActive, setIsActive] = useState<boolean>(false);
+
     const isUser = CVState.mode === CVStateMode.USER;
 
-    const [cvPhotoBlobUrl, setCvPhotoBlobUrl] = useState<string | null>(null);
-    const [isLoadingPhotoUrl, setIsLoadingPhotoUrl] = useState(true);
+    const { data: cvPhotoData, isLoading: isLoadingPhotoUrl, refetch } = useQuery({
+        queryKey: ['mediaFile', UserCVPhoto?.id],
+        queryFn: () => getMediaFileById(UserCVPhoto!.id),
+        enabled: isUser && !!UserCVPhoto?.id,
+        staleTime: 60 * 1000 * 5,
+    });
 
     useEffect(() => {
-        if (!isUser) {
-            setCvPhotoBlobUrl(GuestCVPhoto ?? DEFAULT_PHOTO);
-            setIsLoadingPhotoUrl(false);
-            return;
+        if(isUser && cvPhotoData?.is_active) {
+            isUrlValid(cvPhotoData.get_URL).then(valid => {
+                setCvPhotoBlobUrl(valid ? cvPhotoData.get_URL : DEFAULT_PHOTO);
+                setIsActive(valid);
+            })
         }
-
-        const url = UserCVPhoto?.is_active ? UserCVPhoto.get_URL : null;
-
-        if (!url) {
-            setCvPhotoBlobUrl(DEFAULT_PHOTO);
-            setIsLoadingPhotoUrl(false);
-            return;
+        else {
+            if(isUser) {
+                setCvPhotoBlobUrl(DEFAULT_PHOTO);
+                setIsActive(false);
+            }
+            else {
+                setCvPhotoBlobUrl(GuestCVPhoto ?? DEFAULT_PHOTO);
+                setIsActive(!!GuestCVPhoto);
+            }
         }
-
-        let cancelled = false;
-
-        isUrlValid(url).then((isValid) => {
-            if (cancelled) return;
-            setCvPhotoBlobUrl(isValid ? url : DEFAULT_PHOTO);
-            setIsLoadingPhotoUrl(false);
-        });
-
-        return () => { cancelled = true; };
-    }, [isUser, GuestCVPhoto, UserCVPhoto?.get_URL, UserCVPhoto?.is_active]);
+    }, [isUser, cvPhotoData, GuestCVPhoto]);
 
     const handleUserCropSuccess = async (cropResult: Blob) => {
         try {
             await uploadImage(cropResult, UserCVPhoto!);
             await markMediaFileActiveStatus(UserCVPhoto!.id, true);
-            const { id } = useCvEditStore.getState();
-            await queryClient.refetchQueries({ queryKey: [`CV:${id}`] });
+            await refetch();
         } catch (error) {
-            const { id } = useCvEditStore.getState();
-            queryClient.refetchQueries({ queryKey: [`CV:${id}`] });
+            await refetch();
             throw error;
         }
     }
@@ -71,12 +67,9 @@ export const useCVPhotoState = () => {
     const handleUserPhotoDelete = async () => {
         try {
             await deleteImage(UserCVPhoto!);
-            await uploadDefaultPhoto(UserCVPhoto!);
-            const { id } = useCvEditStore.getState();
-            await queryClient.refetchQueries({ queryKey: [`CV:${id}`] });
+            await refetch();
         } catch (error) {
-            const { id } = useCvEditStore.getState();
-            queryClient.refetchQueries({ queryKey: [`CV:${id}`] });
+            await refetch();
             throw error;
         }
     }
@@ -90,6 +83,7 @@ export const useCVPhotoState = () => {
     return {
         isLoadingPhotoUrl,
         cvPhotoBlobUrl,
+        isPhotoActive: isActive,
         handleCropSuccess,
         handleCVPhotoDelete
     }
