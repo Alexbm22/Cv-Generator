@@ -11,6 +11,7 @@ import {
 } from '../../../interfaces/cv'; // Adjust the import path as necessary
 import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 import { DEFAULT_CV_EDITOR_STATE } from '../../../constants/CV/CVEditor';
+import { reorderById } from '../../../utils/reorder';
 
 export const createContentSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
@@ -24,6 +25,14 @@ export const createContentSlice = (set: {
     projects: DEFAULT_CV_EDITOR_STATE.projects,
     customSections: DEFAULT_CV_EDITOR_STATE.customSections,
     sectionsOrder: [],
+
+    setSectionsOrder: (sectionsOrder) => set({ sectionsOrder }),
+    changeSectionVisibility: (id, isVisible) => set((state: CVEditStoreContentSliceAttributes) => ({
+        sectionsOrder: state.sectionsOrder.map((section) => section.id === id ? { ...section, isVisible } : section)
+    })),
+    reorderSections: (activeId, overId) => set((state: CVEditStoreContentSliceAttributes) => ({
+        sectionsOrder: reorderById(state.sectionsOrder, activeId, overId)
+    })),
 
     setProfessionalSummary: (summary: string) => set({professionalSummary: sanitizeHtml(summary)}),
 

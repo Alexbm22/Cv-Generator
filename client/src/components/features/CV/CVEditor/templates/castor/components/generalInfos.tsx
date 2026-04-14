@@ -1,7 +1,8 @@
 import React from "react";
 import * as Icons from '../../../../../pdf/Icons'
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { StyleSheet, View } from "@react-pdf/renderer";
 import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import IconRow from "../../shared/IconRow";
 
 interface GeneralInfosProps {
     phoneNumber: string,
@@ -12,21 +13,13 @@ interface GeneralInfosProps {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 40,
+        marginBottom: 36,
         gap: 7,
-        width: '100%'
-    },
-    row: {
-        flexDirection: 'row',
-        gap: 7,
-        alignContent: 'center'
-    },
-    rowData: {
-        fontSize: 12,
-        fontWeight: 'bold'
+        width: '100%',
+        fontWeight: 'light',
     },
     rowIcon: {
-        marginTop: 1.5,
+        marginBottom: 1.5,
         size: 12,
         color: 'white'
     }
@@ -56,22 +49,10 @@ const GeneralInfos: React.FC<GeneralInfosProps> = ({
 
     return (
         <View style={styles.container}>
-            <View style={styles.row}>
-                <Icons.Phone size={styles.rowIcon.size} color={styles.rowIcon.color} style={styles.rowIcon}/>
-                <Text style={styles.rowData}>{phoneNumVal}</Text>
-            </View>
-            <View style={styles.row}>
-                <Icons.Email  size={styles.rowIcon.size} color={styles.rowIcon.color} style={styles.rowIcon}/>
-                <Text style={styles.rowData}>{emailVal}</Text>
-            </View>
-            <View style={styles.row}>
-                <Icons.Adress  size={styles.rowIcon.size} color={styles.rowIcon.color} style={styles.rowIcon}/>
-                <Text style={styles.rowData}>{adressVal}</Text>
-            </View>
-            <View style={styles.row}>
-                <Icons.Date  size={styles.rowIcon.size} color={styles.rowIcon.color} style={styles.rowIcon}/>
-                <Text style={styles.rowData}>{birthDateVal}</Text>
-            </View>
+            <IconRow icon={<Icons.Phone size={styles.rowIcon.size} color={styles.rowIcon.color} style={styles.rowIcon}/>} text={phoneNumVal} />
+            <IconRow icon={<Icons.Email size={styles.rowIcon.size} color={styles.rowIcon.color} style={styles.rowIcon}/>} text={emailVal} />
+            <IconRow icon={<Icons.Adress size={styles.rowIcon.size} color={styles.rowIcon.color} style={styles.rowIcon}/>} text={adressVal} />
+            <IconRow icon={<Icons.Date size={styles.rowIcon.size} color={styles.rowIcon.color} style={styles.rowIcon}/>} text={birthDateVal} />
         </View>
     );
 }

@@ -20,7 +20,8 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
     const { 
         cvPhotoBlobUrl,
         handleCropSuccess,
-        handleCVPhotoDelete
+        handleCVPhotoDelete,
+        isPhotoActive
     } = useCVPhotoState()
 
     const handleCancel = () => {
@@ -63,7 +64,7 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
                         </div>
 
                         {
-                            !cvPhotoBlobUrl ? (
+                            !isPhotoActive ? (
                                 <AddSectionButton onClick={() => setIsSelectingPhoto(true)} sectionName={'Photo'} />
                             ) : (
                                 <div className="flex flex-col left-0 justify-start items-start">

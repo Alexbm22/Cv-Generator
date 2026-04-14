@@ -8,6 +8,11 @@ export interface Language {
     level: ProficiencyLanguageLevel | null
 } 
 
+export interface Section {
+    id: string,
+    isVisible: boolean
+}
+
 export interface Skill {
     id: string,
     name: string,
@@ -95,7 +100,6 @@ export interface CVContentAttributes {
     education: Education[],
     projects: Project[],
     customSections: CustomSection,
-    sectionsOrder: string[];
 }
 
 
@@ -115,7 +119,7 @@ export interface PublicCVContentAttributes {
     education: Education[],
     projects: Project[],
     customSections: CustomSection,
-    sectionsOrder: string[];
+    sectionsOrder: Section[];
 }
 
 export interface PublicCVMetadataAttributes {
@@ -139,6 +143,7 @@ export interface ServerCVAttributes {
     jobTitle: string;
     title: string,
     template: CVTemplates;
+    sectionsOrder: Section[];
     encryptedContent: string
     content: CVContentAttributes,
     createdAt: Date,

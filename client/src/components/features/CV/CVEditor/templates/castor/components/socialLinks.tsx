@@ -5,8 +5,7 @@ import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 50,
-        marginBottom: 50,
+        marginBottom: 36,
         width: '100%',
         gap: 8,
     },
@@ -25,7 +24,7 @@ const styles = StyleSheet.create({
     },
     LinkSrc: {
         fontSize: 12,
-        textDecoration: 'none',
+        textDecoration: 'underline',
         color: 'white'
     }
 })

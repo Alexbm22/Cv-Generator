@@ -6,7 +6,6 @@ import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { WorkExperience } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
-import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     work: WorkExperience
@@ -73,23 +72,18 @@ const WorkExperienceMain: React.FC = () => {
     const removeWorkExperience = useCvEditStore((state) => state.removeWorkExperience);
 
     return (
-        <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">{workExperienceConstants.title}</h2>
-            <p className="text-sm text-gray-500 mb-4">{workExperienceConstants.description}</p>
-            <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
-                {
-                    workExperience.map((work) => (
-                        <div key={work.id} >
-                            <Collapsable 
-                                title={work.jobTitle ? work.jobTitle : "Untitled"} 
-                                children={<WorkExperienceComponent work={work}/>} 
-                                onDelete={() => removeWorkExperience(work.id)}
-                            />
-                        </div>
-                    ))
-                }
-                <AddSectionButton onClick={() => addWorkExperience()} sectionName={'Work Experience'} />
-            </div>
+        <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
+            {
+                workExperience.map((work) => (
+                    <div key={work.id} >
+                        <Collapsable 
+                            title={work.jobTitle ? work.jobTitle : "Untitled"} 
+                            children={<WorkExperienceComponent work={work}/>} 
+                            onDelete={() => removeWorkExperience(work.id)}
+                        />
+                    </div>
+                ))
+            }
         </div>
     );
 }

@@ -73,6 +73,27 @@ export class MediaFilesServices {
 
     @handleServiceError('Failed to get public media file data')
     static async getPublicMediaFileData(
+        mediaFile: MediaFiles,
+        timeToLive: number = 5 * 60 * 1000
+    ): Promise<PublicMediaFilesAttributes> {
+        const expiresAt = Date.now() + timeToLive;
+
+        const mediaFileData = mediaFile.get();
+        const get_URL = await this.getMediaPresignedUrl(mediaFile, PresignedUrlType.GET, Math.floor(timeToLive / 1000));
+
+        return {
+            expiresAt,
+            is_active: mediaFileData.is_active,
+            id: mediaFileData.public_id,
+            owner_type: mediaFileData.owner_type,
+            type: mediaFileData.type,
+            file_name: mediaFileData.filename,  
+            get_URL
+        } as PublicMediaFilesAttributes;
+    }
+
+    @handleServiceError('Failed to get public media file data')
+    static async getPublicMediaFileDataById(
         mediaFilePublicId: string,
         timeToLive: number = 5 * 60 * 1000
     ): Promise<PublicMediaFilesAttributes> {

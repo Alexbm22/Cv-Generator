@@ -6,7 +6,6 @@ import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { Project } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
-import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     project: Project
@@ -74,23 +73,18 @@ const EducationMain:React.FC = () => {
     const removeProject = useCvEditStore((state) => state.removeProject);
 
     return (
-        <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">{projectsConstants.title}</h2>
-            <p className="text-sm text-gray-500 mb-4">{projectsConstants.description}</p>
-            <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
-                {
-                    projects.map((proj) => (
-                        <div key={proj.id} >
-                            <Collapsable
-                                title={proj.name ? proj.name : "Untitled"}
-                                children={<ProjectComponent project={proj} />}
-                                onDelete={() => removeProject(proj.id)}
-                            />
-                        </div>
-                    ))
-                }
-                <AddSectionButton onClick={() => addProject()} sectionName={'Project'} />
-            </div>
+        <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
+            {
+                projects.map((proj) => (
+                    <div key={proj.id} >
+                        <Collapsable
+                            title={proj.name ? proj.name : "Untitled"}
+                            children={<ProjectComponent project={proj} />}
+                            onDelete={() => removeProject(proj.id)}
+                        />
+                    </div>
+                ))
+            }
         </div>
     )
 }

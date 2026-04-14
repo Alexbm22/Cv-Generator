@@ -13,6 +13,7 @@ const mapPublicCVToServerCV = (
         template: cv.template,
         user_id: userId,
         photo_last_uploaded: cv.photo_last_uploaded,
+        sectionsOrder: cv.sectionsOrder,
         content: {
             professionalSummary: cv.professionalSummary,
             languages: cv.languages,
@@ -21,7 +22,6 @@ const mapPublicCVToServerCV = (
             education: cv.education,
             projects: cv.projects,
             customSections: cv.customSections,
-            sectionsOrder: cv.sectionsOrder,
             phoneNumber: cv.phoneNumber,
             firstName: cv.firstName,
             lastName: cv.lastName,
@@ -48,6 +48,7 @@ const mapServerCVToPublicCV = (
         template: cv.template,
         updatedAt: cv.updatedAt,
         createdAt: cv.createdAt,
+        sectionsOrder: cv.sectionsOrder,
         ...cv.content,
     };
 }

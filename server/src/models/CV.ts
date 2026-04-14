@@ -5,7 +5,8 @@ import {
     ServerCVAttributes, 
     CVContentAttributes, 
     CVTemplates,
-    CVCreationAttributes
+    CVCreationAttributes,
+    Section
 } from '../interfaces/cv';
 import { generateUUID } from '../utils/uuid';
 import { MediaFilesServices } from '@/services/mediaFiles';
@@ -20,6 +21,7 @@ class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements Serv
     public jobTitle!: string;
     public template!: CVTemplates;
     public content!: CVContentAttributes;
+    public sectionsOrder!: Section[];
     public encryptedContent!: string;
     public createdAt!: Date;
     public updatedAt!: Date;
@@ -71,11 +73,16 @@ CV.init({
     jobTitle: {
         type: DataTypes.STRING(255),
         allowNull: false,
-        defaultValue: 'Untitled'
+        defaultValue: ''
     },
     template: {
         type: DataTypes.ENUM(...Object.values(CVTemplates)),
         allowNull: false,
+    },
+    sectionsOrder: {
+        type: DataTypes.JSON,
+        allowNull: false,
+        defaultValue: []
     },
     content: {
         type: DataTypes.VIRTUAL,

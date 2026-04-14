@@ -6,7 +6,6 @@ import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { Education } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
-import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
 
 interface ComponentProps {
     education: Education
@@ -73,23 +72,18 @@ const EducationMain:React.FC = () => {
     const removeEducation = useCvEditStore((state) => state.removeEducation);
     
     return (
-        <div className="mt-5">
-            <h2 className="text-xl text-gray-600 font-bold">{educationConstants.title}</h2>
-            <p className="text-sm text-gray-500 mb-4">{educationConstants.description}</p>
-            <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
-                {
-                    education.map((edu) => (
-                        <div key={edu.id} >
-                            <Collapsable 
-                                title={edu.degree ? edu.degree : "Untitled"} 
-                                children={<EducationComponent education={edu}/>} 
-                                onDelete={() => removeEducation(edu.id)}
-                            />
-                        </div>
-                    ))
-                }
-                <AddSectionButton onClick={() => addEducation()} sectionName={'Education'} />
-            </div>
+        <div className="flex flex-col content-start gap-x-8 gap-y-4 mt-3">
+            {
+                education.map((edu) => (
+                    <div key={edu.id} >
+                        <Collapsable 
+                            title={edu.degree ? edu.degree : "Untitled"} 
+                            children={<EducationComponent education={edu}/>} 
+                            onDelete={() => removeEducation(edu.id)}
+                        />
+                    </div>
+                ))
+            }
         </div>
     )
 }

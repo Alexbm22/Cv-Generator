@@ -6,6 +6,11 @@ export interface Language {
     level: ProficiencyLanguageLevel | null
 } 
 
+export interface Section {
+    id: string,
+    isVisible: boolean
+}
+
 export interface Skill {
     id: string,
     name: string,
@@ -113,7 +118,7 @@ export interface CVEditStoreMetadataAttributes extends CVMetadataAttributes {
 }
 
 export interface CVContentAttributes {
-    sectionsOrder: string[];
+    sectionsOrder: Section[];
     professionalSummary: string,
     languages: Language[],
     skills: Skill[],
@@ -138,7 +143,6 @@ export interface CVEditStoreMetadataActions {
     setTemplate: (template: CVTemplates) => void;
     setTitle: (title: string) => void;
     setJobTitle: (jobTitle: string) => void;
-    setSectionsOrder: (sectionsOrder: string[]) => void;
     setGuestPhoto: (photoURL: string | null) => void;
     setGuestPreview: (previewURL: string | null) => void;
 }
@@ -170,6 +174,10 @@ export interface CVEditStoreContentActions {
     addCustomSectionAttributes: () => void;
     removeCustomSectionAttributes: (id: string) => void;
     updateCustomSectionAttributes: (id: string, customSection: Partial<CustomSectionAttributes>) => void;
+
+    setSectionsOrder: (sectionsOrder: Section[]) => void;
+    changeSectionVisibility: (id: string, isVisible: boolean) => void;
+    reorderSections: (activeId: string, overId: string) => void;
 }
 
 export interface CVEditStorePersonalInfoActions {

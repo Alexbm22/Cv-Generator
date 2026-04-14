@@ -8,7 +8,6 @@ import cvRepository from '../repositories/cv';
 import cvMapper from '../mappers/cv';
 import cvFactories from '../factories/cv';
 import { handleServiceError } from '../utils/serviceErrorHandler';
-import { PresignedUrlType } from "@/interfaces/mediaFiles";
 
 export class CVsService {
     @handleServiceError('Failed to create CVs')
@@ -19,7 +18,7 @@ export class CVsService {
         const serverCVs = publicCVs.map(cv => cvMapper.mapPublicCVToServerCV(cv, userId));
         const createdCVs = await cvRepository.createCVs(serverCVs);
 
-        const photoMediaFile = createdCVs.map(cv => cvFactories.createCVPhotoMediaFileObj(cv.get().id, cv.get().title, userId, 0));
+        const photoMediaFile = createdCVs.map(cv => cvFactories.createCVPhotoMediaFileObj(cv.get().id, cv.get().title, userId, true, 0));
         const createdPhotos = await MediaFilesServices.bulkCreate(photoMediaFile);
 
         const previewMediaFile = createdCVs.map(cv => cvFactories.createCVPreviewMediaFileObj(cv.get().id, cv.get().title, userId, 0));
@@ -40,8 +39,8 @@ export class CVsService {
 
         return Promise.all(result.map(async (cv) => cvMapper.mapServerCVToPublicCV(
             cv.CVData.get(),  
-            await MediaFilesServices.getPublicMediaFileData(cv.CVPreview.get().public_id), 
-            await MediaFilesServices.getPublicMediaFileData(cv.CVPhoto.get().public_id),
+            await MediaFilesServices.getPublicMediaFileData(cv.CVPreview), 
+            await MediaFilesServices.getPublicMediaFileData(cv.CVPhoto),
         )))
     }
 
@@ -54,11 +53,11 @@ export class CVsService {
         let photo: MediaFiles;
         if(user.get('useProfilePictureAsDefault')) {
             photo = await MediaFilesServices.duplicateMediaFile(
-                cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId),
+                cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId, true),
                 (await MediaFilesServices.getUserProfilePicture(userId) as MediaFiles).get(),
             )
         } else {
-            photo = await MediaFilesServices.create(cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId, 0));
+            photo = await MediaFilesServices.create(cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId, false, 0));
         }
         const preview = await MediaFilesServices.create(cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title, userId, 0));
         return await this.getPublicCVData(cv, preview, photo);
@@ -153,8 +152,8 @@ export class CVsService {
     }
 
     static async getPublicCVData(cvData: CV, cvPreview: MediaFiles, cvPhoto: MediaFiles) {
-        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(cvPhoto.get().public_id);
-        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(cvPreview.get().public_id);
+        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(cvPhoto);
+        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(cvPreview);
         
         return cvMapper.mapServerCVToPublicCV(cvData.get(), publicPhotoData, publicPreviewData);
     }
@@ -172,8 +171,8 @@ export class CVsService {
     }
 
     static async getCVMetadata(cv: ServerCVAttributes, preview: MediaFiles, photo: MediaFiles): Promise<PublicCVMetadataAttributes> {
-        const publicPreview = await MediaFilesServices.getPublicMediaFileData(preview.get().public_id);
-        const publicPhoto = await MediaFilesServices.getPublicMediaFileData(photo.get().public_id);
+        const publicPreview = await MediaFilesServices.getPublicMediaFileData(preview);
+        const publicPhoto = await MediaFilesServices.getPublicMediaFileData(photo);
 
         return cvMapper.mapServerCVToPublicCVMetadata(cv, publicPhoto, publicPreview);
     }

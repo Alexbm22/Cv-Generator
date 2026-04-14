@@ -13,6 +13,7 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
     // Initialize the Collapsable component as closed by default
     const [height, setHeight] = useState('0px'); 
     const [isOpen, setIsOpen] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
     useEffect(()=>{
         if (containerRef.current) {
@@ -21,7 +22,7 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
 
         const handleResize = () => {
             if (containerRef.current) {
-                setHeight(isOpen? `${containerRef.current.scrollHeight}px` : '0px');
+                setHeight(isOpen? `fit-content` : '0px');
             }
         }
 
@@ -33,11 +34,11 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
     },[isOpen])
 
     return (
-        <div className="border rounded-lg p-5 pt-0 border-gray-300 font-sans shadow-sm" >
+        <div className="border rounded-lg p-5 pt-0 border-gray-300 font-sans shadow-sm" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <div className="flex items-center pt-5 justify-between col-span-2 cursor-pointer"  onClick={() => setIsOpen(!isOpen)}>
                 <span className="text-lg font-medium text-gray-700">{title}</span>
                 <div className="flex gap-x-4">
-                    {onDelete && <button onClick={onDelete} className="cursor-pointer">
+                    {onDelete && <button onClick={onDelete} className={`cursor-pointer transition-opacity duration-400 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
                         <Trash2 className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" />
                     </button>}
                     <button><span 
@@ -46,7 +47,7 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
                     >▼</span></button>
                 </div>
             </div>
-            <div ref={containerRef} style={{ height }} className={`h-fit overflow-hidden transition-all duration-500 ease-in-out`}>
+            <div ref={containerRef} style={{height}} className={`overflow-hidden transition-all duration-500 ease-in-out`}>
                 {children}
             </div>
         </div>

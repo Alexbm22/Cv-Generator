@@ -28,5 +28,4 @@ export const createMetadataSlice = (set: {
     setJobTitle: (jobTitle) => set({ jobTitle }),
     setTemplate: (template) => set({ template }),
     setTitle: (title) => set({ title }),
-    setSectionsOrder: (sectionsOrder) => set({ sectionsOrder }),
 })

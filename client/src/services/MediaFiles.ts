@@ -15,7 +15,9 @@ export const uploadImage = async (blobObj: Blob, mediaFile: MediaFilesAttributes
         })
 
         // Mark media file as active after successful upload
-        await markMediaFileActiveStatus(mediaFile.id, true);
+        if(!mediaFile.is_active) {
+            await markMediaFileActiveStatus(mediaFile.id, true);
+        }
     } catch (error) {
         console.error("Error uploading image:", error);
         throw error;
@@ -33,7 +35,6 @@ export const fetchFile = async (url: string) => {
 export const deleteImage = async (mediaFile: MediaFilesAttributes) => {
     try {
         await apiService.delete(`${apiBaseUrl}/${mediaFile.id}`);
-        await markMediaFileActiveStatus(mediaFile.id, false);
     } catch (error) {
         return false;
     }
