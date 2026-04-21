@@ -14,8 +14,8 @@ export const createMetadataSlice = (set: {
     template: DEFAULT_CV_EDITOR_STATE.template,
     updatedAt: DEFAULT_CV_EDITOR_STATE.updatedAt,
     createdAt: DEFAULT_CV_EDITOR_STATE.createdAt,
-    UserPhoto: DEFAULT_CV_EDITOR_STATE.UserPhoto,
-    UserPreview: DEFAULT_CV_EDITOR_STATE.UserPreview,
+    UserPhotoId: DEFAULT_CV_EDITOR_STATE.UserPhoto || '',
+    UserPreviewId: DEFAULT_CV_EDITOR_STATE.UserPreview || '',
     GuestPhoto: DEFAULT_CV_EDITOR_STATE.GuestPhoto,
     GuestPreview: DEFAULT_CV_EDITOR_STATE.GuestPreview,
 

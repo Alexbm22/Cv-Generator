@@ -93,7 +93,7 @@ export class UserService {
         return {
             username: userData.username,
             email: userData.email,
-            profilePicture: userData.profilePicture,
+            profilePictureId: userData.profilePictureId,
             activeCVs,
             totalDownloads,
             memberSince: user.get()?.createdAt ? user.get().createdAt!.toDateString() : '',

@@ -47,7 +47,7 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isSelectingPhoto, selectedPhoto]);
+    }, [isSelectingPhoto, selectedPhoto, handleCancel]);
 
     return (
         <div className="flex-1 h-full z-2" ref={photoEditorRef}>
@@ -81,8 +81,7 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
                                     </Button>
                                     <Button
                                         onClick={async () => {
-                                            setSelectedPhoto(null)
-                                            console.log('deleting photo')
+                                            setSelectedPhoto(null);
                                             await handleCVPhotoDelete();
                                         }}
                                         buttonStyle={ButtonStyles.danger}

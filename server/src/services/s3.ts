@@ -148,7 +148,7 @@ class S3Service {
 
             const command = new GetObjectCommand(params);
 
-            const url = await getSignedUrl(this.s3Client, command, { expiresIn });
+            const url = await getSignedUrl(this.s3Client, command, { expiresIn: expiresIn });
             const expiresAt = new Date(Date.now() + expiresIn * 1000).getTime();
 
             return {
@@ -181,7 +181,7 @@ class S3Service {
 
             const command = new PutObjectCommand(params);
 
-            const url = await getSignedUrl(this.s3Client, command, { expiresIn });
+            const url = await getSignedUrl(this.s3Client, command, { expiresIn: expiresIn });
             const expiresAt = new Date(Date.now() + expiresIn * 1000).getTime();
 
             return {
@@ -214,7 +214,7 @@ class S3Service {
 
             const command = new DeleteObjectCommand(params);
 
-            const url = await getSignedUrl(this.s3Client, command, { expiresIn });
+            const url = await getSignedUrl(this.s3Client, command, { expiresIn: expiresIn });
             const expiresAt = new Date(Date.now() + expiresIn * 1000).getTime();
 
             return {

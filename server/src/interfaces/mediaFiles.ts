@@ -28,6 +28,7 @@ export interface PublicMediaFilesAttributes {
     expiresAt: number;
     is_active: boolean;
     get_URL: string | null;
+    put_URL: string | null;
 }
 
 export enum MimeType {
@@ -57,8 +58,4 @@ export enum OwnerType {
     USER = 'USER'
 }
 
-export enum PresignedUrlType {
-    GET = 'get',
-    PUT = 'put',
-    DELETE = 'delete'
-}
+export  type PresignedUrlType = 'GET' | 'PUT' | 'DELETE';

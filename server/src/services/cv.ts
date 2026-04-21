@@ -39,8 +39,8 @@ export class CVsService {
 
         return Promise.all(result.map(async (cv) => cvMapper.mapServerCVToPublicCV(
             cv.CVData.get(),  
-            await MediaFilesServices.getPublicMediaFileData(cv.CVPreview), 
-            await MediaFilesServices.getPublicMediaFileData(cv.CVPhoto),
+            cv.CVPreview.get('public_id'), 
+            cv.CVPhoto.get('public_id'),
         )))
     }
 
@@ -60,7 +60,7 @@ export class CVsService {
             photo = await MediaFilesServices.create(cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, userId, false, 0));
         }
         const preview = await MediaFilesServices.create(cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title, userId, 0));
-        return await this.getPublicCVData(cv, preview, photo);
+        return cvMapper.mapServerCVToPublicCV(cv.get(), photo.get('public_id'), preview.get('public_id'));
     }
     
     @handleServiceError('CV syncing failed')
@@ -108,7 +108,8 @@ export class CVsService {
             cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title, CVAttributes.user_id),
             CVPreviewMedia.get(),
         )
-        return await this.getPublicCVData(cv, preview, photo);
+        
+        return cvMapper.mapServerCVToPublicCV(cv.get(), photo.get('public_id'), preview.get('public_id'));
     }
 
     @handleServiceError('CV deletion failed')
@@ -143,19 +144,7 @@ export class CVsService {
         }
 
         const cvWithMediaFiles = cvMapper.extractCVMediaFiles(cv);
-        
-        return await this.getPublicCVData(
-            cvWithMediaFiles.CVData,
-            cvWithMediaFiles.CVPreview,
-            cvWithMediaFiles.CVPhoto
-        );
-    }
-
-    static async getPublicCVData(cvData: CV, cvPreview: MediaFiles, cvPhoto: MediaFiles) {
-        const publicPhotoData = await MediaFilesServices.getPublicMediaFileData(cvPhoto);
-        const publicPreviewData = await MediaFilesServices.getPublicMediaFileData(cvPreview);
-        
-        return cvMapper.mapServerCVToPublicCV(cvData.get(), publicPhotoData, publicPreviewData);
+        return cvMapper.mapServerCVToPublicCV(cvWithMediaFiles.CVData.get(), cvWithMediaFiles.CVPhoto.get('public_id'), cvWithMediaFiles.CVPreview.get('public_id'));
     }
     
     @handleServiceError('CVs metadata fetch failed')
@@ -164,17 +153,10 @@ export class CVsService {
         
         const cvWithMediaFiles = cvs.map(cv => cvMapper.extractCVMediaFiles(cv));
         const cvsMetaData = cvWithMediaFiles.map((cv) => 
-            CVsService.getCVMetadata(cv.CVData.get(), cv.CVPreview, cv.CVPhoto)
+            cvMapper.mapServerCVToPublicCVMetadata(cv.CVData.get(), cv.CVPhoto.get('public_id'), cv.CVPreview.get('public_id'))
         )
 
         return Promise.all(cvsMetaData);
-    }
-
-    static async getCVMetadata(cv: ServerCVAttributes, preview: MediaFiles, photo: MediaFiles): Promise<PublicCVMetadataAttributes> {
-        const publicPreview = await MediaFilesServices.getPublicMediaFileData(preview);
-        const publicPhoto = await MediaFilesServices.getPublicMediaFileData(photo);
-
-        return cvMapper.mapServerCVToPublicCVMetadata(cv, publicPhoto, publicPreview);
     }
 
     static async deleteUserCVs(user_id: number) {

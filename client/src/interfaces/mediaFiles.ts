@@ -5,9 +5,12 @@ export interface MediaFilesAttributes {
     file_name: string;
     type: MediaTypes;
     expiresAt: number;
-    get_URL: string;
+    get_URL: string | null;
+    put_URL: string | null;
     is_active: boolean;
 }
+
+export type Url = 'get' | 'put' | 'delete';
 
 export enum MediaTypes {
     CV_PHOTO = 'cv_photo',

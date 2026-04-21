@@ -9,13 +9,13 @@ import { MediaFiles, User } from '@/models';
 export interface UserAccountData {
     username: string;
     email: string;
-    profilePicture?: string | null;
+    profilePictureId?: string;
 }
 
 export interface UserAccountDetails {
     username: string;
     email: string;
-    profilePicture?: string | PublicMediaFilesAttributes | undefined;
+    profilePictureId?: string;
     activeCVs: number;
     totalDownloads: number;
     memberSince: string;
@@ -47,7 +47,7 @@ export interface PublicUserAttributes {
     id: string;
     username: string;
     email: string;
-    profilePicture?: PublicMediaFilesAttributes;
+    profilePictureId?: string;
     needsInitialSync: boolean;
     authProvider: AuthProvider;
     useProfilePictureAsDefault: boolean;

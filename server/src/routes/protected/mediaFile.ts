@@ -23,6 +23,12 @@ router.get(
     catchAsync(MediaFilesController.getMediaFilePutUrl)
 )
 
+router.get(
+    '/:id/get_url',
+    RateLimitInstance.CVsRateLimit(),
+    catchAsync(MediaFilesController.getMediaFileGetUrl)
+)
+
 router.patch(
     '/:id/active',
     RateLimitInstance.CVsRateLimit(),

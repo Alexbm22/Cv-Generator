@@ -1,14 +1,13 @@
 import { PaymentAttributes } from "./payments";
 import { SubscriptionAttributes } from "./subscription";
 import { GuestCVAttributes, UserCVAttributes } from "./cv";
-import { MediaFilesAttributes } from "./mediaFiles";
 import { AuthProvider } from "./auth";
 
 export interface UserAttributes {
     id: string;
     username: string;
     email: string;
-    profilePicture?: MediaFilesAttributes | null;
+    profilePictureId?: string;
     needsInitialSync: boolean;
     authProvider: AuthProvider | null;
     useProfilePictureAsDefault: boolean;
@@ -17,7 +16,7 @@ export interface UserAttributes {
 export interface UserAccountDetails {
     username: string;
     email: string;
-    profilePicture?: MediaFilesAttributes | null;
+    profilePictureId?: string;
     activeCVs: number;
     totalDownloads: number;
     memberSince: string;

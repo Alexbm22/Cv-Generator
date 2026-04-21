@@ -6,7 +6,7 @@ import { CreditsService } from "./credits";
 import S3Service from "./s3";
 import { config } from "../config/env";
 import { MediaFilesServices } from "./mediaFiles";
-import { MimeType, MediaType, OwnerType, PresignedUrlType } from "@/interfaces/mediaFiles";
+import { MimeType, MediaType, OwnerType } from "@/interfaces/mediaFiles";
 import { CVsService } from "./cv";
 import { downloadRepository } from "@/repositories";
 import { SubscriptionService } from "./subscriptions";
@@ -102,7 +102,8 @@ export class DownloadsService {
             jobTitle: cvRawData.jobTitle,
             title: cvRawData.title,
             template: cvRawData.template,
-            content: cvRawData.content
+            content: cvRawData.content,
+            sectionsOrder: cvRawData.sectionsOrder
         };
 
         // Deduct credit/check subscription early to avoid wasted processing
@@ -304,6 +305,7 @@ export class DownloadsService {
             jobTitle: cvData.jobTitle,
             title: cvData.title,
             template: cvData.template,
+            sectionsOrder: cvData.sectionsOrder,
             content: {
                 firstName: cvData.firstName,
                 lastName: cvData.lastName,
@@ -319,7 +321,6 @@ export class DownloadsService {
                 education: cvData.education,
                 projects: cvData.projects,
                 customSections: cvData.customSections,
-                sectionsOrder: cvData.sectionsOrder
             }
         };
 

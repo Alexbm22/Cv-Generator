@@ -25,8 +25,8 @@ export const createStoreActionsSlice = (set: {
 
         const UserCVObj = {
             ...CVStoreObj,
-            photo: store.UserPhoto,
-            preview: store.UserPreview
+            photoId: store.UserPhotoId,
+            previewId: store.UserPreviewId
         };
 
         return UserCVObj;
@@ -36,16 +36,16 @@ export const createStoreActionsSlice = (set: {
 
         const CVObj = Object.fromEntries(
             Object.entries(CV).filter(([key]) => 
-                !((key === 'photo') || (key === 'preview')) 
+                !((key === 'photoId') || (key === 'previewId')) 
             )
         ) as Omit<UserCVAttributes, 
-            'preview' | 'photo'
+            'previewId' | 'photoId'
         >
 
         const CVStoreObj = {
             ...CVObj,
-            UserPhoto: CV.photo,
-            UserPreview: CV.preview
+            UserPhotoId: CV.photoId,
+            UserPreviewId: CV.previewId
         } as CVEditStoreObjectAttributes
 
 

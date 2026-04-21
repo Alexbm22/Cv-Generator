@@ -1,17 +1,16 @@
 import { useCvEditStore, useCVsStore } from "../../../../../Store";
-import { deleteImage, getMediaFileById, markMediaFileActiveStatus, uploadImage } from "../../../../../services/MediaFiles";
 import { CVStateMode } from "../../../../../interfaces/cv";
 import { blobToBase64 } from "../../../../../utils/blob";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { isUrlValid } from "../../../../../utils/urls";
+import { useCallback, useEffect, useState } from "react";
+import { useMediaFileQuery } from "../../../../../hooks/MediaFile/useMediaFileQuery";
+import { useMediaFile } from "../../../../../hooks/MediaFile/useMediaFile";
 const DEFAULT_PHOTO = "/Images/anonymous_Picture.png";
 
 export const useCVPhotoState = () => {
 
     const CVState = useCVsStore(state => state.CVState);
 
-    const UserCVPhoto = useCvEditStore((state) => state.UserPhoto);
+    const UserCVPhotoId = useCvEditStore((state) => state.UserPhotoId);
     const GuestCVPhoto = useCvEditStore((state) => state.GuestPhoto);
     const setGuestPhoto = useCvEditStore((state) => state.setGuestPhoto);
 
@@ -20,63 +19,52 @@ export const useCVPhotoState = () => {
 
     const isUser = CVState.mode === CVStateMode.USER;
 
-    const { data: cvPhotoData, isLoading: isLoadingPhotoUrl, refetch } = useQuery({
-        queryKey: ['mediaFile', UserCVPhoto?.id],
-        queryFn: () => getMediaFileById(UserCVPhoto!.id),
-        enabled: isUser && !!UserCVPhoto?.id,
-        staleTime: 60 * 1000 * 5,
-    });
+    const { data: cvPhotoData, isLoading: isLoadingPhotoUrl, refetch } = useMediaFileQuery(UserCVPhotoId!, isUser);
+    const { getMediaFileGetUrl, uploadMediaFile, deleteMediaFileImage } = useMediaFile(cvPhotoData, refetch);
+
+    const fetchPhotoUrl = useCallback(async () => {
+        if (isUser) {
+            const url = await getMediaFileGetUrl();
+            setCvPhotoBlobUrl(url ?? DEFAULT_PHOTO);
+            setIsActive(!!url);
+        } else {
+            setCvPhotoBlobUrl(GuestCVPhoto ?? DEFAULT_PHOTO);
+            setIsActive(!!GuestCVPhoto);
+        }
+    }, [isUser, GuestCVPhoto, getMediaFileGetUrl]);
 
     useEffect(() => {
-        if(isUser && cvPhotoData?.is_active) {
-            isUrlValid(cvPhotoData.get_URL).then(valid => {
-                setCvPhotoBlobUrl(valid ? cvPhotoData.get_URL : DEFAULT_PHOTO);
-                setIsActive(valid);
-            })
-        }
-        else {
-            if(isUser) {
-                setCvPhotoBlobUrl(DEFAULT_PHOTO);
-                setIsActive(false);
-            }
-            else {
-                setCvPhotoBlobUrl(GuestCVPhoto ?? DEFAULT_PHOTO);
-                setIsActive(!!GuestCVPhoto);
-            }
-        }
-    }, [isUser, cvPhotoData, GuestCVPhoto]);
+        fetchPhotoUrl();
+    }, [fetchPhotoUrl]);
 
-    const handleUserCropSuccess = async (cropResult: Blob) => {
+    const handleUserCropSuccess = useCallback(async (cropResult: Blob) => {
         try {
-            await uploadImage(cropResult, UserCVPhoto!);
-            await markMediaFileActiveStatus(UserCVPhoto!.id, true);
-            await refetch();
+            await uploadMediaFile(cropResult);
         } catch (error) {
             await refetch();
             throw error;
         }
-    }
+    }, [uploadMediaFile, refetch]);
 
-    const handleGuestCropSuccess = async (cropResult: Blob) => {
+    const handleGuestCropSuccess = useCallback(async (cropResult: Blob) => {
         const base64Image = await blobToBase64(cropResult);
         setGuestPhoto(base64Image);
-    }
+    }, [setGuestPhoto]);
 
     const handleCropSuccess = isUser ? handleUserCropSuccess : handleGuestCropSuccess;
 
-    const handleUserPhotoDelete = async () => {
+    const handleUserPhotoDelete = useCallback(async () => {
         try {
-            await deleteImage(UserCVPhoto!);
-            await refetch();
+            await deleteMediaFileImage();
         } catch (error) {
             await refetch();
             throw error;
         }
-    }
+    }, [deleteMediaFileImage, refetch]);
 
-    const handleGuestPhotoDelete = async () => {
+    const handleGuestPhotoDelete = useCallback(async () => {
         setGuestPhoto(null);
-    }
+    }, [setGuestPhoto]);
 
     const handleCVPhotoDelete = isUser ? handleUserPhotoDelete : handleGuestPhotoDelete;
 

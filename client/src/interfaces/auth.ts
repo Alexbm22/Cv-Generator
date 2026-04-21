@@ -1,6 +1,5 @@
 import { CredentialResponse } from "@react-oauth/google";
 import { UserAttributes } from "./user";
-import { MediaFilesAttributes } from "./mediaFiles";
 
 export interface loginDto {
     email: string;
@@ -32,7 +31,7 @@ export interface AuthStoreAttributes {
     id: string | null;
     username: string | null;
     email: string | null;
-    profilePicture: MediaFilesAttributes | null;
+    profilePictureId: string | null;
     needsInitialSync: boolean;
     authProvider: AuthProvider | null;
 
@@ -51,7 +50,7 @@ export interface AuthStoreActions {
     setToken: (token: TokenClientData) => void,
     isTokenExpired: () => boolean,
     handleAuthSuccess: (authData: AuthResponse) => void;
-    setProfilePicture: (profilePicture: MediaFilesAttributes) => void;
+    setProfilePictureId: (profilePictureId: string) => void;
 }
 
 export interface AuthStore extends AuthStoreActions, AuthStoreAttributes {}

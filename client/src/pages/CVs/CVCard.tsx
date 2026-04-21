@@ -15,6 +15,9 @@ type CVCardProps = {
 
 const CVCard: React.FC<CVCardProps> = ({ CV }) => {
     // Early return with proper JSX
+    
+    const navigate = useNavigate();
+    
     if (!CV.id) {
         return (
             <div className="group flex flex-col gap-3 p-3 items-center bg-gray-100 
@@ -24,9 +27,7 @@ const CVCard: React.FC<CVCardProps> = ({ CV }) => {
             </div>
         );
     }
-
-    const navigate = useNavigate();
-
+    
     const handleEditClick = () => {
         navigate(routes.editResume.path.replace(/:id$/, CV.id ?? ""));
     };
