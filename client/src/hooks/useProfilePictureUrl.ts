@@ -1,44 +1,40 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthStore } from "../Store";
-import { isUrlValid } from "../utils/urls";
+import { useMediaFileQuery } from "./MediaFile/useMediaFileQuery";
+import { useMediaFile } from "./MediaFile/useMediaFile";
 
 const DEFAULT_PICTURE = "/Images/anonymous_Picture.png";
 
-const useProfilePictureUrl = () => {    
-    const profilePicture = useAuthStore(state => state.profilePicture);
+const useProfilePictureUrl = () => {
+    const profilePictureId = useAuthStore(state => state.profilePictureId);
     const [profilePictureUrl, setProfilePictureUrl] = useState(DEFAULT_PICTURE);
     const [isProfilePictureValid, setIsProfilePictureValid] = useState(false);
 
-    useEffect(() => {
-        const url = profilePicture?.is_active ? profilePicture.get_URL : null;
+    const { data: profilePicture, refetch } = useMediaFileQuery(profilePictureId!);
+    const { getMediaFileGetUrl } = useMediaFile(profilePicture, refetch);
 
-        if (!url) {
-            setProfilePictureUrl(DEFAULT_PICTURE);
-            setIsProfilePictureValid(false);
-            return;
-        }
-
-        let cancelled = false;
-
-        isUrlValid(url).then((isValid) => {
-            if (cancelled) return;
-            if (isValid) {
-                setProfilePictureUrl(url);
-                setIsProfilePictureValid(true);
-            } else {
-                console.warn(`Profile picture URL is not accessible: ${url}`);
+    const fetchProfilePictureUrl = useCallback(async () => {
+        if (profilePicture) {
+            try {
+                const url = await getMediaFileGetUrl();
+                setProfilePictureUrl(url ?? DEFAULT_PICTURE);
+                setIsProfilePictureValid(!!url);
+            } catch {
                 setProfilePictureUrl(DEFAULT_PICTURE);
                 setIsProfilePictureValid(false);
             }
-        });
+        }
+    }, [profilePicture, getMediaFileGetUrl]);
 
-        return () => { cancelled = true; };
-    }, [profilePicture?.get_URL, profilePicture?.is_active]);
 
-  return {
-    profilePictureUrl,
-    isProfilePictureValid,
-  }
+    useEffect(() => {
+        void fetchProfilePictureUrl();
+    }, [fetchProfilePictureUrl]);
+
+    return {
+        profilePictureUrl,
+        isProfilePictureValid,
+    };
 };
 
 export default useProfilePictureUrl;

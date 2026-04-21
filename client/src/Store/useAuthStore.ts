@@ -9,7 +9,7 @@ export const useAuthStore = create<AuthStore>()(
         id: null,
         username: null,
         email: null,
-        profilePicture: null,
+        profilePictureId: null,
         needsInitialSync: false,
         authProvider: null,
 
@@ -25,7 +25,7 @@ export const useAuthStore = create<AuthStore>()(
                 id: null,
                 username: null,
                 email: null,
-                profilePicture: null,
+                profilePictureId: null,
                 needsInitialSync: false,
                 authProvider: null,
                 isAuthenticated: false, 
@@ -34,8 +34,8 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         getAuthenticatedUser: () => {
-            const { id, username, email, profilePicture, needsInitialSync, authProvider } = get();
-            return { id, username, email, profilePicture, needsInitialSync, authProvider } as UserAttributes;
+            const { id, username, email, profilePictureId, needsInitialSync, authProvider } = get();
+            return { id, username, email, profilePictureId, needsInitialSync, authProvider } as UserAttributes;
         },
 
         setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
@@ -44,7 +44,7 @@ export const useAuthStore = create<AuthStore>()(
             id: userData.id,
             username: userData.username,
             email: userData.email,
-            profilePicture: userData.profilePicture,
+            profilePictureId: userData.profilePictureId,
             needsInitialSync: userData.needsInitialSync,
             authProvider: userData.authProvider
         }),
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthStore>()(
                     id: authData.user?.id,
                     username: authData.user?.username,
                     email: authData.user?.email,
-                    profilePicture: authData.user?.profilePicture,
+                    profilePictureId: authData.user?.profilePictureId,
                     needsInitialSync: authData.user?.needsInitialSync ?? false,
                     authProvider: authData.user?.authProvider ?? null,
                 })
@@ -71,7 +71,7 @@ export const useAuthStore = create<AuthStore>()(
 
         setToken: (token: TokenClientData) => set({ tokenData: token }),
 
-        setProfilePicture: (profilePicture) => set({ profilePicture }),
+        setProfilePictureId: (profilePictureId) => set({ profilePictureId }),
 
         isTokenExpired: () => {
             const { tokenData } = get();

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useAuthStore } from '../Store';
-import { uploadImage, getMediaFileById } from '../services/MediaFiles';
-import { MediaFilesAttributes } from '../interfaces/mediaFiles';
+import { useMediaFileQuery } from './MediaFile/useMediaFileQuery';
+import { useMediaFile } from './MediaFile/useMediaFile';
 
 export type DialogStep = 'select' | 'crop' | 'saving';
 
@@ -27,8 +27,10 @@ export const useProfilePhotoEditor = (): UseProfilePhotoEditorReturn => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const profilePicture = useAuthStore((state) => state.profilePicture);
-  const setProfilePicture = useAuthStore((state) => state.setProfilePicture);
+  const profilePictureId = useAuthStore((state) => state.profilePictureId);
+
+  const { data: profilePicture, refetch } = useMediaFileQuery(profilePictureId!);
+  const { uploadMediaFile} = useMediaFile(profilePicture, refetch);
 
   const resetDialogState = useCallback(() => {
     setCurrentStep('select');
@@ -54,8 +56,8 @@ export const useProfilePhotoEditor = (): UseProfilePhotoEditorReturn => {
   }, []);
 
   const handleSave = useCallback(async (imageBlob: Blob) => {
-    if (!profilePicture?.id) {
-      setError('Profile picture configuration not found');
+    if (!profilePictureId) {
+      setError('Profile picture not found');
       return;
     }
 
@@ -64,10 +66,10 @@ export const useProfilePhotoEditor = (): UseProfilePhotoEditorReturn => {
     setError(null);
 
     try {
-      await uploadImage(imageBlob, profilePicture as MediaFilesAttributes);
-      const freshMediaFile = await getMediaFileById(profilePicture.id);
-      setProfilePicture(freshMediaFile);
-      closeDialog();
+      if (profilePicture) {
+        await uploadMediaFile(imageBlob);
+        closeDialog();
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save profile picture';
       setError(errorMessage);
@@ -75,7 +77,7 @@ export const useProfilePhotoEditor = (): UseProfilePhotoEditorReturn => {
     } finally {
       setIsProcessing(false);
     }
-  }, [profilePicture, closeDialog]);
+  }, [profilePictureId, closeDialog, profilePicture, uploadMediaFile]);
 
   return {
     isDialogOpen,

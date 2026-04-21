@@ -1,5 +1,3 @@
-import { MediaFilesAttributes } from "./mediaFiles"
-
 export interface Language {
     id: string,
     name: string,
@@ -83,7 +81,7 @@ export enum CVTemplates {
     CASTOR = 'castor',
 }
 
-export type ModifiedCVAttributes = Omit<UserCVAttributes, 'photo' | 'preview' > & {
+export type ModifiedCVAttributes = Omit<UserCVAttributes, 'photoId' | 'previewId' > & {
   photo: string;
 };
 
@@ -101,8 +99,8 @@ export interface CVMetadataAttributes {
 }
 
 export interface UserCVMetadataAttributes extends CVMetadataAttributes {
-    photo?: MediaFilesAttributes;
-    preview?: MediaFilesAttributes;
+    photoId: string;
+    previewId: string;
 }
 
 export interface GuestCVMetadataAttributes extends CVMetadataAttributes {
@@ -111,8 +109,8 @@ export interface GuestCVMetadataAttributes extends CVMetadataAttributes {
 }
 
 export interface CVEditStoreMetadataAttributes extends CVMetadataAttributes {
-    UserPreview?: MediaFilesAttributes;
-    UserPhoto?: MediaFilesAttributes;
+    UserPreviewId: string;
+    UserPhotoId: string;
     GuestPreview: string | null;
     GuestPhoto: string | null;
 }

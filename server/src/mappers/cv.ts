@@ -35,12 +35,12 @@ const mapPublicCVToServerCV = (
     
 const mapServerCVToPublicCV = (
     cv: ServerCVAttributes, 
-    photo: PublicMediaFilesAttributes,
-    preview: PublicMediaFilesAttributes
+    photoId: string,
+    previewId: string
 ): PublicCVAttributes => {
     return {
-        photo,
-        preview,
+        photoId,
+        previewId,
         id: cv.public_id,
         title: cv.title,
         photo_last_uploaded: cv.photo_last_uploaded,
@@ -55,8 +55,8 @@ const mapServerCVToPublicCV = (
 
 const mapServerCVToPublicCVMetadata = (
     cv: ServerCVAttributes, 
-    photo: PublicMediaFilesAttributes,
-    preview: PublicMediaFilesAttributes
+    photoId: string,
+    previewId: string
 ): PublicCVMetadataAttributes => {
     return {
         id: cv.public_id,
@@ -65,8 +65,8 @@ const mapServerCVToPublicCVMetadata = (
         template: cv.template,
         createdAt: cv.createdAt,
         updatedAt: cv.updatedAt,
-        photo,
-        preview,
+        photoId,
+        previewId,
     }
 }
 

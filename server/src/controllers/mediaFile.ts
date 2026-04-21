@@ -38,6 +38,17 @@ export class MediaFilesController {
         }
     }
 
+    static async getMediaFileGetUrl(req: AuthRequest, res: Response, next: NextFunction) {
+        const mediaFilePublicId = req.params.id;
+
+        try {
+            const getUrl = await MediaFilesServices.getMediaFileGetUrl(mediaFilePublicId);
+            res.status(200).json(getUrl);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
     static async markMediaFileActiveStatus(req: AuthRequest, res: Response, next: NextFunction) {
         const mediaFilePublicId = req.params.id;
         const { is_active } = req.body;

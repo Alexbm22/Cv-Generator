@@ -5,7 +5,7 @@ import { CVServerService } from "./CVServer";
 import { debounce } from "lodash";
 import { getDefaultPhotoPath } from "../utils/cvDefaults";
 import { generatePdfBlob, pdfBlobToCanvas } from "./Pdf";
-import { uploadImage } from "./MediaFiles";
+import { getMediaFileById, uploadImage } from "./MediaFiles";
 
 export const autoSaveCV = () => {
     return debounce(async (api: StoreApi<CVEditStore>) => {
@@ -37,7 +37,7 @@ export const autoSaveCV = () => {
             updateGuestCV(updatedCV);
             setGuestSelectedCV(updatedCV);
         }
-    }, 4000);
+    }, 3000);
 }
 
 export const generateAndUploadCVPreview = async (
@@ -53,15 +53,16 @@ export const generateAndUploadCVPreview = async (
     const CVCanvas = await pdfBlobToCanvas(cvBlob);
 
     if (CVCanvas) {
+        const cvPreviewData = await getMediaFileById(cvData.previewId!);
         CVCanvas.toBlob(async (blob) => {
             if(!blob) return;
-            uploadImage(blob, cvData.preview!)
+            uploadImage(blob, cvPreviewData)
         }, "image/png")
     }
 };
 
 export const syncCVs = async (createdCVs: UserCVAttributes[]) => {
-    const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser);
+    const migrateGuestToUser = useCVsStore.getState().migrateGuestToUser;
     
     const cvsPromise = createdCVs.map(async (createdCV) => {
         const CVMetaData: UserCVMetadataAttributes = {
@@ -69,8 +70,8 @@ export const syncCVs = async (createdCVs: UserCVAttributes[]) => {
             jobTitle: createdCV.jobTitle,
             title:createdCV.title,
             template: createdCV.template,
-            photo: createdCV.photo,
-            preview: createdCV.preview,
+            photoId: createdCV.photoId,
+            previewId: createdCV.previewId,
             updatedAt: createdCV.updatedAt,
             createdAt: createdCV.createdAt
         }
@@ -92,7 +93,7 @@ export const getGuestCVs = () => {
 
     if(CVState.mode === CVStateMode.GUEST) {
         return CVState.cvs.map((cv) => {
-            const { photo, preview, ...rest } = cv; // scoatem câmpurile mari
+            const { photo, preview, ...rest } = cv;
             return rest;
         });
     }

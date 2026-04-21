@@ -126,8 +126,8 @@ export interface PublicCVMetadataAttributes {
     id: string;
     title: string;
     jobTitle: string;
-    preview?: PublicMediaFilesAttributes;
-    photo?: PublicMediaFilesAttributes;
+    previewId?: string;
+    photoId?: string;
     template: CVTemplates;
     createdAt: Date;
     updatedAt: Date;

@@ -19,7 +19,7 @@ type ComponentProps = {
   padding?: string 
 }
 
-const sections_mapping: Record<string, React.FC<{}>> = {
+const sections_mapping: Record<string, React.FC<{ }>> = {
     socialLinks: SocialLinks,
     skills: Skill,
     languages: Language,

@@ -74,12 +74,13 @@ export class MediaFilesServices {
     @handleServiceError('Failed to get public media file data')
     static async getPublicMediaFileData(
         mediaFile: MediaFiles,
-        timeToLive: number = 5 * 60 * 1000
+        timeToLive: number = 5 * 60
     ): Promise<PublicMediaFilesAttributes> {
-        const expiresAt = Date.now() + timeToLive;
+        const expiresAt = Date.now() + timeToLive * 1000;
 
         const mediaFileData = mediaFile.get();
-        const get_URL = await this.getMediaPresignedUrl(mediaFile, PresignedUrlType.GET, Math.floor(timeToLive / 1000));
+        const get_URL = await this.getMediaPresignedUrl(mediaFile, 'GET', Math.floor(timeToLive));
+        const put_URL = await this.getMediaPresignedUrl(mediaFile, 'PUT', Math.floor(timeToLive));
 
         return {
             expiresAt,
@@ -88,16 +89,17 @@ export class MediaFilesServices {
             owner_type: mediaFileData.owner_type,
             type: mediaFileData.type,
             file_name: mediaFileData.filename,  
-            get_URL
+            get_URL,
+            put_URL
         } as PublicMediaFilesAttributes;
     }
 
     @handleServiceError('Failed to get public media file data')
     static async getPublicMediaFileDataById(
         mediaFilePublicId: string,
-        timeToLive: number = 5 * 60 * 1000
+        timeToLive: number = 5 * 60
     ): Promise<PublicMediaFilesAttributes> {
-        const expiresAt = Date.now() + timeToLive;
+        const expiresAt = Date.now() + timeToLive * 1000;
 
         const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
         if(!mediaFile) {
@@ -109,7 +111,8 @@ export class MediaFilesServices {
         }
 
         const mediaFileData = mediaFile.get();
-        const get_URL = await this.getMediaPresignedUrl(mediaFile, PresignedUrlType.GET, Math.floor(timeToLive / 1000));
+        const get_URL = await this.getMediaPresignedUrl(mediaFile, 'GET', Math.floor(timeToLive));
+        const put_URL = await this.getMediaPresignedUrl(mediaFile, 'PUT', Math.floor(timeToLive));
 
         const result: PublicMediaFilesAttributes = {
             expiresAt,
@@ -118,7 +121,8 @@ export class MediaFilesServices {
             owner_type: mediaFileData.owner_type,
             type: mediaFileData.type,
             file_name: mediaFileData.filename,  
-            get_URL
+            get_URL,
+            put_URL
         };
 
         return result;
@@ -164,7 +168,7 @@ export class MediaFilesServices {
             throw new AppError('Media file not found', 404, ErrorTypes.NOT_FOUND);
         }
         
-        if(mediaFile.get().is_active === false && urlType == PresignedUrlType.GET) {
+        if(mediaFile.get().is_active === false && urlType == 'GET') {
             return null;
         }
 
@@ -174,13 +178,13 @@ export class MediaFilesServices {
         let presignedUrl;
 
         switch (urlType) {
-            case PresignedUrlType.GET:
+            case 'GET':
                 presignedUrl = await S3Service.generatePresignedGetUrl(s3Key, bucket, timeToLive);
                 break;
-            case PresignedUrlType.PUT:
+            case 'PUT':
                 presignedUrl = await S3Service.generatePresignedPutUrl(s3Key, bucket, timeToLive);
                 break;
-            case PresignedUrlType.DELETE:
+            case 'DELETE':
                 presignedUrl = await S3Service.generatePresignedDeleteUrl(s3Key, bucket, timeToLive);
                 break;
         }
@@ -208,7 +212,7 @@ export class MediaFilesServices {
     @handleServiceError('Failed to get media file PUT URL')
     static async getMediaFilePutUrl(
         mediaFilePublicId: string,
-        timeToLive: number = 5 * 60 * 1000
+        timeToLive: number = 5 * 60
     ) {
         const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
         if(!mediaFile) {
@@ -219,8 +223,26 @@ export class MediaFilesServices {
             );
         }
 
-        const putUrl = await this.getMediaPresignedUrl(mediaFile, PresignedUrlType.PUT, timeToLive);
+        const putUrl = await this.getMediaPresignedUrl(mediaFile, 'PUT', timeToLive);
         return { url: putUrl };
+    }
+
+    @handleServiceError('Failed to get media file GET URL')
+    static async getMediaFileGetUrl(
+        mediaFilePublicId: string,
+        timeToLive: number = 5 * 60
+    ) {
+        const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
+        if(!mediaFile) {
+            throw new AppError(
+                'Media file not found',
+                404,
+                ErrorTypes.NOT_FOUND
+            );
+        }
+
+        const getUrl = await this.getMediaPresignedUrl(mediaFile, 'GET', timeToLive);
+        return { url: getUrl };
     }
 
     @handleServiceError('Failed to update media file active status')

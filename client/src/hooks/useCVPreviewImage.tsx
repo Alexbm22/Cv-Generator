@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { CVStateMode, GuestCVAttributes, UserCVMetadataAttributes } from "../interfaces/cv";
+import { useCallback, useEffect, useState } from "react";
+import { CVStateMode, GuestCVAttributes, UserCVAttributes, UserCVMetadataAttributes } from "../interfaces/cv";
 import { useCVsStore } from "../Store";
 import { useImageWithFallback } from "./useImageWithFallback";
+import { useMediaFileQuery } from "./MediaFile/useMediaFileQuery";
+import { useMediaFile } from "./MediaFile/useMediaFile";
 
 type UseCVPreviewImageProps = {
   CV: GuestCVAttributes | UserCVMetadataAttributes;
@@ -19,16 +21,15 @@ export const useCVPreviewImage = ({
   const CVState = useCVsStore((state) => state.CVState);
   const [cvPreviewSrc, setCvPreviewSrc] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!CV) return setCvPreviewSrc(null);
-    
-    if (CVState.mode === CVStateMode.USER) {
-      const userCV = CV as UserCVMetadataAttributes;
-      if (userCV.preview?.get_URL) {
-        setCvPreviewSrc(userCV.preview.get_URL);
-      } else {
-        setCvPreviewSrc(null);
-      }
+  const isUser = CVState.mode === CVStateMode.USER;
+  const previewId = (CV as UserCVAttributes)?.previewId;
+
+  const { data: cvPreviewData, refetch } = useMediaFileQuery(previewId!, isUser);
+  const { getMediaFileGetUrl } = useMediaFile(cvPreviewData, refetch);
+
+  const fetchCVPreviewSrc = useCallback(async () => {
+    if (isUser) {
+      setCvPreviewSrc(await getMediaFileGetUrl());
     } else {
       const guestCV = CV as GuestCVAttributes;
       if (guestCV.preview) {
@@ -37,7 +38,11 @@ export const useCVPreviewImage = ({
         setCvPreviewSrc(null);
       }
     }
-  }, [CV, CVState.mode]);
+  }, [isUser, getMediaFileGetUrl, previewId]);
+
+  useEffect(() => {
+    fetchCVPreviewSrc();
+  }, [fetchCVPreviewSrc]);
 
   return useImageWithFallback({
     src: cvPreviewSrc,
