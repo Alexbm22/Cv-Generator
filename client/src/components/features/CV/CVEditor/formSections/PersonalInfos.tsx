@@ -98,7 +98,7 @@ const PersonalInfos: React.FC = () => {
                             type={fieldsConstants.birth_date.type}
                             id={fieldsConstants.birth_date.label}
                             label={fieldsConstants.birth_date.label}
-                            value={new Date(birthDate).toISOString().slice(0, 10)}
+                            value={birthDate && !isNaN(new Date(birthDate).getTime()) ? new Date(birthDate).toISOString().slice(0, 10) : ""}
                             onChange={(e) => setBirthDate(new Date(e.target.value))}
                             placeholder={fieldsConstants.birth_date.placeholder}
                         />

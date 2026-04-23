@@ -334,13 +334,16 @@ export const DEFAULT_CV_EDITOR_STATE = {
     createdAt: new Date(),
 }
 
+const sections = ['aboutMe', 'workExperience', 'education', 'projects', 'customSections', 'socialLinks', 'skills', 'languages'];
+const sectionsOrder = sections.map((section) => ({ id: section, isVisible: true }));
+
 export const DEFAULT_CV_DATA = {
     title: 'Untitled',
     jobTitle: '',
     template: CVTemplates.CASTOR,
     professionalSummary: '',
     photo_last_uploaded: null,
-    sectionsOrder: [],
+    sectionsOrder: sectionsOrder,
     languages: [],
     skills: [],
     workExperience: [],
