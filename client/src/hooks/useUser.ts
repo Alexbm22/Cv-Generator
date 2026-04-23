@@ -8,7 +8,7 @@ export const useInitialUserDataSync = () => {
     return useMutation<SyncedDataAttributes, ApiError>({
         mutationFn: async () => { 
             const guestCVs = getGuestCVs();
-
+            console.log("Syncing initial user data with guest CVs:", guestCVs);
             return await UserServerService.syncInitialData({
                 cvs: guestCVs
             });

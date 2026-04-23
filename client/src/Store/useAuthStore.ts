@@ -51,14 +51,13 @@ export const useAuthStore = create<AuthStore>()(
 
         handleAuthSuccess(authData) {
             if(authData.token) {
-                set({  
+                set({
                     tokenData: {
                         token: authData.token?.token,
                         expiresIn: authData.token.expiresIn
                     },
                     isAuthenticated: true, 
                     isAuthChecked: true,
-                    isLoadingAuth: false,
                     id: authData.user?.id,
                     username: authData.user?.username,
                     email: authData.user?.email,

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '../../router/routes';
 import * as yup from 'yup';
 import { AuthService } from '../../services/auth';
+import { useInitialUserDataSync } from '../useUser';
 
 export const useFormSubmission = <T>(
     schema: yup.ObjectSchema<{}, T, {}, "">,
@@ -28,26 +29,28 @@ export const useFormSubmission = <T>(
 
 export const useAuthAndSync = <T extends AuthCredentials>(
     authFunction: (authCredentials: T) => Promise<AuthResponse>,
-    options?: {
-        onSuccess?: () => void;
-    }
 ) => {
     const navigate = useNavigate();
     const { setIsLoadingAuth } = useAuthStore.getState();
+    const { mutateAsync: syncGuestData } = useInitialUserDataSync();
     
     return useMutation<AuthResponse, APIError, T>({
         mutationFn: async (authCredentials: T) => {
             setIsLoadingAuth(true); 
             return await authFunction(authCredentials);
         },
-        onSuccess: options?.onSuccess ?? ((authResponse: AuthResponse) => {
+        onSuccess: async (authResponse: AuthResponse) => {
             const { handleAuthSuccess } = useAuthStore.getState();
-            if(!authResponse.token) {
+            if (!authResponse.token) {
                 return navigate(routes.login.path);
-            } else {
-                handleAuthSuccess(authResponse);
             }
-        }),
+
+            handleAuthSuccess(authResponse);
+            
+            if (authResponse.user?.needsInitialSync) {
+                await syncGuestData();
+            }
+        },
         onSettled: () => setIsLoadingAuth(false),
         onError: () => navigate(routes.login.path),
     })
@@ -79,16 +82,20 @@ export const useCheckAuth = () => {
     } = useAuthStore.getState();
 
     const migrateGuestToUser = useCVsStore(state => state.migrateGuestToUser) 
-    const migrateUserToGuest = useCVsStore(state => state.migrateUserToGuest) 
+    const migrateUserToGuest = useCVsStore(state => state.migrateUserToGuest)
+    const { mutateAsync: syncGuestData } = useInitialUserDataSync();
 
     return useMutation<AuthResponse, APIError>({
         mutationFn: async () => {
             setIsLoadingAuth(true);
             return await AuthService.checkAuth();
         },
-        onSuccess: (response) => {
+        onSuccess: async (response) => {
             handleAuthSuccess(response);
             migrateGuestToUser();
+            if (response.user?.needsInitialSync) {
+                await syncGuestData();
+            }
         }, 
         onError: (error) => {
             if(error.status === 401) {

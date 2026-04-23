@@ -31,8 +31,8 @@ export const useCreateUserCV = () => {
                 jobTitle: createdCV.jobTitle,
                 title:createdCV.title,
                 template: createdCV.template,
-                photo: createdCV.photo,
-                preview: createdCV.preview,
+                photoId: createdCV.photoId,
+                previewId: createdCV.previewId,
                 updatedAt: createdCV.updatedAt,
                 createdAt: createdCV.createdAt
             }

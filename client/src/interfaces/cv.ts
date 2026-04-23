@@ -81,12 +81,9 @@ export enum CVTemplates {
     CASTOR = 'castor',
 }
 
-export type ModifiedCVAttributes = Omit<UserCVAttributes, 'photoId' | 'previewId' > & {
-  photo: string;
-};
 
 export type TemplateComponentProps = {
-    CV: ModifiedCVAttributes
+    CV: UserCVAttributes
 }
 
 export interface CVMetadataAttributes {

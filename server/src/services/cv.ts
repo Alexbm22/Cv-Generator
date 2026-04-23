@@ -39,8 +39,8 @@ export class CVsService {
 
         return Promise.all(result.map(async (cv) => cvMapper.mapServerCVToPublicCV(
             cv.CVData.get(),  
-            cv.CVPreview.get('public_id'), 
             cv.CVPhoto.get('public_id'),
+            cv.CVPreview.get('public_id'), 
         )))
     }
 

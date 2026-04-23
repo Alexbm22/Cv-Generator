@@ -3,9 +3,11 @@ import { CVEditStore, CVStateMode, TemplateComponentProps, UserCVAttributes, Use
 import { useCVsStore } from "../Store";
 import { CVServerService } from "./CVServer";
 import { debounce } from "lodash";
-import { getDefaultPhotoPath } from "../utils/cvDefaults";
 import { generatePdfBlob, pdfBlobToCanvas } from "./Pdf";
-import { getMediaFileById, uploadImage } from "./MediaFiles";
+import { getMediaFileUrl, uploadImage, markMediaFileActiveStatus } from "./MediaFiles";
+import { getImageBlob } from "../utils/blob";
+import { MediaFilesAttributes } from "../interfaces/mediaFiles";
+import { queryClient } from "../queryClient";
 
 export const autoSaveCV = () => {
     return debounce(async (api: StoreApi<CVEditStore>) => {
@@ -44,48 +46,77 @@ export const generateAndUploadCVPreview = async (
     cvData: UserCVAttributes,
     CVTemplate: React.FC<TemplateComponentProps>
 ): Promise<void> => {
-    const CVData = {
-        ...cvData, 
-        photo: getDefaultPhotoPath()
-    }
-
-    const cvBlob = await generatePdfBlob(CVTemplate, { CV: CVData });
+    const cvBlob = await generatePdfBlob(CVTemplate, { CV: cvData });
     const CVCanvas = await pdfBlobToCanvas(cvBlob);
 
     if (CVCanvas) {
-        const cvPreviewData = await getMediaFileById(cvData.previewId!);
         CVCanvas.toBlob(async (blob) => {
             if(!blob) return;
-            uploadImage(blob, cvPreviewData)
+            const putUrl = await getMediaFileUrl(cvData.previewId, 'put');
+            if(putUrl) {
+                await uploadImage(putUrl, blob);
+            }
+
+            const blobUrl = URL.createObjectURL(blob);
+            queryClient.setQueryData<MediaFilesAttributes>(
+                ['mediaFile', cvData.previewId],
+                (prev) => prev ? { ...prev, is_active: true, get_URL: blobUrl, expiresAt: Date.now() + 10 * 60 * 1000 } : prev
+            );
         }, "image/png")
     }
 };
 
+const uploadGuestMediaFile = async (mediaId: string, base64Photo: string): Promise<void> => {
+    const blob = await getImageBlob(base64Photo);
+    const putUrl = await getMediaFileUrl(mediaId, 'put');
+    if (!putUrl) return;
+
+    await uploadImage(putUrl, blob);
+    await markMediaFileActiveStatus(mediaId, true);
+
+    const blobUrl = URL.createObjectURL(blob);
+    queryClient.setQueryData<MediaFilesAttributes>(
+        ['mediaFile', mediaId],
+        (prev) => prev ? { ...prev, is_active: true, get_URL: blobUrl, expiresAt: Date.now() + 10 * 60 * 1000 } : prev
+    );
+};
+
 export const syncCVs = async (createdCVs: UserCVAttributes[]) => {
-    const migrateGuestToUser = useCVsStore.getState().migrateGuestToUser;
+    const { migrateGuestToUser, CVState } = useCVsStore.getState();
+    const guestCVs = CVState.mode === CVStateMode.GUEST ? CVState.cvs : [];
+
+    try {
+        const cvsPromise = createdCVs.map(async (createdCV, index) => {
+            const CVMetaData: UserCVMetadataAttributes = {
+                id: createdCV.id,
+                jobTitle: createdCV.jobTitle,
+                title:createdCV.title,
+                template: createdCV.template,
+                photoId: createdCV.photoId,
+                previewId: createdCV.previewId,
+                updatedAt: createdCV.updatedAt,
+                createdAt: createdCV.createdAt
+            }
+
+            const guestCV = guestCVs[index];
+
+            if (guestCV?.photo) {
+                await uploadGuestMediaFile(createdCV.photoId, guestCV.photo);
+            }
+            if (guestCV?.preview) {
+                await uploadGuestMediaFile(createdCV.previewId, guestCV.preview);
+            }
+            
+            return CVMetaData;
+        }) 
     
-    const cvsPromise = createdCVs.map(async (createdCV) => {
-        const CVMetaData: UserCVMetadataAttributes = {
-            id: createdCV.id,
-            jobTitle: createdCV.jobTitle,
-            title:createdCV.title,
-            template: createdCV.template,
-            photoId: createdCV.photoId,
-            previewId: createdCV.previewId,
-            updatedAt: createdCV.updatedAt,
-            createdAt: createdCV.createdAt
-        }
-
-        const { TemplateMap } = await import("../constants/CV/TemplatesMap");
-        const CVTemplate = TemplateMap[createdCV.template];
-
-        await generateAndUploadCVPreview(createdCV, CVTemplate);
-        
-        return CVMetaData;
-    }) 
-
-    const cvs = await Promise.all(cvsPromise);
-    migrateGuestToUser(cvs);
+        const cvs = await Promise.all(cvsPromise);
+        migrateGuestToUser(cvs);
+    } catch (err) {
+        console.error("Error syncing CVs:", err);
+        migrateGuestToUser();
+    }
+    
 }
 
 export const getGuestCVs = () => {
