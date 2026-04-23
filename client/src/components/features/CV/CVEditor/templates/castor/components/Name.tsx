@@ -37,8 +37,9 @@ const NAME_CONTAINER_WIDTH_PT = 400;
 const OVERFLOW_THRESHOLD = NAME_CONTAINER_WIDTH_PT * 0.6;
 
 const Name: React.FC<NameProps> = ({ firstName, lastName, jobTitle }) => {
-    const firstNameVal = firstName !== '' ? firstName : 'John';
-    const lastNameVal = lastName !== '' ? lastName : 'Doe';
+    const hasName = firstName !== '' || lastName !== '';
+    const firstNameVal = hasName ? firstName : 'John';
+    const lastNameVal = hasName ? lastName : 'Doe';
     const jobTitleVal = jobTitle !== '' ? jobTitle : null;
 
     const fullName = `${firstNameVal} ${lastNameVal}`;

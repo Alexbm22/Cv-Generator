@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { useCvEditStore, useCVsStore } from "../../Store";
-import { UserCVAttributes, CVStateMode, GuestCVAttributes, UserCVMetadataAttributes } from "../../interfaces/cv";
+import { UserCVAttributes, CVStateMode, GuestCVAttributes, UserCVMetadataAttributes, TemplateCV } from "../../interfaces/cv";
 import { ApiError } from "../../interfaces/error";
 import { CVServerService } from "../../services/CVServer";
 import { generatePdfBlob, pdfBlobToCanvas } from "../../services/Pdf";
@@ -9,11 +9,19 @@ import { routes } from "../../router/routes";
 import { createDefaultCVObject } from "../../utils/cv";
 import { getDefaultPhotoPath } from "../../utils/cvDefaults";
 import { generateAndUploadCVPreview } from "../../services/CVLocal";
+import { useMediaFile } from "../MediaFile/useMediaFile";
+import { useMediaFileQuery } from "../MediaFile/useMediaFileQuery";
+import { useState } from "react";
 
 export const useCreateUserCV = () => {
     const addUserCV = useCVsStore(state => state.addUserCV);
     const CVState = useCVsStore(state => state.CVState);
     const navigate = useNavigate();
+
+    const [ photoId, setPhotoId ] = useState<string | null>(null);
+
+    const { data: cvPreviewData, refetch } = useMediaFileQuery(photoId!, CVState.mode === CVStateMode.USER);
+    const { getMediaFileGetUrl } = useMediaFile(cvPreviewData, refetch);
 
     return useMutation<UserCVAttributes, ApiError>({
         mutationFn: async () => { 
@@ -25,7 +33,7 @@ export const useCreateUserCV = () => {
 
         },
         onSuccess: async (createdCV) => {
-            
+            setPhotoId(createdCV.photoId);
             const CVMetaData: UserCVMetadataAttributes = {
                 id: createdCV.id,
                 jobTitle: createdCV.jobTitle,
@@ -46,7 +54,14 @@ export const useCreateUserCV = () => {
             const { TemplateMap } = await import("../../constants/CV/TemplatesMap");
             const CVTemplate = TemplateMap[createdCV.template];
 
-            generateAndUploadCVPreview(createdCV, CVTemplate)
+            const photoUrl = await getMediaFileGetUrl();
+
+            const CVData: TemplateCV = {
+                ...createdCV, 
+                photo: photoUrl ?? getDefaultPhotoPath()
+            }
+            
+            generateAndUploadCVPreview(CVData, CVTemplate)
         }
     })
 }

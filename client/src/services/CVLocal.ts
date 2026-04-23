@@ -1,5 +1,5 @@
 import { StoreApi } from "zustand";
-import { CVEditStore, CVStateMode, TemplateComponentProps, UserCVAttributes, UserCVMetadataAttributes } from "../interfaces/cv";
+import { CVEditStore, CVStateMode, TemplateComponentProps, TemplateCV, UserCVAttributes, UserCVMetadataAttributes } from "../interfaces/cv";
 import { useCVsStore } from "../Store";
 import { CVServerService } from "./CVServer";
 import { debounce } from "lodash";
@@ -41,7 +41,7 @@ export const autoSaveCV = () => {
 }
 
 export const generateAndUploadCVPreview = async (
-    cvData: UserCVAttributes,
+    cvData: TemplateCV,
     CVTemplate: React.FC<TemplateComponentProps>
 ): Promise<void> => {
     const CVData = {

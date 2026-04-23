@@ -79,14 +79,15 @@ export enum SkillLevel {
 
 export enum CVTemplates {
     CASTOR = 'castor',
+    POLARIS = 'polaris',
 }
 
-export type ModifiedCVAttributes = Omit<UserCVAttributes, 'photoId' | 'previewId' > & {
-  photo: string;
-};
+export interface TemplateCV extends UserCVAttributes {
+    photo: string | undefined;
+}
 
 export type TemplateComponentProps = {
-    CV: ModifiedCVAttributes
+    CV: TemplateCV
 }
 
 export interface CVMetadataAttributes {

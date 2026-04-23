@@ -42,7 +42,6 @@ const sections = ['aboutMe', 'workExperience', 'education', 'projects', 'customS
 const DEFAULT_SECTIONS_ORDER = sections.map((section) => ({ id: section, isVisible: true }));
 
 const Castor: React.FC<TemplateComponentProps> = ({ CV }) => {
-
     const sectionsOrder = CV.sectionsOrder.length > 0
         ? CV.sectionsOrder
         : DEFAULT_SECTIONS_ORDER;
