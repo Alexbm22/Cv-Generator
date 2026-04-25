@@ -7,9 +7,11 @@ import { getDefaultPhotoPath } from "../utils/cvDefaults";
 import { generatePdfBlob, pdfBlobToCanvas } from "./Pdf";
 import { getMediaFileById, uploadImage } from "./MediaFiles";
 
-export const autoSaveCV = () => {
-    return debounce(async (api: StoreApi<CVEditStore>) => {
+const AUTOSAVE_DEBOUNCE_MS = 3000;
+const TEMPLATE_AUTOSAVE_DEBOUNCE_MS = 100;
 
+export const autoSaveCV = () => {
+    const performSave = async (api: StoreApi<CVEditStore>) => {
         const { getUserCVObject, getGuestCVObject } = api.getState();
         const { 
             CVState, 
@@ -37,7 +39,21 @@ export const autoSaveCV = () => {
             updateGuestCV(updatedCV);
             setGuestSelectedCV(updatedCV);
         }
-    }, 3000);
+    };
+
+    const debouncedSave = debounce(performSave, AUTOSAVE_DEBOUNCE_MS);
+    const debouncedTemplateSave = debounce(performSave, TEMPLATE_AUTOSAVE_DEBOUNCE_MS);
+
+    return (api: StoreApi<CVEditStore>) => {
+        const { editorType } = api.getState();
+        if (editorType === 'template') {
+            debouncedSave.cancel();
+            debouncedTemplateSave(api);
+        } else {
+            debouncedTemplateSave.cancel();
+            debouncedSave(api);
+        }
+    };
 }
 
 export const generateAndUploadCVPreview = async (
@@ -54,9 +70,12 @@ export const generateAndUploadCVPreview = async (
 
     if (CVCanvas) {
         const cvPreviewData = await getMediaFileById(cvData.previewId!);
+
         CVCanvas.toBlob(async (blob) => {
             if(!blob) return;
-            uploadImage(blob, cvPreviewData)
+            if(cvPreviewData.put_URL) {
+                await uploadImage(cvPreviewData.put_URL, blob)
+            }
         }, "image/png")
     }
 };
@@ -73,13 +92,13 @@ export const syncCVs = async (createdCVs: UserCVAttributes[]) => {
             photoId: createdCV.photoId,
             previewId: createdCV.previewId,
             updatedAt: createdCV.updatedAt,
-            createdAt: createdCV.createdAt
+            createdAt: createdCV.createdAt,
         }
 
         const { TemplateMap } = await import("../constants/CV/TemplatesMap");
         const CVTemplate = TemplateMap[createdCV.template];
 
-        await generateAndUploadCVPreview(createdCV, CVTemplate);
+        await generateAndUploadCVPreview(createdCV as TemplateCV, CVTemplate);
         
         return CVMetaData;
     }) 

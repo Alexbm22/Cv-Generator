@@ -59,7 +59,7 @@ const CVPreview: React.FC<ComponentProps> = ({ isShowingPreview }) => {
         const { TemplateMap } = await getTemplateMap();
         if (cancelled.current) return;
 
-        const CVTemplate = TemplateMap["polaris"];
+        const CVTemplate = TemplateMap[selectedCV.template];
         const pdfBlob = await generatePdfBlob(CVTemplate, { CV: cvData });
         if (cancelled.current) return;
 

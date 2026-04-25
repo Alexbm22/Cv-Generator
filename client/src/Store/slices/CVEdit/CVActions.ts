@@ -5,6 +5,7 @@ import {
     CVEditStoreObjectAttributes,
     GuestCVAttributes,
  } from '../../../interfaces/cv';
+import { useCVsStore } from '../../useCVsStore';
 
 export const createStoreActionsSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
@@ -75,7 +76,12 @@ export const createStoreActionsSlice = (set: {
 
         return GuestCVObj;
     },
-    
+
+    getCVObject: () => {
+        const isUser = useCVsStore.getState().CVState.mode === 'user';
+        return isUser ? get().getUserCVObject() : get().getGuestCVObject();
+    },
+
     setGuestCV: (CV: GuestCVAttributes) => {
         const CVObj = Object.fromEntries(
             Object.entries(CV).filter(([key]) => 

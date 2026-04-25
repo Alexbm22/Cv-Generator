@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { 
     CVEditStore,
+    EditorType,
 } from '../interfaces/cv';
 import  {
     createMetadataSlice,
@@ -22,13 +23,18 @@ export const useCvEditStore = create<CVEditStore>()(
                 'setGuestCV', 
                 'setUserCV', 
                 'getUserCVObject',
+                'setEditorType',
             ]
         })(
             (set, get): CVEditStore => ({
                 ...createMetadataSlice(set),
                 ...createContentSlice(set),
                 ...createPersonalInfoSlice(set),
-                ...createStoreActionsSlice(set, get)
+                ...createStoreActionsSlice(set, get),
+                editorType: 'form' as EditorType,
+                setEditorType: (type: EditorType) => set({ editorType: type }),
+                colorTheme: null,
+                setTemplateColorTheme: (color: string) => set({ colorTheme: color }),
             })
         ), 
         {

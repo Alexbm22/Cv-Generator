@@ -199,6 +199,8 @@ export interface CVEditStoreActions {
 
     getGuestCVObject: () => GuestCVAttributes;
     setGuestCV: (CV: GuestCVAttributes) => void;
+
+    getCVObject: () => UserCVAttributes | GuestCVAttributes;
 }
 
 export interface UserCVAttributes extends 
@@ -219,8 +221,15 @@ CVPersonalInfoAttributes, CVEditStorePersonalInfoActions {}
 export interface CVEditStoreObjectAttributes extends
 CVEditStoreMetadataAttributes, CVPersonalInfoAttributes, CVContentAttributes {}
 
+export type EditorType = 'form' | 'template' | 'ai';
+
 export interface CVEditStore extends 
-CVEditStoreMetadataSliceAttributes, CVEditStoreContentSliceAttributes, CVEditStorePersonalInfoSliceAttributes, CVEditStoreActions {}
+CVEditStoreMetadataSliceAttributes, CVEditStoreContentSliceAttributes, CVEditStorePersonalInfoSliceAttributes, CVEditStoreActions {
+    editorType: EditorType;
+    setEditorType: (type: EditorType) => void;
+    colorTheme: string | null;
+    setTemplateColorTheme: (color: string) => void;
+}
 
 export enum CVStateMode {
     USER = 'user',
