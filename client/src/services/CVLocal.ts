@@ -98,7 +98,7 @@ export const syncCVs = async (createdCVs: UserCVAttributes[]) => {
         const { TemplateMap } = await import("../constants/CV/TemplatesMap");
         const CVTemplate = TemplateMap[createdCV.template];
 
-        await generateAndUploadCVPreview(createdCV as TemplateCV, CVTemplate);
+        await generateAndUploadCVPreview(createdCV, CVTemplate);
         
         return CVMetaData;
     }) 
