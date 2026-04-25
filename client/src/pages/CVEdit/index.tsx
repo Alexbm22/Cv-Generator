@@ -2,16 +2,19 @@ import { useParams } from "react-router-dom";
 import CVEditorForm  from "./CVForm";
 import CVPreview from "../../components/features/CV/CVPreview";
 import useFetchCV from "./useFetchCV";
-import { useCVsStore } from "../../Store";
+import { useCvEditStore, useCVsStore } from "../../Store";
 import { useEffect, useState } from "react";
 import { FileText, Minimize2 } from 'lucide-react';
 import { CVEditNav } from "../../components/navigation";
 import CVPreviewImage from "../../components/features/CV/CVPreviewImage";
+import TemplateEditor from "../../components/features/CV/CVEditor/TemplateEditor";
+import AiEditor from "../../components/features/CV/CVEditor/AiEditor";
 
 const CVEditPage = () => {
     const { id } = useParams<{id: string}>();
 
     const CVState = useCVsStore(state => state.CVState);
+    const editorType = useCvEditStore(state => state.editorType);
     const [ isShowingPreview, setIsShowingPreview ] = useState(true);
     
     useEffect(() => {
@@ -34,7 +37,9 @@ const CVEditPage = () => {
             <div className="flex flex-col h-screen">
                 <CVEditNav />
                 <div className="flex transition-all duration-1000 w-full flex-1 relative pt-15">
-                    <CVEditorForm isShowingPreview={isShowingPreview} />
+                    {editorType === 'form' && <CVEditorForm isShowingPreview={isShowingPreview} />}
+                    {editorType === 'template' && <TemplateEditor isShowingPreview={isShowingPreview} />}
+                    {editorType === 'ai' && <AiEditor isShowingPreview={isShowingPreview} />}
                     <CVPreview isShowingPreview={isShowingPreview}/>
                     <button 
                         onClick={() => setIsShowingPreview(!isShowingPreview)}

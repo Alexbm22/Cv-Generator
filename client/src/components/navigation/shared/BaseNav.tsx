@@ -130,7 +130,7 @@ const BaseNav: React.FC<BaseNavProps> = ({
       </div>
 
       {/* Center section */}
-      <div className={`flex items-center gap-2 sm:gap-4 h-full ${itemsContainerStyle}`}>
+      <div className={`flex items-center gap-2 sm:gap-4 h-full ${itemsContainerStyle} absolute left-1/2 transform -translate-x-1/2`}>
         {logoPosition === 'center' && isShowingLogo ? renderLogo() : renderNavItems(centerItems)}
       </div>
 

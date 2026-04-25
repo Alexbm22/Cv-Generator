@@ -3,11 +3,14 @@ import DownloadBtn from "../../features/CV/downloadBtn";
 import { BaseNav, ProfileDropdown } from "../shared";
 import DeleteBtn from "../../features/CV/deleteBtn";
 import BackBtn from "../../UI/Buttons/backBtn";
+import CvEditorTypeSelector from "../../features/CV/CVEditor/CvEditorTypeSelector";
 
 const CVEditNav = () => {
 
     const cvId = useCvEditStore(state => state.id);
     const cvTitle = useCvEditStore(state => state.title);
+    const editorType = useCvEditStore(state => state.editorType);
+    const setEditorType = useCvEditStore(state => state.setEditorType);
 
     return (
         <BaseNav
@@ -21,6 +24,19 @@ const CVEditNav = () => {
             className="top-0 left-0 right-0 border-blue-100/50"
             responsiveStyle={`px-cv-editor-padding py-1.5`}
             itemsContainerStyle="h-full"
+            centerItems={[
+                {
+                    id: 'editor-type-selector',
+                    component: (
+                        <div className="flex items-center h-full">
+                            <CvEditorTypeSelector
+                                value={editorType}
+                                onChange={setEditorType}
+                            />
+                        </div>
+                    )
+                }
+            ]}
             rightItems={[
                 {
                     id: 'download',

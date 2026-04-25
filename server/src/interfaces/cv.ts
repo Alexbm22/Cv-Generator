@@ -83,6 +83,7 @@ export enum SkillLevel {
 
 export enum CVTemplates {
     CASTOR = 'castor',
+    POLARIS = 'polaris',
 }
 
 export interface CVContentAttributes {

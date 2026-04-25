@@ -215,7 +215,7 @@ export const CV_EDITOR_TEMPLATE_CONSTANTS = {
     sections: {
         about_me: {
             title: 'About Me',
-            default: 'Results-driven and detail-oriented professional with a strong background in [Your Field, e.g., software development, project management, data analysis, etc.]. Proven ability to deliver high-quality results in fast-paced, deadline-driven environments. Skilled in [mention key skills, e.g., full-stack development, team collaboration, problem-solving], with a passion for continuous learning and improvement. Adept at working both independently and as part of a team to achieve organizational goals and drive innovation.',
+            default: '<p>Results-driven and detail-oriented professional with a strong background in [Your Field, e.g., software development, project management, data analysis, etc.]. Proven ability to deliver high-quality results in fast-paced, deadline-driven environments. Skilled in [mention key skills, e.g., full-stack development, team collaboration, problem-solving], with a passion for continuous learning and improvement. Adept at working both independently and as part of a team to achieve organizational goals and drive innovation.</p>',
         },
         personal_infos: {
             default: {
@@ -256,11 +256,12 @@ export const CV_EDITOR_TEMPLATE_CONSTANTS = {
             title: 'Work Experience',
             default: [
                 {
-                    job_title: 'Software Engineer',
-                    company_name: 'Tech Solutions Inc.',
-                    start_date: '2022-01-01',
-                    end_date: '2024-06-30',
-                    description: 'Developed and maintained full-stack applications using React and Node.js. Led a team of 3 developers and implemented CI/CD pipelines.',
+                    id: 'default-work-experience-entry',
+                    jobTitle: 'Software Engineer',
+                    company: 'Tech Solutions Inc.',
+                    startDate: new Date('2022-01-01'),
+                    endDate: new Date('2024-06-30'),
+                    description: '<p>Developed and maintained full-stack applications using React and Node.js. Led a team of 3 developers and implemented CI/CD pipelines.</p>',
                 },
             ],
         },
@@ -268,11 +269,12 @@ export const CV_EDITOR_TEMPLATE_CONSTANTS = {
             title: 'Education',
             default: [
                 {
+                    id: 'default-education-entry',
                     degree: 'Bachelor of Science in Computer Science',
                     institution: 'University of Technology',
-                    start_date: '2018-09-01',
-                    end_date: '2022-06-30',
-                    section_description: 'Focused on software engineering, algorithms, and database systems.',
+                    startDate: new Date('2018-09-01'),
+                    endDate: new Date('2022-06-30'),
+                    description: '<p>Focused on software engineering, algorithms, and database systems.</p>',
                 },
             ],
         },
@@ -280,25 +282,29 @@ export const CV_EDITOR_TEMPLATE_CONSTANTS = {
             title: 'Projects',
             default: [
                 {
-                    project_name: 'Personal Portfolio',
+                    id: 'default-project-entry',
+                    name: 'Personal Portfolio',
                     url: 'https://yourportfolio.com',
-                    start_date: '2023-01-01',
-                    end_date: '2023-03-01',
-                    description: 'Built a personal portfolio using React and TailwindCSS.',
-                    technologies_used: 'React, TailwindCSS, Vite',
+                    startDate: new Date('2023-01-01'),
+                    endDate: new Date('2023-03-01'),
+                    description: '<p>Built a personal portfolio using React and TailwindCSS.</p>',
                 },
             ],
         },
         custom_section: {
             title: 'Certifications',
-            default: [
-                {
-                    title: 'AWS Certified Developer – Associate',
-                    start_date: '2023-05-01',
-                    end_date: '',
-                    description: 'Validated skills in developing and deploying applications on AWS infrastructure.',
-                },
-            ],
+            default: {
+                title: 'Certifications',
+                content: [
+                    {
+                        id: 'default-custom-section-entry',
+                        title: 'AWS Certified Developer – Associate',
+                        startDate: new Date('2023-05-01'),
+                        endDate: new Date('2023-05-01'),
+                        description: '<p>Validated skills in developing and deploying applications on AWS infrastructure.</p>',
+                    },
+                ],
+            },
         },
     },
 };

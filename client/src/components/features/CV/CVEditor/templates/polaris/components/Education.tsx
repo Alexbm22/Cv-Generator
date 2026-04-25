@@ -27,7 +27,6 @@ const EducationSection: React.FC<EducationSectionProps> = ({ education }) => {
                         startDate={entry.startDate}
                         endDate={entry.endDate}
                         description={entry.description}
-                        bulleted
                     />
                 ))}
             </View>

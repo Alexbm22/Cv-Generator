@@ -1,0 +1,11 @@
+export { default as Name } from './Name';
+export { default as GeneralInfos } from './GeneralInfos';
+export { default as AboutMe } from './AboutMe';
+export { default as WorkExperience } from './WorkExperience';
+export { default as Education } from './Education';
+export { default as Projects } from './Projects';
+export { default as CustomSection } from './CustomSection';
+export { default as Skills } from './Skills';
+export { default as Languages } from './Languages';
+export { default as SocialLinks } from './SocialLinks';
+export { default as SkillsAndOther } from './SkillsAndOther';

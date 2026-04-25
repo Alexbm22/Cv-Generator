@@ -2,24 +2,33 @@ import React from "react";
 import { useCreateUserCV, useCreateGuestCV } from "../../../hooks/CVs/useCVs";
 import { useCVsStore } from "../../../Store";
 import { CVStateMode } from "../../../interfaces/cv";
-import Button from "../../UI/Buttons/Button";
-import { ButtonStyles } from "../../../constants/CV/buttonStyles";
+
 
 const CreateCVBtn: React.FC = () => {
     const { mutate: createUserCV } = useCreateUserCV();
     const { mutate: createGuestCV } = useCreateGuestCV();
     const CVState = useCVsStore(state => state.CVState)
 
+    const handleCreateCV = () => {
+        if (CVState.mode === CVStateMode.USER) {
+            createUserCV();
+        } else {
+            createGuestCV();
+        }
+    };
+
     return (
-        <Button 
-            onClick={() => {
-                CVState.mode === CVStateMode.USER ? createUserCV() : createGuestCV()
-            }}
-            buttonStyle={ButtonStyles.primary}
-            className="p-2"
+        <button
+            onClick={handleCreateCV}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full
+                bg-[#0071e3] hover:bg-[#0077ed] active:bg-[#006edb]
+                text-white text-sm font-medium tracking-tight
+                shadow-sm transition-all duration-200 ease-out
+                hover:shadow-md active:scale-[0.97] cursor-pointer"
         >
-            + Create New CV
-        </Button>
+            <span className="text-base leading-none">+</span>
+            New Resume
+        </button>
     )
 } 
 

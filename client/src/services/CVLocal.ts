@@ -1,5 +1,5 @@
 import { StoreApi } from "zustand";
-import { CVEditStore, CVStateMode, TemplateComponentProps, UserCVAttributes, UserCVMetadataAttributes } from "../interfaces/cv";
+import { CVEditStore, CVStateMode, TemplateComponentProps, TemplateCV, UserCVAttributes, UserCVMetadataAttributes } from "../interfaces/cv";
 import { useCVsStore } from "../Store";
 import { CVServerService } from "./CVServer";
 import { debounce } from "lodash";
@@ -9,9 +9,11 @@ import { getImageBlob } from "../utils/blob";
 import { MediaFilesAttributes } from "../interfaces/mediaFiles";
 import { queryClient } from "../queryClient";
 
-export const autoSaveCV = () => {
-    return debounce(async (api: StoreApi<CVEditStore>) => {
+const AUTOSAVE_DEBOUNCE_MS = 3000;
+const TEMPLATE_AUTOSAVE_DEBOUNCE_MS = 100;
 
+export const autoSaveCV = () => {
+    const performSave = async (api: StoreApi<CVEditStore>) => {
         const { getUserCVObject, getGuestCVObject } = api.getState();
         const { 
             CVState, 
@@ -39,11 +41,25 @@ export const autoSaveCV = () => {
             updateGuestCV(updatedCV);
             setGuestSelectedCV(updatedCV);
         }
-    }, 3000);
+    };
+
+    const debouncedSave = debounce(performSave, AUTOSAVE_DEBOUNCE_MS);
+    const debouncedTemplateSave = debounce(performSave, TEMPLATE_AUTOSAVE_DEBOUNCE_MS);
+
+    return (api: StoreApi<CVEditStore>) => {
+        const { editorType } = api.getState();
+        if (editorType === 'template') {
+            debouncedSave.cancel();
+            debouncedTemplateSave(api);
+        } else {
+            debouncedTemplateSave.cancel();
+            debouncedSave(api);
+        }
+    };
 }
 
 export const generateAndUploadCVPreview = async (
-    cvData: UserCVAttributes,
+    cvData: TemplateCV,
     CVTemplate: React.FC<TemplateComponentProps>
 ): Promise<void> => {
     const cvBlob = await generatePdfBlob(CVTemplate, { CV: cvData });
