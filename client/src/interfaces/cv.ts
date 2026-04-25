@@ -82,12 +82,9 @@ export enum CVTemplates {
     POLARIS = 'polaris',
 }
 
-export interface TemplateCV extends UserCVAttributes {
-    photo: string | undefined;
-}
 
 export type TemplateComponentProps = {
-    CV: TemplateCV
+    CV: UserCVAttributes
 }
 
 export interface CVMetadataAttributes {

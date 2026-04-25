@@ -32,13 +32,13 @@ export const useCVPreviewImage = ({
       setCvPreviewSrc(await getMediaFileGetUrl());
     } else {
       const guestCV = CV as GuestCVAttributes;
-      if (guestCV.preview) {
+      if (guestCV?.preview) {
         setCvPreviewSrc(guestCV.preview);
       } else {
         setCvPreviewSrc(null);
       }
     }
-  }, [isUser, getMediaFileGetUrl, previewId]);
+  }, [isUser, getMediaFileGetUrl, CV]);
 
   useEffect(() => {
     fetchCVPreviewSrc();

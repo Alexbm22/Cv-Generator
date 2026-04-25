@@ -2,10 +2,12 @@ import React from "react";
 import CreateCVButton from '../../components/features/CV/createCVButton';
 import { useCVsStore } from "../../Store";
 import CVCard from "./CVCard";
+import { useCVsEffects } from "../../hooks/CVs/useCVsEffects";
 
 const CVsPage: React.FC = () => {
 
-  const CVs = useCVsStore(state => state.CVState.cvs)
+  const CVs = useCVsStore(state => state.CVState.cvs);
+  useCVsEffects();
 
   return (
     <div className="w-full min-h-screen bg-[#f5f5f7]">
