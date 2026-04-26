@@ -84,7 +84,7 @@ const CVPreview: React.FC<ComponentProps> = ({ isShowingPreview }) => {
 
   return (
     <div
-      className="transition-all duration-1000 bg-[#dfebf1] justify-center items-center flex fixed top-15 bottom-0 right-0 z-40 max-h-screen"
+      className="transition-all duration-1000 bg-[#e4e4e4] justify-center items-center flex fixed top-15 bottom-0 right-0 z-40 max-h-screen"
       style={isShowingPreview ? { width: '43.74%' } : { width: '0%' }}
     >
       <canvas ref={canvasRef} className="aspect-[1/1.4142] max-w-[85%] max-h-[85%]" />

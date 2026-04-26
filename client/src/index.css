@@ -20,19 +20,19 @@
 
 @media (min-width: 1000px) {  
     :root {
-        --cv-editor-padding: 35px;
+        --cv-editor-padding: 30px;
     }
 }
 
 @media (min-width: 1300px) {  
     :root {
-        --cv-editor-padding: 45px;
+        --cv-editor-padding: 35px;
     }
 }
 
 @media (min-width: 1600px) {  
     :root {
-        --cv-editor-padding: 55px;
+        --cv-editor-padding: 40px;
     }
 }
 

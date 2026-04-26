@@ -30,8 +30,8 @@ const PersonalInfos: React.FC = () => {
     
     return (
         <>
-            <div className="font-sans w-full h-full mb-5">
-                <h2 className="text-xl text-[#154D71] font-bold mb-2">{personalInfosConstants.title}</h2>
+            <div className="bg-white rounded-2xl border border-[#d2d2d7]/50 shadow-[0_2px_12px_rgba(0,0,0,0.07)] px-6 py-5 w-full mb-0">
+                <h2 className="text-[17px] text-[#1d1d1f] font-semibold tracking-[-0.01em] mb-3">{personalInfosConstants.title}</h2>
                 <div className="flex flex-col gap-x-8 gap-y-4 s:grid grid-cols-2">
 
                     <InputField

@@ -128,10 +128,10 @@ const TemplateEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPrev
 
     return (
         <div
-            className="transition-all duration-1000 bg-[#f3fbff] w-full shadow-lg z-0.5 overflow-y-auto"
+            className="transition-all duration-1000 bg-[#f5f5f7] w-full shadow-lg z-0.5 overflow-y-auto"
             style={isShowingPreview ? { flexBasis: '56.25%' } : { flexBasis: '100%' }}
         >
-            <div className="px-6 py-8 mr-auto flex flex-col gap-10">
+            <div className="p-cv-editor-padding  mr-auto flex flex-col gap-10">
 
                 {/* ── Template Selection ─────────────────────────────────── */}
                 <section aria-label="Template selection">
