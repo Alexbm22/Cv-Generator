@@ -20,6 +20,7 @@ class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements Serv
     public photo_last_uploaded!: Date | null;
     public jobTitle!: string;
     public template!: CVTemplates;
+    public templateColor!: string;
     public content!: CVContentAttributes;
     public sectionsOrder!: Section[];
     public encryptedContent!: string;
@@ -78,6 +79,11 @@ CV.init({
     template: {
         type: DataTypes.ENUM(...Object.values(CVTemplates)),
         allowNull: false,
+    },
+    templateColor: {
+        type: DataTypes.STRING(7),
+        allowNull: false,
+        defaultValue: '#424242',
     },
     sectionsOrder: {
         type: DataTypes.JSON,

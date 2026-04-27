@@ -92,6 +92,7 @@ export interface CVMetadataAttributes {
     title: string;
     jobTitle: string;
     template: CVTemplates;
+    templateColor: string;
     updatedAt: Date;
     createdAt: Date
 }
@@ -137,6 +138,7 @@ export interface CVPersonalInfoAttributes {
 
 export interface CVEditStoreMetadataActions {
     setTemplate: (template: CVTemplates) => void;
+    setTemplateColorTheme: (color: string) => void;
     setTitle: (title: string) => void;
     setJobTitle: (jobTitle: string) => void;
     setGuestPhoto: (photoURL: string | null) => void;
@@ -224,8 +226,6 @@ export interface CVEditStore extends
 CVEditStoreMetadataSliceAttributes, CVEditStoreContentSliceAttributes, CVEditStorePersonalInfoSliceAttributes, CVEditStoreActions {
     editorType: EditorType;
     setEditorType: (type: EditorType) => void;
-    colorTheme: string | null;
-    setTemplateColorTheme: (color: string) => void;
 }
 
 export enum CVStateMode {

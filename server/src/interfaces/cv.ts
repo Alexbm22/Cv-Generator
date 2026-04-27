@@ -130,6 +130,7 @@ export interface PublicCVMetadataAttributes {
     previewId?: string;
     photoId?: string;
     template: CVTemplates;
+    templateColor: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -144,6 +145,7 @@ export interface ServerCVAttributes {
     jobTitle: string;
     title: string,
     template: CVTemplates;
+    templateColor: string;
     sectionsOrder: Section[];
     encryptedContent: string
     content: CVContentAttributes,
@@ -161,6 +163,7 @@ export interface CVCreationAttributes extends Optional<
     'encryptedContent' | 
     'createdAt' | 
     'updatedAt' | 
+    'templateColor'|
     'public_id' | 
     'content' |
     'title' |

@@ -35,6 +35,7 @@ const createDefaultCVObject = (): Omit<CVCreationAttributes, 'user_id'> => {
 
     return {
         template: CVTemplates.CASTOR,
+        templateColor: '#007dff',
         sectionsOrder: sectionsOrder,
         content: {
             professionalSummary: '',

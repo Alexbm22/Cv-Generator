@@ -14,6 +14,7 @@ const mapPublicCVToServerCV = (
         user_id: userId,
         photo_last_uploaded: cv.photo_last_uploaded,
         sectionsOrder: cv.sectionsOrder,
+        templateColor: cv.templateColor,
         content: {
             professionalSummary: cv.professionalSummary,
             languages: cv.languages,
@@ -46,6 +47,7 @@ const mapServerCVToPublicCV = (
         photo_last_uploaded: cv.photo_last_uploaded,
         jobTitle: cv.jobTitle,
         template: cv.template,
+        templateColor: cv.templateColor,
         updatedAt: cv.updatedAt,
         createdAt: cv.createdAt,
         sectionsOrder: cv.sectionsOrder,
@@ -63,6 +65,7 @@ const mapServerCVToPublicCVMetadata = (
         title: cv.title,
         jobTitle: cv.jobTitle,
         template: cv.template,
+        templateColor: cv.templateColor,
         createdAt: cv.createdAt,
         updatedAt: cv.updatedAt,
         photoId,

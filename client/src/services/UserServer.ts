@@ -1,4 +1,4 @@
-import { InitialDataSyncAttributes, SyncedDataAttributes, UserAccountDetails } from "../interfaces/user";
+import { InitialDataSyncAttributes, SyncedDataAttributes, UserAccountDetails, UserPreferences } from "../interfaces/user";
 import { apiService } from "./api";
 
 export class UserServerService {
@@ -25,6 +25,19 @@ export class UserServerService {
         return await apiService.post<void>(
             this.apiUrl + '/preferences/profile_picture_default',
             { useAsDefault }
+        );
+    }
+
+    public static async getUserPreferences(): Promise<UserPreferences> {
+        return await apiService.get<UserPreferences>(
+            this.apiUrl + '/preferences',
+        )
+    }
+
+    public static async updateCustomColors(customColors: string[]): Promise<void> {
+        return await apiService.post<void>(
+            this.apiUrl + '/preferences/custom_colors',
+            { customColors }
         );
     }
 

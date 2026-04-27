@@ -107,7 +107,7 @@ const Castor: React.FC<TemplateComponentProps> = ({ CV }) => {
         <Document>
             <Page size='A4' style={styles.page}>
                 <View style={styles.pageContainer}>
-                    <View style={styles.leftContainer}>
+                    <View style={[styles.leftContainer, { backgroundColor: CV.templateColor }]}>
                         <CVComponents.CVPhoto CVPhoto={CV.photo}/>
                         <CVComponents.GeneralInfos 
                             phoneNumber={CV.phoneNumber}

@@ -1,13 +1,13 @@
-import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, UserWithMediaFiles, SyncedDataAttributes, UserCreationAttributes, UserAccountDetails } from "@/interfaces/user";
+import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, UserWithMediaFiles, SyncedDataAttributes, UserCreationAttributes, UserAccountDetails, UserPreferences } from "@/interfaces/user";
 import { User } from "@/models";
 import { generateRandomSuffix } from '@/utils/stringUtils/generateRandomSuffix'
 import userRespository from '@/repositories/user';
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
 import { handleServiceError } from '@/utils/serviceErrorHandler';
-import { userMappers } from "@/mappers";
 import { CVsService } from "./cv";
 import { DownloadsService } from "./downloads";
+import { mapServerUserToPublicUser, mapUserPreferences } from "@/mappers/user";
 
 export class UserService {
 
@@ -28,7 +28,7 @@ export class UserService {
     }
 
     static async getUserPublicData(userInstance: UserWithMediaFiles): Promise<PublicUserAttributes> {
-        return await userMappers.mapServerUserToPublicUser(userInstance);
+        return await mapServerUserToPublicUser(userInstance);
     }
 
     @handleServiceError('Password change failed')
@@ -86,7 +86,7 @@ export class UserService {
 
     @handleServiceError('Failed to get user profile')
     static async getAccountData(user: UserWithMediaFiles): Promise<UserAccountDetails> {
-        const userData = await userMappers.mapServerUserToPublicUser(user);
+        const userData = await mapServerUserToPublicUser(user);
         const activeCVs = await CVsService.countUserCVs(user.get().id);
         const totalDownloads = await DownloadsService.countTotalUserDownloads(user.get().id);
 
@@ -99,6 +99,11 @@ export class UserService {
             memberSince: user.get()?.createdAt ? user.get().createdAt!.toDateString() : '',
             useProfilePictureAsDefault: user.get().useProfilePictureAsDefault
         }
+    }
+
+    @handleServiceError('Failed to get user preferences')
+    static async getUserPreferences(user: UserWithMediaFiles): Promise<UserPreferences> {
+        return mapUserPreferences(user);
     }
 
     @handleServiceError('Failed to generate username')
@@ -158,6 +163,12 @@ export class UserService {
     static async updateProfilePicturePreference(user: User, useAsDefault: boolean): Promise<{ useProfilePictureAsDefault: boolean }> {
         await userRespository.saveUserChanges({ useProfilePictureAsDefault: useAsDefault }, user);
         return { useProfilePictureAsDefault: useAsDefault };
+    }
+
+    @handleServiceError('Failed to update custom colors')
+    static async updateCustomColors(user: User, customColors: string[]): Promise<{ customColors: string[] }> {
+        await userRespository.saveUserChanges({ customColors }, user);
+        return { customColors };
     }
 
 }

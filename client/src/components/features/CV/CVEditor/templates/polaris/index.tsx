@@ -93,7 +93,7 @@ const Polaris: React.FC<TemplateComponentProps> = ({ CV }) => {
         <Document>
             <Page size='A4' style={styles.page}>
                 <View style={styles.pageContainer}>
-                    <View style={[styles.bar, styles.barTop]} />
+                    <View style={[styles.bar, styles.barTop, { backgroundColor: CV.templateColor }]} />
                     <View style={styles.content}>
                         <View style={styles.header}>
                             <CVComponents.Name
@@ -120,7 +120,7 @@ const Polaris: React.FC<TemplateComponentProps> = ({ CV }) => {
                             />
                         </View>
                     </View>
-                    <View style={styles.bar} />
+                    <View style={[styles.bar, { backgroundColor: CV.templateColor }]} />
                 </View>
             </Page>
         </Document>

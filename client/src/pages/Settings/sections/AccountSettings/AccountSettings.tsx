@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../../Store";
@@ -33,9 +33,6 @@ const AccountSettings: React.FC = () => {
       console.error("Failed to update profile picture preference:", error);
     }
   });
-
-
-
 
   if (isLoading) return <div className="text-gray-600">Loading...</div>;
   if (error) return <div className="text-red-600">Error loading account data</div>;

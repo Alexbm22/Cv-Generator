@@ -16,6 +16,7 @@ import { DownloadsService } from '@/services/downloads';
 import { PaymentService } from '@/services/payments';
 import { SubscriptionService } from '@/services/subscriptions';
 import { CreditsService } from '@/services/credits';
+import { all } from 'axios';
 
 class User extends Model<ServerUserAttributes, UserCreationAttributes> implements ServerUserAttributes {
     public id!: number;
@@ -27,6 +28,7 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
     public isActive!: boolean;
     public needsInitialSync!: boolean;
     public useProfilePictureAsDefault!: boolean;
+    public customColors!: string[];
     public lastLogin!: Date | null;
     public password!: string | null;
     public tokenVersion!: number;
@@ -125,6 +127,11 @@ User.init({
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+    },
+    customColors: {
+        type: DataTypes.JSON,
+        defaultValue: [],
+        allowNull: false,
     },
     lastLogin: {
         type: DataTypes.DATE,

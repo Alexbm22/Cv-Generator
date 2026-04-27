@@ -3,6 +3,15 @@ import { SubscriptionAttributes } from "./subscription";
 import { GuestCVAttributes, UserCVAttributes } from "./cv";
 import { AuthProvider } from "./auth";
 
+export interface UserPreferences {
+    customColors: string[];
+    useProfilePictureAsDefault: boolean;
+}
+
+export interface GuestPreferences {
+    customColors: string[];
+}
+
 export interface UserAttributes {
     id: string;
     username: string;
