@@ -1,5 +1,17 @@
 import { CVTemplates, Language, ProficiencyLanguageLevel, SkillLevel, SocialLink } from "../../interfaces/cv";
 
+export const CV_COLOR_THEMES = [
+    '#2563EB', // Blue
+    '#DC2626', // Red
+    '#16A34A', // Green
+    '#9333EA', // Purple
+    '#EA580C', // Orange
+    '#0891B2', // Cyan
+    '#BE185D', // Pink
+    '#78716C', // Stone
+    '#1C1917', // Dark
+];
+
 export const CV_EDITOR_FORM_CONSTANTS = {
     sections: {
         personal_infos: {
@@ -314,6 +326,7 @@ export const DEFAULT_CV_EDITOR_STATE = {
     photo_last_uploaded: null,
     jobTitle: '',
     template: CVTemplates.CASTOR,
+    templateColor: CV_COLOR_THEMES[0],
     professionalSummary: '',
     sectionsOrder: [],
     languages: [],

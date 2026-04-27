@@ -1,7 +1,6 @@
-import { PublicUserAttributes, UserWithMediaFiles } from "@/interfaces/user";
-import { MediaFilesServices } from "@/services/mediaFiles";
+import { PublicUserAttributes, UserPreferences, UserWithMediaFiles } from "@/interfaces/user";
 
-const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<PublicUserAttributes> => {
+export const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<PublicUserAttributes> => {
     
     const userData = user.get();
 
@@ -16,6 +15,11 @@ const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promise<Publ
     };
 }
 
-export default {
-    mapServerUserToPublicUser
+export const mapUserPreferences = (user: UserWithMediaFiles): UserPreferences => {
+    const userData = user.get();
+
+    return {
+        useProfilePictureAsDefault: userData.useProfilePictureAsDefault,
+        customColors: userData.customColors
+    }
 }

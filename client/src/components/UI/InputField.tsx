@@ -12,8 +12,8 @@ interface InputFieldProps {
 
 const InputField: React.FC<InputFieldProps> = ({id, label, placeholder, value, onChange, type, name}) => {
     return (
-        <div className="flex flex-col space-y-2 w-full">
-            <label htmlFor={id} className="text-base text-[#154D71] font-bold">{label}</label>
+        <div className="flex flex-col space-y-1.5 w-full">
+            <label htmlFor={id} className="text-sm text-[#1d1d1f] font-medium">{label}</label>
             <input
                 id={id}
                 type={type ?? 'text'}
@@ -21,7 +21,7 @@ const InputField: React.FC<InputFieldProps> = ({id, label, placeholder, value, o
                 value={value}
                 onChange={onChange}
                 name={name ?? 'input'}
-                className="w-full h-11 font-medium bg-[#eff9ff] text-gray-600 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-[#33A1E0] focus:border-[#33A1E0] transition"
+                className="w-full h-11 font-medium bg-white text-[#1d1d1f] px-4 py-2 border border-[#d2d2d7] rounded-xl shadow-none focus:outline-none focus:ring-1 focus:ring-[#0071e3] focus:border-[#0071e3] placeholder-[#9c9ca4] transition"
             />
         </div>
     )

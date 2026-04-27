@@ -53,28 +53,28 @@ export const PhotoSelector: React.FC<PhotoSelectorProps> = ({handleSelectingCanc
     const inputRef = useRef<HTMLInputElement>(null);
 
     return (
-            <div className="flex flex-col justify-center w-full h-full min-h-40 border border-gray-300 bg-[#eff9ff] rounded-md font-medium">
+            <div className="flex flex-col justify-center w-full h-full min-h-40 border border-[#d2d2d7]/50 bg-white rounded-2xl font-medium shadow-[0_2px_12px_rgba(0,0,0,0.07)]">
                 <div
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     className="relative flex flex-col items-center justify-center cursor-default"
                 >
-                    <p>Drag and drop your photo</p>
+                    <p className="text-[#6e6e73] text-sm">Drag and drop your photo</p>
 
                     <div className="flex mt-4 gap-x-2">
                         <button
                             type="button"
                             onClick={() => inputRef.current?.click()}
-                            className="font-medium text-md p-2 pl-3 pr-3 text-[#007dff] w-fit cursor-pointer bg-[#d7e9ff] 
-                            hover:bg-[#cce0f9] transition-colors duration-200 rounded-md"
+                            className="font-medium text-sm py-2 px-4 text-white w-fit cursor-pointer bg-[#0071e3] 
+                            hover:bg-[#0060c7] transition-colors duration-200 rounded-full"
                         >
                             Select Photo
                         </button>
                         <button
                             type="button"
                             onClick={handleSelectingCancel}
-                            className="font-medium text-md p-2 pl-3 pr-3 text-[#007dff] w-fit cursor-pointer bg-[#d7e9ff] 
-                            hover:bg-[#cce0f9] transition-colors duration-200 rounded-md"
+                            className="font-medium text-sm py-2 px-4 text-[#0071e3] w-fit cursor-pointer bg-[#f5f5f7] border border-[#d2d2d7]/60
+                            hover:bg-[#e8e8ed] transition-colors duration-200 rounded-full"
                         >
                             Cancel
                         </button>

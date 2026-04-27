@@ -89,10 +89,10 @@ const CVEditorForm: React.FC<ComponentProps> = ({ isShowingPreview }) => {
 
     return (
         <div 
-            className="transition-all duration-1000 bg-[#f3fbff] w-full shadow-lg z-0.5 overflow-y-auto"
+            className="transition-all duration-1000 bg-[#f5f5f7] w-full shadow-lg z-0.5 overflow-y-auto"
             style={isShowingPreview ? {flexBasis: '56.25%'} : {flexBasis: '100%'} }
          >
-            <div className="p-cv-editor-padding gap-5 flex flex-col">   
+            <div className="p-cv-editor-padding gap-4 flex flex-col">   
                 <PersonalInfos/>
                 <SortableSectionList sections={sectionsOrder} onReorder={handleReorder}>
                     {sectionsOrder.map(section => {

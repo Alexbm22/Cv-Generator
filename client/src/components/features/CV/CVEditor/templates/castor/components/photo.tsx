@@ -18,7 +18,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 'auto',
     borderRadius: 100,
-    objectFit: 'cover'
+    objectFit: 'cover',
+    borderWidth: 3,
+    borderColor: 'white',
+    borderStyle: 'solid',
   }
 })
 

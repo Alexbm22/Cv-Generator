@@ -4,6 +4,7 @@ import { useErrorStore } from "./useErrorStore";
 import { useAuthStore } from "./useAuthStore";
 import { useCVsStore } from "./useCVsStore";
 import { useLoadingStore } from "./useLoadingStore";
+import { usePreferencesStore } from "./usePreferencesStore";
 
 export { 
     useCvEditStore, 
@@ -12,4 +13,5 @@ export {
     useErrorStore,
     useAuthStore,
     useLoadingStore,
+    usePreferencesStore,
 };

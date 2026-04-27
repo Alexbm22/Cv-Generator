@@ -36,7 +36,7 @@ const CVEditPage = () => {
         <>
             <div className="flex flex-col h-screen">
                 <CVEditNav />
-                <div className="flex transition-all duration-1000 w-full flex-1 relative pt-15">
+                <div className="flex transition-all duration-1000 w-full flex-1 relative pt-15" style={{ scrollbarGutter: 'stable' }}>
                     {editorType === 'form' && <CVEditorForm isShowingPreview={isShowingPreview} />}
                     {editorType === 'template' && <TemplateEditor isShowingPreview={isShowingPreview} />}
                     {editorType === 'ai' && <AiEditor isShowingPreview={isShowingPreview} />}

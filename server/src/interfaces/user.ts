@@ -22,6 +22,11 @@ export interface UserAccountDetails {
     useProfilePictureAsDefault: boolean;
 }
 
+export interface UserPreferences {
+    useProfilePictureAsDefault: boolean;
+    customColors: string[];
+}
+
 export interface ServerUserAttributes {
     id: number;
     public_id: string;
@@ -33,6 +38,7 @@ export interface ServerUserAttributes {
     isActive: boolean;
     needsInitialSync: boolean;
     useProfilePictureAsDefault: boolean;
+    customColors: string[];
     lastLogin: Date | null;
     tokenVersion: number;
     createdAt?: Date;
@@ -62,4 +68,4 @@ export interface InitialDataSyncAttributes {
 }
 
 export interface UserCreationAttributes extends Optional<ServerUserAttributes, 
-'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'useProfilePictureAsDefault' | 'public_id' | 'tokenVersion'> {}
+'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'useProfilePictureAsDefault' | 'customColors' | 'public_id' | 'tokenVersion'> {}

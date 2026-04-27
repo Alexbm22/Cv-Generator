@@ -52,4 +52,27 @@ export class UserController {
             return next(error);
         }
     }
+
+    static async getUserPreferences(req: AuthRequest, res: Response, next: NextFunction) {
+        const authenticatedUser = req.user;
+
+        try {
+            const preferences = await UserService.getUserPreferences(authenticatedUser);
+            return res.status(200).json(preferences);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    static async updateCustomColors(req: AuthRequest, res: Response, next: NextFunction) {
+        const authenticatedUser = req.user;
+        const { customColors } = req.body;
+
+        try {
+            const result = await UserService.updateCustomColors(authenticatedUser, customColors);
+            return res.status(200).json(result);
+        } catch (error) {
+            return next(error);
+        }
+    }
 }

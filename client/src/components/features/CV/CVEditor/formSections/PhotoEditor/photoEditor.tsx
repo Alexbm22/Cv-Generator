@@ -53,11 +53,11 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
         <div className="flex-1 h-full z-2" ref={photoEditorRef}>
             {
                 !isSelectingPhoto && (
-                    <div className="bottom-0 left-0 h-full flex flex-row gap-x-4 justify-start items-end p-4 border bg-[#eff9ff] border-gray-200 rounded-lg shadow-sm">
+                    <div className="bottom-0 left-0 h-full flex flex-row gap-x-4 justify-start items-end p-4 border bg-white border-[#d2d2d7]/50 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.07)]">
 
                         <div className="h-33 w-auto overflow-hidden">
                             <img 
-                                className="h-full w-auto object-cover rounded-lg border-gray-300 shadow-sm" 
+                                className="h-full w-auto object-cover rounded-xl border border-[#d2d2d7]/50 shadow-sm" 
                                 src={cvPhotoBlobUrl ?? "/Images/anonymous_Picture.png"} 
                                 alt="Image"
                             />
@@ -112,7 +112,7 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
 
             {   
                 (selectedPhoto && isSelectingPhoto) && (
-                    <div className="bg-[#eff9ff] p-6 rounded-md shadow-md border border-gray-200">
+                    <div className="bg-white p-6 rounded-2xl border border-[#d2d2d7]/50 shadow-[0_2px_12px_rgba(0,0,0,0.07)]">
                         <CVPhotoCropper 
                             imageSrc={selectedPhoto}
                             onCropFail={handleCancel}

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Check, Plus } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Check, Plus, X } from 'lucide-react';
 import { useCvEditStore } from '../../../../Store';
 import { CVTemplates } from '../../../../interfaces/cv';
+import { CV_COLOR_THEMES } from '../../../../constants/CV/CVEditor';
+import { useUserPreferences } from '../../../../hooks/useUserPreferences';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -18,18 +20,6 @@ const TEMPLATE_PREVIEW_SRC = (template: CVTemplates) =>
     `/Images/template-previews/${template}.png`;
 
 const ALL_TEMPLATES = Object.values(CVTemplates);
-
-const PREDEFINED_COLORS = [
-    '#2563EB', // Blue
-    '#DC2626', // Red
-    '#16A34A', // Green
-    '#9333EA', // Purple
-    '#EA580C', // Orange
-    '#0891B2', // Cyan
-    '#BE185D', // Pink
-    '#78716C', // Stone
-    '#1C1917', // Dark
-];
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -85,27 +75,40 @@ interface ColorSwatchProps {
     color: string;
     isSelected: boolean;
     onSelect: (color: string) => void;
+    onDelete?: (color: string) => void;
 }
 
-const ColorSwatch: React.FC<ColorSwatchProps> = ({ color, isSelected, onSelect }) => (
-    <button
-        onClick={() => onSelect(color)}
-        aria-pressed={isSelected}
-        aria-label={`Select color ${color}`}
-        title={color}
-        className={[
-            'w-8 h-8 rounded-full transition-all duration-200 cursor-pointer',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#007dff]',
-            isSelected
-                ? 'scale-110 ring-2 ring-offset-2 ring-gray-400/60 shadow-md'
-                : 'hover:scale-110 ring-1 ring-gray-300/40 hover:shadow',
-        ].join(' ')}
-        style={{ backgroundColor: color }}
-    >
-        {isSelected && (
-            <Check size={14} strokeWidth={3} className="m-auto text-white drop-shadow" />
+const ColorSwatch: React.FC<ColorSwatchProps> = ({ color, isSelected, onSelect, onDelete }) => (
+    <div className="relative group/swatch">
+        <button
+            onClick={() => onSelect(color)}
+            aria-pressed={isSelected}
+            aria-label={`Select color ${color}`}
+            title={color}
+            className={[
+                'w-8 h-8 rounded-full transition-all duration-200 cursor-pointer',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#007dff]',
+                isSelected
+                    ? 'scale-110 ring-2 ring-offset-2 ring-gray-400/60 shadow-md'
+                    : 'hover:scale-110 ring-1 ring-gray-300/40 hover:shadow',
+            ].join(' ')}
+            style={{ backgroundColor: color }}
+        >
+            {isSelected && (
+                <Check size={14} strokeWidth={3} className="m-auto text-white drop-shadow" />
+            )}
+        </button>
+        {onDelete && (
+            <button
+                onClick={(e) => { e.stopPropagation(); onDelete(color); }}
+                aria-label={`Delete color ${color}`}
+                title={`Remove ${color}`}
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-400 text-white flex items-center justify-center opacity-0 group-hover/swatch:opacity-100 transition-opacity duration-150 focus:outline-none z-10 shadow cursor-pointer"
+            >
+                <X size={8} strokeWidth={3} />
+            </button>
         )}
-    </button>
+    </div>
 );
 
 // ---------------------------------------------------------------------------
@@ -115,23 +118,60 @@ const ColorSwatch: React.FC<ColorSwatchProps> = ({ color, isSelected, onSelect }
 const TemplateEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview }) => {
     const template = useCvEditStore((state) => state.template);
     const setTemplate = useCvEditStore((state) => state.setTemplate);
-    const colorTheme = useCvEditStore((state) => state.colorTheme);
+    const templateColor = useCvEditStore((state) => state.templateColor);
     const setTemplateColorTheme = useCvEditStore((state) => state.setTemplateColorTheme);
+
+    const { preferences, error, updateCustomColors } = useUserPreferences();
 
     const [customColorInput, setCustomColorInput] = useState('#000000');
     const [showCustomPicker, setShowCustomPicker] = useState(false);
 
-    const handleApplyCustomColor = () => {
-        setTemplateColorTheme(customColorInput);
+    const [colors, setColors] = useState<string[]>(CV_COLOR_THEMES);
+
+    const selectColor = useCallback((color: string) => {
+        const isSelected = color === templateColor;
+
+        if (isSelected) {
+            setCustomColorInput(color);
+            setShowCustomPicker(true);
+        } else {
+            setTemplateColorTheme(color);
+        }
+    }, [setTemplateColorTheme, templateColor]);
+
+    const deleteCustomColor = useCallback(async (colorToDelete: string) => {
+        if (preferences) {
+            const updatedColors = preferences.customColors.filter((c) => c !== colorToDelete);
+            await updateCustomColors(updatedColors);
+            if (templateColor === colorToDelete) {
+                setTemplateColorTheme(CV_COLOR_THEMES[0]);
+            }
+        }
+    }, [preferences, updateCustomColors, templateColor, setTemplateColorTheme]);
+
+    const addCustomColor = useCallback(async (newColor: string) => {
+        if (colors.includes(newColor)) {
+            selectColor(newColor);
+        } else if (preferences) {
+            const updatedColors = [...preferences.customColors, newColor];
+            await updateCustomColors(updatedColors);
+        }
+        setTemplateColorTheme(newColor);
         setShowCustomPicker(false);
-    };
+    }, [preferences, updateCustomColors, setTemplateColorTheme, colors, selectColor]);
+    
+    useEffect(() => {
+        if (preferences && !error) {
+            setColors([...CV_COLOR_THEMES, ...preferences.customColors]);
+        }
+    }, [preferences, error]);
 
     return (
         <div
-            className="transition-all duration-1000 bg-[#f3fbff] w-full shadow-lg z-0.5 overflow-y-auto"
+            className="transition-all duration-1000 bg-[#f5f5f7] w-full shadow-lg z-0.5 overflow-y-auto"
             style={isShowingPreview ? { flexBasis: '56.25%' } : { flexBasis: '100%' }}
         >
-            <div className="px-6 py-8 mr-auto flex flex-col gap-10">
+            <div className="p-cv-editor-padding  mr-auto flex flex-col gap-10">
 
                 {/* ── Template Selection ─────────────────────────────────── */}
                 <section aria-label="Template selection">
@@ -160,7 +200,6 @@ const TemplateEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPrev
                         <h2 className="text-xl text-[#154D71] font-bold">Color Theme</h2>
                         <p className="text-sm text-gray-400 mt-1">
                             Personalize the accent color of your template.
-                            <span className="ml-1 text-xs text-gray-300">(coming soon)</span>
                         </p>
                     </div>
 
@@ -170,12 +209,13 @@ const TemplateEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPrev
                         </p>
 
                         <div className="flex flex-wrap gap-3 items-center">
-                            {PREDEFINED_COLORS.map((color) => (
+                            {colors.map((color) => (
                                 <ColorSwatch
                                     key={color}
                                     color={color}
-                                    isSelected={colorTheme === color}
-                                    onSelect={setTemplateColorTheme}
+                                    isSelected={templateColor === color}
+                                    onSelect={() => selectColor(color)}
+                                    onDelete={!CV_COLOR_THEMES.includes(color) ? deleteCustomColor : undefined}
                                 />
                             ))}
 
@@ -209,24 +249,24 @@ const TemplateEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPrev
                                     {customColorInput.toUpperCase()}
                                 </span>
                                 <button
-                                    onClick={handleApplyCustomColor}
+                                    onClick={() => addCustomColor(customColorInput)}
                                     className="ml-auto px-4 py-1.5 rounded-full text-xs font-semibold bg-[#007dff] text-white hover:bg-[#0066d6] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007dff] focus-visible:ring-offset-1"
                                 >
-                                    Apply
+                                    Add Color
                                 </button>
                             </div>
                         )}
 
-                        {colorTheme && (
+                        {templateColor && (
                             <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2.5">
                                 <div
                                     className="w-4 h-4 rounded-full shadow-sm ring-1 ring-gray-300/50"
-                                    style={{ backgroundColor: colorTheme }}
+                                    style={{ backgroundColor: templateColor }}
                                 />
                                 <span className="text-xs text-gray-500">
                                     Selected:{' '}
                                     <span className="font-mono font-medium text-gray-700">
-                                        {colorTheme.toUpperCase()}
+                                        {templateColor.toUpperCase()}
                                     </span>
                                 </span>
                             </div>

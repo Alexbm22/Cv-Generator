@@ -33,8 +33,6 @@ export const useCvEditStore = create<CVEditStore>()(
                 ...createStoreActionsSlice(set, get),
                 editorType: 'form' as EditorType,
                 setEditorType: (type: EditorType) => set({ editorType: type }),
-                colorTheme: null,
-                setTemplateColorTheme: (color: string) => set({ colorTheme: color }),
             })
         ), 
         {
