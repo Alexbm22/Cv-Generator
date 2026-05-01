@@ -7,12 +7,13 @@ interface QuillEditorProps {
   onHtmlChange?: (html: string) => void;
   htmlContent?: string;
   placeholder?: string;
+  containerClassName?: string;
 }
 
 export interface QuillInstance extends Quill {}
 
 const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
-  ({ onHtmlChange, htmlContent, placeholder }, ref) => {
+  ({ onHtmlChange, htmlContent, placeholder, containerClassName }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const quillRef = useRef<Quill | null>(null);
     const onHtmlChangeRef = useRef(onHtmlChange);
@@ -49,7 +50,7 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       if (toolbar) toolbar.classList.add('p-4', 'rounded-lg');
 
       const editorContent = editorContainer.querySelector('.ql-editor') as HTMLElement;
-      if (editorContent) editorContent.classList.add('not-italic', 'text-gray-700', 'text-base');
+      if (editorContent) editorContent.classList.add('not-italic', 'text-[#1d1d1f]', 'text-[15px]');
 
       // Set refs
       if (ref && typeof ref === 'object') {
@@ -93,7 +94,10 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
     return (
       <div
         ref={containerRef}
-        className="border border-gray-300 rounded-lg overflow-hidden shadow-sm focus:outline-none hover:cursor-text"
+        className={
+          containerClassName ??
+          "border border-[#d2d2d7] rounded-2xl overflow-hidden hover:cursor-text"
+        }
         onClick={() => quillRef.current?.focus()}
       />
     );

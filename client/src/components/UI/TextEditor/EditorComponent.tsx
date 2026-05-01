@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import QuillEditor, { QuillInstance } from "./QuillEditor";
+import { AiToggleButton, AiPanel } from "./AiAssistant";
 
 interface MainComponentProps {
   htmlContent: string;
@@ -9,16 +10,34 @@ interface MainComponentProps {
 
 export default function MainComponent({htmlContent, onHtmlChange, placeholder}: MainComponentProps) {
   const quillRef = useRef<QuillInstance>(null);
-
+  const [aiOpen, setAiOpen] = useState(false);
 
   return (
     <section className="editor-container" dir="ltr">
-      <QuillEditor
-        ref={quillRef}
-        htmlContent={htmlContent}
-        onHtmlChange={onHtmlChange}
-        placeholder={placeholder}
-      />
+      <div className="relative">
+        <div className="absolute top-0 right-2.5 h-11 z-10 flex items-center">
+          <AiToggleButton
+            isOpen={aiOpen}
+            onToggle={() => setAiOpen((prev) => !prev)}
+          />
+        </div>
+
+        {/* Quill editor – bottom corners squared off when panel is open */}
+        <QuillEditor
+          ref={quillRef}
+          htmlContent={htmlContent}
+          onHtmlChange={onHtmlChange}
+          placeholder={placeholder}
+          containerClassName={[
+            "border border-[#d2d2d7] overflow-hidden hover:cursor-text",
+            "transition-[border-radius] duration-300",
+            aiOpen ? "rounded-t-2xl" : "rounded-2xl",
+          ].join(" ")}
+        />
+
+        {/* AI panel – slides out from under the editor */}
+        <AiPanel isOpen={aiOpen} />
+      </div>
     </section>
   );
 }

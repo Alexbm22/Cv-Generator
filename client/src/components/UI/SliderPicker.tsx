@@ -60,26 +60,26 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
 
     return (
         <div ref={parentRef} className='flex flex-col space-y-2 w-full'>   
-            <div className='flex flex-row '>
-                <label className="text-base text-gray-600 font-bold">Level: </label>
+            <div className='flex flex-row items-baseline gap-x-2'>
+                <label className="text-sm font-semibold text-[#1d1d1f]">Level:</label>
                 <p 
-                    className='ml-3 font-semibold' 
-                    style={{ color: selectedLevel ? LevelsMap[selectedLevel].color : '#4a5565' }}>
+                    className='text-sm font-semibold tracking-[-0.01em]' 
+                    style={{ color: selectedLevel ? LevelsMap[selectedLevel].color : '#9c9ca4' }}>
                     {selectedLevel || 'Choose a level'}
                 </p>
             </div>
 
-            <div ref={containerRef} className=' relative flex divide-x divide-gray-300 flex-row border border-gray-300 shadow-sm h-11 overflow-hidden rounded-md '>
+            <div ref={containerRef} className='relative flex divide-x divide-[#d2d2d7] flex-row border border-[#d2d2d7] h-11 overflow-hidden rounded-xl'>
                 <div 
                     ref={sliderRef}
-                    className='absolute transition-all duration-400 ease-in-out h-11 rounded-md'
+                    className='absolute transition-all duration-400 ease-in-out h-11 rounded-xl'
                 ></div>
                 {Object.keys(LevelsMap).map((level) => {
                     return (
                         <button
                             key={level}
-                            className='w-full cursor-pointer z-10 font-semibold'
-                            style={{ color: '#494949' }}
+                            className='w-full cursor-pointer z-10 text-sm font-semibold tracking-[-0.01em]'
+                            style={{ color: '#1d1d1f' }}
                             onClick={() => handleButtonClick(level)}
                         > {LevelsMap[level].displayedVal} </button>
                     );

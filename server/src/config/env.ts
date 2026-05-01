@@ -46,6 +46,7 @@ const envSchema = z.object({
 
     STRIPE_SECRET_KEY: z.string(),
     STRIPE_WEBHOOK_SECRET: z.string(),
+    OPENAI_API_KEY: z.string(),
 });
 
 const parsed = envSchema.safeParse(process.env);
