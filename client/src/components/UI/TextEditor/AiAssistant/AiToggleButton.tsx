@@ -19,11 +19,11 @@ export default function AiToggleButton({ isOpen, onToggle }: AiToggleButtonProps
         "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full",
         "text-[11px] font-semibold tracking-wide",
         "select-none cursor-pointer",
-        "transition-all duration-200 ease-out",
+        "transition-all duration-150 ease-out active:scale-[0.94]",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3] focus-visible:ring-offset-1",
         "border",
         isOpen
-          ? "bg-[#0071e3] text-white shadow-sm border-[#0071e3]/60"
+          ? "bg-gradient-to-b from-[#0071e3] to-[#0065d1] text-white shadow-sm border-[#005bbf]/60"
           : "bg-white text-[#6e6e73] border-[#d2d2d7] shadow-sm hover:text-[#0071e3] hover:border-[#0071e3]/60 hover:shadow",
       ].join(" ")}
     >

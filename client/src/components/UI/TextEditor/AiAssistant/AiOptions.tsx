@@ -24,7 +24,7 @@ function OptionChip({ option, isSelected, onToggle }: OptionChipProps) {
         "inline-flex items-center px-3 py-1.5 rounded-full",
         "text-[12px] font-medium whitespace-nowrap",
         "transition-all duration-150 ease-out",
-        "cursor-pointer select-none",
+        "cursor-pointer select-none active:scale-[0.94]",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]",
         isSelected
           ? "bg-[#0071e3] text-white shadow-sm"

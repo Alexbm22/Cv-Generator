@@ -17,6 +17,7 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     const quillRef = useRef<Quill | null>(null);
     const onHtmlChangeRef = useRef(onHtmlChange);
+    const isExternalUpdateRef = useRef(false);
 
     useLayoutEffect(() => {
       onHtmlChangeRef.current = onHtmlChange;
@@ -65,6 +66,7 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       }
 
       quill.on(Quill.events.TEXT_CHANGE, () => {
+        if (isExternalUpdateRef.current) return;
         const html = editorContainer.querySelector('.ql-editor')?.innerHTML || '';
         if (onHtmlChangeRef.current) {
           onHtmlChangeRef.current(html);
@@ -80,15 +82,17 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       };
     }, [ref]);
 
-    // If htmlContent arrives after the editor has already mounted (e.g. async store load),
-    // populate it — but only when the editor is still empty to avoid overwriting user input.
+    // Sync htmlContent prop into the Quill DOM whenever it changes externally
+    // (e.g. initial async load or AI apply). Guard with isExternalUpdateRef to
+    // suppress the TEXT_CHANGE event that dangerouslyPasteHTML fires, preventing
+    // an infinite update loop.
     useEffect(() => {
-      if (!quillRef.current || !htmlContent) return;
+      if (!quillRef.current || htmlContent === undefined) return;
       const currentHtml = quillRef.current.root.innerHTML;
-      const editorIsEmpty = currentHtml === '<p><br></p>' || currentHtml === '';
-      if (editorIsEmpty) {
-        quillRef.current.clipboard.dangerouslyPasteHTML(htmlContent);
-      }
+      if (currentHtml === htmlContent) return;
+      isExternalUpdateRef.current = true;
+      quillRef.current.clipboard.dangerouslyPasteHTML(htmlContent);
+      isExternalUpdateRef.current = false;
     }, [htmlContent]);
 
     return (
