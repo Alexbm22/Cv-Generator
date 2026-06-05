@@ -16,7 +16,7 @@ const mapPublicCVToServerCV = (
         sectionsOrder: cv.sectionsOrder,
         templateColor: cv.templateColor,
         content: {
-            professionalSummary: cv.professionalSummary,
+            aboutMe: cv.aboutMe,
             languages: cv.languages,
             skills: cv.skills,
             workExperience: cv.workExperience,
@@ -82,6 +82,11 @@ const extractCVMediaFiles = (cv: CVWithMediaFiles) => {
         CVPhoto: photo,
         CVPreview: preview
     };
+}
+
+export const mapServerCVToAiOptimizedCVContent = (cv: ServerCVAttributes) => {
+    const { photoId, previewId, id, photo_last_uploaded, updatedAt, createdAt, sectionsOrder, ...rest } = mapServerCVToPublicCV(cv, '', '');
+    return rest;
 }
 
 export default {

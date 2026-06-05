@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import {
     PersonalInfos,
-    ProfessionalSummary,
+    AboutMe,
     WorkExperience,
     Education,
     Skill,
@@ -23,7 +23,7 @@ const sections_mapping: Record<string, React.FC<{ }>> = {
     socialLinks: SocialLinks,
     skills: Skill,
     languages: Language,
-    aboutMe: ProfessionalSummary,
+    aboutMe: AboutMe,
     workExperience: WorkExperience,
     education: Education,
     projects: Projects,
@@ -36,7 +36,7 @@ const sections_labels: Record<string, { title: string; description?: string }> =
     socialLinks: { title: sectionConstants.personal_infos.fields.social_links.title, description: sectionConstants.personal_infos.fields.social_links.description },
     skills: { title: sectionConstants.skills.title, description: sectionConstants.skills.description },
     languages: { title: sectionConstants.languages.title, description: sectionConstants.languages.description },
-    aboutMe: { title: sectionConstants.professional_summary.title, description: sectionConstants.professional_summary.description },
+    aboutMe: { title: sectionConstants.about_me.title, description: sectionConstants.about_me.description },
     workExperience: { title: sectionConstants.work_experience.title, description: sectionConstants.work_experience.description },
     education: { title: sectionConstants.education.title, description: sectionConstants.education.description },
     projects: { title: sectionConstants.projects.title, description: sectionConstants.projects.description },
@@ -112,6 +112,7 @@ const CVEditorForm: React.FC<ComponentProps> = ({ isShowingPreview }) => {
                                 editableTitle={section.id === 'customSections'}
                                 titlePlaceholder={sectionConstants.custom_section.section_title_placeholder}
                                 onTitleChange={section.id === 'customSections' ? setCustomSectionTitle : undefined}
+                                showAiToggle={section.id === 'aboutMe'}
                             >
                                 <SectionComponent />
                             </SortableSectionItem>

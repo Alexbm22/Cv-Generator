@@ -3,11 +3,18 @@ export interface HistoryEntry {
   content: string;
 }
 
-export interface PendingChange {
-  field: string;
-  original: string;
-  proposed: string;
-  changeType: 'replace' | 'append' | 'rewrite';
+export interface SectionItemOperation {
+  operationType: 'update_item';
+  sectionType: string;
+  itemId: string;
+  newValue: string;      // JSON-stringified updated item (without id)
+  originalValue: string; // JSON-stringified original item (without id)
+}
+
+export interface SetAboutMeOperation {
+  operationType: 'set_about_me';
+  newValue: string;
+  originalValue: string;
 }
 
 export interface ConversationMessage {
@@ -19,12 +26,46 @@ export interface ConversationMessage {
 export interface AIPanelState {
   conversation: ConversationMessage[];
   history: HistoryEntry[];
-  pendingChange: PendingChange | null;
+  pendingOperation: SectionItemOperation | null;
+  pendingTextChange: { original: string; proposed: string } | null;
   isLoading: boolean;
 }
 
-export interface AIResponseBody {
-  change: PendingChange | null;
+export interface SectionEditResponseBody {
+  operation: SectionItemOperation;
+  message: string;
+  history: HistoryEntry[];
+}
+
+export interface TextFieldEditResponseBody {
+  operations: Array<{
+    operationType: 'set_field';
+    field: string;
+    newValue: string;
+    originalValue: string;
+  }>;
+  message: string;
+  history: HistoryEntry[];
+}
+
+export interface AboutMeEditResponseBody {
+  setAboutMe: SetAboutMeOperation;
+  message: string;
+  history: HistoryEntry[];
+}
+
+// ── Full CV edit ─────────────────────────────────────────────────────────────
+
+export type CVEditOperation =
+  | { operationType: 'update_item'; sectionType: string; itemId: string; newValue: string; originalValue: string }
+  | { operationType: 'add_item'; sectionType: string; newValue: string }
+  | { operationType: 'remove_item'; sectionType: string; itemId: string }
+  | { operationType: 'set_field'; field: string; newValue: string; originalValue: string }
+  | { operationType: 'set_custom_section_title'; value: string }
+  | { operationType: 'set_about_me'; newValue: string; originalValue: string };
+
+export interface CVEditResponseBody {
+  operations: CVEditOperation[];
   message: string;
   history: HistoryEntry[];
 }

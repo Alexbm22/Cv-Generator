@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
-import Collapsable from '../../../../UI/Collapsable';
+import Collapsable, { CollapsableAiContext } from '../../../../UI/Collapsable';
 import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { Education } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import { AiPanel } from '../../../../UI/TextEditor/AiAssistant';
 
 interface ComponentProps {
     education: Education
@@ -17,6 +18,9 @@ const { fields: fieldsConstants } = educationConstants;
 const EducationComponent:React.FC<ComponentProps> = ({ education }) => {
 
     const updateEducation = useCvEditStore((state) => state.updateEducation);
+
+    const collapsableCtx = useContext(CollapsableAiContext);
+    const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : true;
 
     return (
         <div className='p-0.5'>
@@ -60,6 +64,27 @@ const EducationComponent:React.FC<ComponentProps> = ({ education }) => {
                 htmlContent={education.description}
                 onHtmlChange={(html) => updateEducation(education.id, { description: sanitizeHtml(html) })}
                 placeholder={fieldsConstants.section_description}
+                sectionType='education'
+            />
+
+            <AiPanel
+                isOpen={aiOpen}
+                sectionType="education"
+                contentId={education.id}
+                currentItem={{
+                    degree: education.degree,
+                    institution: education.institution,
+                    startDate: new Date(education.startDate).toISOString().slice(0, 10),
+                    endDate: new Date(education.endDate).toISOString().slice(0, 10),
+                    description: education.description,
+                }}
+                onApplyChange={(newItem) => updateEducation(education.id, {
+                    ...(newItem.degree !== undefined && { degree: String(newItem.degree) }),
+                    ...(newItem.institution !== undefined && { institution: String(newItem.institution) }),
+                    ...(newItem.startDate !== undefined && { startDate: new Date(String(newItem.startDate)) }),
+                    ...(newItem.endDate !== undefined && { endDate: new Date(String(newItem.endDate)) }),
+                    ...(newItem.description !== undefined && { description: sanitizeHtml(String(newItem.description)) }),
+                })}
             />
         </div>
     )
@@ -68,7 +93,6 @@ const EducationComponent:React.FC<ComponentProps> = ({ education }) => {
 const EducationMain:React.FC = () => {
 
     const education = useCvEditStore((state) => state.education);
-    const addEducation = useCvEditStore((state) => state.addEducation);
     const removeEducation = useCvEditStore((state) => state.removeEducation);
     
     return (

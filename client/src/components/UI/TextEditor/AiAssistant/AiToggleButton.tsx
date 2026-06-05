@@ -23,8 +23,8 @@ export default function AiToggleButton({ isOpen, onToggle }: AiToggleButtonProps
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3] focus-visible:ring-offset-1",
         "border",
         isOpen
-          ? "bg-gradient-to-b from-[#0071e3] to-[#0065d1] text-white shadow-sm border-[#005bbf]/60"
-          : "bg-white text-[#6e6e73] border-[#d2d2d7] shadow-sm hover:text-[#0071e3] hover:border-[#0071e3]/60 hover:shadow",
+          ? "bg-[#0071e3] text-white border-[#0071e3]"
+          : "bg-transparent text-[#6e6e73] border-[#d2d2d7] hover:text-[#0071e3] hover:border-[#0071e3]/60",
       ].join(" ")}
     >
       <SparklesIcon className="w-3.5 h-3.5 flex-shrink-0" />

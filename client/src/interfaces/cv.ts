@@ -116,7 +116,7 @@ export interface CVEditStoreMetadataAttributes extends CVMetadataAttributes {
 
 export interface CVContentAttributes {
     sectionsOrder: Section[];
-    professionalSummary: string,
+    aboutMe: string,
     languages: Language[],
     skills: Skill[],
     workExperience: WorkExperience[],
@@ -146,30 +146,30 @@ export interface CVEditStoreMetadataActions {
 }
 
 export interface CVEditStoreContentActions {
-    setProfessionalSummary: (summary: string) => void;
+    setAboutMe: (summary: string) => void;
 
-    addLanguage: () => void;
+    addLanguage: (initial?: Partial<Omit<Language, 'id'>>) => void;
     removeLanguage: (id: string) => void;
     updateLanguage: (id: string, language: Partial<Language>) => void;
     
-    addSkill: () => void;
+    addSkill: (initial?: Partial<Omit<Skill, 'id'>>) => void;
     removeSkill: (id: string) => void;
     updateSkill: (id: string, skill: Partial<Skill>) => void;
     
-    addWorkExperience: () => void;
+    addWorkExperience: (initial?: Partial<Omit<WorkExperience, 'id'>>) => void;
     removeWorkExperience: (id: string) => void;
     updateWorkExperience: (id: string, workExperience: Partial<WorkExperience>) => void;
 
-    addEducation: () => void;
+    addEducation: (initial?: Partial<Omit<Education, 'id'>>) => void;
     removeEducation: (id: string) => void;
     updateEducation: (id: string, education: Partial<Education>) => void;
 
-    addProject: () => void;
+    addProject: (initial?: Partial<Omit<Project, 'id'>>) => void;
     removeProject: (id: string) => void;
     updateProject: (id: string, project: Partial<Project>) => void;
 
     setCustomSectionTitle: (title: string) => void;
-    addCustomSectionAttributes: () => void;
+    addCustomSectionAttributes: (initial?: Partial<Omit<CustomSectionAttributes, 'id'>>) => void;
     removeCustomSectionAttributes: (id: string) => void;
     updateCustomSectionAttributes: (id: string, customSection: Partial<CustomSectionAttributes>) => void;
 
@@ -187,7 +187,7 @@ export interface CVEditStorePersonalInfoActions {
     setAddress: (address: string) => void;
     setBirthDate: (birthDate: Date) => void;
 
-    addSocialLink: () => void;
+    addSocialLink: (initial?: Partial<Omit<SocialLink, 'id'>>) => void;
     removeSocialLink: (id: string) => void;
     updateSocialLink: (id: string, socialLink: Partial<SocialLink>) => void;
 }

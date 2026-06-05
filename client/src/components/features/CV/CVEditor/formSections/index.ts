@@ -1,5 +1,5 @@
 import PersonalInfos from "./PersonalInfos";
-import ProfessionalSummary from "./ProfessionalSummary";
+import AboutMe from "./AboutMe";
 import WorkExperience from "./WorkExperience";
 import Education from "./Education";
 import Skill from "./Skills";
@@ -9,7 +9,7 @@ import CustomSection from "./CustomSection";
 
 export { 
     PersonalInfos, 
-    ProfessionalSummary,
+    AboutMe,
     WorkExperience,
     Education,
     Skill,

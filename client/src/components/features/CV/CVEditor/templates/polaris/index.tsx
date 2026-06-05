@@ -56,7 +56,7 @@ const Polaris: React.FC<TemplateComponentProps> = ({ CV }) => {
         aboutMe: (
             <CVComponents.AboutMe
                 key="aboutMe"
-                professionalSummary={CV.professionalSummary}
+                aboutMe={CV.aboutMe}
             />
         ),
         workExperience: (

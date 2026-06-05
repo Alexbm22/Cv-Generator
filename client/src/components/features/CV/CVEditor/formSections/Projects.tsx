@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
-import Collapsable from '../../../../UI/Collapsable';
+import Collapsable, { CollapsableAiContext } from '../../../../UI/Collapsable';
 import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { Project } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import { AiPanel } from '../../../../UI/TextEditor/AiAssistant';
 
 interface ComponentProps {
     project: Project
@@ -17,6 +18,9 @@ const { fields: fieldsConstants } = projectsConstants;
 const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
 
     const updateProject = useCvEditStore((state) => state.updateProject);
+
+    const collapsableCtx = useContext(CollapsableAiContext);
+    const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : false;
 
     return (
         <div className='p-0.5'>
@@ -60,6 +64,25 @@ const ProjectComponent:React.FC<ComponentProps> = ({ project }) => {
                 htmlContent={project.description}
                 onHtmlChange={(html) => updateProject(project.id, { description: sanitizeHtml(html) })}
                 placeholder={fieldsConstants.description.placeholder}
+            />
+            <AiPanel
+                isOpen={aiOpen}
+                sectionType="projects"
+                contentId={project.id}
+                currentItem={{
+                    name: project.name,
+                    url: project.url,
+                    startDate: new Date(project.startDate).toISOString().slice(0, 10),
+                    endDate: new Date(project.endDate).toISOString().slice(0, 10),
+                    description: project.description,
+                }}
+                onApplyChange={(newItem) => updateProject(project.id, {
+                    ...(newItem.name !== undefined && { name: String(newItem.name) }),
+                    ...(newItem.url !== undefined && { url: String(newItem.url) }),
+                    ...(newItem.startDate !== undefined && { startDate: new Date(String(newItem.startDate)) }),
+                    ...(newItem.endDate !== undefined && { endDate: new Date(String(newItem.endDate)) }),
+                    ...(newItem.description !== undefined && { description: sanitizeHtml(String(newItem.description)) }),
+                })}
             />
         </div>
     )

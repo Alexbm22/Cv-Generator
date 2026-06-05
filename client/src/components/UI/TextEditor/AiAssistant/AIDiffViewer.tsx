@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { PendingChange } from '../../../../interfaces/ai';
 
 interface AIDiffViewerProps {
-  pendingChange: PendingChange;
+  original: string;
+  proposed: string;
   onAccept: () => void;
   onReject: () => void;
 }
@@ -92,12 +92,10 @@ function computeDiff(original: string, proposed: string, isAppend: boolean): Dif
  * highlighting: green for additions, red strikethrough for removals.
  * Positioned right below the text editor.
  */
-export default function AIDiffViewer({ pendingChange, onAccept, onReject }: AIDiffViewerProps) {
-  const { original, proposed, changeType } = pendingChange;
-
+export default function AIDiffViewer({ original, proposed, onAccept, onReject }: AIDiffViewerProps) {
   const diffTokens = useMemo(
-    () => computeDiff(original, proposed, changeType === 'append'),
-    [original, proposed, changeType],
+    () => computeDiff(original, proposed, false),
+    [original, proposed],
   );
 
   return (

@@ -4,44 +4,57 @@ import { SparklesIcon } from "./icons";
 import AiOptions from "./AiOptions";
 import AiInput from "./AiInput";
 import AIConversation from "./AIConversation";
+import AISectionDiffViewer from "./AISectionDiffViewer";
 import AIDiffViewer from "./AIDiffViewer";
-import { sendAIMessage } from "../../../../services/ai";
+import { sendSectionEditMessage, sendTextFieldEditMessage, sendAboutMeEditMessage } from "../../../../services/ai";
 import {
   AIPanelState,
   ConversationMessage,
-  PendingChange,
 } from "../../../../interfaces/ai";
 
 interface AiPanelProps {
   isOpen: boolean;
   sectionType: string;
-  currentContent: string;
-  onApplyChange: (proposed: string, changeType: PendingChange["changeType"]) => void;
+  // ── Section item mode (when contentId is provided) ────────────────────────
+  contentId?: string;
+  currentItem?: Record<string, unknown>;
+  onApplyChange?: (newItem: Record<string, unknown>) => void;
+  // ── Text field mode (when contentId is absent, e.g. aboutMe) ─────────────
+  currentText?: string;
+  onApplyTextChange?: (newText: string) => void;
+  // ── Auth context (for aboutMe protected route) ────────────────────────────
+  cvId?: string;
 }
 
 const INITIAL_STATE: AIPanelState = {
   conversation: [],
   history: [],
-  pendingChange: null,
+  pendingOperation: null,
+  pendingTextChange: null,
   isLoading: false,
 };
 
 export default function AiPanel({
   isOpen,
   sectionType,
-  currentContent,
+  contentId,
+  currentItem,
   onApplyChange,
+  currentText,
+  onApplyTextChange,
+  cvId,
 }: AiPanelProps) {
   const [prompt, setPrompt] = useState("");
   const [state, setState] = useState<AIPanelState>(INITIAL_STATE);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  const isItemMode = !!contentId;
 
   // ── Submit handler ────────────────────────────────────────────────────────
   const handleSend = useCallback(async () => {
     const trimmedPrompt = prompt.trim();
     if (!trimmedPrompt || state.isLoading) return;
 
-    // Append user message to conversation immediately (optimistic update)
     const userMessage: ConversationMessage = {
       id: uuidv4(),
       role: "user",
@@ -51,7 +64,8 @@ export default function AiPanel({
     setState((prev) => ({
       ...prev,
       isLoading: true,
-      pendingChange: null, // Clear any previous pending diff
+      pendingOperation: null,
+      pendingTextChange: null,
       conversation: [...prev.conversation, userMessage],
     }));
 
@@ -61,28 +75,67 @@ export default function AiPanel({
     abortControllerRef.current = controller;
 
     try {
-      const { change, message, history } = await sendAIMessage({
-        prompt: trimmedPrompt,
-        history: state.history,
-        sectionType,
-        currentContent,
-        signal: controller.signal,
-      });
+      if (isItemMode && contentId && currentItem) {
+        // ── Section item edit ───────────────────────────────────────────────
+        const { operation, message, history } = await sendSectionEditMessage({
+          prompt: trimmedPrompt,
+          history: state.history,
+          sectionType,
+          contentId,
+          currentItem,
+          signal: controller.signal,
+        });
 
-      // Deterministic processing order: change → message → history
-      setState((prev) => ({
-        ...prev,
-        pendingChange: change,
-        conversation: [
-          ...prev.conversation,
-          {
-            id: uuidv4(),
-            role: "assistant" as const,
-            content: message,
-          } satisfies ConversationMessage,
-        ],
-        history,
-      }));
+        setState((prev) => ({
+          ...prev,
+          pendingOperation: operation,
+          conversation: [
+            ...prev.conversation,
+            { id: uuidv4(), role: "assistant" as const, content: message } satisfies ConversationMessage,
+          ],
+          history,
+        }));
+      } else if (sectionType === 'aboutMe') {
+        // ── About Me dedicated route ────────────────────────────────────────
+        const { setAboutMe, message, history } = await sendAboutMeEditMessage({
+          prompt: trimmedPrompt,
+          history: state.history,
+          signal: controller.signal,
+          ...(cvId ? { cvId } : { currentText: currentText ?? '' }),
+        });
+
+        setState((prev) => ({
+          ...prev,
+          pendingTextChange: { original: setAboutMe.originalValue, proposed: setAboutMe.newValue },
+          conversation: [
+            ...prev.conversation,
+            { id: uuidv4(), role: "assistant" as const, content: message } satisfies ConversationMessage,
+          ],
+          history,
+        }));
+      } else {
+        const { operations, message, history } = await sendTextFieldEditMessage({
+          prompt: trimmedPrompt,
+          history: state.history,
+          sectionType,
+          currentText: currentText ?? "",
+          signal: controller.signal,
+        });
+
+        const setFieldOp = operations.find((op) => op.operationType === "set_field");
+
+        setState((prev) => ({
+          ...prev,
+          pendingTextChange: setFieldOp
+            ? { original: setFieldOp.originalValue, proposed: setFieldOp.newValue }
+            : null,
+          conversation: [
+            ...prev.conversation,
+            { id: uuidv4(), role: "assistant" as const, content: message } satisfies ConversationMessage,
+          ],
+          history,
+        }));
+      }
     } catch (err: unknown) {
       const isAbort = err instanceof DOMException && err.name === "AbortError";
       if (!isAbort) {
@@ -92,28 +145,33 @@ export default function AiPanel({
           ...prev,
           conversation: [
             ...prev.conversation,
-            {
-              id: uuidv4(),
-              role: "assistant" as const,
-              content: `Error: ${message}`,
-            } satisfies ConversationMessage,
+            { id: uuidv4(), role: "assistant" as const, content: `Error: ${message}` } satisfies ConversationMessage,
           ],
         }));
       }
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
-  }, [prompt, state.isLoading, state.history, sectionType, currentContent]);
+  }, [prompt, state.isLoading, state.history, sectionType, contentId, currentItem, currentText, cvId, isItemMode]);
 
   // ── Diff actions ──────────────────────────────────────────────────────────
   const handleAccept = useCallback(() => {
-    if (!state.pendingChange) return;
-    onApplyChange(state.pendingChange.proposed, state.pendingChange.changeType);
-    setState((prev) => ({ ...prev, pendingChange: null }));
-  }, [state.pendingChange, onApplyChange]);
+    if (state.pendingOperation) {
+      try {
+        const newItem = JSON.parse(state.pendingOperation.newValue) as Record<string, unknown>;
+        onApplyChange?.(newItem);
+      } catch {
+        // Malformed JSON from AI — dismiss silently
+      }
+      setState((prev) => ({ ...prev, pendingOperation: null }));
+    } else if (state.pendingTextChange) {
+      onApplyTextChange?.(state.pendingTextChange.proposed);
+      setState((prev) => ({ ...prev, pendingTextChange: null }));
+    }
+  }, [state.pendingOperation, state.pendingTextChange, onApplyChange, onApplyTextChange]);
 
   const handleReject = useCallback(() => {
-    setState((prev) => ({ ...prev, pendingChange: null }));
+    setState((prev) => ({ ...prev, pendingOperation: null, pendingTextChange: null }));
   }, []);
 
   // ── Predefined prompt helpers ─────────────────────────────────────────────
@@ -128,19 +186,22 @@ export default function AiPanel({
     setPrompt((prev) => prev.replace(text, "").replace(/\s+/g, " ").trim());
   };
 
+  const hasPendingDiff = !!(state.pendingOperation || state.pendingTextChange);
+
   return (
     <div
       aria-hidden={!isOpen}
       style={{
         maxHeight: isOpen ? "1400px" : "0px",
         opacity: isOpen ? 1 : 0,
+        marginTop: isOpen ? "12px" : "0px",
         transition:
-          "max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-out",
+          "max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-out, margin-top 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
-      className="overflow-hidden border-x border-b border-[#d2d2d7] rounded-b-2xl bg-white"
+      className="overflow-hidden border border-[#d2d2d7] rounded-2xl bg-white"
     >
       {/* Panel header */}
-      <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-[#f2f2f7]">
+      <div className="flex items-center gap-2 px-4 pt-4 pb-3">
         <SparklesIcon className="w-3.5 h-3.5 text-[#0071e3] flex-shrink-0" />
         <span className="text-[11px] font-semibold text-[#1d1d1f] tracking-wide">
           AI Writing Assistant
@@ -156,12 +217,22 @@ export default function AiPanel({
         </span>
       </div>
 
+      <div className="mx-4 mb-1 border-t border-[#f2f2f7]" />
+
       {/* Body */}
-      <div className={state.pendingChange ? '' : 'pt-3.5'}>
-        {/* Structured diff viewer — sits right below the editor, above the conversation */}
-        {state.pendingChange && (
+      <div className={hasPendingDiff ? '' : 'pt-3.5'}>
+        {state.pendingOperation && (
+          <AISectionDiffViewer
+            operation={state.pendingOperation}
+            onAccept={handleAccept}
+            onReject={handleReject}
+          />
+        )}
+
+        {state.pendingTextChange && (
           <AIDiffViewer
-            pendingChange={state.pendingChange}
+            original={state.pendingTextChange.original}
+            proposed={state.pendingTextChange.proposed}
             onAccept={handleAccept}
             onReject={handleReject}
           />
@@ -173,7 +244,7 @@ export default function AiPanel({
         )}
 
         {/* Separator before input row */}
-        {(state.conversation.length > 0 || state.pendingChange || state.isLoading) && (
+        {(state.conversation.length > 0 || hasPendingDiff || state.isLoading) && (
           <div className="mx-4 mb-1 border-t border-[#f2f2f7]" />
         )}
 

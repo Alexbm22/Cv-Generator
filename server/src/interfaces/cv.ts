@@ -2,11 +2,14 @@ import { Optional } from "sequelize"
 import { PublicMediaFilesAttributes } from "./mediaFiles"
 import { CV, MediaFiles } from "@/models"
 
+export const CVSectionTypes = ['aboutMe', 'workExperience', 'education', 'projects', 'customSections', 'socialLinks', 'skills', 'languages'] as const;
+export type CVSectionType = typeof CVSectionTypes[number];
+
 export interface Language {
     id: string,
     name: string,
     level: ProficiencyLanguageLevel | null
-} 
+}
 
 export interface Section {
     id: string,
@@ -94,7 +97,7 @@ export interface CVContentAttributes {
     address: string,
     birthDate: Date,
     socialLinks: SocialLink[]
-    professionalSummary: string,
+    aboutMe: string,
     languages: Language[],
     skills: Skill[],
     workExperience: WorkExperience[],
@@ -113,7 +116,7 @@ export interface PublicCVContentAttributes {
     address: string,
     birthDate: Date,
     socialLinks: SocialLink[]
-    professionalSummary: string,
+    aboutMe: string,
     languages: Language[],
     skills: Skill[],
     workExperience: WorkExperience[],

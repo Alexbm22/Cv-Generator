@@ -1,4 +1,4 @@
-import { CVCreationAttributes, CVTemplates } from "../interfaces/cv";
+import { CVCreationAttributes, CVSectionTypes, CVTemplates } from "../interfaces/cv";
 import { MimeType, MediaFilesCreationAttributes, MediaType, OwnerType } from "../interfaces/mediaFiles";
 
 const createCVPhotoMediaFileObj = (cvId: number, cv_title: string, userId: number, is_active: boolean = false, size?: number)
@@ -30,15 +30,14 @@ const createCVPreviewMediaFileObj = (cvId: number, cv_title: string, userId: num
 }
 
 const createDefaultCVObject = (): Omit<CVCreationAttributes, 'user_id'> => {
-    const sections = ['aboutMe', 'workExperience', 'education', 'projects', 'customSections', 'socialLinks', 'skills', 'languages'];
-    const sectionsOrder = sections.map((section) => ({ id: section, isVisible: true }));
+    const sectionsOrder = CVSectionTypes.map((section) => ({ id: section, isVisible: true }));
 
     return {
         template: CVTemplates.CASTOR,
         templateColor: '#007dff',
         sectionsOrder: sectionsOrder,
         content: {
-            professionalSummary: '',
+            aboutMe: '',
             languages: [],
             skills: [],
             workExperience: [],

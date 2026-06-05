@@ -26,11 +26,12 @@ export const createPersonalInfoSlice = (set: {
     setAddress: (address) => set({ address }),
     setBirthDate: (birthDate) => set({ birthDate }),
 
-    addSocialLink: () => {
+    addSocialLink: (initial?: Partial<Omit<SocialLink, 'id'>>) => {
         const newSocialLink: SocialLink = {
             id: uuidv4(),
             platform: '',
             url: '',
+            ...initial
         }
 
         return set((state: CVEditStorePersonalInfoSliceAttributes) => ({

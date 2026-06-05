@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Trash2, ChevronDown } from 'lucide-react';
+import { AiToggleButton } from "./TextEditor/AiAssistant";
+import { CollapsableAiContext } from "./CollapsableAiContext";
+
+export { CollapsableAiContext } from "./CollapsableAiContext";
 
 interface CollapsableProps {
   title: string;
@@ -13,6 +17,7 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
     const [height, setHeight] = useState('0px'); 
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [aiOpen, setAiOpen] = useState(false);
 
     const handleToggle = () => {
         if (isOpen) {
@@ -36,6 +41,16 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
         }
     };
 
+    const handleAiToggle = () => {
+        if (!isOpen) {
+            if (containerRef.current) {
+                setHeight(`${containerRef.current.scrollHeight}px`);
+            }
+            setIsOpen(true);
+        }
+        setAiOpen(prev => !prev);
+    };
+
     // After the open-animation completes, switch to 'auto' so any child that
     // grows (e.g. the AI panel) can push the container height freely.
     const handleTransitionEnd = () => {
@@ -55,6 +70,7 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
     }, [isOpen]);
 
     return (
+        <CollapsableAiContext.Provider value={{ aiOpen, toggleAi: handleAiToggle }}>
         <div
             className="bg-white rounded-2xl border border-black/[0.08] font-[system-ui,-apple-system,BlinkMacSystemFont,'SF_Pro_Text',sans-serif]"
             onMouseEnter={() => setIsHovered(true)}
@@ -66,6 +82,9 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
             >
                 <span className="text-[15px] font-semibold tracking-[-0.01em] text-gray-800">{title}</span>
                 <div className="flex items-center gap-x-2">
+                    <div className={`transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+                        <AiToggleButton isOpen={aiOpen} onToggle={handleAiToggle} />
+                    </div>
                     {onDelete && (
                         <button
                             onClick={(e) => { e.stopPropagation(); onDelete(); }}
@@ -94,6 +113,7 @@ const Collapsable:React.FC<CollapsableProps> = ({ title, children, onDelete }) =
                 </div>
             </div>
         </div>
+        </CollapsableAiContext.Provider>
     )
 
 }

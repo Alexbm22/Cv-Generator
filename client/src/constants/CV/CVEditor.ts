@@ -79,8 +79,8 @@ export const CV_EDITOR_FORM_CONSTANTS = {
                 },
             },
         },
-        professional_summary: {
-            title: 'Professional Summary',
+        about_me: {
+            title: 'About Me',
             description: 'Write a brief summary about yourself and your career goals.',
             placeholder: 'Write a brief summary about yourself, your skills, and your career goals. This is your chance to make a strong first impression on potential employers.',
         },
@@ -327,7 +327,7 @@ export const DEFAULT_CV_EDITOR_STATE = {
     jobTitle: '',
     template: CVTemplates.CASTOR,
     templateColor: CV_COLOR_THEMES[0],
-    professionalSummary: '',
+    aboutMe: '',
     sectionsOrder: [],
     languages: [],
     skills: [],
@@ -360,7 +360,7 @@ export const DEFAULT_CV_DATA = {
     title: 'Untitled',
     jobTitle: '',
     template: CVTemplates.CASTOR,
-    professionalSummary: '',
+    aboutMe: '',
     photo_last_uploaded: null,
     sectionsOrder: sectionsOrder,
     languages: [],

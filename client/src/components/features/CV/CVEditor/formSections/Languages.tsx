@@ -8,6 +8,8 @@ import {
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
 import { LanguageLevelsMap } from '../../../../../constants/CV/languageLevelsMap';
+import { AiPanel } from '../../../../UI/TextEditor/AiAssistant';
+import { CollapsableAiContext } from '../../../../UI/Collapsable';
 
 interface ComponentProps {
     language: Language
@@ -18,6 +20,9 @@ const { fields: fieldsConstants } = languagesConstants;
 
 const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
     const updateLanguage = useCvEditStore((state) => state.updateLanguage);
+
+    const collapsableCtx = React.useContext(CollapsableAiContext);
+    const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : false;
 
     return (
         <div className='p-0.5'>
@@ -36,8 +41,20 @@ const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
                     sectionId={language.id}
                     onLevelChange={(id: string, level: ProficiencyLanguageLevel) => updateLanguage(id, { level })}
                 />
-
             </div>
+
+            <AiPanel
+                isOpen={aiOpen}
+                sectionType="languages"
+                contentId={language.id}
+                currentItem={{
+                    name: language.name,
+                    level: language.level,
+                }}
+                onApplyChange={(newItem) => updateLanguage(language.id, {
+                    ...(newItem.name !== undefined && { name: String(newItem.name) }),
+                })}
+            />
         </div>
     )
 }
@@ -45,7 +62,6 @@ const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
 const LanguageMain:React.FC = () => {
     
     const languages = useCvEditStore((state) => state.languages);
-    const addLanguage = useCvEditStore((state) => state.addLanguage);
     const removeLanguage = useCvEditStore((state) => state.removeLanguage);
 
     return (
