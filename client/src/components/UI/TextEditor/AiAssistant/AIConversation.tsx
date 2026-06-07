@@ -1,9 +1,35 @@
 import { useEffect, useRef } from 'react';
 import { ConversationMessage } from '../../../../interfaces/ai';
 
+export type AIConversationVariant = 'editor' | 'panel';
+
+interface BubbleColors {
+  userBg: string;
+  userText: string;
+  assistantBg: string;
+  assistantText: string;
+}
+
+const VARIANT_COLORS: Record<AIConversationVariant, BubbleColors> = {
+  editor: {
+    userBg: '#0071e3',
+    userText: '#ffffff',
+    assistantBg: 'transparent',
+    assistantText:'#1d1d1f',
+  },
+  panel: {
+    userBg: '#0071e3',
+    userText: '#ffffff',
+    assistantBg: '#f2f2f7',
+    assistantText:'#1d1d1f',
+  },
+};
+
 interface AIConversationProps {
   messages: ConversationMessage[];
   isLoading?: boolean;
+  variant?: AIConversationVariant;
+  className?: string;
 }
 
 /**
@@ -11,8 +37,9 @@ interface AIConversationProps {
  * User messages appear right-aligned; assistant messages appear left-aligned.
  * Never truncates — always shows the complete thread.
  */
-export default function AIConversation({ messages, isLoading }: AIConversationProps) {
+export default function AIConversation({ messages, isLoading, variant = 'editor', className = '' }: AIConversationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const colors = VARIANT_COLORS[variant];
 
   useEffect(() => {
     const el = containerRef.current;
@@ -23,29 +50,25 @@ export default function AIConversation({ messages, isLoading }: AIConversationPr
   if (messages.length === 0 && !isLoading) return null;
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-3 px-4 pb-3 max-h-[300px] overflow-y-auto text-[13px]">
+    <div ref={containerRef} className={`flex flex-col gap-3 px-4 pb-3 overflow-y-auto text-[14px] ${className}`}>
       {messages.map((msg) =>
         msg.role === 'user' ? (
-          <UserBubble key={msg.id} content={msg.content} />
+          <UserBubble key={msg.id} content={msg.content} colors={colors} />
         ) : (
-          <AssistantBubble key={msg.id} content={msg.content} />
+          <AssistantBubble key={msg.id} content={msg.content} colors={colors} />
         ),
       )}
-      {isLoading && <ThinkingBubble />}
+      {isLoading && <ThinkingBubble colors={colors} />}
     </div>
   );
 }
 
-function UserBubble({ content }: { content: string }) {
+function UserBubble({ content, colors }: { content: string; colors: BubbleColors }) {
   return (
     <div className="flex justify-end">
       <div
-        className={[
-          'max-w-[80%] px-3 py-2 rounded-2xl rounded-tr-md',
-          'bg-[#0071e3] text-white',
-          ' leading-relaxed',
-          'shadow-sm',
-        ].join(' ')}
+        className="max-w-[80%] px-3 py-2 rounded-2xl rounded-tr-md leading-relaxed shadow-sm"
+        style={{ backgroundColor: colors.userBg, color: colors.userText }}
       >
         {content}
       </div>
@@ -53,15 +76,12 @@ function UserBubble({ content }: { content: string }) {
   );
 }
 
-function AssistantBubble({ content }: { content: string }) {
+function AssistantBubble({ content, colors }: { content: string; colors: BubbleColors }) {
   return (
     <div className="flex justify-start">
       <div
-        className={[
-          'max-w-[85%] px-3 py-2 rounded-2xl rounded-tl-md',
-          'bg-[#f2f2f7] text-[#1d1d1f]',
-          'leading-relaxed',
-        ].join(' ')}
+        className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tl-md leading-relaxed"
+        style={{ backgroundColor: colors.assistantBg, color: colors.assistantText }}
       >
         {content}
       </div>
@@ -69,7 +89,7 @@ function AssistantBubble({ content }: { content: string }) {
   );
 }
 
-function ThinkingBubble() {
+function ThinkingBubble({ colors }: { colors: BubbleColors }) {
   return (
     <>
       <style>{`
@@ -83,12 +103,8 @@ function ThinkingBubble() {
       `}</style>
       <div className="flex justify-start">
         <div
-          className={[
-            'px-3 py-2 rounded-2xl rounded-tl-md',
-            'bg-[#f2f2f7] text-[#1d1d1f]',
-            'text-[12px] leading-relaxed',
-            'flex items-center gap-[3px]',
-          ].join(' ')}
+          className="px-3 py-2 rounded-2xl rounded-tl-md text-[14px] leading-relaxed flex items-center gap-[3px]"
+          style={{ backgroundColor: colors.assistantBg, color: colors.assistantText }}
         >
           <span className="text-[11px] text-[#6e6e73] mr-1">Thinking</span>
           <span className="thinking-dot inline-block w-[4px] h-[4px] rounded-full bg-[#6e6e73]" />

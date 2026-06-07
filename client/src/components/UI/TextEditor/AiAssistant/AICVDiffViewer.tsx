@@ -354,6 +354,8 @@ export interface AICVDiffViewerProps {
   currentItems?: Partial<Record<string, Array<Record<string, unknown>>>>;
   onAcceptAll:  () => void;
   onReject:     () => void;
+  className?:   string;
+  size?: 'small' | 'medium' | 'large';
 }
 
 export default function AICVDiffViewer({
@@ -361,12 +363,14 @@ export default function AICVDiffViewer({
   currentItems = {},
   onAcceptAll,
   onReject,
+  className = '',
+  size = 'medium',
 }: AICVDiffViewerProps) {
   const groups = useMemo(() => buildGroups(operations), [operations]);
   const count  = operations.length;
 
   return (
-    <div className="mx-4 mb-4 border border-[#e5e5ea] rounded-2xl bg-[#f7f7fa] overflow-hidden">
+    <div className={`border border-[#e5e5ea] rounded-2xl bg-[#f7f7fa] overflow-hidden ${className}`}>
 
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#e5e5ea]">
@@ -393,7 +397,7 @@ export default function AICVDiffViewer({
       </div>
 
       {/* Scrollable section groups */}
-      <div className="flex flex-col max-h-[420px] overflow-y-auto">
+      <div className={`flex flex-col overflow-y-auto ${size === 'small' ? 'max-h-[200px]' : size === 'large' ? 'max-h-[600px]' : 'max-h-[420px]'}`}>
         {groups.map((group, gi) => (
           <div key={group.key} className={gi > 0 ? 'border-t border-[#e5e5ea]' : ''}>
 

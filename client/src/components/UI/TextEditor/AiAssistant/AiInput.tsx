@@ -28,13 +28,12 @@ export default function AiInput({ value, onChange, onSend, isDisabled = false }:
   };
 
   return (
-    <div className="px-4 pb-4 pt-1">
       <div
         className={[
           "flex items-end gap-2 rounded-xl",
           "bg-[#f2f2f7] border border-transparent",
           "transition-colors duration-150",
-          "focus-within:bg-white focus-within:border-[#0071e3]/30 focus-within:shadow-sm",
+          "focus-within:bg-[#f6f6fb] focus-within:border-[#0071e3]/10 focus-within:shadow-sm",
         ].join(" ")}
       >
         <textarea
@@ -46,7 +45,7 @@ export default function AiInput({ value, onChange, onSend, isDisabled = false }:
           placeholder={isDisabled ? 'AI is thinking…' : 'Ask AI to help improve this section…'}
           rows={1}
           className={[
-            "flex-1 resize-none bg-transparent outline-none",
+            "flex-1 resize-none bg-transparent outline-none overflow-hidden",
             "text-[13px] text-[#1d1d1f] placeholder:text-[#aeaeb2]",
             "py-2.5 pl-3 pr-1 leading-relaxed",
             "min-h-[40px] max-h-[120px]",
@@ -73,6 +72,5 @@ export default function AiInput({ value, onChange, onSend, isDisabled = false }:
           <SendIcon className="w-3.5 h-3.5" />
         </button>
       </div>
-    </div>
   );
 }

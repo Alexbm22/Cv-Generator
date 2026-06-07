@@ -77,7 +77,7 @@ export default function AiOptions({ value, onAppendToInput, onRemoveFromInput }:
   };
 
   return (
-    <div className="px-4 pb-3 space-y-3">
+    <div className="space-y-3">
       {/* Standard Options */}
       <div className="space-y-1.5">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#aeaeb2]">

@@ -226,7 +226,7 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
 
   const currentItems = useMemo<Partial<Record<string, Array<Record<string, unknown>>>>>(() => ({
     workExperience:  workExperience as unknown  as Array<Record<string, unknown>>,
-    education:       education      as unknown  as Array<Record<string, unknown>>,
+    education: education      as unknown  as Array<Record<string, unknown>>,
     projects:        projects        as unknown  as Array<Record<string, unknown>>,
     skills:          skills          as unknown  as Array<Record<string, unknown>>,
     languages:       languages       as unknown  as Array<Record<string, unknown>>,
@@ -244,9 +244,9 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
 
     setState((prev) => ({
       ...prev,
-      isLoading:         true,
+      isLoading: true,
       pendingOperations: [],
-      conversation:      [...prev.conversation, userMsg],
+      conversation: [...prev.conversation, userMsg],
     }));
 
     setPrompt('');
@@ -313,12 +313,12 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
 
   return (
     <div
-      className="transition-all duration-1000 bg-[#f5f5f7] w-full shadow-lg z-0.5 flex flex-col h-full overflow-hidden"
+      className="transition-all duration-1000 bg-[#f5f5f7] w-full shadow-lg z-0.5 flex flex-col max-h-[calc(100vh-60px)] overflow-hidden"
       style={isShowingPreview ? { flexBasis: '56.25%' } : { flexBasis: '100%' }}
     >
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-[#daeaf9] bg-white shrink-0 min-h-0">
-        <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#f3eeff] text-[#7c3aed]">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-[#daeaf9] bg-white shrink-0 min-h-0">
+        <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#ebf4ff] text-[#007dff]">
           <Sparkles size={16} strokeWidth={1.5} />
         </div>
         <div>
@@ -339,7 +339,7 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
         {/* Empty state */}
         {state.conversation.length === 0 && !hasPendingOps && !state.isLoading && (
           <div className="flex flex-col items-center justify-center flex-1 gap-3 text-center px-8 py-12">
-            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#f3eeff] text-[#7c3aed]">
+            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#ddeaf9] text-[#007dff]">
               <Sparkles size={22} strokeWidth={1.5} />
             </div>
             <div className="flex flex-col gap-1">
@@ -351,38 +351,44 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
           </div>
         )}
 
-        {/* Diff viewer */}
-        {hasPendingOps && (
-          <div className="pt-4">
-            <AICVDiffViewer
-              operations={state.pendingOperations}
-              currentItems={currentItems}
-              onAcceptAll={handleAcceptAll}
-              onReject={handleReject}
-            />
-          </div>
-        )}
+        <div className="pt-3">
+          {/* Diff viewer */}
+          {hasPendingOps && (
+            <div className="px-4 pb-3">
+              <AICVDiffViewer
+                operations={state.pendingOperations}
+                currentItems={currentItems}
+                onAcceptAll={handleAcceptAll}
+                onReject={handleReject}
+                className="bg-white"
+                size="small"
+              />
+            </div>
+          )}
 
-        {/* Conversation thread */}
-        {(state.conversation.length > 0 || state.isLoading) && (
-          <AIConversation messages={state.conversation} isLoading={state.isLoading} />
-        )}
-      </div>
+          {/* Conversation thread */}
+          {(state.conversation.length > 0 || state.isLoading) && (
+            <AIConversation messages={state.conversation} isLoading={state.isLoading} variant="editor" />
+          )}
+        </div>
+        </div>
 
       {/* Fixed bottom: input + quick options */}
-      <div className="bg-white border-t border-[#daeaf9] shrink-0">
-        <AiInput
-          value={prompt}
-          onChange={setPrompt}
-          onSend={handleSend}
-          isDisabled={state.isLoading}
-        />
-        <div className="mx-4 border-t border-[#f2f2f7]" />
-        <AiOptions
-          value={prompt}
-          onAppendToInput={handleAppendToInput}
-          onRemoveFromInput={handleRemoveFromInput}
-        />
+      <div className="p-3 pt-0 pb-5">
+        <div className="flex flex-col bg-white shrink-0 px-3 py-3 gap-3 rounded-2xl border border-[#f0f0f0]" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1.5px 6px rgba(0,0,0,0.04)' }}>
+          <AiInput
+            value={prompt}
+            onChange={setPrompt}
+            onSend={handleSend}
+            isDisabled={state.isLoading}
+          />
+          <div className="my-0.5 mx-2 border-t border-[#f2f2f7]" />
+          <AiOptions
+            value={prompt}
+            onAppendToInput={handleAppendToInput}
+            onRemoveFromInput={handleRemoveFromInput}
+          />
+        </div>
       </div>
     </div>
   );

@@ -240,7 +240,7 @@ export default function AiPanel({
 
         {/* Conversation thread */}
         {(state.conversation.length > 0 || state.isLoading) && (
-          <AIConversation messages={state.conversation} isLoading={state.isLoading} />
+          <AIConversation messages={state.conversation} isLoading={state.isLoading} variant="panel" className="max-h-[300px]" />
         )}
 
         {/* Separator before input row */}
@@ -248,20 +248,24 @@ export default function AiPanel({
           <div className="mx-4 mb-1 border-t border-[#f2f2f7]" />
         )}
 
-        <AiInput
-          value={prompt}
-          onChange={setPrompt}
-          onSend={handleSend}
-          isDisabled={state.isLoading}
-        />
+        <div className="px-4 pb-4 pt-1">
+          <AiInput
+            value={prompt}
+            onChange={setPrompt}
+            onSend={handleSend}
+            isDisabled={state.isLoading}
+          />
+        </div>
 
         <div className="mx-4 mb-3 border-t border-[#f2f2f7]" />
 
-        <AiOptions
-          value={prompt}
-          onAppendToInput={handleAppendToInput}
-          onRemoveFromInput={handleRemoveFromInput}
-        />
+        <div className="px-4 pb-3">
+          <AiOptions
+            value={prompt}
+            onAppendToInput={handleAppendToInput}
+            onRemoveFromInput={handleRemoveFromInput}
+          />
+        </div>
       </div>
     </div>
   );
