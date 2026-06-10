@@ -7,22 +7,6 @@ export const historyEntrySchema = z.object({
   content: z.string().max(4000),
 });
 
-export const aiProtectedRequestSchema = z.object({
-  prompt: z.string().min(1).max(2000),
-  history: z.array(historyEntrySchema).max(50),
-  CVId: z.uuidv4(),
-  SectionData: z.object({
-    contentId: z.uuidv4(),
-    sectionType: z.enum(CVSectionTypes),
-  }).optional()
-});
-
-export const aiGuestRequestSchema = z.object({
-  prompt: z.string().min(1).max(2000),
-  history: z.array(historyEntrySchema).max(50),
-  sectionData: sectionDataSchema.optional(),
-  cvData: GuestCVSchema.optional(),
-})
 
 export const UpdateItemOpSchema = z.object({
   operationType: z.literal('update_item'),
@@ -71,6 +55,27 @@ export const CVEditOperationSchema = z.discriminatedUnion('operationType', [
   SetAboutMeOpSchema,
 ]);
 
+export const aiGuestRequestSchema = z.object({
+  prompt: z.string().min(1).max(2000),
+  history: z.array(historyEntrySchema).max(50),
+  sectionData: sectionDataSchema.optional(),
+  cvData: GuestCVSchema.optional(),
+  pendingOperation: UpdateItemOpSchema.optional(),
+  pendingOperations: z.array(CVEditOperationSchema).optional(),
+});
+
+export const aiProtectedRequestSchema = z.object({
+  prompt: z.string().min(1).max(2000),
+  history: z.array(historyEntrySchema).max(50),
+  CVId: z.uuidv4(),
+  pendingOperations: z.array(CVEditOperationSchema).optional(),
+  pendingOperation: UpdateItemOpSchema.optional(),
+  SectionData: z.object({
+    contentId: z.uuidv4(),
+    sectionType: z.enum(CVSectionTypes),
+  }).optional()
+});
+
 export const aiSectionEditResponseSchema = z.object({
   ItemEditOperation: UpdateItemOpSchema,
   message: z.string().min(1).max(5000),
@@ -83,16 +88,23 @@ export const aiCVEditResponseSchema = z.object({
 
 // ── About Me ──────────────────────────────────────────────────────────────────
 
+const pendingTextChangeSchema = z.object({
+  original: z.string().max(5000),
+  proposed: z.string().max(5000),
+});
+
 export const aiAboutMeProtectedRequestSchema = z.object({
   prompt: z.string().min(1).max(2000),
   history: z.array(historyEntrySchema).max(50),
   CVId: z.uuidv4(),
+  pendingTextChange: pendingTextChangeSchema.optional(),
 });
 
 export const aiAboutMeGuestRequestSchema = z.object({
   prompt: z.string().min(1).max(2000),
   history: z.array(historyEntrySchema).max(50),
   currentText: z.string().max(5000),
+  pendingTextChange: pendingTextChangeSchema.optional(),
 });
 
 export const aiAboutMeResponseSchema = z.object({

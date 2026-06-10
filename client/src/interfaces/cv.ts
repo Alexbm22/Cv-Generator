@@ -197,6 +197,7 @@ export interface CVEditStoreActions {
     setUserCV: (CV: UserCVAttributes) => void;
 
     getGuestCVObject: () => GuestCVAttributes;
+    getGuestCVAIData: () => GuestCVAIData;
     setGuestCV: (CV: GuestCVAttributes) => void;
 
     getCVObject: () => UserCVAttributes | GuestCVAttributes;
@@ -204,6 +205,27 @@ export interface CVEditStoreActions {
 
 export interface UserCVAttributes extends 
 UserCVMetadataAttributes, CVContentAttributes, CVPersonalInfoAttributes {}
+
+export interface GuestCVAIData {
+    title: string;
+    jobTitle: string;
+    template: CVTemplates;
+    templateColor: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    address: string;
+    birthDate: string;
+    aboutMe: string;
+    languages: Language[];
+    skills: Skill[];
+    workExperience: WorkExperience[];
+    education: Education[];
+    projects: Project[];
+    customSections: CustomSection;
+    socialLinks: SocialLink[];
+}
 
 export interface GuestCVAttributes extends 
 GuestCVMetadataAttributes, CVContentAttributes, CVPersonalInfoAttributes {}

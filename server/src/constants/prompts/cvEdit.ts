@@ -1,8 +1,25 @@
 import { WRITING_STANDARDS, SECTION_SCHEMA_REFERENCE } from './shared';
 
-export const CV_EDIT_SYSTEM_PROMPT = `${WRITING_STANDARDS}
+export const CV_EDIT_SYSTEM_PROMPT = (pendingOperations?: any[]) => `${WRITING_STANDARDS}
 ${SECTION_SCHEMA_REFERENCE}
-
+${pendingOperations && pendingOperations.length > 0 ? `
+  
+  ### Rules for pending operations
+  - RE-EMIT ALL: every operation below MUST appear in CVEditOperations. Omitting = deleting. Never omit silently.
+  - MODIFY: update only the affected fields of the relevant operation. Leave all others untouched.
+  - ADD: append new operations. Do not replace or displace existing ones.
+  - REMOVE: only on explicit, unambiguous user instruction. If in doubt, keep it.
+  
+  ## WORKING STATE — ${pendingOperations.length} PENDING OPERATION${pendingOperations.length !== 1 ? 'S' : ''}
+  The following operations were staged in previous turns and represent the current editor state.
+  
+  ${JSON.stringify(pendingOperations, null, 2)}
+  
+FORBIDDEN:
+  ✗ Returning fewer than ${pendingOperations.length} operation${pendingOperations.length !== 1 ? 's' : ''} without an explicit removal instruction
+  ✗ Generating a fresh list from scratch
+  ✗ Omitting an operation because it seems redundant or already handled
+` : ''}
 ## OUTPUT CONTRACT
 Respond with exactly one valid JSON object — no text, markdown, or code fences outside it. No trailing commas.
 {"CVEditOperations": [...], "message": "..."}

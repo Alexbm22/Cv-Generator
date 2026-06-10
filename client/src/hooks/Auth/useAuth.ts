@@ -49,6 +49,8 @@ export const useAuthAndSync = <T extends AuthCredentials>(
             
             if (authResponse.user?.needsInitialSync) {
                 await syncGuestData();
+            } else {
+                useCVsStore.getState().migrateGuestToUser();
             }
         },
         onSettled: () => setIsLoadingAuth(false),

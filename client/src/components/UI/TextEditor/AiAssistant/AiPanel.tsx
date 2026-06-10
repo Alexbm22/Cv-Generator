@@ -7,9 +7,11 @@ import AIConversation from "./AIConversation";
 import AISectionDiffViewer from "./AISectionDiffViewer";
 import AIDiffViewer from "./AIDiffViewer";
 import { sendSectionEditMessage, sendTextFieldEditMessage, sendAboutMeEditMessage } from "../../../../services/ai";
+import { useAuthStore, useCvEditStore } from "../../../../Store";
 import {
   AIPanelState,
   ConversationMessage,
+  CVEditOperation,
 } from "../../../../interfaces/ai";
 
 interface AiPanelProps {
@@ -22,8 +24,6 @@ interface AiPanelProps {
   // ── Text field mode (when contentId is absent, e.g. aboutMe) ─────────────
   currentText?: string;
   onApplyTextChange?: (newText: string) => void;
-  // ── Auth context (for aboutMe protected route) ────────────────────────────
-  cvId?: string;
 }
 
 const INITIAL_STATE: AIPanelState = {
@@ -42,11 +42,14 @@ export default function AiPanel({
   onApplyChange,
   currentText,
   onApplyTextChange,
-  cvId,
 }: AiPanelProps) {
   const [prompt, setPrompt] = useState("");
   const [state, setState] = useState<AIPanelState>(INITIAL_STATE);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const storedCvId = useCvEditStore((s) => s.id);
+  const cvId = isAuthenticated && storedCvId ? storedCvId : undefined;
 
   const isItemMode = !!contentId;
 
@@ -64,8 +67,6 @@ export default function AiPanel({
     setState((prev) => ({
       ...prev,
       isLoading: true,
-      pendingOperation: null,
-      pendingTextChange: null,
       conversation: [...prev.conversation, userMessage],
     }));
 
@@ -83,7 +84,9 @@ export default function AiPanel({
           sectionType,
           contentId,
           currentItem,
+          pendingOperation: state.pendingOperation ?? undefined,
           signal: controller.signal,
+          cvId,
         });
 
         setState((prev) => ({
@@ -101,6 +104,7 @@ export default function AiPanel({
           prompt: trimmedPrompt,
           history: state.history,
           signal: controller.signal,
+          pendingTextChange: state.pendingTextChange ?? undefined,
           ...(cvId ? { cvId } : { currentText: currentText ?? '' }),
         });
 
@@ -114,12 +118,18 @@ export default function AiPanel({
           history,
         }));
       } else {
+        const pendingOperations: CVEditOperation[] | undefined = state.pendingTextChange
+          ? [{ operationType: 'set_field' as const, field: sectionType, newValue: state.pendingTextChange.proposed, originalValue: state.pendingTextChange.original }]
+          : undefined;
+
         const { operations, message, history } = await sendTextFieldEditMessage({
           prompt: trimmedPrompt,
           history: state.history,
           sectionType,
           currentText: currentText ?? "",
+          pendingOperations,
           signal: controller.signal,
+          ...(cvId ? { cvId } : { cvData: useCvEditStore.getState().getCVObject() }),
         });
 
         const setFieldOp = operations.find((op) => op.operationType === "set_field");
@@ -152,10 +162,11 @@ export default function AiPanel({
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
-  }, [prompt, state.isLoading, state.history, sectionType, contentId, currentItem, currentText, cvId, isItemMode]);
+  }, [prompt, state.isLoading, state.history, sectionType, contentId, currentItem, currentText, cvId, isItemMode, state.pendingTextChange, state.pendingOperation]);
 
   // ── Diff actions ──────────────────────────────────────────────────────────
   const handleAccept = useCallback(() => {
+    if (state.isLoading) return;
     if (state.pendingOperation) {
       try {
         const newItem = JSON.parse(state.pendingOperation.newValue) as Record<string, unknown>;
@@ -168,11 +179,12 @@ export default function AiPanel({
       onApplyTextChange?.(state.pendingTextChange.proposed);
       setState((prev) => ({ ...prev, pendingTextChange: null }));
     }
-  }, [state.pendingOperation, state.pendingTextChange, onApplyChange, onApplyTextChange]);
+  }, [state.pendingOperation, state.pendingTextChange, onApplyChange, onApplyTextChange, state.isLoading]);
 
   const handleReject = useCallback(() => {
+    if (state.isLoading) return;
     setState((prev) => ({ ...prev, pendingOperation: null, pendingTextChange: null }));
-  }, []);
+  }, [state.isLoading]);
 
   // ── Predefined prompt helpers ─────────────────────────────────────────────
   const handleAppendToInput = (text: string) => {
@@ -235,6 +247,7 @@ export default function AiPanel({
             proposed={state.pendingTextChange.proposed}
             onAccept={handleAccept}
             onReject={handleReject}
+            areActionsDisabled={state.isLoading}
           />
         )}
 

@@ -47,8 +47,11 @@ const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
             <AiPanel 
                 isOpen={aiOpen}
                 sectionType="skills"
-                currentContent={skill.name}
-                onApplyChange={(html) => updateSkill(skill.id, { name: html })}
+                contentId={skill.id}
+                currentItem={{ name: skill.name, level: skill.level }}
+                onApplyChange={(newItem) => updateSkill(skill.id, {
+                    ...(newItem.name !== undefined && { name: String(newItem.name) }),
+                })}
             />
         </div>
     )

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
-import { useCvEditStore, useAuthStore } from '../../../../../Store';
+import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
 import { CollapsableAiContext } from '../../../../UI/CollapsableAiContext';
 import AiPanel from '../../../../UI/TextEditor/AiAssistant/AiPanel';
@@ -12,8 +12,6 @@ const AboutMe: React.FC = () => {
 
   const setAboutMe = useCvEditStore((state) => state.setAboutMe);
   const aboutMe = useCvEditStore((state) => state.aboutMe);
-  const cvId = useCvEditStore((state) => state.id);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const collapsableCtx = useContext(CollapsableAiContext);
   const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : false;
@@ -30,7 +28,6 @@ const AboutMe: React.FC = () => {
         sectionType="aboutMe"
         currentText={aboutMe}
         onApplyTextChange={(text) => setAboutMe(sanitizeHtml(text))}
-        cvId={isAuthenticated && cvId ? cvId : undefined}
       />
     </div>
   );

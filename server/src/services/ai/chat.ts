@@ -8,6 +8,7 @@ import {
   AiCVEditResponseOutput,
   AiSectionEditResponseOutput,
   AiAboutMeResponseOutput,
+  CVEditOperation,
 } from '../../validators/ai_validators';
 import { CVSectionType } from '../../interfaces/cv';
 import { SECTION_EDIT_SYSTEM_PROMPT } from '../../constants/prompts/sectionEdit';
@@ -20,12 +21,14 @@ export interface SectionEditCallParams {
   sectionType: CVSectionType;
   contentId: string;
   currentContent: string;
+  pendingOperation?: CVEditOperation;
   signal: AbortSignal;
 }
 
 export interface CVEditCallParams {
   prompt: string;
   history: HistoryEntry[];
+  pendingOperations?: CVEditOperation[];
   currentContent: string;
   signal: AbortSignal;
 }
@@ -35,14 +38,20 @@ export interface CVEditCallParams {
  * Always returns an update_item operation for the specified item.
  */
 export async function callSectionEditAI(params: SectionEditCallParams): Promise<AiSectionEditResponseOutput> {
-  const { prompt, history, sectionType, contentId, currentContent, signal } = params;
+  const { prompt, history, sectionType, contentId, currentContent, pendingOperation, signal } = params;
+
+  let userMessage = `Section type: ${sectionType}\nItem ID: ${contentId}\n\nCurrent item:\n${currentContent}\n\nInstruction: ${prompt}`;
+
+  if (pendingOperation) {
+    userMessage = `Section type: ${sectionType}\nItem ID: ${contentId}\n\nCurrent item:\n${currentContent}\nPlease give me a response based on the pending operation: ${JSON.stringify(pendingOperation)}\n\nInstruction: ${prompt}`;
+  }
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-    { role: 'system', content: SECTION_EDIT_SYSTEM_PROMPT },
+    { role: 'system', content: SECTION_EDIT_SYSTEM_PROMPT},
     ...history.map((entry) => ({ role: entry.role, content: entry.content })),
     {
       role: 'user',
-      content: `Section type: ${sectionType}\nItem ID: ${contentId}\n\nCurrent item:\n${currentContent}\n\nInstruction: ${prompt}`,
+      content: userMessage,
     },
   ];
 
@@ -64,14 +73,20 @@ export async function callSectionEditAI(params: SectionEditCallParams): Promise<
  * Returns an array of typed operations (update, add, remove, set_field, etc.).
  */
 export async function callCVEditAI(params: CVEditCallParams): Promise<AiCVEditResponseOutput> {
-  const { prompt, history, currentContent, signal } = params;
+  const { prompt, history, pendingOperations, currentContent, signal } = params;
+
+  let userMessage = `Current CV content:\n${currentContent}\n\nInstruction: ${prompt}`;
+
+  if (pendingOperations && pendingOperations.length > 0) {
+    userMessage = `Current CV content:\n${currentContent}\n\nPlease give me a response based on the pending operations: ${JSON.stringify(pendingOperations)}\n\nInstruction: ${prompt}`;
+  }
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-    { role: 'system', content: CV_EDIT_SYSTEM_PROMPT },
+    { role: 'system', content: CV_EDIT_SYSTEM_PROMPT(pendingOperations) },
     ...history.map((entry) => ({ role: entry.role, content: entry.content })),
     {
       role: 'user',
-      content: `Current CV content:\n${currentContent}\n\nInstruction: ${prompt}`,
+      content: userMessage,
     },
   ];
 
@@ -108,6 +123,7 @@ export interface AboutMeEditCallParams {
   prompt: string;
   history: HistoryEntry[];
   currentText: string;
+  pendingTextChange?: { original: string; proposed: string };
   signal: AbortSignal;
 }
 
@@ -116,14 +132,20 @@ export interface AboutMeEditCallParams {
  * Always returns a set_about_me operation with newValue and originalValue.
  */
 export async function callAboutMeEditAI(params: AboutMeEditCallParams): Promise<AiAboutMeResponseOutput> {
-  const { prompt, history, currentText, signal } = params;
+  const { prompt, history, currentText, pendingTextChange, signal } = params;
+
+  let userMessage = `Current About Me text:\n${currentText || '(empty)'}\n\nInstruction: ${prompt}`;
+
+  if (pendingTextChange) {
+    userMessage = `Current About Me text:\n${currentText || '(empty)'}\n\nPlease give me a response based on the pending text change: from "${pendingTextChange.original}" to "${pendingTextChange.proposed}"\n\nInstruction: ${prompt}`;
+  }
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: ABOUT_ME_SYSTEM_PROMPT },
     ...history.map((entry) => ({ role: entry.role as 'user' | 'assistant', content: entry.content })),
     {
       role: 'user',
-      content: `Current About Me:\n${currentText || '(empty)'}\n\nInstruction: ${prompt}`,
+      content: userMessage,
     },
   ];
 

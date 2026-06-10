@@ -14,7 +14,7 @@ export const AiController = {
       return;
     }
 
-    const { prompt, history, SectionData, CVId } = parsed.data;
+    const { prompt, history, pendingOperations, pendingOperation, SectionData, CVId } = parsed.data;
     const { optimized } = await optimizeHistory(history);
 
     const controller = new AbortController();
@@ -41,6 +41,7 @@ export const AiController = {
           sectionType: SectionData.sectionType,
           contentId: SectionData.contentId,
           currentContent,
+          pendingOperation,
           signal: controller.signal,
         });
 
@@ -56,6 +57,7 @@ export const AiController = {
           prompt,
           history: optimized,
           currentContent,
+          pendingOperations,
           signal: controller.signal,
         });
 
@@ -82,7 +84,7 @@ export const AiController = {
       return;
     }
 
-    const { prompt, history, sectionData, cvData } = parsed.data;
+    const { prompt, history, sectionData, cvData, pendingOperation, pendingOperations } = parsed.data;
     if (!cvData && !sectionData) {
       res.status(400).json({ message: 'Either cvData or sectionData must be provided.' });
       return;
@@ -110,6 +112,7 @@ export const AiController = {
           sectionType: sectionData.sectionType,
           contentId: sectionData.contentId,
           currentContent,
+          pendingOperation,
           signal: controller.signal,
         });
 
@@ -131,6 +134,7 @@ export const AiController = {
           prompt,
           history: optimized,
           currentContent,
+          pendingOperations,
           signal: controller.signal,
         });
 
@@ -160,7 +164,7 @@ export const AiController = {
       return;
     }
 
-    const { prompt, history, CVId } = parsed.data;
+    const { prompt, history, CVId, pendingTextChange } = parsed.data;
     const { optimized } = await optimizeHistory(history);
 
     const controller = new AbortController();
@@ -183,6 +187,7 @@ export const AiController = {
         prompt,
         history: optimized,
         currentText,
+        pendingTextChange,
         signal: controller.signal,
       });
 
@@ -208,7 +213,7 @@ export const AiController = {
       return;
     }
 
-    const { prompt, history, currentText } = parsed.data;
+    const { prompt, history, currentText, pendingTextChange } = parsed.data;
     const { optimized } = await optimizeHistory(history);
 
     const controller = new AbortController();
@@ -224,6 +229,7 @@ export const AiController = {
         prompt,
         history: optimized,
         currentText,
+        pendingTextChange,
         signal: controller.signal,
       });
 

@@ -26,5 +26,5 @@ export const useCVsEffects = () => {
       createError(error);
       setCVs([]);
     }
-  }, [CVs, isSuccess, isError, error]);
+  }, [CVs, isSuccess, isError, error, setCVs, createError, isAuthenticated]);
 };

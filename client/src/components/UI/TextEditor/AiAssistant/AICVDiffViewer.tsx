@@ -356,6 +356,7 @@ export interface AICVDiffViewerProps {
   onReject:     () => void;
   className?:   string;
   size?: 'small' | 'medium' | 'large';
+  areActionsDisabled?: boolean;
 }
 
 export default function AICVDiffViewer({
@@ -365,6 +366,7 @@ export default function AICVDiffViewer({
   onReject,
   className = '',
   size = 'medium',
+  areActionsDisabled = false,
 }: AICVDiffViewerProps) {
   const groups = useMemo(() => buildGroups(operations), [operations]);
   const count  = operations.length;
@@ -383,14 +385,16 @@ export default function AICVDiffViewer({
         <button
           type="button"
           onClick={onReject}
-          className="cursor-pointer px-3 py-1 rounded-full text-[11px] font-medium text-red-500 hover:bg-[#ffe5e5] transition-colors duration-200 focus:outline-none"
+          className={`cursor-pointer px-3 py-1 rounded-full text-[11px] font-medium text-red-500 hover:bg-[#ffe5e5] transition-colors duration-200 focus:outline-none ${areActionsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={areActionsDisabled}
         >
           Reject
         </button>
         <button
           type="button"
           onClick={onAcceptAll}
-          className="cursor-pointer px-3 py-1 rounded-full text-[11px] font-semibold bg-[#0071e3] text-white hover:bg-[#0060c7] transition-colors duration-200 focus:outline-none"
+          className={`cursor-pointer px-3 py-1 rounded-full text-[11px] font-semibold bg-[#0071e3] text-white hover:bg-[#0060c7] transition-colors duration-200 focus:outline-none ${areActionsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={areActionsDisabled}
         >
           Accept all
         </button>

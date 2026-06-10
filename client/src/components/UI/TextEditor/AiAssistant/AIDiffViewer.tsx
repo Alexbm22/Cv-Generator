@@ -5,6 +5,7 @@ interface AIDiffViewerProps {
   proposed: string;
   onAccept: () => void;
   onReject: () => void;
+  areActionsDisabled?: boolean;
 }
 
 type DiffToken =
@@ -92,7 +93,7 @@ function computeDiff(original: string, proposed: string, isAppend: boolean): Dif
  * highlighting: green for additions, red strikethrough for removals.
  * Positioned right below the text editor.
  */
-export default function AIDiffViewer({ original, proposed, onAccept, onReject }: AIDiffViewerProps) {
+export default function AIDiffViewer({ original, proposed, onAccept, onReject, areActionsDisabled = false }: AIDiffViewerProps) {
   const diffTokens = useMemo(
     () => computeDiff(original, proposed, false),
     [original, proposed],
@@ -109,11 +110,13 @@ export default function AIDiffViewer({ original, proposed, onAccept, onReject }:
             <button
             type="button"
             onClick={onReject}
+            disabled={areActionsDisabled}
             className={[
                 'cursor-pointer px-3 py-1 rounded-full text-[11px] font-medium',
                 'text-red-500 bg-transparent',
                 'hover:bg-[#ffe5e5] transition-colors duration-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1',
+                areActionsDisabled ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
             >
                 <span>
@@ -123,11 +126,13 @@ export default function AIDiffViewer({ original, proposed, onAccept, onReject }:
             <button
             type="button"
             onClick={onAccept}
+            disabled={areActionsDisabled}
             className={[
                 'cursor-pointer px-3 py-1 rounded-full text-[11px] font-semibold',
                 'bg-[#0071e3] text-white',
                 'hover:bg-[#0060c7] transition-colors duration-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3] focus-visible:ring-offset-1',
+                areActionsDisabled ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
             >
                 <span>

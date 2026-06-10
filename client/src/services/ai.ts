@@ -1,5 +1,5 @@
 import { apiService } from './api';
-import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody } from '../interfaces/ai';
+import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody, CVEditOperation, SectionItemOperation } from '../interfaces/ai';
 import axios from 'axios';
 
 export interface SectionAIChatParams {
@@ -8,7 +8,10 @@ export interface SectionAIChatParams {
   sectionType: string;
   contentId: string;
   currentItem: Record<string, unknown>;
+  pendingOperation?: SectionItemOperation;
   signal: AbortSignal;
+  /** Pass for authenticated users — backend fetches CV content. */
+  cvId?: string;
 }
 
 export interface TextFieldAIChatParams {
@@ -16,28 +19,50 @@ export interface TextFieldAIChatParams {
   history: HistoryEntry[];
   sectionType: string; // e.g. 'aboutMe'
   currentText: string;
+  pendingOperations?: CVEditOperation[];
   signal: AbortSignal;
+  /** Pass for authenticated users — backend fetches CV content. */
+  cvId?: string;
+  /** Pass for guests — full CV data sent directly for context. */
+  cvData?: unknown;
 }
 
 /**
  * Sends a section item edit request to the AI endpoint.
+ * For authenticated users: sends CVId + SectionData, backend fetches content.
+ * For guests: sends full sectionData including content directly.
  * Strips the `id` field from content before sending — the backend schema does not include it.
  * Returns the structured response: { operation, message, history }.
  */
 export async function sendSectionEditMessage(params: SectionAIChatParams): Promise<SectionEditResponseBody> {
-  const { prompt, history, sectionType, contentId, currentItem, signal } = params;
-
-  // Strip `id` from content: the backend sectionData schema does not include it.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id: _id, ...content } = currentItem as Record<string, unknown> & { id?: unknown };
+  const { prompt, history, sectionType, contentId, currentItem, pendingOperation, signal, cvId } = params;
 
   try {
+    if (cvId) {
+      return await apiService.post<SectionEditResponseBody>(
+        '/protected/ai/chat',
+        {
+          prompt,
+          history,
+          CVId: cvId,
+          SectionData: { sectionType, contentId },
+          pendingOperation,
+        },
+        { signal, timeout: 60000 },
+      );
+    }
+
+    // Strip `id` from content: the backend sectionData schema does not include it.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...content } = currentItem as Record<string, unknown> & { id?: unknown };
+
     return await apiService.post<SectionEditResponseBody>(
       '/ai/chat',
       {
         prompt,
         history,
         sectionData: { sectionType, contentId, content },
+        pendingOperation,
       },
       { signal, timeout: 60000 },
     );
@@ -52,20 +77,35 @@ export async function sendSectionEditMessage(params: SectionAIChatParams): Promi
 }
 
 /**
- * Sends a plain text field edit request (e.g. aboutMe) where there is no item ID.
- * The backend uses the CV edit path and returns a set_field operation.
+ * Sends a plain text field edit request where there is no item ID.
+ * For authenticated users: sends CVId, backend fetches the full CV.
+ * For guests: sends the full CV data object directly for context.
  * Returns the structured response: { operations, message, history }.
  */
 export async function sendTextFieldEditMessage(params: TextFieldAIChatParams): Promise<TextFieldEditResponseBody> {
-  const { prompt, history, sectionType, currentText, signal } = params;
+  const { prompt, history, pendingOperations, signal, cvId, cvData } = params;
 
   try {
+    if (cvId) {
+      return await apiService.post<TextFieldEditResponseBody>(
+        '/protected/ai/chat',
+        {
+          prompt,
+          history,
+          CVId: cvId,
+          pendingOperations,
+        },
+        { signal, timeout: 60000 },
+      );
+    }
+
     return await apiService.post<TextFieldEditResponseBody>(
       '/ai/chat',
       {
         prompt,
         history,
-        sectionData: { sectionType, content: currentText },
+        cvData,
+        pendingOperations,
       },
       { signal, timeout: 60000 },
     );
@@ -82,6 +122,7 @@ export async function sendTextFieldEditMessage(params: TextFieldAIChatParams): P
 export interface CVEditAIChatParams {
   prompt: string;
   history: HistoryEntry[];
+  pendingOperations?: CVEditOperation[]; 
   signal: AbortSignal;
   /** Pass for authenticated users — backend fetches CV content. */
   cvId?: string;
@@ -96,20 +137,20 @@ export interface CVEditAIChatParams {
  * Returns a list of typed operations covering all change types.
  */
 export async function sendCVEditMessage(params: CVEditAIChatParams): Promise<CVEditResponseBody> {
-  const { prompt, history, signal, cvId, cvData } = params;
+  const { prompt, history, pendingOperations, signal, cvId, cvData } = params;
 
   try {
     if (cvId) {
       return await apiService.post<CVEditResponseBody>(
         '/protected/ai/chat',
-        { prompt, history, CVId: cvId },
+        { prompt, history, pendingOperations, CVId: cvId },
         { signal, timeout: 90000 },
       );
     }
 
     return await apiService.post<CVEditResponseBody>(
       '/ai/chat',
-      { prompt, history, cvData },
+      { prompt, history, pendingOperations, cvData },
       { signal, timeout: 90000 },
     );
   } catch (err) {
@@ -130,6 +171,7 @@ export interface AboutMeAIChatParams {
   cvId?: string;
   /** Pass for guests — current aboutMe HTML text sent directly. */
   currentText?: string;
+  pendingTextChange?: { original: string; proposed: string };
 }
 
 /**
@@ -139,20 +181,20 @@ export interface AboutMeAIChatParams {
  * Returns a set_about_me operation with newValue and originalValue.
  */
 export async function sendAboutMeEditMessage(params: AboutMeAIChatParams): Promise<AboutMeEditResponseBody> {
-  const { prompt, history, signal, cvId, currentText } = params;
+  const { prompt, history, signal, cvId, currentText, pendingTextChange } = params;
 
   try {
     if (cvId) {
       return await apiService.post<AboutMeEditResponseBody>(
         '/protected/ai/about-me',
-        { prompt, history, CVId: cvId },
+        { prompt, history, CVId: cvId, pendingTextChange },
         { signal, timeout: 60000 },
       );
     }
 
     return await apiService.post<AboutMeEditResponseBody>(
       '/ai/about-me',
-      { prompt, history, currentText: currentText ?? '' },
+      { prompt, history, currentText: currentText ?? '', pendingTextChange },
       { signal, timeout: 60000 },
     );
   } catch (err) {

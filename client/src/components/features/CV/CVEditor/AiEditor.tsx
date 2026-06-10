@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Sparkles } from 'lucide-react';
 import { useCvEditStore, useAuthStore } from '../../../../Store';
@@ -23,23 +23,19 @@ import {
   SocialLink,
 } from '../../../../interfaces/cv';
 
-// ── Local state ───────────────────────────────────────────────────────────────
-
 interface CVEditorAIState {
-  conversation:      ConversationMessage[];
-  history:           HistoryEntry[];
+  conversation: ConversationMessage[];
+  history: HistoryEntry[];
   pendingOperations: CVEditOperation[];
-  isLoading:         boolean;
+  isLoading: boolean;
 }
 
 const INITIAL_STATE: CVEditorAIState = {
-  conversation:      [],
-  history:           [],
+  conversation: [],
+  history: [],
   pendingOperations: [],
-  isLoading:         false,
+  isLoading: false,
 };
-
-// ── Apply operations ──────────────────────────────────────────────────────────
 
 function parseDate(value: unknown): Date {
   if (!value) return new Date();
@@ -61,32 +57,32 @@ function applyAIOperations(operations: CVEditOperation[]) {
             case 'workExperience':
               store.updateWorkExperience(op.itemId, {
                 ...(next as Partial<WorkExperience>),
-                ...(next.startDate   !== undefined && { startDate:   parseDate(next.startDate) }),
-                ...(next.endDate     !== undefined && { endDate:     parseDate(next.endDate) }),
+                ...(next.startDate !== undefined && { startDate: parseDate(next.startDate) }),
+                ...(next.endDate !== undefined && { endDate: parseDate(next.endDate) }),
                 ...(next.description !== undefined && { description: sanitizeHtml(String(next.description)) }),
               });
               break;
             case 'education':
               store.updateEducation(op.itemId, {
                 ...(next as Partial<Education>),
-                ...(next.startDate   !== undefined && { startDate:   parseDate(next.startDate) }),
-                ...(next.endDate     !== undefined && { endDate:     parseDate(next.endDate) }),
+                ...(next.startDate !== undefined && { startDate: parseDate(next.startDate) }),
+                ...(next.endDate !== undefined && { endDate: parseDate(next.endDate) }),
                 ...(next.description !== undefined && { description: sanitizeHtml(String(next.description)) }),
               });
               break;
             case 'projects':
               store.updateProject(op.itemId, {
                 ...(next as Partial<Project>),
-                ...(next.startDate   !== undefined && { startDate:   parseDate(next.startDate) }),
-                ...(next.endDate     !== undefined && { endDate:     parseDate(next.endDate) }),
+                ...(next.startDate !== undefined && { startDate: parseDate(next.startDate) }),
+                ...(next.endDate !== undefined && { endDate: parseDate(next.endDate) }),
                 ...(next.description !== undefined && { description: sanitizeHtml(String(next.description)) }),
               });
               break;
             case 'customSections':
               store.updateCustomSectionAttributes(op.itemId, {
                 ...(next as Partial<CustomSectionAttributes>),
-                ...(next.startDate   !== undefined && { startDate:   parseDate(next.startDate) }),
-                ...(next.endDate     !== undefined && { endDate:     parseDate(next.endDate) }),
+                ...(next.startDate !== undefined && { startDate: parseDate(next.startDate) }),
+                ...(next.endDate !== undefined && { endDate: parseDate(next.endDate) }),
                 ...(next.description !== undefined && { description: sanitizeHtml(String(next.description)) }),
               });
               break;
@@ -144,7 +140,7 @@ function applyAIOperations(operations: CVEditOperation[]) {
               break;
             case 'skills':
               store.addSkill({
-                name:  String(item.name  ?? ''),
+                name: String(item.name ?? ''),
                 level: (item.level as Skill['level']) ?? null,
               });
               break;
@@ -166,26 +162,26 @@ function applyAIOperations(operations: CVEditOperation[]) {
 
         case 'remove_item': {
           switch (op.sectionType) {
-            case 'workExperience':  store.removeWorkExperience(op.itemId);              break;
-            case 'education': store.removeEducation(op.itemId);                  break;
-            case 'projects': store.removeProject(op.itemId);                    break;
-            case 'customSections': store.removeCustomSectionAttributes(op.itemId);    break;
-            case 'skills': store.removeSkill(op.itemId);                      break;
-            case 'languages': store.removeLanguage(op.itemId);                   break;
-            case 'socialLinks': store.removeSocialLink(op.itemId);                 break;
+            case 'workExperience': store.removeWorkExperience(op.itemId); break;
+            case 'education': store.removeEducation(op.itemId); break;
+            case 'projects': store.removeProject(op.itemId); break;
+            case 'customSections': store.removeCustomSectionAttributes(op.itemId); break;
+            case 'skills': store.removeSkill(op.itemId); break;
+            case 'languages': store.removeLanguage(op.itemId); break;
+            case 'socialLinks': store.removeSocialLink(op.itemId); break;
           }
           break;
         }
 
         case 'set_field': {
           switch (op.field) {
-            case 'firstName':   store.setFirstName(op.newValue);                 break;
-            case 'lastName':    store.setLastName(op.newValue);                  break;
-            case 'email':       store.setEmail(op.newValue);                     break;
-            case 'phoneNumber': store.setPhoneNumber(op.newValue);               break;
-            case 'address':     store.setAddress(op.newValue);                   break;
-            case 'jobTitle':    store.setJobTitle(op.newValue);                  break;
-            case 'aboutMe':     store.setAboutMe(sanitizeHtml(op.newValue));     break;
+            case 'firstName': store.setFirstName(op.newValue); break;
+            case 'lastName': store.setLastName(op.newValue); break;
+            case 'email': store.setEmail(op.newValue); break;
+            case 'phoneNumber': store.setPhoneNumber(op.newValue); break;
+            case 'address': store.setAddress(op.newValue); break;
+            case 'jobTitle': store.setJobTitle(op.newValue); break;
+            case 'aboutMe': store.setAboutMe(sanitizeHtml(op.newValue)); break;
           }
           break;
         }
@@ -205,36 +201,38 @@ function applyAIOperations(operations: CVEditOperation[]) {
   }
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
-
 const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview }) => {
   const [prompt, setPrompt] = useState('');
-  const [state, setState]   = useState<CVEditorAIState>(INITIAL_STATE);
-  const abortRef            = useRef<AbortController | null>(null);
+  const [state, setState] = useState<CVEditorAIState>(INITIAL_STATE);
+  const abortRef = useRef<AbortController | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [state.conversation, state.isLoading]);
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const cvId            = useCvEditStore((s) => s.id);
+  const cvId = useCvEditStore((s) => s.id);
 
-  // Current items — passed to diff viewer for remove_item label resolution
-  const workExperience  = useCvEditStore((s) => s.workExperience);
-  const education       = useCvEditStore((s) => s.education);
-  const projects        = useCvEditStore((s) => s.projects);
-  const skills          = useCvEditStore((s) => s.skills);
-  const languages       = useCvEditStore((s) => s.languages);
-  const socialLinks     = useCvEditStore((s) => s.socialLinks);
-  const customSections  = useCvEditStore((s) => s.customSections);
+  const workExperience = useCvEditStore((s) => s.workExperience);
+  const education = useCvEditStore((s) => s.education);
+  const projects = useCvEditStore((s) => s.projects);
+  const skills = useCvEditStore((s) => s.skills);
+  const languages = useCvEditStore((s) => s.languages);
+  const socialLinks = useCvEditStore((s) => s.socialLinks);
+  const customSections = useCvEditStore((s) => s.customSections);
 
   const currentItems = useMemo<Partial<Record<string, Array<Record<string, unknown>>>>>(() => ({
-    workExperience:  workExperience as unknown  as Array<Record<string, unknown>>,
-    education: education      as unknown  as Array<Record<string, unknown>>,
-    projects:        projects        as unknown  as Array<Record<string, unknown>>,
-    skills:          skills          as unknown  as Array<Record<string, unknown>>,
-    languages:       languages       as unknown  as Array<Record<string, unknown>>,
-    socialLinks:     socialLinks     as unknown  as Array<Record<string, unknown>>,
-    customSections:  customSections.content as unknown as Array<Record<string, unknown>>,
+    workExperience: workExperience as unknown as Array<Record<string, unknown>>,
+    education: education as unknown as Array<Record<string, unknown>>,
+    projects: projects as unknown as Array<Record<string, unknown>>,
+    skills: skills as unknown as Array<Record<string, unknown>>,
+    languages: languages as unknown as Array<Record<string, unknown>>,
+    socialLinks: socialLinks as unknown as Array<Record<string, unknown>>,
+    customSections: customSections.content as unknown as Array<Record<string, unknown>>,
   }), [workExperience, education, projects, skills, languages, socialLinks, customSections]);
-
-  // ── Send ──────────────────────────────────────────────────────────────────
 
   const handleSend = useCallback(async () => {
     const trimmedPrompt = prompt.trim();
@@ -245,7 +243,6 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
     setState((prev) => ({
       ...prev,
       isLoading: true,
-      pendingOperations: [],
       conversation: [...prev.conversation, userMsg],
     }));
 
@@ -255,10 +252,10 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
     abortRef.current = controller;
 
     try {
-      const baseParams = { prompt: trimmedPrompt, history: state.history, signal: controller.signal };
+      const baseParams = { prompt: trimmedPrompt, history: state.history, pendingOperations: state.pendingOperations, signal: controller.signal };
       const params = isAuthenticated && cvId
         ? { ...baseParams, cvId }
-        : { ...baseParams, cvData: useCvEditStore.getState().getGuestCVObject() };
+        : { ...baseParams, cvData: useCvEditStore.getState().getGuestCVAIData() };
 
       const { operations, message, history } = await sendCVEditMessage(params);
 
@@ -286,20 +283,18 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
     }
-  }, [prompt, state.isLoading, state.history, isAuthenticated, cvId]);
-
-  // ── Diff actions ──────────────────────────────────────────────────────────
+  }, [prompt, state.isLoading, state.history, state.pendingOperations, isAuthenticated, cvId]);
 
   const handleAcceptAll = useCallback(() => {
+    if (state.pendingOperations.length === 0 || state.isLoading) return;
     applyAIOperations(state.pendingOperations);
     setState((prev) => ({ ...prev, pendingOperations: [] }));
-  }, [state.pendingOperations]);
+  }, [state.pendingOperations, state.isLoading]);
 
   const handleReject = useCallback(() => {
+    if (state.pendingOperations.length === 0 || state.isLoading) return;
     setState((prev) => ({ ...prev, pendingOperations: [] }));
-  }, []);
-
-  // ── Option helpers ────────────────────────────────────────────────────────
+  }, [state.pendingOperations, state.isLoading]);
 
   const handleAppendToInput = (text: string) =>
     setPrompt((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
@@ -309,14 +304,11 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
 
   const hasPendingOps = state.pendingOperations.length > 0;
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
   return (
     <div
       className="transition-all duration-1000 bg-[#f5f5f7] w-full shadow-lg z-0.5 flex flex-col max-h-[calc(100vh-60px)] overflow-hidden"
       style={isShowingPreview ? { flexBasis: '56.25%' } : { flexBasis: '100%' }}
     >
-      {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-[#daeaf9] bg-white shrink-0 min-h-0">
         <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#ebf4ff] text-[#007dff]">
           <Sparkles size={16} strokeWidth={1.5} />
@@ -333,10 +325,7 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
         )}
       </div>
 
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto flex flex-col min-h-0">
-
-        {/* Empty state */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto flex flex-col min-h-0">
         {state.conversation.length === 0 && !hasPendingOps && !state.isLoading && (
           <div className="flex flex-col items-center justify-center flex-1 gap-3 text-center px-8 py-12">
             <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#ddeaf9] text-[#007dff]">
@@ -351,30 +340,28 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
           </div>
         )}
 
-        <div className="pt-3">
-          {/* Diff viewer */}
-          {hasPendingOps && (
-            <div className="px-4 pb-3">
-              <AICVDiffViewer
-                operations={state.pendingOperations}
-                currentItems={currentItems}
-                onAcceptAll={handleAcceptAll}
-                onReject={handleReject}
-                className="bg-white"
-                size="small"
-              />
-            </div>
-          )}
+        {hasPendingOps && (
+          <div className="sticky top-0 z-10 px-6 pt-1 bg-[#f5f5f7] pb-3 border-b border-[#daeaf9]">
+            <AICVDiffViewer
+              operations={state.pendingOperations}
+              currentItems={currentItems}
+              onAcceptAll={handleAcceptAll}
+              onReject={handleReject}
+              className="bg-white shadow-md rounded-2xl border border-[#f0f0f0]"
+              size="small"
+              areActionsDisabled={state.isLoading}
+            />
+          </div>
+        )}
 
-          {/* Conversation thread */}
-          {(state.conversation.length > 0 || state.isLoading) && (
+        {(state.conversation.length > 0 || state.isLoading) && (
+          <div className="pt-3 px-3">
             <AIConversation messages={state.conversation} isLoading={state.isLoading} variant="editor" />
-          )}
-        </div>
-        </div>
+          </div>
+        )}
+      </div>
 
-      {/* Fixed bottom: input + quick options */}
-      <div className="p-3 pt-0 pb-5">
+      <div className="p-6 pt-0 pb-5">
         <div className="flex flex-col bg-white shrink-0 px-3 py-3 gap-3 rounded-2xl border border-[#f0f0f0]" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.07), 0 1.5px 6px rgba(0,0,0,0.04)' }}>
           <AiInput
             value={prompt}

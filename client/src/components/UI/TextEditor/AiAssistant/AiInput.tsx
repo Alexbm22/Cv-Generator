@@ -17,7 +17,7 @@ export default function AiInput({ value, onChange, onSend, isDisabled = false }:
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
   }, [value]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -45,10 +45,10 @@ export default function AiInput({ value, onChange, onSend, isDisabled = false }:
           placeholder={isDisabled ? 'AI is thinking…' : 'Ask AI to help improve this section…'}
           rows={1}
           className={[
-            "flex-1 resize-none bg-transparent outline-none overflow-hidden",
+            "flex-1 resize-none bg-transparent outline-none overflow-y-auto scrollbar-none",
             "text-[13px] text-[#1d1d1f] placeholder:text-[#aeaeb2]",
             "py-2.5 pl-3 pr-1 leading-relaxed",
-            "min-h-[40px] max-h-[120px]",
+            "min-h-[40px] h-[40px] max-h-[180px]",
             isDisabled ? "opacity-50 cursor-not-allowed" : "",
           ].join(" ")}
         />
