@@ -1,11 +1,12 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Settings, Briefcase } from 'lucide-react';
 import { useCvEditStore, useAuthStore } from '../../../../Store';
 import AIConversation from '../../../UI/TextEditor/AiAssistant/AIConversation';
 import AiInput from '../../../UI/TextEditor/AiAssistant/AiInput';
 import AiOptions from '../../../UI/TextEditor/AiAssistant/AiOptions';
 import AICVDiffViewer from '../../../UI/TextEditor/AiAssistant/AICVDiffViewer';
+import AISettingsDialog from '../../../UI/AISettingsDialog';
 import { sendCVEditMessage } from '../../../../services/ai';
 import { sanitizeHtml } from '../../../../utils';
 import {
@@ -181,6 +182,8 @@ function applyAIOperations(operations: CVEditOperation[]) {
             case 'phoneNumber': store.setPhoneNumber(op.newValue); break;
             case 'address': store.setAddress(op.newValue); break;
             case 'jobTitle': store.setJobTitle(op.newValue); break;
+            case 'jobDescription': store.setJobDescription(op.newValue); break;
+            case 'companyName': store.setCompanyName(op.newValue); break;
             case 'aboutMe': store.setAboutMe(sanitizeHtml(op.newValue)); break;
           }
           break;
@@ -204,6 +207,8 @@ function applyAIOperations(operations: CVEditOperation[]) {
 const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview }) => {
   const [prompt, setPrompt] = useState('');
   const [state, setState] = useState<CVEditorAIState>(INITIAL_STATE);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [focusJobDescription, setFocusJobDescription] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -255,7 +260,7 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
       const baseParams = { prompt: trimmedPrompt, history: state.history, pendingOperations: state.pendingOperations, signal: controller.signal };
       const params = isAuthenticated && cvId
         ? { ...baseParams, cvId }
-        : { ...baseParams, cvData: useCvEditStore.getState().getGuestCVAIData() };
+        : { ...baseParams, cvData: useCvEditStore.getState().getGuestCVAIData(), jobData: useCvEditStore.getState().getJobData() };
 
       const { operations, message, history } = await sendCVEditMessage(params);
 
@@ -296,6 +301,12 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
     setState((prev) => ({ ...prev, pendingOperations: [] }));
   }, [state.pendingOperations, state.isLoading]);
 
+  // TODO: implement this when ready
+  const handleAddJobDetails = () => {
+    setFocusJobDescription(true);
+    setIsSettingsOpen(true);
+  };
+
   const handleAppendToInput = (text: string) =>
     setPrompt((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
 
@@ -317,12 +328,37 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
           <h2 className="text-[14px] font-semibold text-[#1d1d1f] leading-tight">AI Editor</h2>
           <p className="text-[11px] text-[#6e6e73]">Edit your entire CV with AI</p>
         </div>
-        {state.isLoading && (
-          <div className="ml-auto flex items-center gap-1.5 text-[11px] text-[#0071e3] font-medium">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0071e3] animate-pulse" />
-            Thinking…
-          </div>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {state.isLoading && (
+            <div className="flex items-center gap-1.5 text-[11px] text-[#0071e3] font-medium">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0071e3] animate-pulse" />
+              Thinking…
+            </div>
+          )}
+
+          <button
+            onClick={handleAddJobDetails}
+            className="flex items-center gap-1.5 px-3 py-[5px] h-9 rounded-full text-[12px] font-medium text-[#404245] bg-white border hover:bg-[#f2f2f7] border-[#cecbcb] active:bg-[#e5e5ea] shadow-xs transition-all duration-250 shrink-0 cursor-pointer select-none"
+            aria-label="Add job details"
+          >
+            <Briefcase size={15} strokeWidth={1.75} />
+            Add job details
+          </button>
+
+          <button
+            className="flex items-center justify-center w-9 h-9 rounded-xl text-[#6e6e73] hover:bg-[#f2f2f7] active:bg-[#e5e5ea] transition-colors duration-150 cursor-pointer"
+            aria-label="AI Editor settings"
+            onClick={() => setIsSettingsOpen(true)}
+          >
+            <Settings size={18} strokeWidth={1.5} />
+          </button>
+
+          <AISettingsDialog
+            isOpen={isSettingsOpen}
+            onClose={() => { setIsSettingsOpen(false); setFocusJobDescription(false); }}
+            focusJobDescription={focusJobDescription}
+          />
+        </div>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto flex flex-col min-h-0">

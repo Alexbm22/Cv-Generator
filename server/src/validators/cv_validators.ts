@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 export const GuestCVSchema = z.object({
     title: z.string().max(200),
-    jobTitle: z.string().max(200),
     template: z.string(),
     templateColor: z.string(),
     firstName: z.string().max(100),

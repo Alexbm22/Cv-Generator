@@ -178,8 +178,16 @@ export class CVsService {
             throw new AppError('CV not found.', 404, ErrorTypes.NOT_FOUND);
         }
 
+        const cvData = cv.get();
+
+        const jobData = {
+            jobTitle: cvData.jobTitle,
+            jobDescription: cvData.jobDescription,
+            companyName: cvData.companyName
+        };
+
         if (sectionType && sectionId) {
-            const content = cv.get().content;
+            const content = cvData.content;
             let sectionContent = content[sectionType as keyof typeof content];
             sectionContent = sectionType === 'customSections' ? (sectionContent as any).content : sectionContent;
 
@@ -188,14 +196,20 @@ export class CVsService {
                 if (!section) {
                     throw new AppError('CV section not found.', 404, ErrorTypes.NOT_FOUND);
                 }
-                return section;
+                return {
+                    content: section,
+                    jobData
+                };
             }
             else {
                 throw new AppError('Invalid CV section type.', 400, ErrorTypes.BAD_REQUEST);
             }
         }
 
-        return mapServerCVToAiOptimizedCVContent(cv.get());
+        return {
+            content: mapServerCVToAiOptimizedCVContent(cvData),
+            jobData
+        };
 
     }
 

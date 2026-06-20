@@ -1,11 +1,13 @@
 import { useState, useRef, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { Briefcase, Settings } from "lucide-react";
 import { SparklesIcon } from "./icons";
 import AiOptions from "./AiOptions";
 import AiInput from "./AiInput";
 import AIConversation from "./AIConversation";
 import AISectionDiffViewer from "./AISectionDiffViewer";
 import AIDiffViewer from "./AIDiffViewer";
+import AISettingsDialog from "../../AISettingsDialog";
 import { sendSectionEditMessage, sendTextFieldEditMessage, sendAboutMeEditMessage } from "../../../../services/ai";
 import { useAuthStore, useCvEditStore } from "../../../../Store";
 import {
@@ -45,6 +47,8 @@ export default function AiPanel({
 }: AiPanelProps) {
   const [prompt, setPrompt] = useState("");
   const [state, setState] = useState<AIPanelState>(INITIAL_STATE);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [focusJobDescription, setFocusJobDescription] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -105,7 +109,7 @@ export default function AiPanel({
           history: state.history,
           signal: controller.signal,
           pendingTextChange: state.pendingTextChange ?? undefined,
-          ...(cvId ? { cvId } : { currentText: currentText ?? '' }),
+          ...(cvId ? { cvId } : { currentText: currentText ?? '', jobData: useCvEditStore.getState().getJobData() }),
         });
 
         setState((prev) => ({
@@ -129,7 +133,7 @@ export default function AiPanel({
           currentText: currentText ?? "",
           pendingOperations,
           signal: controller.signal,
-          ...(cvId ? { cvId } : { cvData: useCvEditStore.getState().getCVObject() }),
+          ...(cvId ? { cvId } : { cvData: useCvEditStore.getState().getCVObject(), jobData: useCvEditStore.getState().getJobData() }),
         });
 
         const setFieldOp = operations.find((op) => op.operationType === "set_field");
@@ -198,6 +202,11 @@ export default function AiPanel({
     setPrompt((prev) => prev.replace(text, "").replace(/\s+/g, " ").trim());
   };
 
+  const handleAddJobDetails = () => {
+    setFocusJobDescription(true);
+    setIsSettingsOpen(true);
+  };
+
   const hasPendingDiff = !!(state.pendingOperation || state.pendingTextChange);
 
   return (
@@ -224,9 +233,28 @@ export default function AiPanel({
             Thinking…
           </span>
         )}
-        <span className="ml-auto text-[10px] text-[#aeaeb2] font-medium hidden sm:block">
-          {state.conversation.length === 0 ? "Type or select an option below" : null}
-        </span>
+        <div className="ml-auto flex items-center gap-1.5">
+          <button
+            onClick={handleAddJobDetails}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium text-[#404245] bg-white border hover:bg-[#f2f2f7] border-[#cecbcb] active:bg-[#e5e5ea] shadow-xs transition-all duration-250 shrink-0 cursor-pointer select-none"
+            aria-label="Add job details"
+          >
+            <Briefcase size={13} strokeWidth={1.75} />
+            Add job details
+          </button>
+          <button
+            className="flex items-center justify-center w-7 h-7 rounded-lg text-[#6e6e73] hover:bg-[#f2f2f7] active:bg-[#e5e5ea] transition-colors duration-150 cursor-pointer"
+            aria-label="AI panel settings"
+            onClick={() => setIsSettingsOpen(true)}
+          >
+            <Settings size={14} strokeWidth={1.5} />
+          </button>
+          <AISettingsDialog
+            isOpen={isSettingsOpen}
+            onClose={() => { setIsSettingsOpen(false); setFocusJobDescription(false); }}
+            focusJobDescription={focusJobDescription}
+          />
+        </div>
       </div>
 
       <div className="mx-4 mb-1 border-t border-[#f2f2f7]" />

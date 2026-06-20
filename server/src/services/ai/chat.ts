@@ -22,6 +22,7 @@ export interface SectionEditCallParams {
   contentId: string;
   currentContent: string;
   pendingOperation?: CVEditOperation;
+  jobData?: { jobTitle?: string; jobDescription?: string; companyName?: string };
   signal: AbortSignal;
 }
 
@@ -30,6 +31,7 @@ export interface CVEditCallParams {
   history: HistoryEntry[];
   pendingOperations?: CVEditOperation[];
   currentContent: string;
+  jobData?: { jobTitle?: string; jobDescription?: string; companyName?: string };
   signal: AbortSignal;
 }
 
@@ -38,13 +40,18 @@ export interface CVEditCallParams {
  * Always returns an update_item operation for the specified item.
  */
 export async function callSectionEditAI(params: SectionEditCallParams): Promise<AiSectionEditResponseOutput> {
-  const { prompt, history, sectionType, contentId, currentContent, pendingOperation, signal } = params;
+  const { prompt, history, sectionType, contentId, currentContent, pendingOperation, jobData, signal } = params;
 
-  let userMessage = `Section type: ${sectionType}\nItem ID: ${contentId}\n\nCurrent item:\n${currentContent}\n\nInstruction: ${prompt}`;
+  const JobDataString = jobData ? `\n<job_posting>
+    Job Title: ${jobData.jobTitle}
+    Company: ${jobData.companyName}
+    Description: ${jobData.jobDescription}
+    </job_posting>\n
+    This is the job I'm targeting. When I ask you to update my CV, use this posting to identify key skills and keywords, and tailor accordingly — without fabricating experience I don't have.`
+    : '';
+  const pendingOpString = pendingOperation ? `\n\nPlease give me a response based on the pending operation: ${JSON.stringify(pendingOperation)}` : '';
 
-  if (pendingOperation) {
-    userMessage = `Section type: ${sectionType}\nItem ID: ${contentId}\n\nCurrent item:\n${currentContent}\nPlease give me a response based on the pending operation: ${JSON.stringify(pendingOperation)}\n\nInstruction: ${prompt}`;
-  }
+  let userMessage = `Section type: ${sectionType}\nItem ID: ${contentId}\n\nCurrent item:\n${currentContent}${JobDataString}${pendingOpString}\n\nInstruction: ${prompt}`;
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: SECTION_EDIT_SYSTEM_PROMPT},
@@ -73,13 +80,17 @@ export async function callSectionEditAI(params: SectionEditCallParams): Promise<
  * Returns an array of typed operations (update, add, remove, set_field, etc.).
  */
 export async function callCVEditAI(params: CVEditCallParams): Promise<AiCVEditResponseOutput> {
-  const { prompt, history, pendingOperations, currentContent, signal } = params;
+  const { prompt, history, pendingOperations, currentContent, jobData, signal } = params;
 
-  let userMessage = `Current CV content:\n${currentContent}\n\nInstruction: ${prompt}`;
-
-  if (pendingOperations && pendingOperations.length > 0) {
-    userMessage = `Current CV content:\n${currentContent}\n\nPlease give me a response based on the pending operations: ${JSON.stringify(pendingOperations)}\n\nInstruction: ${prompt}`;
-  }
+  const JobDataString = jobData ? `\n\n<job_posting>
+      Job Title: ${jobData.jobTitle}
+      Company: ${jobData.companyName}
+      Description: ${jobData.jobDescription}
+      </job_posting>\nThis is the job I'm targeting. When I ask you to update my CV, use this posting to identify key skills and keywords, and tailor accordingly — without fabricating experience I don't have.` 
+    : '';
+  const pendingOpsString = pendingOperations && pendingOperations.length > 0 ? `\n\nPlease give me a response based on the pending operations: ${JSON.stringify(pendingOperations)}` : '';
+  
+  let userMessage = `Current CV content:\n${currentContent}${JobDataString}${pendingOpsString}\n\nInstruction: ${prompt}`;
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: CV_EDIT_SYSTEM_PROMPT(pendingOperations) },
@@ -124,6 +135,7 @@ export interface AboutMeEditCallParams {
   history: HistoryEntry[];
   currentText: string;
   pendingTextChange?: { original: string; proposed: string };
+  jobData?: { jobTitle?: string; jobDescription?: string; companyName?: string };
   signal: AbortSignal;
 }
 
@@ -132,13 +144,13 @@ export interface AboutMeEditCallParams {
  * Always returns a set_about_me operation with newValue and originalValue.
  */
 export async function callAboutMeEditAI(params: AboutMeEditCallParams): Promise<AiAboutMeResponseOutput> {
-  const { prompt, history, currentText, pendingTextChange, signal } = params;
+  const { prompt, history, currentText, pendingTextChange, jobData, signal } = params;
 
-  let userMessage = `Current About Me text:\n${currentText || '(empty)'}\n\nInstruction: ${prompt}`;
+  const JobDataString = jobData ? `\n<job_posting>\n    Job Title: ${jobData.jobTitle}\n    Company: ${jobData.companyName}\n    Description: ${jobData.jobDescription}\n    </job_posting>\n    This is the job I'm targeting. When I ask you to update my CV, use this posting to identify key skills and keywords, and tailor accordingly — without fabricating experience I don't have.`
+    : '';
+  const pendingChangeString = pendingTextChange ? `\n\nPlease give me a response based on the pending text change: from "${pendingTextChange.original}" to "${pendingTextChange.proposed}"` : '';
 
-  if (pendingTextChange) {
-    userMessage = `Current About Me text:\n${currentText || '(empty)'}\n\nPlease give me a response based on the pending text change: from "${pendingTextChange.original}" to "${pendingTextChange.proposed}"\n\nInstruction: ${prompt}`;
-  }
+  let userMessage = `Current About Me text:\n${currentText || '(empty)'}${JobDataString}${pendingChangeString}\n\nInstruction: ${prompt}`;
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: ABOUT_ME_SYSTEM_PROMPT },

@@ -21,7 +21,7 @@ export const AiController = {
     req.on('close', () => controller.abort());
 
     try {
-      const content = await CVsService.getAiOptimizedCVContent(
+      const { content, jobData } = await CVsService.getAiOptimizedCVContent(
         req.user.get().id,
         CVId,
         SectionData?.sectionType,
@@ -42,6 +42,7 @@ export const AiController = {
           contentId: SectionData.contentId,
           currentContent,
           pendingOperation,
+          jobData,
           signal: controller.signal,
         });
 
@@ -58,6 +59,7 @@ export const AiController = {
           history: optimized,
           currentContent,
           pendingOperations,
+          jobData,
           signal: controller.signal,
         });
 
@@ -84,7 +86,7 @@ export const AiController = {
       return;
     }
 
-    const { prompt, history, sectionData, cvData, pendingOperation, pendingOperations } = parsed.data;
+    const { prompt, history, sectionData, cvData, pendingOperation, pendingOperations, jobData } = parsed.data;
     if (!cvData && !sectionData) {
       res.status(400).json({ message: 'Either cvData or sectionData must be provided.' });
       return;
@@ -113,6 +115,7 @@ export const AiController = {
           contentId: sectionData.contentId,
           currentContent,
           pendingOperation,
+          jobData,
           signal: controller.signal,
         });
 
@@ -135,6 +138,7 @@ export const AiController = {
           history: optimized,
           currentContent,
           pendingOperations,
+          jobData,
           signal: controller.signal,
         });
 
@@ -213,7 +217,7 @@ export const AiController = {
       return;
     }
 
-    const { prompt, history, currentText, pendingTextChange } = parsed.data;
+    const { prompt, history, currentText, pendingTextChange, jobData } = parsed.data;
     const { optimized } = await optimizeHistory(history);
 
     const controller = new AbortController();
@@ -230,6 +234,7 @@ export const AiController = {
         history: optimized,
         currentText,
         pendingTextChange,
+        jobData,
         signal: controller.signal,
       });
 

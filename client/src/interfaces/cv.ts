@@ -1,3 +1,5 @@
+import { JobData } from "../services/ai"
+
 export interface Language {
     id: string,
     name: string,
@@ -91,6 +93,8 @@ export interface CVMetadataAttributes {
     id: string;
     title: string;
     jobTitle: string;
+    jobDescription: string;
+    companyName: string;
     template: CVTemplates;
     templateColor: string;
     updatedAt: Date;
@@ -141,6 +145,8 @@ export interface CVEditStoreMetadataActions {
     setTemplateColorTheme: (color: string) => void;
     setTitle: (title: string) => void;
     setJobTitle: (jobTitle: string) => void;
+    setJobDescription: (jobDescription: string) => void;
+    setCompanyName: (companyName: string) => void;
     setGuestPhoto: (photoURL: string | null) => void;
     setGuestPreview: (previewURL: string | null) => void;
 }
@@ -201,6 +207,7 @@ export interface CVEditStoreActions {
     setGuestCV: (CV: GuestCVAttributes) => void;
 
     getCVObject: () => UserCVAttributes | GuestCVAttributes;
+    getJobData: () => JobData | undefined;
 }
 
 export interface UserCVAttributes extends 
@@ -208,7 +215,6 @@ UserCVMetadataAttributes, CVContentAttributes, CVPersonalInfoAttributes {}
 
 export interface GuestCVAIData {
     title: string;
-    jobTitle: string;
     template: CVTemplates;
     templateColor: string;
     firstName: string;

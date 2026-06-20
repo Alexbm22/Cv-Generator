@@ -2,6 +2,12 @@ import { apiService } from './api';
 import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody, CVEditOperation, SectionItemOperation } from '../interfaces/ai';
 import axios from 'axios';
 
+export interface JobData {
+  jobTitle?: string;
+  jobDescription?: string;
+  companyName?: string;
+}
+
 export interface SectionAIChatParams {
   prompt: string;
   history: HistoryEntry[];
@@ -12,6 +18,8 @@ export interface SectionAIChatParams {
   signal: AbortSignal;
   /** Pass for authenticated users — backend fetches CV content. */
   cvId?: string;
+  /** Pass for guests — job posting data for tailoring. */
+  jobData?: JobData;
 }
 
 export interface TextFieldAIChatParams {
@@ -25,6 +33,8 @@ export interface TextFieldAIChatParams {
   cvId?: string;
   /** Pass for guests — full CV data sent directly for context. */
   cvData?: unknown;
+  /** Pass for guests — job posting data for tailoring. */
+  jobData?: JobData;
 }
 
 /**
@@ -35,7 +45,7 @@ export interface TextFieldAIChatParams {
  * Returns the structured response: { operation, message, history }.
  */
 export async function sendSectionEditMessage(params: SectionAIChatParams): Promise<SectionEditResponseBody> {
-  const { prompt, history, sectionType, contentId, currentItem, pendingOperation, signal, cvId } = params;
+  const { prompt, history, sectionType, contentId, currentItem, pendingOperation, signal, cvId, jobData } = params;
 
   try {
     if (cvId) {
@@ -63,6 +73,7 @@ export async function sendSectionEditMessage(params: SectionAIChatParams): Promi
         history,
         sectionData: { sectionType, contentId, content },
         pendingOperation,
+        jobData,
       },
       { signal, timeout: 60000 },
     );
@@ -83,7 +94,7 @@ export async function sendSectionEditMessage(params: SectionAIChatParams): Promi
  * Returns the structured response: { operations, message, history }.
  */
 export async function sendTextFieldEditMessage(params: TextFieldAIChatParams): Promise<TextFieldEditResponseBody> {
-  const { prompt, history, pendingOperations, signal, cvId, cvData } = params;
+  const { prompt, history, pendingOperations, signal, cvId, cvData, jobData } = params;
 
   try {
     if (cvId) {
@@ -106,6 +117,7 @@ export async function sendTextFieldEditMessage(params: TextFieldAIChatParams): P
         history,
         cvData,
         pendingOperations,
+        jobData,
       },
       { signal, timeout: 60000 },
     );
@@ -128,6 +140,8 @@ export interface CVEditAIChatParams {
   cvId?: string;
   /** Pass for guests — full CV data sent directly. */
   cvData?: unknown;
+  /** Pass for guests — job posting data for tailoring. */
+  jobData?: JobData;
 }
 
 /**
@@ -137,7 +151,7 @@ export interface CVEditAIChatParams {
  * Returns a list of typed operations covering all change types.
  */
 export async function sendCVEditMessage(params: CVEditAIChatParams): Promise<CVEditResponseBody> {
-  const { prompt, history, pendingOperations, signal, cvId, cvData } = params;
+  const { prompt, history, pendingOperations, signal, cvId, cvData, jobData } = params;
 
   try {
     if (cvId) {
@@ -150,7 +164,7 @@ export async function sendCVEditMessage(params: CVEditAIChatParams): Promise<CVE
 
     return await apiService.post<CVEditResponseBody>(
       '/ai/chat',
-      { prompt, history, pendingOperations, cvData },
+      { prompt, history, pendingOperations, cvData, jobData },
       { signal, timeout: 90000 },
     );
   } catch (err) {
@@ -172,6 +186,8 @@ export interface AboutMeAIChatParams {
   /** Pass for guests — current aboutMe HTML text sent directly. */
   currentText?: string;
   pendingTextChange?: { original: string; proposed: string };
+  /** Pass for guests — job posting data for tailoring. */
+  jobData?: JobData;
 }
 
 /**
@@ -181,7 +197,7 @@ export interface AboutMeAIChatParams {
  * Returns a set_about_me operation with newValue and originalValue.
  */
 export async function sendAboutMeEditMessage(params: AboutMeAIChatParams): Promise<AboutMeEditResponseBody> {
-  const { prompt, history, signal, cvId, currentText, pendingTextChange } = params;
+  const { prompt, history, signal, cvId, currentText, pendingTextChange, jobData } = params;
 
   try {
     if (cvId) {
@@ -194,7 +210,7 @@ export async function sendAboutMeEditMessage(params: AboutMeAIChatParams): Promi
 
     return await apiService.post<AboutMeEditResponseBody>(
       '/ai/about-me',
-      { prompt, history, currentText: currentText ?? '', pendingTextChange },
+      { prompt, history, currentText: currentText ?? '', pendingTextChange, jobData },
       { signal, timeout: 60000 },
     );
   } catch (err) {

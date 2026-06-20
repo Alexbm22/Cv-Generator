@@ -24,6 +24,8 @@ class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements Serv
     public content!: CVContentAttributes;
     public sectionsOrder!: Section[];
     public encryptedContent!: string;
+    public jobDescription!: string;
+    public companyName!: string;
     public createdAt!: Date;
     public updatedAt!: Date;
 
@@ -104,6 +106,15 @@ CV.init({
     encryptedContent: {
         type: DataTypes.TEXT('long'),
         allowNull: true
+    },
+    jobDescription: {
+        type: DataTypes.TEXT('medium'),
+        allowNull: false,
+    },
+    companyName: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        defaultValue: ''
     },
     createdAt: {
         type: DataTypes.DATE,

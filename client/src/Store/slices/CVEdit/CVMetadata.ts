@@ -11,6 +11,8 @@ export const createMetadataSlice = (set: {
     id: '',
     title: DEFAULT_CV_EDITOR_STATE.title,
     jobTitle: DEFAULT_CV_EDITOR_STATE.jobTitle,
+    jobDescription: DEFAULT_CV_EDITOR_STATE.jobDescription,
+    companyName: DEFAULT_CV_EDITOR_STATE.companyName,
     template: DEFAULT_CV_EDITOR_STATE.template,
     templateColor: DEFAULT_CV_EDITOR_STATE.templateColor,
     updatedAt: DEFAULT_CV_EDITOR_STATE.updatedAt,
@@ -27,6 +29,8 @@ export const createMetadataSlice = (set: {
         set({ GuestPreview: previewURL })
     },
     setJobTitle: (jobTitle) => set({ jobTitle }),
+    setJobDescription: (jobDescription) => set({ jobDescription }),
+    setCompanyName: (companyName) => set({ companyName }),
     setTemplate: (template) => set({ template }),
     setTemplateColorTheme: (color) => set({ templateColor: color }),
     setTitle: (title) => set({ title }),

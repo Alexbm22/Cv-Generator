@@ -55,6 +55,12 @@ export const CVEditOperationSchema = z.discriminatedUnion('operationType', [
   SetAboutMeOpSchema,
 ]);
 
+export const jobDataSchema = z.object({
+  jobTitle: z.string().max(200).optional(),
+  jobDescription: z.string().max(5000).optional(),
+  companyName: z.string().max(200).optional(),
+});
+
 export const aiGuestRequestSchema = z.object({
   prompt: z.string().min(1).max(2000),
   history: z.array(historyEntrySchema).max(50),
@@ -62,6 +68,7 @@ export const aiGuestRequestSchema = z.object({
   cvData: GuestCVSchema.optional(),
   pendingOperation: UpdateItemOpSchema.optional(),
   pendingOperations: z.array(CVEditOperationSchema).optional(),
+  jobData: jobDataSchema.optional(),
 });
 
 export const aiProtectedRequestSchema = z.object({
@@ -105,6 +112,7 @@ export const aiAboutMeGuestRequestSchema = z.object({
   history: z.array(historyEntrySchema).max(50),
   currentText: z.string().max(5000),
   pendingTextChange: pendingTextChangeSchema.optional(),
+  jobData: jobDataSchema.optional(),
 });
 
 export const aiAboutMeResponseSchema = z.object({

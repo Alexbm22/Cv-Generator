@@ -325,6 +325,8 @@ export const DEFAULT_CV_EDITOR_STATE = {
     title: 'Untitled',
     photo_last_uploaded: null,
     jobTitle: '',
+    jobDescription: '',
+    companyName: '',
     template: CVTemplates.CASTOR,
     templateColor: CV_COLOR_THEMES[0],
     aboutMe: '',
@@ -359,6 +361,8 @@ const sectionsOrder = sections.map((section) => ({ id: section, isVisible: true 
 export const DEFAULT_CV_DATA = {
     title: 'Untitled',
     jobTitle: '',
+    jobDescription: '',
+    companyName: '',
     template: CVTemplates.CASTOR,
     aboutMe: '',
     photo_last_uploaded: null,

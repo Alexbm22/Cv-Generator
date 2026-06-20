@@ -130,6 +130,8 @@ export interface PublicCVMetadataAttributes {
     id: string;
     title: string;
     jobTitle: string;
+    jobDescription: string;
+    companyName: string;
     previewId?: string;
     photoId?: string;
     template: CVTemplates;
@@ -152,6 +154,8 @@ export interface ServerCVAttributes {
     sectionsOrder: Section[];
     encryptedContent: string
     content: CVContentAttributes,
+    jobDescription: string,
+    companyName: string,
     createdAt: Date,
     updatedAt: Date
 }
@@ -171,5 +175,6 @@ export interface CVCreationAttributes extends Optional<
     'content' |
     'title' |
     'jobTitle' | 
-    'photo_last_uploaded'
+    'photo_last_uploaded' | 
+    'companyName'
 > {}

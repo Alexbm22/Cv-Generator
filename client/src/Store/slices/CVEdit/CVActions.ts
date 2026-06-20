@@ -5,6 +5,7 @@ import {
     CVEditStoreObjectAttributes,
     GuestCVAttributes,
  } from '../../../interfaces/cv';
+import { JobData } from '../../../services/ai';
 import { useCVsStore } from '../../useCVsStore';
 
 export const createStoreActionsSlice = (set: {
@@ -31,6 +32,15 @@ export const createStoreActionsSlice = (set: {
         };
 
         return UserCVObj;
+    },
+
+    getJobData: () => {
+        const store = get();
+        return {
+            jobTitle: store.jobTitle,
+            companyName: store.companyName,
+            jobDescription: store.jobDescription
+        } as JobData;
     },
 
     setUserCV: (CV: UserCVAttributes) => {
@@ -81,7 +91,6 @@ export const createStoreActionsSlice = (set: {
         const store = get();
         const GuestCVAIDataObj = {
             title: store.title,
-            jobTitle: store.jobTitle,
             template: store.template,
             templateColor: store.templateColor,
             firstName: store.firstName,
