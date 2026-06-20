@@ -1,21 +1,20 @@
 /* Schimbă culoarea la hover pentru toate iconițele din butoane */
 .ql-toolbar.ql-snow button:hover svg .ql-stroke,
 .ql-toolbar.ql-snow button:focus svg .ql-stroke {
-  stroke: #155dfc  !important; /* sau orice culoare vrei */
+  stroke: #0071e3 !important;
 }
 
-/* Dacă vrei să schimbi și fill-ul pentru alte butoane */
 .ql-toolbar.ql-snow button:hover svg .ql-fill,
 .ql-toolbar.ql-snow button:focus svg .ql-fill {
-  fill: #155dfc  !important;
+  fill: #0071e3 !important;
 }
 
 .ql-toolbar.ql-snow button.ql-active svg .ql-stroke {
-    stroke: #155dfc  !important;
+  stroke: #0071e3 !important;
 }
 
 .ql-toolbar.ql-snow button.ql-active svg .ql-fill {
-  fill: #155dfc  !important;
+  fill: #0071e3 !important;
 }
 
 .ql-toolbar.ql-snow,
@@ -24,7 +23,8 @@
 }
 
 .ql-toolbar.ql-snow {
-  border-bottom: 1px solid #ececec !important;
+  border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+  background-color: transparent !important;
 }
 
 .ql-container.ql-snow {

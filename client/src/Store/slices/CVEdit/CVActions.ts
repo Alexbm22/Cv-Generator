@@ -5,6 +5,7 @@ import {
     CVEditStoreObjectAttributes,
     GuestCVAttributes,
  } from '../../../interfaces/cv';
+import { JobData } from '../../../services/ai';
 import { useCVsStore } from '../../useCVsStore';
 
 export const createStoreActionsSlice = (set: {
@@ -31,6 +32,15 @@ export const createStoreActionsSlice = (set: {
         };
 
         return UserCVObj;
+    },
+
+    getJobData: () => {
+        const store = get();
+        return {
+            jobTitle: store.jobTitle,
+            companyName: store.companyName,
+            jobDescription: store.jobDescription
+        } as JobData;
     },
 
     setUserCV: (CV: UserCVAttributes) => {
@@ -75,6 +85,31 @@ export const createStoreActionsSlice = (set: {
         };
 
         return GuestCVObj;
+    },
+
+    getGuestCVAIData: () => {
+        const store = get();
+        const GuestCVAIDataObj = {
+            title: store.title,
+            template: store.template,
+            templateColor: store.templateColor,
+            firstName: store.firstName,
+            lastName: store.lastName,
+            email: store.email,
+            phoneNumber: store.phoneNumber,
+            address: store.address,
+            birthDate: new Date(store.birthDate).toISOString(),
+            aboutMe: store.aboutMe,
+            languages: store.languages,
+            skills: store.skills,
+            workExperience: store.workExperience,
+            education: store.education,
+            projects: store.projects,
+            customSections: store.customSections,
+            socialLinks: store.socialLinks
+        };
+
+        return GuestCVAIDataObj;
     },
 
     getCVObject: () => {

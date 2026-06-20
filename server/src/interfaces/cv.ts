@@ -2,11 +2,14 @@ import { Optional } from "sequelize"
 import { PublicMediaFilesAttributes } from "./mediaFiles"
 import { CV, MediaFiles } from "@/models"
 
+export const CVSectionTypes = ['aboutMe', 'workExperience', 'education', 'projects', 'customSections', 'socialLinks', 'skills', 'languages'] as const;
+export type CVSectionType = typeof CVSectionTypes[number];
+
 export interface Language {
     id: string,
     name: string,
     level: ProficiencyLanguageLevel | null
-} 
+}
 
 export interface Section {
     id: string,
@@ -94,7 +97,7 @@ export interface CVContentAttributes {
     address: string,
     birthDate: Date,
     socialLinks: SocialLink[]
-    professionalSummary: string,
+    aboutMe: string,
     languages: Language[],
     skills: Skill[],
     workExperience: WorkExperience[],
@@ -113,7 +116,7 @@ export interface PublicCVContentAttributes {
     address: string,
     birthDate: Date,
     socialLinks: SocialLink[]
-    professionalSummary: string,
+    aboutMe: string,
     languages: Language[],
     skills: Skill[],
     workExperience: WorkExperience[],
@@ -127,6 +130,8 @@ export interface PublicCVMetadataAttributes {
     id: string;
     title: string;
     jobTitle: string;
+    jobDescription: string;
+    companyName: string;
     previewId?: string;
     photoId?: string;
     template: CVTemplates;
@@ -149,6 +154,8 @@ export interface ServerCVAttributes {
     sectionsOrder: Section[];
     encryptedContent: string
     content: CVContentAttributes,
+    jobDescription: string,
+    companyName: string,
     createdAt: Date,
     updatedAt: Date
 }
@@ -168,5 +175,6 @@ export interface CVCreationAttributes extends Optional<
     'content' |
     'title' |
     'jobTitle' | 
-    'photo_last_uploaded'
+    'photo_last_uploaded' | 
+    'companyName'
 > {}

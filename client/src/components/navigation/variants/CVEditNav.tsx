@@ -79,9 +79,9 @@ const CVEditNav = () => {
                     id: 'cv-title',
                     component: (
                         <div
-                            className="flex h-full items-center"
+                            className="flex h-full items-center max-w-[140px] sm:max-w-[220px]"
                         >
-                            <h1 className="text-lg sm:text-[23px] font-serif select-none">{cvTitle}</h1>
+                            <h1 className="text-lg sm:text-[23px] font-serif select-none truncate">{cvTitle}</h1>
                         </div>
                     )
                 }

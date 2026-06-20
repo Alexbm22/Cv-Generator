@@ -3,6 +3,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Eye, EyeOff } from 'lucide-react';
 import AddSectionButton from '../../../../UI/Buttons/AddSectionButton';
+import { AiToggleButton } from '../../../../UI/TextEditor/AiAssistant';
+import { CollapsableAiContext } from '../../../../UI/CollapsableAiContext';
 
 interface SortableSectionItemProps {
     id: string;
@@ -15,6 +17,7 @@ interface SortableSectionItemProps {
     editableTitle?: boolean;
     titlePlaceholder?: string;
     onTitleChange?: (title: string) => void;
+    showAiToggle?: boolean;
     children: React.ReactNode;
 }
 
@@ -29,8 +32,11 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
     editableTitle,
     titlePlaceholder,
     onTitleChange,
+    showAiToggle,
     children,
 }) => {
+    const [aiOpen, setAiOpen] = useState(false);
+    const handleAiToggle = () => setAiOpen(prev => !prev);
     const {
         attributes,
         listeners,
@@ -115,6 +121,13 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
                         {description && <p className="text-sm text-[#6e6e73] mt-0.5">{description}</p>}
                     </div>
 
+                    {/* AI toggle */}
+                    {showAiToggle && (
+                        <div className={`transition-opacity duration-200 ${hover ? 'opacity-100' : 'opacity-0'}`}>
+                            <AiToggleButton isOpen={aiOpen} onToggle={handleAiToggle} />
+                        </div>
+                    )}
+
                     {/* Visibility toggle */}
                     <button
                         type="button"
@@ -142,7 +155,11 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
                     className="overflow-hidden transition-all duration-500 ease-in-out"
                     onTransitionEnd={handleTransitionEnd}
                 >
-                    {children}
+                    {showAiToggle ? (
+                        <CollapsableAiContext.Provider value={{ aiOpen, toggleAi: handleAiToggle }}>
+                            {children}
+                        </CollapsableAiContext.Provider>
+                    ) : children}
                 </div>
 
                 {/* Add button - always visible */}

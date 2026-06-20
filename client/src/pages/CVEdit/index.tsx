@@ -3,7 +3,7 @@ import CVEditorForm  from "./CVForm";
 import CVPreview from "../../components/features/CV/CVPreview";
 import useFetchCV from "./useFetchCV";
 import { useCvEditStore, useCVsStore } from "../../Store";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FileText, Minimize2 } from 'lucide-react';
 import { CVEditNav } from "../../components/navigation";
 import CVPreviewImage from "../../components/features/CV/CVPreviewImage";
@@ -16,14 +16,26 @@ const CVEditPage = () => {
     const CVState = useCVsStore(state => state.CVState);
     const editorType = useCvEditStore(state => state.editorType);
     const [ isShowingPreview, setIsShowingPreview ] = useState(true);
+
+    const scrollPosition = useRef<{ [key: string]: number }>({});
+    
+    useEffect(() => {
+        const handleScroll = () => {
+            scrollPosition.current[editorType] = window.scrollY;
+        };
+        window.addEventListener('scroll', handleScroll);
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [editorType]);
+
+    useEffect(() => {
+        const pos = scrollPosition.current[editorType] || 0;
+        window.scrollTo(0, pos);
+    }, [editorType]);
     
     useEffect(() => {
         const mediaQuery = window.matchMedia("(min-width: 1300px)");
-
-        // setăm valoarea inițială
         setIsShowingPreview(mediaQuery.matches);
-
-        // ascultăm când se schimbă dimensiunea
         const handler = (e: MediaQueryListEvent) => setIsShowingPreview(e.matches);
         mediaQuery.addEventListener("change", handler);
 
@@ -37,9 +49,9 @@ const CVEditPage = () => {
             <div className="flex flex-col h-screen">
                 <CVEditNav />
                 <div className="flex transition-all duration-1000 w-full flex-1 relative pt-15" style={{ scrollbarGutter: 'stable' }}>
-                    {editorType === 'form' && <CVEditorForm isShowingPreview={isShowingPreview} />}
-                    {editorType === 'template' && <TemplateEditor isShowingPreview={isShowingPreview} />}
-                    {editorType === 'ai' && <AiEditor isShowingPreview={isShowingPreview} />}
+                    <div className={editorType !== 'form' ? 'hidden' : 'contents'}><CVEditorForm isShowingPreview={isShowingPreview} /></div>
+                    <div className={editorType !== 'template' ? 'hidden' : 'contents'}><TemplateEditor isShowingPreview={isShowingPreview} /></div>
+                    <div className={editorType !== 'ai' ? 'hidden' : 'contents'}><AiEditor isShowingPreview={isShowingPreview} /></div>
                     <CVPreview isShowingPreview={isShowingPreview}/>
                     <button 
                         onClick={() => setIsShowingPreview(!isShowingPreview)}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import { Skill, SkillLevel } from '../../../../../interfaces/cv';
 import {
@@ -8,6 +8,8 @@ import {
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
 import { SkillsLevelsMap } from '../../../../../constants/CV/skillLevelsMap';
+import { CollapsableAiContext } from '../../../../UI/Collapsable';
+import { AiPanel } from '../../../../UI/TextEditor/AiAssistant';
 
 interface ComponentProps {
     skill: Skill
@@ -18,6 +20,9 @@ const { fields: fieldsConstants } = skillsConstants;
 
 const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
     const updateSkill = useCvEditStore((state) => state.updateSkill);
+
+    const collapsableCtx = useContext(CollapsableAiContext);
+    const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : false;
 
     return (
         <div className='p-0.5'>
@@ -37,14 +42,23 @@ const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
                     onLevelChange={(id: string, level: SkillLevel) => updateSkill(id, { level })}
                 />
 
+
             </div>
+            <AiPanel 
+                isOpen={aiOpen}
+                sectionType="skills"
+                contentId={skill.id}
+                currentItem={{ name: skill.name, level: skill.level }}
+                onApplyChange={(newItem) => updateSkill(skill.id, {
+                    ...(newItem.name !== undefined && { name: String(newItem.name) }),
+                })}
+            />
         </div>
     )
 }
 
 const SkillMain:React.FC = () => {
 
-    const addSkill = useCvEditStore((state) => state.addSkill);
     const removeSkill = useCvEditStore((state) => state.removeSkill);
     const skills = useCvEditStore((state) => state.skills);
 

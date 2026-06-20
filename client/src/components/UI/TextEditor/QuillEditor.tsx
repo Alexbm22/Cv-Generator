@@ -7,15 +7,17 @@ interface QuillEditorProps {
   onHtmlChange?: (html: string) => void;
   htmlContent?: string;
   placeholder?: string;
+  containerClassName?: string;
 }
 
 export interface QuillInstance extends Quill {}
 
 const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
-  ({ onHtmlChange, htmlContent, placeholder }, ref) => {
+  ({ onHtmlChange, htmlContent, placeholder, containerClassName }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const quillRef = useRef<Quill | null>(null);
     const onHtmlChangeRef = useRef(onHtmlChange);
+    const isExternalUpdateRef = useRef(false);
 
     useLayoutEffect(() => {
       onHtmlChangeRef.current = onHtmlChange;
@@ -49,7 +51,7 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       if (toolbar) toolbar.classList.add('p-4', 'rounded-lg');
 
       const editorContent = editorContainer.querySelector('.ql-editor') as HTMLElement;
-      if (editorContent) editorContent.classList.add('not-italic', 'text-gray-700', 'text-base');
+      if (editorContent) editorContent.classList.add('not-italic', 'text-[#1d1d1f]', 'text-[15px]');
 
       // Set refs
       if (ref && typeof ref === 'object') {
@@ -64,6 +66,7 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       }
 
       quill.on(Quill.events.TEXT_CHANGE, () => {
+        if (isExternalUpdateRef.current) return;
         const html = editorContainer.querySelector('.ql-editor')?.innerHTML || '';
         if (onHtmlChangeRef.current) {
           onHtmlChangeRef.current(html);
@@ -79,21 +82,26 @@ const QuillEditor = forwardRef<QuillInstance, QuillEditorProps>(
       };
     }, [ref]);
 
-    // If htmlContent arrives after the editor has already mounted (e.g. async store load),
-    // populate it — but only when the editor is still empty to avoid overwriting user input.
+    // Sync htmlContent prop into the Quill DOM whenever it changes externally
+    // (e.g. initial async load or AI apply). Guard with isExternalUpdateRef to
+    // suppress the TEXT_CHANGE event that dangerouslyPasteHTML fires, preventing
+    // an infinite update loop.
     useEffect(() => {
-      if (!quillRef.current || !htmlContent) return;
+      if (!quillRef.current || htmlContent === undefined) return;
       const currentHtml = quillRef.current.root.innerHTML;
-      const editorIsEmpty = currentHtml === '<p><br></p>' || currentHtml === '';
-      if (editorIsEmpty) {
-        quillRef.current.clipboard.dangerouslyPasteHTML(htmlContent);
-      }
+      if (currentHtml === htmlContent) return;
+      isExternalUpdateRef.current = true;
+      quillRef.current.clipboard.dangerouslyPasteHTML(htmlContent);
+      isExternalUpdateRef.current = false;
     }, [htmlContent]);
 
     return (
       <div
         ref={containerRef}
-        className="border border-gray-300 rounded-lg overflow-hidden shadow-sm focus:outline-none hover:cursor-text"
+        className={
+          containerClassName ??
+          "border border-[#d2d2d7] rounded-2xl overflow-hidden hover:cursor-text"
+        }
         onClick={() => quillRef.current?.focus()}
       />
     );

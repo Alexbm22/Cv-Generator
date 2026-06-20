@@ -10,13 +10,15 @@ const mapPublicCVToServerCV = (
         public_id: cv.id ?? randomUUID(),
         title: cv.title,
         jobTitle: cv.jobTitle,
+        jobDescription: cv.jobDescription,
+        companyName: cv.companyName,
         template: cv.template,
         user_id: userId,
         photo_last_uploaded: cv.photo_last_uploaded,
         sectionsOrder: cv.sectionsOrder,
         templateColor: cv.templateColor,
         content: {
-            professionalSummary: cv.professionalSummary,
+            aboutMe: cv.aboutMe,
             languages: cv.languages,
             skills: cv.skills,
             workExperience: cv.workExperience,
@@ -46,6 +48,8 @@ const mapServerCVToPublicCV = (
         title: cv.title,
         photo_last_uploaded: cv.photo_last_uploaded,
         jobTitle: cv.jobTitle,
+        jobDescription: cv.jobDescription,
+        companyName: cv.companyName,
         template: cv.template,
         templateColor: cv.templateColor,
         updatedAt: cv.updatedAt,
@@ -64,6 +68,8 @@ const mapServerCVToPublicCVMetadata = (
         id: cv.public_id,
         title: cv.title,
         jobTitle: cv.jobTitle,
+        jobDescription: cv.jobDescription,
+        companyName: cv.companyName,
         template: cv.template,
         templateColor: cv.templateColor,
         createdAt: cv.createdAt,
@@ -81,6 +87,16 @@ const extractCVMediaFiles = (cv: CVWithMediaFiles) => {
         CVData: cv,
         CVPhoto: photo,
         CVPreview: preview
+    };
+}
+
+export const mapServerCVToAiOptimizedCVContent = (cv: ServerCVAttributes) => {
+    const { title,  template, templateColor } = cv;
+    return {
+        title,
+        template,
+        templateColor,
+        ...cv.content,
     };
 }
 

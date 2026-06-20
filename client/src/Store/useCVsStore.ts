@@ -5,6 +5,7 @@ import {
     CVsStore,
 } from '../interfaces/cv';
 import { CVStorage } from '../services/storage/cvIndexedDBStorage';
+import { useAuthStore } from './useAuthStore';
 
 export const useCVsStore = create<CVsStore>()(
     devtools(
@@ -157,11 +158,11 @@ export const useCVsStore = create<CVsStore>()(
             name: 'Resumes',
             storage: createJSONStorage(() => CVStorage),
             partialize: (state) => (
-                // persist the cvs if the user is a guest
-                state.CVState.mode === CVStateMode.GUEST ? 
+                useAuthStore.getState().isAuthenticated === false ? 
                 {
                     CVState: {
                         ...state.CVState,
+                        mode: CVStateMode.GUEST,
                         cvs: state.CVState.cvs,
                         _hasHydrated: false,
                     }

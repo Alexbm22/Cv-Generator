@@ -314,7 +314,7 @@ export class DownloadsService {
                 address: cvData.address,
                 birthDate: cvData.birthDate,
                 socialLinks: cvData.socialLinks,
-                professionalSummary: cvData.professionalSummary,
+                aboutMe: cvData.aboutMe,
                 languages: cvData.languages,
                 skills: cvData.skills,
                 workExperience: cvData.workExperience,

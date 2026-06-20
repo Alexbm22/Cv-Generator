@@ -5,7 +5,7 @@ import { parseQuillToReactPDF } from "../../../../../../../utils/parseHtmlToPdf"
 import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
 
 interface AboutMeProps {
-    professionalSummary: string;
+    aboutMe: string;
 }
 
 const styles = StyleSheet.create({
@@ -16,12 +16,12 @@ const styles = StyleSheet.create({
 
 const { about_me } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
 
-const AboutMe: React.FC<AboutMeProps> = ({ professionalSummary }) => {
-    if (professionalSummary === '' || professionalSummary === '<p><br></p>') {
-        professionalSummary = about_me.default;
+const AboutMe: React.FC<AboutMeProps> = ({ aboutMe }) => {
+    if (aboutMe === '' || aboutMe === '<p><br></p>') {
+        aboutMe = about_me.default;
     }
 
-    const parsedContent = parseQuillToReactPDF(professionalSummary, 10);
+    const parsedContent = parseQuillToReactPDF(aboutMe, 10);
 
     return (
         <Section title={about_me.title}>

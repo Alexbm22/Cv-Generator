@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
-import Collapsable from '../../../../UI/Collapsable';
+import Collapsable, { CollapsableAiContext } from '../../../../UI/Collapsable';
 import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { WorkExperience } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import { AiPanel } from '../../../../UI/TextEditor/AiAssistant';
 
 interface ComponentProps {
     work: WorkExperience
@@ -17,6 +18,9 @@ const { fields: fieldsConstants } = workExperienceConstants;
 const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
 
     const updateWorkExperience = useCvEditStore((state) => state.updateWorkExperience);
+    
+    const collapsableCtx = useContext(CollapsableAiContext);
+    const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : true;
 
     return (
         <div className='p-0.5'>
@@ -61,6 +65,26 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
                 onHtmlChange={(html) => updateWorkExperience(work.id, { description: sanitizeHtml(html) })}
                 placeholder={fieldsConstants.description.placeholder}
             />
+            
+            <AiPanel
+                isOpen={aiOpen}
+                sectionType="workExperience"
+                contentId={work.id}
+                currentItem={{
+                    jobTitle: work.jobTitle,
+                    company: work.company,
+                    startDate: new Date(work.startDate).toISOString().slice(0, 10),
+                    endDate: new Date(work.endDate).toISOString().slice(0, 10),
+                    description: work.description,
+                }}
+                onApplyChange={(newItem) => updateWorkExperience(work.id, {
+                    ...(newItem.jobTitle !== undefined && { jobTitle: String(newItem.jobTitle) }),
+                    ...(newItem.company !== undefined && { company: String(newItem.company) }),
+                    ...(newItem.startDate !== undefined && { startDate: new Date(String(newItem.startDate)) }),
+                    ...(newItem.endDate !== undefined && { endDate: new Date(String(newItem.endDate)) }),
+                    ...(newItem.description !== undefined && { description: sanitizeHtml(String(newItem.description)) }),
+                })}
+            />
         </div>
     )
 }
@@ -68,7 +92,6 @@ const WorkExperienceComponent:React.FC<ComponentProps> = ({ work }) => {
 const WorkExperienceMain: React.FC = () => {
     
     const workExperience = useCvEditStore((state) => state.workExperience);
-    const addWorkExperience = useCvEditStore((state) => state.addWorkExperience);
     const removeWorkExperience = useCvEditStore((state) => state.removeWorkExperience);
 
     return (

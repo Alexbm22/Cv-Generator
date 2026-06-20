@@ -1,11 +1,11 @@
-import { PublicCVAttributes, ServerCVAttributes, PublicCVMetadataAttributes, CVCreationAttributes } from "../interfaces/cv";
+import { PublicCVAttributes, ServerCVAttributes, PublicCVMetadataAttributes, CVCreationAttributes, CVSectionType } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
 import { ServerUserAttributes, UserWithMediaFiles } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
 import { CV, MediaFiles, User } from "../models";
 import { MediaFilesServices } from "./mediaFiles";
 import cvRepository from '../repositories/cv';
-import cvMapper from '../mappers/cv';
+import cvMapper, { mapServerCVToAiOptimizedCVContent } from '../mappers/cv';
 import cvFactories from '../factories/cv';
 import { handleServiceError } from '../utils/serviceErrorHandler';
 
@@ -169,6 +169,48 @@ export class CVsService {
                 ErrorTypes.BAD_REQUEST
             );
         }   
+    }
+
+    static async getAiOptimizedCVContent(userId: number, cvPublicId: string, sectionType?: CVSectionType, sectionId?: string) {
+        const cv = await this.getCVWithMediaFiles(userId, cvPublicId);
+
+        if (!cv) {
+            throw new AppError('CV not found.', 404, ErrorTypes.NOT_FOUND);
+        }
+
+        const cvData = cv.get();
+
+        const jobData = {
+            jobTitle: cvData.jobTitle,
+            jobDescription: cvData.jobDescription,
+            companyName: cvData.companyName
+        };
+
+        if (sectionType && sectionId) {
+            const content = cvData.content;
+            let sectionContent = content[sectionType as keyof typeof content];
+            sectionContent = sectionType === 'customSections' ? (sectionContent as any).content : sectionContent;
+
+            if (Array.isArray(sectionContent)) {
+                const section = sectionContent.find(section => (section as any).id === sectionId);
+                if (!section) {
+                    throw new AppError('CV section not found.', 404, ErrorTypes.NOT_FOUND);
+                }
+                return {
+                    content: section,
+                    jobData
+                };
+            }
+            else {
+                throw new AppError('Invalid CV section type.', 400, ErrorTypes.BAD_REQUEST);
+            }
+        }
+
+        return {
+            content: mapServerCVToAiOptimizedCVContent(cvData),
+            jobData
+        };
+
     }
 
     static async countUserCVs(user_id: number) {

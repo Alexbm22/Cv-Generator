@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useCvEditStore } from '../../../../../Store';
 import Editor from '../../../../UI/TextEditor/EditorComponent'
-import Collapsable from '../../../../UI/Collapsable';
+import Collapsable, { CollapsableAiContext } from '../../../../UI/Collapsable';
 import InputField from '../../../../UI/InputField';
 import { sanitizeHtml } from '../../../../../utils';
 import { CustomSectionAttributes } from '../../../../../interfaces/cv';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
+import { AiPanel } from '../../../../UI/TextEditor/AiAssistant';
 
 interface ComponentProps {
     customSection: CustomSectionAttributes
@@ -17,7 +18,11 @@ const { fields: fieldsConstants } = custonSectionConstants
 
 const CustomSectionComponent:React.FC<ComponentProps> = ({ customSection }) => {
 
+    const customSections = useCvEditStore(state => state.customSections);
     const updateCustomSectionAttributes = useCvEditStore((state) => state.updateCustomSectionAttributes);
+
+    const collapsableCtx = useContext(CollapsableAiContext);
+    const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : false;
 
     return (
         <div className='p-0.5' dir='ltr'>
@@ -55,6 +60,24 @@ const CustomSectionComponent:React.FC<ComponentProps> = ({ customSection }) => {
                 htmlContent={customSection.description}
                 onHtmlChange={(html) => updateCustomSectionAttributes(customSection.id, { description: sanitizeHtml(html) })}
                 placeholder={fieldsConstants.description.placeholder}
+                sectionType={customSections?.title ?? 'customSection'}
+            />
+            <AiPanel
+                isOpen={aiOpen}
+                sectionType="customSections"
+                contentId={customSection.id}
+                currentItem={{
+                    title: customSection.title,
+                    startDate: new Date(customSection.startDate).toISOString().slice(0, 10),
+                    endDate: new Date(customSection.endDate).toISOString().slice(0, 10),
+                    description: customSection.description,
+                }}
+                onApplyChange={(newItem) => updateCustomSectionAttributes(customSection.id, {
+                    ...(newItem.title !== undefined && { title: String(newItem.title) }),
+                    ...(newItem.startDate !== undefined && { startDate: new Date(String(newItem.startDate)) }),
+                    ...(newItem.endDate !== undefined && { endDate: new Date(String(newItem.endDate)) }),
+                    ...(newItem.description !== undefined && { description: sanitizeHtml(String(newItem.description)) }),
+                })}
             />
         </div>
     )

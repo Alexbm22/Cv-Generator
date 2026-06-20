@@ -17,7 +17,7 @@ export const createContentSlice = (set: {
     (partial: CVEditStore | Partial<CVEditStore> | ((state: CVEditStore) => CVEditStore | Partial<CVEditStore>), replace?: false): void;
     (state: CVEditStore | ((state: CVEditStore) => CVEditStore), replace: true): void;
 }): CVEditStoreContentSliceAttributes => ({
-    professionalSummary: DEFAULT_CV_EDITOR_STATE.professionalSummary,
+    aboutMe: DEFAULT_CV_EDITOR_STATE.aboutMe,
     languages: DEFAULT_CV_EDITOR_STATE.languages,
     skills: DEFAULT_CV_EDITOR_STATE.skills,
     workExperience: DEFAULT_CV_EDITOR_STATE.workExperience,
@@ -34,13 +34,14 @@ export const createContentSlice = (set: {
         sectionsOrder: reorderById(state.sectionsOrder, activeId, overId)
     })),
 
-    setProfessionalSummary: (summary: string) => set({professionalSummary: sanitizeHtml(summary)}),
+    setAboutMe: (summary: string) => set({aboutMe: sanitizeHtml(summary)}),
 
-    addLanguage: () => {
+    addLanguage: (initial?: Partial<Omit<Language, 'id'>>) => {
         const newLanguage: Language = {
             id: uuidv4(),
             name: '',
-            level: null
+            level: null,
+            ...initial
         }
 
         return set((state: CVEditStoreContentSliceAttributes) => ({
@@ -54,11 +55,12 @@ export const createContentSlice = (set: {
         languages: state.languages.map((lang) => lang.id === id ? { ...lang, ...language} : lang)
     })),
 
-    addSkill: () => {
+    addSkill: (initial?: Partial<Omit<Skill, 'id'>>) => {
         const newSkill: Skill = {
             id: uuidv4(),
             name: '',
-            level: null
+            level: null,
+            ...initial
         }
 
         return set((state: CVEditStoreContentSliceAttributes) => ({
@@ -72,14 +74,15 @@ export const createContentSlice = (set: {
         skills: state.skills.map((sk) => sk.id === id ? { ...sk, ...skill} : sk)
     })),
 
-    addWorkExperience: () => {
+    addWorkExperience: (initial?: Partial<Omit<WorkExperience, 'id'>>) => {
         const newWorkExperience: WorkExperience = {
             id: uuidv4(),
             jobTitle: 'Untitled',
             company: '',
             startDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
             endDate: new Date(),
-            description: ''
+            description: '',
+            ...initial
         }
 
         return set((state: CVEditStoreContentSliceAttributes) => ({
@@ -97,14 +100,15 @@ export const createContentSlice = (set: {
         )
     })),    
 
-    addEducation: () => {
+    addEducation: (initial?: Partial<Omit<Education, 'id'>>) => {
         const newEducation: Education = {
             id: uuidv4(),
             institution: '',
             degree: '',
             startDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
             endDate: new Date(),
-            description: ''
+            description: '',
+            ...initial
         }
 
         return set((state: CVEditStoreContentSliceAttributes) => ({
@@ -122,7 +126,7 @@ export const createContentSlice = (set: {
         )
     })),
 
-    addProject: () => {
+    addProject: (initial?: Partial<Omit<Project, 'id'>>) => {
         const newProject: Project = {
             id: uuidv4(),
             name: '',
@@ -130,6 +134,7 @@ export const createContentSlice = (set: {
             startDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
             endDate: new Date(),
             description: '',
+            ...initial
         }
 
         return set((state: CVEditStoreContentSliceAttributes) => ({
@@ -155,13 +160,14 @@ export const createContentSlice = (set: {
         }
     })),
     
-    addCustomSectionAttributes: () => {
+    addCustomSectionAttributes: (initial?: Partial<Omit<CustomSectionAttributes, 'id'>>) => {
         const newSection: CustomSectionAttributes = {
             id: uuidv4(), 
             title: '',
             startDate: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30), // Default to one month ago
             endDate: new Date(),
             description: '',
+            ...initial
         }
 
         return set((state: CVEditStoreContentSliceAttributes) => ({
