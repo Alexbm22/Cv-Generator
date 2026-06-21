@@ -60,7 +60,7 @@ export interface PublicUserAttributes {
 }
 
 export interface SyncedDataAttributes {
-    cvs: PublicCVMetadataAttributes[];
+    cvs: PublicCVAttributes[];
 }
 
 export interface InitialDataSyncAttributes {

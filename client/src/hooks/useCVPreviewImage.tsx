@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { CVStateMode, GuestCVAttributes, UserCVAttributes, UserCVMetadataAttributes } from "../interfaces/cv";
+import { CVStateMode, GuestCVAttributes, UserCVAttributes, UserCVSummaryAttributes } from "../interfaces/cv";
 import { useCVsStore } from "../Store";
 import { useImageWithFallback } from "./useImageWithFallback";
 import { useMediaFileQuery } from "./MediaFile/useMediaFileQuery";
 import { useMediaFile } from "./MediaFile/useMediaFile";
 
 type UseCVPreviewImageProps = {
-  CV: GuestCVAttributes | UserCVMetadataAttributes;
+  CV: GuestCVAttributes | UserCVSummaryAttributes;
   FallbackComponent: React.ComponentType;
   className?: string;
   alt?: string;

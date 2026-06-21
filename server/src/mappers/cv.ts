@@ -1,4 +1,4 @@
-import { CVWithMediaFiles, PublicCVAttributes, PublicCVMetadataAttributes, ServerCVAttributes } from "@/interfaces/cv";
+import { CVSummaryAttributes, CVWithMediaFiles, PublicCVAttributes, PublicCVMetadataAttributes, ServerCVAttributes } from "@/interfaces/cv";
 import { MediaType, PublicMediaFilesAttributes } from "@/interfaces/mediaFiles";
 import { randomUUID } from "crypto";
 
@@ -59,24 +59,17 @@ const mapServerCVToPublicCV = (
     };
 }
 
-const mapServerCVToPublicCVMetadata = (
+const mapServerCVToPublicCVSummary = (
     cv: ServerCVAttributes, 
-    photoId: string,
     previewId: string
-): PublicCVMetadataAttributes => {
+): CVSummaryAttributes => {
     return {
         id: cv.public_id,
         title: cv.title,
-        jobTitle: cv.jobTitle,
-        jobDescription: cv.jobDescription,
-        companyName: cv.companyName,
-        template: cv.template,
-        templateColor: cv.templateColor,
-        createdAt: cv.createdAt,
-        updatedAt: cv.updatedAt,
-        photoId,
         previewId,
-    }
+        createdAt: cv.createdAt,
+        updatedAt: cv.updatedAt
+    };
 }
 
 const extractCVMediaFiles = (cv: CVWithMediaFiles) => {
@@ -103,6 +96,6 @@ export const mapServerCVToAiOptimizedCVContent = (cv: ServerCVAttributes) => {
 export default {
     mapPublicCVToServerCV,
     mapServerCVToPublicCV,
-    mapServerCVToPublicCVMetadata,
+    mapServerCVToPublicCVSummary,
     extractCVMediaFiles
 }

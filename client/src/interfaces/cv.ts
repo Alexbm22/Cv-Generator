@@ -89,6 +89,14 @@ export type TemplateComponentProps = {
     CV: UserCVAttributes
 }
 
+export interface UserCVSummaryAttributes {
+    id: string;
+    title: string;
+    previewId?: string;
+    createdAt: Date;
+    updatedAt: Date;    
+}
+
 export interface CVMetadataAttributes {
     id: string;
     title: string;
@@ -262,7 +270,7 @@ export enum CVStateMode {
 }
 
 export type CVState = 
-    { mode: CVStateMode.USER, cvs: UserCVMetadataAttributes[], selectedCV: UserCVAttributes | null, _hasHydrated: null} | 
+    { mode: CVStateMode.USER, cvs: UserCVSummaryAttributes[], selectedCV: UserCVAttributes | null, _hasHydrated: null} | 
     { mode: CVStateMode.GUEST, cvs: GuestCVAttributes[], selectedCV: GuestCVAttributes | null, _hasHydrated: boolean } 
 
 export interface CVsStore {
@@ -273,11 +281,11 @@ export interface CVsStore {
     setGuestSelectedCV: (CV:GuestCVAttributes) => void;
     setUserSelectedCV: (CV:UserCVAttributes) => void;
     clearCVsData: () => void;
-    addUserCV: (CV: UserCVMetadataAttributes) => void;
+    addUserCV: (CV: UserCVSummaryAttributes) => void;
     addGuestCV: (CV: GuestCVAttributes) => void;
     removeCV: (id: string) => void;
-    setUserCVs: (CVs: UserCVMetadataAttributes[]) => void;
+    setUserCVs: (CVs: UserCVSummaryAttributes[]) => void;
     setGuestCVs: (CVs: GuestCVAttributes[]) => void;
-    migrateGuestToUser: (cvs?: UserCVMetadataAttributes[]) => void;
+    migrateGuestToUser: (cvs?: UserCVSummaryAttributes[]) => void;
     migrateUserToGuest: (cvs?: GuestCVAttributes[]) => void;
 }
