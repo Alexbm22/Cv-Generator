@@ -140,6 +140,14 @@ export interface PublicCVMetadataAttributes {
     updatedAt: Date;
 }
 
+export interface CVSummaryAttributes {
+    id: string;
+    title: string;
+    previewId?: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface PublicCVAttributes extends PublicCVContentAttributes, PublicCVMetadataAttributes {}
 
 export interface ServerCVAttributes {

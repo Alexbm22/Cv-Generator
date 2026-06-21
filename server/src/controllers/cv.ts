@@ -38,14 +38,14 @@ export class CVsController {
         }
     }
 
-    static async getCVsMetaData(req: AuthRequest, res: Response, next: NextFunction) {
+    static async getCVsSummary(req: AuthRequest, res: Response, next: NextFunction) {
         const authenticatedUser = req.user;
         const userInfo = authenticatedUser.get();
 
         try {
-            const userCVsMetadata = await CVsService.getAllCVsMetadata(userInfo.id);
+            const userCVsSummary = await CVsService.getAllCVsSummary(userInfo.id);
             
-            return res.status(200).json(userCVsMetadata);
+            return res.status(200).json(userCVsSummary);
         } catch (error) {
             return next(error);
         }

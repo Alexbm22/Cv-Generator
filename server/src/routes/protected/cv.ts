@@ -6,9 +6,9 @@ import { CVsController } from '../../controllers/cv';
 const router = express.Router();
 
 router.get(
-    '',
+    '/summary',
     RateLimitInstance.CVsRateLimit(),
-    catchAsync(CVsController.getCVsMetaData)
+    catchAsync(CVsController.getCVsSummary)
 )
 
 router.get(

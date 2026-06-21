@@ -1,9 +1,9 @@
 import { useCVPreviewImage } from "../../../hooks/useCVPreviewImage";
-import { GuestCVAttributes, UserCVMetadataAttributes } from "../../../interfaces/cv";
+import { GuestCVAttributes, UserCVSummaryAttributes } from "../../../interfaces/cv";
 
 
 type ComponentProps = {
-  CV: GuestCVAttributes | UserCVMetadataAttributes;
+  CV: GuestCVAttributes | UserCVSummaryAttributes;
   FallbackComponent: React.ComponentType;
   className?: string;
   alt?: string;

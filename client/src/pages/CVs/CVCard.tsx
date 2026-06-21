@@ -1,14 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../router/routes";
-import { GuestCVAttributes, UserCVMetadataAttributes } from "../../interfaces/cv";
+import { GuestCVAttributes, UserCVSummaryAttributes } from "../../interfaces/cv";
 import DownloadBtn from "../../components/features/CV/downloadBtn";
 import DeleteBtn from "../../components/features/CV/deleteBtn";
 import { Edit } from 'lucide-react';
 import CVPreviewImage from "../../components/features/CV/CVPreviewImage";
 
 type CVCardProps = {
-    CV: GuestCVAttributes | UserCVMetadataAttributes;
+    CV: GuestCVAttributes | UserCVSummaryAttributes;
 };
 
 // Shared style for the square icon action buttons

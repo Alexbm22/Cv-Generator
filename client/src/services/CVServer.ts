@@ -1,4 +1,4 @@
-import { UserCVAttributes, CVMetadataAttributes, GuestCVAttributes } from "../interfaces/cv";
+import { UserCVAttributes, GuestCVAttributes, UserCVSummaryAttributes } from "../interfaces/cv";
 import { apiService } from "./api";
 
 export class CVServerService {
@@ -18,8 +18,8 @@ export class CVServerService {
     }
 
     public static async getCVs() {
-        return await apiService.get<CVMetadataAttributes[]>(
-            this.apiUrl
+        return await apiService.get<UserCVSummaryAttributes[]>(
+            this.apiUrl + '/summary'
         )
     }
 

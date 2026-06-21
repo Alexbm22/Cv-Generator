@@ -364,6 +364,7 @@ export const DEFAULT_CV_DATA = {
     jobDescription: '',
     companyName: '',
     template: CVTemplates.CASTOR,
+    templateColor: CV_COLOR_THEMES[0],
     aboutMe: '',
     photo_last_uploaded: null,
     sectionsOrder: sectionsOrder,

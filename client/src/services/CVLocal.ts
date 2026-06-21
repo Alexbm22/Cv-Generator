@@ -1,5 +1,5 @@
 import { StoreApi } from "zustand";
-import { CVEditStore, CVStateMode, TemplateComponentProps, TemplateCV, UserCVAttributes, UserCVMetadataAttributes } from "../interfaces/cv";
+import { CVEditStore, CVStateMode, TemplateComponentProps, TemplateCV, UserCVAttributes, UserCVSummaryAttributes } from "../interfaces/cv";
 import { useCVsStore } from "../Store";
 import { CVServerService } from "./CVServer";
 import { debounce } from "lodash";
@@ -103,12 +103,9 @@ export const syncCVs = async (createdCVs: UserCVAttributes[]) => {
 
     try {
         const cvsPromise = createdCVs.map(async (createdCV, index) => {
-            const CVMetaData: UserCVMetadataAttributes = {
+            const CVSummary: UserCVSummaryAttributes = {
                 id: createdCV.id,
-                jobTitle: createdCV.jobTitle,
                 title:createdCV.title,
-                template: createdCV.template,
-                photoId: createdCV.photoId,
                 previewId: createdCV.previewId,
                 updatedAt: createdCV.updatedAt,
                 createdAt: createdCV.createdAt
@@ -123,7 +120,7 @@ export const syncCVs = async (createdCVs: UserCVAttributes[]) => {
                 await uploadGuestMediaFile(createdCV.previewId, guestCV.preview);
             }
             
-            return CVMetaData;
+            return CVSummary;
         }) 
     
         const cvs = await Promise.all(cvsPromise);

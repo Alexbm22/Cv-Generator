@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { useCvEditStore, useCVsStore } from "../../Store";
-import { UserCVAttributes, CVStateMode, GuestCVAttributes, UserCVMetadataAttributes, TemplateCV } from "../../interfaces/cv";
+import { UserCVAttributes, CVStateMode, GuestCVAttributes, TemplateCV, UserCVSummaryAttributes } from "../../interfaces/cv";
 import { ApiError } from "../../interfaces/error";
 import { CVServerService } from "../../services/CVServer";
 import { generatePdfBlob, pdfBlobToCanvas } from "../../services/Pdf";
@@ -34,18 +34,15 @@ export const useCreateUserCV = () => {
         },
         onSuccess: async (createdCV) => {
             setPhotoId(createdCV.photoId);
-            const CVMetaData: UserCVMetadataAttributes = {
+            const CVSummary: UserCVSummaryAttributes = {
                 id: createdCV.id,
-                jobTitle: createdCV.jobTitle,
                 title:createdCV.title,
-                template: createdCV.template,
-                photoId: createdCV.photoId,
                 previewId: createdCV.previewId,
                 updatedAt: createdCV.updatedAt,
                 createdAt: createdCV.createdAt
             }
             
-            addUserCV(CVMetaData);
+            addUserCV(CVSummary);
             
             navigate(
                 routes.editResume.path.replace(/:id$/, createdCV.id), 

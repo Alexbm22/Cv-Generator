@@ -1,6 +1,6 @@
-import { PublicCVAttributes, ServerCVAttributes, PublicCVMetadataAttributes, CVCreationAttributes, CVSectionType } from "../interfaces/cv";
+import { PublicCVAttributes, ServerCVAttributes, CVCreationAttributes, CVSectionType } from "../interfaces/cv";
 import { ErrorTypes } from "../interfaces/error";
-import { ServerUserAttributes, UserWithMediaFiles } from "../interfaces/user";
+import { ServerUserAttributes } from "../interfaces/user";
 import { AppError } from "../middleware/error_middleware";
 import { CV, MediaFiles, User } from "../models";
 import { MediaFilesServices } from "./mediaFiles";
@@ -147,16 +147,16 @@ export class CVsService {
         return cvMapper.mapServerCVToPublicCV(cvWithMediaFiles.CVData.get(), cvWithMediaFiles.CVPhoto.get('public_id'), cvWithMediaFiles.CVPreview.get('public_id'));
     }
     
-    @handleServiceError('CVs metadata fetch failed')
-    static async getAllCVsMetadata(userId: number) {
+    @handleServiceError('CVs summary fetch failed')
+    static async getAllCVsSummary(userId: number) {
         const cvs = await cvRepository.getCVsWithMediaFiles(userId);
         
         const cvWithMediaFiles = cvs.map(cv => cvMapper.extractCVMediaFiles(cv));
-        const cvsMetaData = cvWithMediaFiles.map((cv) => 
-            cvMapper.mapServerCVToPublicCVMetadata(cv.CVData.get(), cv.CVPhoto.get('public_id'), cv.CVPreview.get('public_id'))
+        const cvsSummary = cvWithMediaFiles.map((cv) => 
+            cvMapper.mapServerCVToPublicCVSummary(cv.CVData.get(), cv.CVPreview.get('public_id'))
         )
 
-        return Promise.all(cvsMetaData);
+        return Promise.all(cvsSummary);
     }
 
     static async deleteUserCVs(user_id: number) {
