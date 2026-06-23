@@ -3,6 +3,7 @@ import { StyleSheet, View } from "@react-pdf/renderer";
 import Section from "../../shared/Section";
 import { parseQuillToReactPDF } from "../../../../../../../utils/parseHtmlToPdf";
 import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import { useTranslation } from "react-i18next";
 
 interface AboutMeProps {
     aboutMe: string;
@@ -20,11 +21,13 @@ const AboutMe: React.FC<AboutMeProps> = ({ aboutMe }) => {
     if(aboutMe === '' || aboutMe === '<p><br></p>') {
         aboutMe = about_me.default;
     }
+
+    const { t } = useTranslation('cvTemplate');
     
     const parsedContent = parseQuillToReactPDF(aboutMe);
 
     return (
-        <Section title={about_me.title}>
+        <Section title={t('sections.aboutMe.title')}>
             <View style={styles.container}>{parsedContent}</View>
         </Section>
     );
