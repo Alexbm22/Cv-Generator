@@ -1,7 +1,60 @@
 {
     "sections": {
         "aboutMe": {
-            "title": "Über mich"
+            "title": "Über mich",
+            "default": "<p>Ergebnisorientierter und detailgenauer Fachmann mit umfassender Erfahrung in [Ihr Bereich, z. B. Softwareentwicklung, Projektmanagement, Datenanalyse usw.]. Nachgewiesene Fähigkeit, in schnelllebigen, termingetriebenen Umgebungen qualitativ hochwertige Ergebnisse zu liefern. Kompetent in [nennen Sie wichtige Fähigkeiten, z. B. Full-Stack-Entwicklung, Teamarbeit, Problemlösung], mit Leidenschaft für kontinuierliches Lernen und Verbesserung. Geschickt darin, sowohl eigenständig als auch im Team zu arbeiten, um Unternehmensziele zu erreichen und Innovationen voranzutreiben.</p>"
+        },
+        "personalInfos": {
+            "home": "Startseite",
+            "phone": "Telefon",
+            "email": "E-Mail",
+            "address": "Adresse",
+            "default": "{\"phone_number\":\"0123456789\",\"email\":\"john.doe@example.com\",\"address\":\"123 Hauptstraße, Anytown, USA\"}"
+        },
+        "socialLinks": {
+            "title": "Soziale Links",
+            "default": "[{\"id\":\"default-social-link-1\",\"platform\":\"LinkedIn\",\"url\":\"linkedin.com/in/your-profile\"},{\"id\":\"default-social-link-2\",\"platform\":\"GitHub\",\"url\":\"github.com/your-username\"}]"
+        },
+        "skills": {
+            "title": "Fähigkeiten",
+            "Levels": {
+                "beginner": "Anfänger",
+                "intermediate": "Mittelstufe",
+                "advanced": "Fortgeschritten",
+                "expert": "Experte"
+            },
+            "default": "[{\"id\":\"default-skill-entry-1\",\"name\":\"JavaScript\",\"level\":3},{\"id\":\"default-skill-entry-2\",\"name\":\"React\",\"level\":3},{\"id\":\"default-skill-entry-3\",\"name\":\"Node.js\",\"level\":3}]"
+        },
+        "languages": {
+            "title": "Sprachen",
+            "Levels": {
+                "beginner": "Anfänger",
+                "elementary": "Grundstufe",
+                "intermediate": "Mittelstufe",
+                "upperIntermediate": "Fortgeschritten",
+                "advanced": "Sehr fortgeschritten",
+                "proficient": "Kompetent"
+            },
+            "default": "[{\"id\":\"default-language-entry-1\",\"name\":\"Englisch\",\"level\":4},{\"id\":\"default-language-entry-2\",\"name\":\"Französisch\",\"level\":2}]"
+        },
+        "skillsAndOther": {
+            "title": "FÄHIGKEITEN & WEITERES"
+        },
+        "workExperience": {
+            "title": "Berufserfahrung",
+            "default": "[{\"id\":\"default-work-experience-entry\",\"jobTitle\":\"Softwareentwickler\",\"company\":\"Tech Solutions Inc.\",\"startDate\":\"2022-01-01\",\"endDate\":\"2024-06-30\",\"description\":\"<p>Entwickelte und wartete Full-Stack-Anwendungen mit React und Node.js. Leitete ein Team von 3 Entwicklern und implementierte CI/CD-Pipelines.</p>\"}]"
+        },
+        "education": {
+            "title": "Bildung",
+            "default": "[{\"id\":\"default-education-entry\",\"degree\":\"Bachelor of Science in Informatik\",\"institution\":\"Technische Universität\",\"startDate\":\"2018-09-01\",\"endDate\":\"2022-06-30\",\"description\":\"<p>Schwerpunkt auf Softwareentwicklung, Algorithmen und Datenbanksystemen.</p>\"}]"
+        },
+        "projects": {
+            "title": "Projekte",
+            "default": "[{\"id\":\"default-project-entry\",\"name\":\"Persönliches Portfolio\",\"url\":\"https://yourportfolio.com\",\"startDate\":\"2023-01-01\",\"endDate\":\"2023-03-01\",\"description\":\"<p>Erstellte ein persönliches Portfolio mit React und TailwindCSS.</p>\"}]"
+        },
+        "customSection": {
+            "title": "Zertifizierungen",
+            "default": "{\"title\":\"Zertifizierungen\",\"content\":[{\"id\":\"default-custom-section-entry\",\"title\":\"AWS Certified Developer \\u2013 Associate\",\"startDate\":\"2023-05-01\",\"endDate\":\"2023-05-01\",\"description\":\"<p>Bestätigte Fähigkeiten bei der Entwicklung und Bereitstellung von Anwendungen auf der AWS-Infrastruktur.</p>\"}]}"
         }
     }
 }

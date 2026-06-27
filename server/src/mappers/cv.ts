@@ -17,6 +17,8 @@ const mapPublicCVToServerCV = (
         photo_last_uploaded: cv.photo_last_uploaded,
         sectionsOrder: cv.sectionsOrder,
         templateColor: cv.templateColor,
+        language: cv.language,
+        detectedLanguage: cv.detectedLanguage,
         content: {
             aboutMe: cv.aboutMe,
             languages: cv.languages,
@@ -51,6 +53,8 @@ const mapServerCVToPublicCV = (
         jobDescription: cv.jobDescription,
         companyName: cv.companyName,
         template: cv.template,
+        language: cv.language,
+        detectedLanguage: cv.detectedLanguage,
         templateColor: cv.templateColor,
         updatedAt: cv.updatedAt,
         createdAt: cv.createdAt,

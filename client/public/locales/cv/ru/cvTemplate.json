@@ -1,7 +1,60 @@
 {
     "sections": {
         "aboutMe": {
-            "title": "Обо мне"
+            "title": "Обо мне",
+            "default": "<p>Ориентированный на результат и внимательный к деталям специалист с богатым опытом в [вашей сфере, например, разработка ПО, управление проектами, анализ данных и т. д.]. Доказанная способность выдавать высококачественные результаты в динамичной среде с жесткими сроками. Владеет [перечислите ключевые навыки, например, полнофункциональная разработка, работа в команде, решение проблем], с увлечением постоянно учиться и совершенствоваться. Умеет работать как самостоятельно, так и в составе команды для достижения организационных целей и стимулирования инноваций.</p>"
+        },
+        "personalInfos": {
+            "home": "Главная",
+            "phone": "Телефон",
+            "email": "Эл. почта",
+            "address": "Адрес",
+            "default": "{\"phone_number\":\"0123456789\",\"email\":\"john.doe@example.com\",\"address\":\"123 Главная ул., Анитаун, США\"}"
+        },
+        "socialLinks": {
+            "title": "Социальные ссылки",
+            "default": "[{\"id\":\"default-social-link-1\",\"platform\":\"LinkedIn\",\"url\":\"linkedin.com/in/your-profile\"},{\"id\":\"default-social-link-2\",\"platform\":\"GitHub\",\"url\":\"github.com/your-username\"}]"
+        },
+        "skills": {
+            "title": "Навыки",
+            "Levels": {
+                "beginner": "Начальный",
+                "intermediate": "Средний",
+                "advanced": "Продвинутый",
+                "expert": "Эксперт"
+            },
+            "default": "[{\"id\":\"default-skill-entry-1\",\"name\":\"JavaScript\",\"level\":3},{\"id\":\"default-skill-entry-2\",\"name\":\"React\",\"level\":3},{\"id\":\"default-skill-entry-3\",\"name\":\"Node.js\",\"level\":3}]"
+        },
+        "languages": {
+            "title": "Языки",
+            "Levels": {
+                "beginner": "Начальный",
+                "elementary": "Элементарный",
+                "intermediate": "Средний",
+                "upperIntermediate": "Выше среднего",
+                "advanced": "Продвинутый",
+                "proficient": "Профессиональный"
+            },
+            "default": "[{\"id\":\"default-language-entry-1\",\"name\":\"Английский\",\"level\":4},{\"id\":\"default-language-entry-2\",\"name\":\"Французский\",\"level\":2}]"
+        },
+        "skillsAndOther": {
+            "title": "НАВЫКИ И ДРУГОЕ"
+        },
+        "workExperience": {
+            "title": "Опыт работы",
+            "default": "[{\"id\":\"default-work-experience-entry\",\"jobTitle\":\"Инженер-программист\",\"company\":\"Tech Solutions Inc.\",\"startDate\":\"2022-01-01\",\"endDate\":\"2024-06-30\",\"description\":\"<p>Разрабатывал и поддерживал полнофункциональные приложения с использованием React и Node.js. Руководил командой из 3 разработчиков и внедрил CI/CD-конвейеры.</p>\"}]"
+        },
+        "education": {
+            "title": "Образование",
+            "default": "[{\"id\":\"default-education-entry\",\"degree\":\"Бакалавр наук в области компьютерных наук\",\"institution\":\"Технологический университет\",\"startDate\":\"2018-09-01\",\"endDate\":\"2022-06-30\",\"description\":\"<p>Специализация в области программной инженерии, алгоритмов и систем баз данных.</p>\"}]"
+        },
+        "projects": {
+            "title": "Проекты",
+            "default": "[{\"id\":\"default-project-entry\",\"name\":\"Личное портфолио\",\"url\":\"https://yourportfolio.com\",\"startDate\":\"2023-01-01\",\"endDate\":\"2023-03-01\",\"description\":\"<p>Создал личное портфолио с использованием React и TailwindCSS.</p>\"}]"
+        },
+        "customSection": {
+            "title": "Сертификаты",
+            "default": "{\"title\":\"Сертификаты\",\"content\":[{\"id\":\"default-custom-section-entry\",\"title\":\"AWS Certified Developer \\u2013 Associate\",\"startDate\":\"2023-05-01\",\"endDate\":\"2023-05-01\",\"description\":\"<p>Подтверждённые навыки в разработке и развертывании приложений на инфраструктуре AWS.</p>\"}]}"
         }
     }
 }

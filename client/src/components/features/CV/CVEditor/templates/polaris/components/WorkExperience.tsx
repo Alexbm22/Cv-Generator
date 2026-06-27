@@ -3,21 +3,20 @@ import { View } from "@react-pdf/renderer";
 import Section from "../../shared/Section";
 import SectionEntry from "../../shared/SectionEntry";
 import { WorkExperience as WorkExperienceType } from "../../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import cvI18n from "../../../../../../../i18n/cvi18n";
 
 interface WorkExperienceSectionProps {
     workExperience: WorkExperienceType[];
 }
 
-const { work_experience: workExperienceConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
 
 const WorkExperienceSection: React.FC<WorkExperienceSectionProps> = ({ workExperience }) => {
     if (workExperience.length === 0) {
-        workExperience = workExperienceConstants.default;
+        workExperience = JSON.parse(cvI18n.t('sections.workExperience.default'));
     }
 
     return (
-        <Section title={workExperienceConstants.title}>
+        <Section title={cvI18n.t('sections.workExperience.title')}>
             <View>
                 {workExperience.map((entry) => (
                     <SectionEntry

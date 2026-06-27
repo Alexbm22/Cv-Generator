@@ -1,15 +1,15 @@
 import React from 'react';
 import { useCvEditStore } from '../../../../../Store';
-import { Language, ProficiencyLanguageLevel } from '../../../../../interfaces/cv';
+import { Language } from '../../../../../interfaces/cv';
 import {
     Collapsable,
     TextInputField,
     SliderPicker
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
-import { LanguageLevelsMap } from '../../../../../constants/CV/languageLevelsMap';
 import { AiPanel } from '../../../../UI/TextEditor/AiAssistant';
 import { CollapsableAiContext } from '../../../../UI/Collapsable';
+import useLanguageLevel from '../hooks/useLanguageLevel';
 
 interface ComponentProps {
     language: Language
@@ -23,6 +23,8 @@ const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
 
     const collapsableCtx = React.useContext(CollapsableAiContext);
     const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : false;
+
+    const LanguageLevelsMap = useLanguageLevel();
 
     return (
         <div className='p-0.5'>
@@ -39,7 +41,7 @@ const LanguageComponent: React.FC<ComponentProps> = ({ language }) => {
                     LevelsMap={LanguageLevelsMap}
                     selectedLevel={language.level}
                     sectionId={language.id}
-                    onLevelChange={(id: string, level: ProficiencyLanguageLevel) => updateLanguage(id, { level })}
+                    onLevelChange={(id: string, level?: number | null) => updateLanguage(id, { level })}
                 />
             </div>
 

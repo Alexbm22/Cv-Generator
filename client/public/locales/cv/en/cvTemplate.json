@@ -1,7 +1,61 @@
 {
     "sections": {
+
         "aboutMe": {
-            "title": "About Me"
+            "title": "About Me",
+            "default": "<p>Results-driven and detail-oriented professional with a strong background in [Your Field, e.g., software development, project management, data analysis, etc.]. Proven ability to deliver high-quality results in fast-paced, deadline-driven environments. Skilled in [mention key skills, e.g., full-stack development, team collaboration, problem-solving], with a passion for continuous learning and improvement. Adept at working both independently and as part of a team to achieve organizational goals and drive innovation.</p>"
+        },
+        "personalInfos": {
+            "home": "Home",
+            "phone": "Phone",
+            "email": "Email",
+            "address": "Address",
+            "default": "{\"phone_number\":\"0123456789\",\"email\":\"john.doe@example.com\",\"address\":\"123 Main St, Anytown, USA\"}"
+        },
+        "socialLinks": {
+            "title": "Social Links",
+            "default": "[{\"id\":\"default-social-link-1\",\"platform\":\"LinkedIn\",\"url\":\"linkedin.com/in/your-profile\"},{\"id\":\"default-social-link-2\",\"platform\":\"GitHub\",\"url\":\"github.com/your-username\"}]"
+        },
+        "skills": {
+            "title": "Skills",
+            "Levels": {
+                "beginner": "Beginner",
+                "intermediate": "Intermediate",
+                "advanced": "Advanced",
+                "expert": "Expert"
+            },
+            "default": "[{\"id\":\"default-skill-entry-1\",\"name\":\"JavaScript\",\"level\":3},{\"id\":\"default-skill-entry-2\",\"name\":\"React\",\"level\":3},{\"id\":\"default-skill-entry-3\",\"name\":\"Node.js\",\"level\":3}]"
+        },
+        "languages": {
+            "title": "Languages",
+            "Levels": {
+                "beginner": "Beginner",
+                "elementary": "Elementary",
+                "intermediate": "Intermediate",
+                "upperIntermediate": "Upper Intermediate",
+                "advanced": "Advanced",
+                "proficient": "Proficient"
+            },
+            "default": "[{\"id\":\"default-language-entry-1\",\"name\":\"English\",\"level\":4},{\"id\":\"default-language-entry-2\",\"name\":\"French\",\"level\":2}]"
+        },
+        "skillsAndOther": {
+            "title": "SKILLS & OTHERS"
+        },
+        "workExperience": {
+            "title": "Work Experience",
+            "default": "[{\"id\":\"default-work-experience-entry\",\"jobTitle\":\"Software Engineer\",\"company\":\"Tech Solutions Inc.\",\"startDate\":\"2022-01-01\",\"endDate\":\"2024-06-30\",\"description\":\"<p>Developed and maintained full-stack applications using React and Node.js. Led a team of 3 developers and implemented CI/CD pipelines.</p>\"}]"
+        },
+        "education": {
+            "title": "Education",
+            "default": "[{\"id\":\"default-education-entry\",\"degree\":\"Bachelor of Science in Computer Science\",\"institution\":\"University of Technology\",\"startDate\":\"2018-09-01\",\"endDate\":\"2022-06-30\",\"description\":\"<p>Focused on software engineering, algorithms, and database systems.</p>\"}]"
+        },
+        "projects": {
+            "title": "Projects",
+            "default": "[{\"id\":\"default-project-entry\",\"name\":\"Personal Portfolio\",\"url\":\"https://yourportfolio.com\",\"startDate\":\"2023-01-01\",\"endDate\":\"2023-03-01\",\"description\":\"<p>Built a personal portfolio using React and TailwindCSS.</p>\"}]"
+        },
+        "customSection": {
+            "title": "Certifications",
+            "default": "{\"title\":\"Certifications\",\"content\":[{\"id\":\"default-custom-section-entry\",\"title\":\"AWS Certified Developer \\u2013 Associate\",\"startDate\":\"2023-05-01\",\"endDate\":\"2023-05-01\",\"description\":\"<p>Validated skills in developing and deploying applications on AWS infrastructure.</p>\"}]}"
         }
     }
 }

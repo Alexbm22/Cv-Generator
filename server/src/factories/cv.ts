@@ -37,6 +37,8 @@ const createDefaultCVObject = (): Omit<CVCreationAttributes, 'user_id'> => {
         templateColor: '#007dff',
         sectionsOrder: sectionsOrder,
         jobDescription: '',
+        language: 'en',
+        detectedLanguage: null,
         content: {
             aboutMe: '',
             languages: [],

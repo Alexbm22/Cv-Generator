@@ -1,7 +1,60 @@
 {
     "sections": {
         "aboutMe": {
-            "title": "Su di me"
+            "title": "Su di me",
+            "default": "<p>Professionista orientato ai risultati e attento ai dettagli, con una solida esperienza in [il tuo campo, ad es. sviluppo software, project management, analisi dei dati, ecc.]. Comprovata capacità di fornire risultati di alta qualità in ambienti dinamici e con scadenze serrate. Competente in [menziona le competenze chiave, ad es. sviluppo full-stack, collaborazione in team, problem-solving], con passione per l'apprendimento continuo e il miglioramento. Abile nel lavorare sia in autonomia che in team per raggiungere gli obiettivi organizzativi e promuovere l'innovazione.</p>"
+        },
+        "personalInfos": {
+            "home": "Home",
+            "phone": "Telefono",
+            "email": "Email",
+            "address": "Indirizzo",
+            "default": "{\"phone_number\":\"0123456789\",\"email\":\"john.doe@example.com\",\"address\":\"123 Via Principale, Anytown, USA\"}"
+        },
+        "socialLinks": {
+            "title": "Link Sociali",
+            "default": "[{\"id\":\"default-social-link-1\",\"platform\":\"LinkedIn\",\"url\":\"linkedin.com/in/your-profile\"},{\"id\":\"default-social-link-2\",\"platform\":\"GitHub\",\"url\":\"github.com/your-username\"}]"
+        },
+        "skills": {
+            "title": "Competenze",
+            "Levels": {
+                "beginner": "Principiante",
+                "intermediate": "Intermedio",
+                "advanced": "Avanzato",
+                "expert": "Esperto"
+            },
+            "default": "[{\"id\":\"default-skill-entry-1\",\"name\":\"JavaScript\",\"level\":3},{\"id\":\"default-skill-entry-2\",\"name\":\"React\",\"level\":3},{\"id\":\"default-skill-entry-3\",\"name\":\"Node.js\",\"level\":3}]"
+        },
+        "languages": {
+            "title": "Lingue",
+            "Levels": {
+                "beginner": "Principiante",
+                "elementary": "Elementare",
+                "intermediate": "Intermedio",
+                "upperIntermediate": "Intermedio Superiore",
+                "advanced": "Avanzato",
+                "proficient": "Competente"
+            },
+            "default": "[{\"id\":\"default-language-entry-1\",\"name\":\"Inglese\",\"level\":4},{\"id\":\"default-language-entry-2\",\"name\":\"Francese\",\"level\":2}]"
+        },
+        "skillsAndOther": {
+            "title": "COMPETENZE E ALTRO"
+        },
+        "workExperience": {
+            "title": "Esperienza Lavorativa",
+            "default": "[{\"id\":\"default-work-experience-entry\",\"jobTitle\":\"Ingegnere del Software\",\"company\":\"Tech Solutions Inc.\",\"startDate\":\"2022-01-01\",\"endDate\":\"2024-06-30\",\"description\":\"<p>Sviluppato e mantenuto applicazioni full-stack utilizzando React e Node.js. Guidato un team di 3 sviluppatori e implementato pipeline CI/CD.</p>\"}]"
+        },
+        "education": {
+            "title": "Istruzione",
+            "default": "[{\"id\":\"default-education-entry\",\"degree\":\"Bachelor of Science in Informatica\",\"institution\":\"Università di Tecnologia\",\"startDate\":\"2018-09-01\",\"endDate\":\"2022-06-30\",\"description\":\"<p>Concentrato su ingegneria del software, algoritmi e sistemi di database.</p>\"}]"
+        },
+        "projects": {
+            "title": "Progetti",
+            "default": "[{\"id\":\"default-project-entry\",\"name\":\"Portfolio Personale\",\"url\":\"https://yourportfolio.com\",\"startDate\":\"2023-01-01\",\"endDate\":\"2023-03-01\",\"description\":\"<p>Creato un portfolio personale utilizzando React e TailwindCSS.</p>\"}]"
+        },
+        "customSection": {
+            "title": "Certificazioni",
+            "default": "{\"title\":\"Certificazioni\",\"content\":[{\"id\":\"default-custom-section-entry\",\"title\":\"AWS Certified Developer \\u2013 Associate\",\"startDate\":\"2023-05-01\",\"endDate\":\"2023-05-01\",\"description\":\"<p>Competenze convalidate nello sviluppo e nel deployment di applicazioni sull'infrastruttura AWS.</p>\"}]}"
         }
     }
 }

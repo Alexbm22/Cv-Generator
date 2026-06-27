@@ -1,7 +1,60 @@
 {
     "sections": {
         "aboutMe": {
-            "title": "Σχετικά με μένα"
+            "title": "Σχετικά με εμένα",
+            "default": "<p>Επαγγελματίας προσανατολισμένος στα αποτελέσματα και με προσοχή στη λεπτομέρεια, με ισχυρό υπόβαθρο στον [τομέα σας, π.χ. ανάπτυξη λογισμικού, διαχείριση έργων, ανάλυση δεδομένων κ.λπ.]. Αποδεδειγμένη ικανότητα παροχής υψηλής ποιότητας αποτελεσμάτων σε ταχέως μεταβαλλόμενα περιβάλλοντα με αυστηρές προθεσμίες. Ικανός σε [αναφέρετε βασικές δεξιότητες, π.χ. ανάπτυξη πλήρους στοίβας, συνεργασία σε ομάδα, επίλυση προβλημάτων], με πάθος για συνεχή μάθηση και βελτίωση. Ικανός να εργάζεται τόσο ανεξάρτητα όσο και ως μέλος ομάδας για την επίτευξη οργανωτικών στόχων και την προώθηση της καινοτομίας.</p>"
+        },
+        "personalInfos": {
+            "home": "Αρχική",
+            "phone": "Τηλέφωνο",
+            "email": "Email",
+            "address": "Διεύθυνση",
+            "default": "{\"phone_number\":\"0123456789\",\"email\":\"john.doe@example.com\",\"address\":\"123 Κεντρική Οδός, Anytown, ΗΠΑ\"}"
+        },
+        "socialLinks": {
+            "title": "Σύνδεσμοι κοινωνικών δικτύων",
+            "default": "[{\"id\":\"default-social-link-1\",\"platform\":\"LinkedIn\",\"url\":\"linkedin.com/in/your-profile\"},{\"id\":\"default-social-link-2\",\"platform\":\"GitHub\",\"url\":\"github.com/your-username\"}]"
+        },
+        "skills": {
+            "title": "Δεξιότητες",
+            "Levels": {
+                "beginner": "Αρχάριος",
+                "intermediate": "Μέτριος",
+                "advanced": "Προχωρημένος",
+                "expert": "Ειδικός"
+            },
+            "default": "[{\"id\":\"default-skill-entry-1\",\"name\":\"JavaScript\",\"level\":3},{\"id\":\"default-skill-entry-2\",\"name\":\"React\",\"level\":3},{\"id\":\"default-skill-entry-3\",\"name\":\"Node.js\",\"level\":3}]"
+        },
+        "languages": {
+            "title": "Γλώσσες",
+            "Levels": {
+                "beginner": "Αρχάριος",
+                "elementary": "Βασικό",
+                "intermediate": "Μέτριος",
+                "upperIntermediate": "Ανώτερο-Μεσαίο",
+                "advanced": "Προχωρημένος",
+                "proficient": "Άριστος"
+            },
+            "default": "[{\"id\":\"default-language-entry-1\",\"name\":\"Αγγλικά\",\"level\":4},{\"id\":\"default-language-entry-2\",\"name\":\"Γαλλικά\",\"level\":2}]"
+        },
+        "skillsAndOther": {
+            "title": "ΔΕΞΙΟΤΗΤΕΣ ΚΑΙ ΑΛΛΑ"
+        },
+        "workExperience": {
+            "title": "Επαγγελματική εμπειρία",
+            "default": "[{\"id\":\"default-work-experience-entry\",\"jobTitle\":\"Μηχανικός Λογισμικού\",\"company\":\"Tech Solutions Inc.\",\"startDate\":\"2022-01-01\",\"endDate\":\"2024-06-30\",\"description\":\"<p>Ανέπτυξε και συντήρησε εφαρμογές πλήρους στοίβας χρησιμοποιώντας React και Node.js. Ηγήθηκε ομάδας 3 προγραμματιστών και υλοποίησε αγωγούς CI/CD.</p>\"}]"
+        },
+        "education": {
+            "title": "Εκπαίδευση",
+            "default": "[{\"id\":\"default-education-entry\",\"degree\":\"Πτυχίο στην Πληροφορική\",\"institution\":\"Πανεπιστήμιο Τεχνολογίας\",\"startDate\":\"2018-09-01\",\"endDate\":\"2022-06-30\",\"description\":\"<p>Εστίαση στη μηχανική λογισμικού, τους αλγόριθμους και τα συστήματα βάσεων δεδομένων.</p>\"}]"
+        },
+        "projects": {
+            "title": "Έργα",
+            "default": "[{\"id\":\"default-project-entry\",\"name\":\"Προσωπικό Χαρτοφυλάκιο\",\"url\":\"https://yourportfolio.com\",\"startDate\":\"2023-01-01\",\"endDate\":\"2023-03-01\",\"description\":\"<p>Δημιούργησε ένα προσωπικό χαρτοφυλάκιο χρησιμοποιώντας React και TailwindCSS.</p>\"}]"
+        },
+        "customSection": {
+            "title": "Πιστοποιήσεις",
+            "default": "{\"title\":\"Πιστοποιήσεις\",\"content\":[{\"id\":\"default-custom-section-entry\",\"title\":\"AWS Certified Developer \\u2013 Associate\",\"startDate\":\"2023-05-01\",\"endDate\":\"2023-05-01\",\"description\":\"<p>Επικυρωμένες δεξιότητες στην ανάπτυξη και την ανάπτυξη εφαρμογών στην υποδομή της AWS.</p>\"}]}"
         }
     }
 }

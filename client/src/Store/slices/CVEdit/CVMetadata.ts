@@ -13,6 +13,8 @@ export const createMetadataSlice = (set: {
     jobTitle: DEFAULT_CV_EDITOR_STATE.jobTitle,
     jobDescription: DEFAULT_CV_EDITOR_STATE.jobDescription,
     companyName: DEFAULT_CV_EDITOR_STATE.companyName,
+    language: DEFAULT_CV_EDITOR_STATE.language,
+    detectedLanguage: DEFAULT_CV_EDITOR_STATE.detectedLanguage,
     template: DEFAULT_CV_EDITOR_STATE.template,
     templateColor: DEFAULT_CV_EDITOR_STATE.templateColor,
     updatedAt: DEFAULT_CV_EDITOR_STATE.updatedAt,

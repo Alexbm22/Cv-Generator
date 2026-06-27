@@ -3,21 +3,19 @@ import { View } from "@react-pdf/renderer";
 import Section from "../../shared/Section";
 import SectionEntry from "../../shared/SectionEntry";
 import { Education as EducationType } from "../../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import cvI18n from "../../../../../../../i18n/cvi18n";
 
 interface EducationSectionProps {
     education: EducationType[];
 }
 
-const { education: educationConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
-
 const EducationSection: React.FC<EducationSectionProps> = ({ education }) => {
     if (education.length === 0) {
-        education = educationConstants.default as EducationType[];
+        education = JSON.parse(cvI18n.t('sections.education.default'));
     }
 
     return (
-        <Section title={educationConstants.title}>
+        <Section title={cvI18n.t('sections.education.title')}>
             <View>
                 {education.map((entry) => (
                     <SectionEntry

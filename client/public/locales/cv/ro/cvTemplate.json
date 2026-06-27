@@ -1,7 +1,60 @@
 {
     "sections": {
         "aboutMe": {
-            "title": "Despre mine"
+            "title": "Despre mine",
+            "default": "<p>Profesionist orientat spre rezultate și atent la detalii, cu o experiență solidă în [domeniul dumneavoastră, de exemplu, dezvoltare software, management de proiect, analiză de date etc.]. Abilitate dovedită de a livra rezultate de înaltă calitate în medii dinamice, cu termene limită stricte. Competent în [menționați abilitățile cheie, de ex., dezvoltare full-stack, colaborare în echipă, rezolvare de probleme], cu pasiune pentru învățare continuă și îmbunătățire. Adept în a lucra atât independent, cât și ca parte a unei echipe pentru a atinge obiectivele organizaționale și a stimula inovația.</p>"
+        },
+        "personalInfos": {
+            "home": "Acasă",
+            "phone": "Telefon",
+            "email": "Email",
+            "address": "Adresă",
+            "default": "{\"phone_number\":\"0123456789\",\"email\":\"john.doe@example.com\",\"address\":\"123 Strada Principală, Anytown, SUA\"}"
+        },
+        "socialLinks": {
+            "title": "Link-uri sociale",
+            "default": "[{\"id\":\"default-social-link-1\",\"platform\":\"LinkedIn\",\"url\":\"linkedin.com/in/your-profile\"},{\"id\":\"default-social-link-2\",\"platform\":\"GitHub\",\"url\":\"github.com/your-username\"}]"
+        },
+        "skills": {
+            "title": "Competențe",
+            "Levels": {
+                "beginner": "Începător",
+                "intermediate": "Intermediar",
+                "advanced": "Avansat",
+                "expert": "Expert"
+            },
+            "default": "[{\"id\":\"default-skill-entry-1\",\"name\":\"JavaScript\",\"level\":3},{\"id\":\"default-skill-entry-2\",\"name\":\"React\",\"level\":3},{\"id\":\"default-skill-entry-3\",\"name\":\"Node.js\",\"level\":3}]"
+        },
+        "languages": {
+            "title": "Limbi",
+            "Levels": {
+                "beginner": "Începător",
+                "elementary": "Elementar",
+                "intermediate": "Intermediar",
+                "upperIntermediate": "Intermediar Superior",
+                "advanced": "Avansat",
+                "proficient": "Competent"
+            },
+            "default": "[{\"id\":\"default-language-entry-1\",\"name\":\"Engleză\",\"level\":4},{\"id\":\"default-language-entry-2\",\"name\":\"Franceză\",\"level\":2}]"
+        },
+        "skillsAndOther": {
+            "title": "COMPETENȚE ȘI ALTELE"
+        },
+        "workExperience": {
+            "title": "Experiență Profesională",
+            "default": "[{\"id\":\"default-work-experience-entry\",\"jobTitle\":\"Inginer Software\",\"company\":\"Tech Solutions Inc.\",\"startDate\":\"2022-01-01\",\"endDate\":\"2024-06-30\",\"description\":\"<p>A dezvoltat și întreținut aplicații full-stack folosind React și Node.js. A condus o echipă de 3 dezvoltatori și a implementat conducte CI/CD.</p>\"}]"
+        },
+        "education": {
+            "title": "Educație",
+            "default": "[{\"id\":\"default-education-entry\",\"degree\":\"Licență în Informatică\",\"institution\":\"Universitatea de Tehnologie\",\"startDate\":\"2018-09-01\",\"endDate\":\"2022-06-30\",\"description\":\"<p>Concentrat pe inginerie software, algoritmi și sisteme de baze de date.</p>\"}]"
+        },
+        "projects": {
+            "title": "Proiecte",
+            "default": "[{\"id\":\"default-project-entry\",\"name\":\"Portofoliu Personal\",\"url\":\"https://yourportfolio.com\",\"startDate\":\"2023-01-01\",\"endDate\":\"2023-03-01\",\"description\":\"<p>A construit un portofoliu personal folosind React și TailwindCSS.</p>\"}]"
+        },
+        "customSection": {
+            "title": "Certificări",
+            "default": "{\"title\":\"Certificări\",\"content\":[{\"id\":\"default-custom-section-entry\",\"title\":\"AWS Certified Developer \\u2013 Associate\",\"startDate\":\"2023-05-01\",\"endDate\":\"2023-05-01\",\"description\":\"<p>Abilități validate în dezvoltarea și implementarea aplicațiilor pe infrastructura AWS.</p>\"}]}"
         }
     }
 }

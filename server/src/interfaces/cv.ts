@@ -8,7 +8,7 @@ export type CVSectionType = typeof CVSectionTypes[number];
 export interface Language {
     id: string,
     name: string,
-    level: ProficiencyLanguageLevel | null
+    level: 1 | 2 | 3 | 4 | 5 | 6 | null
 }
 
 export interface Section {
@@ -19,7 +19,7 @@ export interface Section {
 export interface Skill {
     id: string,
     name: string,
-    level: SkillLevel | null
+    level: 1 | 2 | 3 | 4 | null
 }
 
 export interface WorkExperience {
@@ -89,6 +89,8 @@ export enum CVTemplates {
     POLARIS = 'polaris',
 }
 
+export type CVLanguage = 'en' | 'fr' | 'es' | 'de' | 'it' | 'pt' | 'ro' | 'el' | 'ru';
+
 export interface CVContentAttributes {
     firstName: string,
     lastName: string,
@@ -136,6 +138,8 @@ export interface PublicCVMetadataAttributes {
     photoId?: string;
     template: CVTemplates;
     templateColor: string;
+    language: CVLanguage | null;
+    detectedLanguage: CVLanguage | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -164,6 +168,8 @@ export interface ServerCVAttributes {
     content: CVContentAttributes,
     jobDescription: string,
     companyName: string,
+    language: CVLanguage | null,
+    detectedLanguage: CVLanguage | null,
     createdAt: Date,
     updatedAt: Date
 }
@@ -184,5 +190,7 @@ export interface CVCreationAttributes extends Optional<
     'title' |
     'jobTitle' | 
     'photo_last_uploaded' | 
-    'companyName'
+    'companyName' |
+    'language' |
+    'detectedLanguage'
 > {}

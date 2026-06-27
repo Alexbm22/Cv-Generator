@@ -1,7 +1,60 @@
 {
     "sections": {
         "aboutMe": {
-            "title": "À propos de moi"
+            "title": "À propos de moi",
+            "default": "<p>Professionnel axé sur les résultats et soucieux du détail, avec une solide expérience dans [votre domaine, ex. : développement logiciel, gestion de projet, analyse de données, etc.]. Capacité prouvée à fournir des résultats de haute qualité dans des environnements dynamiques et soumis à des délais stricts. Compétent en [mentionnez vos compétences clés, ex. : développement full-stack, collaboration en équipe, résolution de problèmes], avec une passion pour l'apprentissage continu et l'amélioration. Capable de travailler aussi bien en autonomie qu'en équipe pour atteindre les objectifs organisationnels et stimuler l'innovation.</p>"
+        },
+        "personalInfos": {
+            "home": "Accueil",
+            "phone": "Téléphone",
+            "email": "E-mail",
+            "address": "Adresse",
+            "default": "{\"phone_number\":\"0123456789\",\"email\":\"john.doe@example.com\",\"address\":\"123 Rue Principale, Anytown, États-Unis\"}"
+        },
+        "socialLinks": {
+            "title": "Liens sociaux",
+            "default": "[{\"id\":\"default-social-link-1\",\"platform\":\"LinkedIn\",\"url\":\"linkedin.com/in/your-profile\"},{\"id\":\"default-social-link-2\",\"platform\":\"GitHub\",\"url\":\"github.com/your-username\"}]"
+        },
+        "skills": {
+            "title": "Compétences",
+            "Levels": {
+                "beginner": "Débutant",
+                "intermediate": "Intermédiaire",
+                "advanced": "Avancé",
+                "expert": "Expert"
+            },
+            "default": "[{\"id\":\"default-skill-entry-1\",\"name\":\"JavaScript\",\"level\":3},{\"id\":\"default-skill-entry-2\",\"name\":\"React\",\"level\":3},{\"id\":\"default-skill-entry-3\",\"name\":\"Node.js\",\"level\":3}]"
+        },
+        "languages": {
+            "title": "Langues",
+            "Levels": {
+                "beginner": "Débutant",
+                "elementary": "Élémentaire",
+                "intermediate": "Intermédiaire",
+                "upperIntermediate": "Intermédiaire supérieur",
+                "advanced": "Avancé",
+                "proficient": "Compétent"
+            },
+            "default": "[{\"id\":\"default-language-entry-1\",\"name\":\"Anglais\",\"level\":4},{\"id\":\"default-language-entry-2\",\"name\":\"Français\",\"level\":2}]"
+        },
+        "skillsAndOther": {
+            "title": "COMPÉTENCES & AUTRES"
+        },
+        "workExperience": {
+            "title": "Expérience professionnelle",
+            "default": "[{\"id\":\"default-work-experience-entry\",\"jobTitle\":\"Ingénieur logiciel\",\"company\":\"Tech Solutions Inc.\",\"startDate\":\"2022-01-01\",\"endDate\":\"2024-06-30\",\"description\":\"<p>A développé et maintenu des applications full-stack en utilisant React et Node.js. A dirigé une équipe de 3 développeurs et mis en place des pipelines CI/CD.</p>\"}]"
+        },
+        "education": {
+            "title": "Formation",
+            "default": "[{\"id\":\"default-education-entry\",\"degree\":\"Licence en informatique\",\"institution\":\"Université de Technologie\",\"startDate\":\"2018-09-01\",\"endDate\":\"2022-06-30\",\"description\":\"<p>Spécialisé en génie logiciel, algorithmes et systèmes de bases de données.</p>\"}]"
+        },
+        "projects": {
+            "title": "Projets",
+            "default": "[{\"id\":\"default-project-entry\",\"name\":\"Portfolio personnel\",\"url\":\"https://yourportfolio.com\",\"startDate\":\"2023-01-01\",\"endDate\":\"2023-03-01\",\"description\":\"<p>A construit un portfolio personnel avec React et TailwindCSS.</p>\"}]"
+        },
+        "customSection": {
+            "title": "Certifications",
+            "default": "{\"title\":\"Certifications\",\"content\":[{\"id\":\"default-custom-section-entry\",\"title\":\"AWS Certified Developer \\u2013 Associate\",\"startDate\":\"2023-05-01\",\"endDate\":\"2023-05-01\",\"description\":\"<p>Compétences validées dans le développement et le déploiement d'applications sur l'infrastructure AWS.</p>\"}]}"
         }
     }
 }

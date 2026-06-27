@@ -6,6 +6,7 @@ import {
     CVContentAttributes, 
     CVTemplates,
     CVCreationAttributes,
+    CVLanguage,
     Section
 } from '../interfaces/cv';
 import { generateUUID } from '../utils/uuid';
@@ -26,6 +27,8 @@ class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements Serv
     public encryptedContent!: string;
     public jobDescription!: string;
     public companyName!: string;
+    public language!: CVLanguage | null;
+    public detectedLanguage!: CVLanguage | null;
     public createdAt!: Date;
     public updatedAt!: Date;
 
@@ -115,6 +118,16 @@ CV.init({
         type: DataTypes.STRING(255),
         allowNull: false,
         defaultValue: ''
+    },
+    language: {
+        type: DataTypes.ENUM('en', 'fr', 'es', 'de', 'it', 'pt', 'ro', 'el', 'ru'),
+        allowNull: false,
+        defaultValue: 'en',
+    },
+    detectedLanguage: {
+        type: DataTypes.ENUM('en', 'fr', 'es', 'de', 'it', 'pt', 'ro', 'el', 'ru'),
+        allowNull: true,
+        defaultValue: null,
     },
     createdAt: {
         type: DataTypes.DATE,

@@ -3,7 +3,7 @@ import { JobData } from "../services/ai"
 export interface Language {
     id: string,
     name: string,
-    level: ProficiencyLanguageLevel | null
+    level:  1 | 2 | 3 | 4 | 5 | 6 | null
 } 
 
 export interface Section {
@@ -14,7 +14,7 @@ export interface Section {
 export interface Skill {
     id: string,
     name: string,
-    level: SkillLevel | null
+    level: 1 | 2 | 3 | 4 | null
 }
 
 export interface WorkExperience {
@@ -84,6 +84,8 @@ export enum CVTemplates {
     POLARIS = 'polaris',
 }
 
+export type CVLanguage = 'en' | 'fr' | 'es' | 'de' | 'it' | 'pt' | 'ro' | 'el' | 'ru';
+
 
 export type TemplateComponentProps = {
     CV: UserCVAttributes
@@ -105,6 +107,8 @@ export interface CVMetadataAttributes {
     companyName: string;
     template: CVTemplates;
     templateColor: string;
+    language: CVLanguage;
+    detectedLanguage: CVLanguage | null;
     updatedAt: Date;
     createdAt: Date
 }

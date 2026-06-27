@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 
 interface SliderPickerProps {
-    LevelsMap: { [key: string]: { index: number, color: string, displayedVal?: string } };
-    selectedLevel: string | null;
+    LevelsMap: { [key: number]: { index: number, color: string, displayedVal?: string, label: string } };
+    selectedLevel: number | null;
     sectionId: string;
     onLevelChange: any;
 }
@@ -12,6 +12,8 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
     const sliderRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const parentRef = useRef<HTMLDivElement>(null);
+
+    const levelInfo = selectedLevel ? LevelsMap[selectedLevel] : null;
 
     const updateSliderPosition = () => {
         if ( sliderRef.current && containerRef.current ) {
@@ -53,7 +55,7 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
     
     }, [selectedLevel]);
 
-    const handleButtonClick = (level: any) => {
+    const handleButtonClick = (level: number) => {
         onLevelChange(sectionId, level);
         updateSliderPosition();
     }
@@ -65,7 +67,7 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
                 <p 
                     className='text-sm font-semibold tracking-[-0.01em]' 
                     style={{ color: selectedLevel ? LevelsMap[selectedLevel].color : '#9c9ca4' }}>
-                    {selectedLevel || 'Choose a level'}
+                    {levelInfo ? levelInfo.label : 'Choose a level'}
                 </p>
             </div>
 

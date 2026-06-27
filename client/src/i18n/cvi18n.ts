@@ -7,8 +7,9 @@ cvI18n
   .use(HttpBackend)
   .init({
     supportedLngs: ['en', 'ro', 'fr', 'es', 'de', 'it', 'pt', 'el', 'ru'],
-    lng: 'en',
     fallbackLng: 'en',
+    ns: ['cvTemplate', 'months'],
+    defaultNS: 'cvTemplate',
     backend: { loadPath: '/locales/cv/{{lng}}/{{ns}}.json' },
 });
 

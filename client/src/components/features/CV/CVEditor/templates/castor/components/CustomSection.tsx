@@ -3,17 +3,15 @@ import { View } from "@react-pdf/renderer";
 import Section from "../../shared/Section";
 import SectionEntry from "../../shared/SectionEntry";
 import { CustomSection as CustomSectionType } from "../../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import cvI18n from "../../../../../../../i18n/cvi18n";
 
 interface CustomSectionProps {
     customSection: CustomSectionType;
 }
 
-const { custom_section: customSectionConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
-
 const CustomSectionComponent: React.FC<CustomSectionProps> = ({ customSection }) => {
     if (customSection.content.length === 0 || !customSection.title) {
-        customSection = customSectionConstants.default;
+        customSection = JSON.parse(cvI18n.t('sections.customSection.default'));
     }
 
     return (
