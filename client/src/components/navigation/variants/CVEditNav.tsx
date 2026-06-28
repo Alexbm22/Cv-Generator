@@ -1,18 +1,31 @@
+import { useState } from "react";
 import { useCvEditStore } from "../../../Store";
 import DownloadBtn from "../../features/CV/downloadBtn";
 import { BaseNav, ProfileDropdown } from "../shared";
 import DeleteBtn from "../../features/CV/deleteBtn";
 import BackBtn from "../../UI/Buttons/backBtn";
 import CvEditorTypeSelector from "../../features/CV/CVEditor/CvEditorTypeSelector";
+import { getFlagFromLanguage } from "../../../constants/CV/languageFlagMap";
+import CVLanguageDialog from "../../UI/CVLanguageDialog";
 
 const CVEditNav = () => {
 
     const cvId = useCvEditStore(state => state.id);
     const cvTitle = useCvEditStore(state => state.title);
     const editorType = useCvEditStore(state => state.editorType);
+    const language = useCvEditStore(state => state.language);
     const setEditorType = useCvEditStore(state => state.setEditorType);
 
+    const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
+
+    const { svg: languageFlag, label: languageLabel } = getFlagFromLanguage(language);
+
     return (
+        <>
+        <CVLanguageDialog
+            isOpen={languageDialogOpen}
+            onClose={() => setLanguageDialogOpen(false)}
+        />
         <BaseNav
             position="fixed"
             height="h-15"
@@ -41,25 +54,41 @@ const CVEditNav = () => {
                 {
                     id: 'download',
                     component: (
-                        <div className="flex flex-row h-full shadow-xs border border-blue-200/40 items-center rounded-lg px-2 py-1.5 gap-1 sm:font-medium text-[#007dff] bg-white/60 transition-all duration-500 hover:shadow-xs hover:bg-white/80">
-                            
-                            <DownloadBtn 
-                                CVId={cvId} 
-                                className="bg-transparent shadow-none border-none hover:bg-[#c5deff] rounded-lg transition-colors duration-150"
-                                iconClassName="w-6 h-6 text-[#0056b3]"
-                            />
+                        <div className="flex flex-row items-center gap-2.5 h-full">
+                            {/* Flag — language selector trigger */}
+                            <button
+                                type="button"
+                                aria-label={languageLabel}
+                                onClick={() => setLanguageDialogOpen(true)}
+                                className="h-[90%] w-auto px-2 rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] cursor-pointer hover:bg-black/[0.05] flex items-center justify-center transition-all duration-350 active:scale-95"
+                            >
+                                <img
+                                    src={languageFlag}
+                                    alt={languageLabel}
+                                    className="w-auto h-5 rounded-[3px] object-cover"
+                                />
+                            </button>
 
-                            <DeleteBtn 
-                                CVId={cvId}
-                                className="bg-transparent shadow-none border-none hover:bg-red-100 rounded-lg transition-colors duration-150"
-                                iconClassName="w-6 h-6 text-[#d32f2f]"
-                            />
+                            {/* Action group */}
+                            <div className="flex flex-row h-[90%] items-center rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] px-1 gap-0">
+                                <DownloadBtn
+                                    CVId={cvId}
+                                    className="bg-transparent h-[80%] shadow-none border-none hover:bg-black/[0.05] rounded-lg transition-colors duration-150"
+                                    iconClassName="w-5 h-5 text-[#0056b3]"
+                                />
+                                <div className="w-px h-4 bg-black/10 rounded-full" />
+                                <DeleteBtn
+                                    CVId={cvId}
+                                    className="bg-transparent h-[80%] shadow-none border-none hover:bg-red-50 rounded-lg transition-colors duration-150"
+                                    iconClassName="w-5 h-5 text-[#d32f2f]"
+                                />
+                            </div>
                         </div>
                     )
                 }, {
                     id: 'profile-dropdown',
                     component: (
-                        <div className="flex w-full h-full">
+                        <div className="flex w-full h-[90%]">
                             <ProfileDropdown />
                         </div>
                     )
@@ -87,6 +116,7 @@ const CVEditNav = () => {
                 }
             ]}
         />
+        </>
     )
 }
 

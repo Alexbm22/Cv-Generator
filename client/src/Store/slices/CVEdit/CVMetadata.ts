@@ -33,6 +33,7 @@ export const createMetadataSlice = (set: {
     setJobTitle: (jobTitle) => set({ jobTitle }),
     setJobDescription: (jobDescription) => set({ jobDescription }),
     setCompanyName: (companyName) => set({ companyName }),
+    setLanguage: (language) => set({ language }),
     setTemplate: (template) => set({ template }),
     setTemplateColorTheme: (color) => set({ templateColor: color }),
     setTitle: (title) => set({ title }),

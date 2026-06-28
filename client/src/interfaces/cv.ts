@@ -159,6 +159,7 @@ export interface CVEditStoreMetadataActions {
     setJobTitle: (jobTitle: string) => void;
     setJobDescription: (jobDescription: string) => void;
     setCompanyName: (companyName: string) => void;
+    setLanguage: (language: CVLanguage) => void;
     setGuestPhoto: (photoURL: string | null) => void;
     setGuestPreview: (previewURL: string | null) => void;
 }
