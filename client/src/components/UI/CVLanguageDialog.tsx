@@ -1,9 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Check, X } from 'lucide-react';
 import { useCvEditStore } from '../../Store';
+import { useAuthStore } from '../../Store/useAuthStore';
 import { LANGUAGE_TO_FLAG } from '../../constants/CV/languageFlagMap';
 import type { CVLanguage } from '../../interfaces/cv';
+import { CVServerService } from '../../services/CVServer';
 
 interface CVLanguageDialogProps {
     isOpen: boolean;
@@ -15,6 +17,30 @@ const LANGUAGES = Object.entries(LANGUAGE_TO_FLAG) as [CVLanguage, { svg: string
 const CVLanguageDialog: React.FC<CVLanguageDialogProps> = ({ isOpen, onClose }) => {
     const language = useCvEditStore((s) => s.language);
     const setLanguage = useCvEditStore((s) => s.setLanguage);
+    const [detectedLanguage, setDetectedLanguage] = useState<CVLanguage | null>(null);
+    const setDetectedLanguageStore = useCvEditStore((s) => s.setDetectedLanguage);   
+
+    const cvId = useCvEditStore((s) => s.id);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+    useEffect(() => {
+        if (!isOpen || !isAuthenticated || !cvId) return;
+        CVServerService.detectLanguage(cvId)
+            .then(({ language: detected }) => {
+                if (detected) {
+                    setDetectedLanguage(detected);
+                    setDetectedLanguageStore(detected);
+                }
+            })
+            .catch(() => { /* silently ignore */ });
+    }, [isOpen, isAuthenticated, cvId, detectedLanguage, setDetectedLanguage, setDetectedLanguageStore]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setDetectedLanguage(null);
+            return;
+        }
+    }, [isOpen]);
 
     const handleSelect = useCallback(
         (lang: CVLanguage) => {
@@ -70,6 +96,7 @@ const CVLanguageDialog: React.FC<CVLanguageDialogProps> = ({ isOpen, onClose }) 
                     <div className="py-4 px-4 flex flex-col gap-1 max-h-[70dvh] overflow-y-auto">
                         {LANGUAGES.map(([code, { svg, label }]) => {
                             const isSelected = language === code;
+                            const isDetected = detectedLanguage === code;
                             return (
                                 <button
                                     key={code}
@@ -89,13 +116,16 @@ const CVLanguageDialog: React.FC<CVLanguageDialogProps> = ({ isOpen, onClose }) 
                                     />
                                     <span
                                         className={[
-                                            'flex-1 text-left text-sm',
+                                            'flex-1 text-left text-sm inline-flex items-center gap-2',
                                             isSelected
                                                 ? 'font-semibold text-blue-600'
                                                 : 'font-medium text-gray-800',
                                         ].join(' ')}
                                     >
                                         {label}
+                                        {isDetected && (
+                                            <span className="text-xs text-gray-500">(Detected)</span>
+                                        )}
                                     </span>
                                     {isSelected && (
                                         <Check className="h-4 w-4 text-blue-500 flex-shrink-0" />
