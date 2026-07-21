@@ -69,3 +69,15 @@ export interface CVEditResponseBody {
   message: string;
   history: HistoryEntry[];
 }
+
+// ── CV Translation ─────────────────────────────────────────────────────────
+
+export type TranslateResponse =
+  | { operations: CVEditOperation[]; message?: string }
+  | { operations: []; message?: string }
+  | { error: string };
+
+export interface TranslateRequest {
+  cvId: string;
+  targetLanguage: string;
+}

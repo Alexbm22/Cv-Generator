@@ -1,5 +1,5 @@
 import { apiService } from './api';
-import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody, CVEditOperation, SectionItemOperation } from '../interfaces/ai';
+import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody, CVEditOperation, SectionItemOperation, TranslateResponse } from '../interfaces/ai';
 import axios from 'axios';
 
 export interface JobData {
@@ -221,4 +221,43 @@ export async function sendAboutMeEditMessage(params: AboutMeAIChatParams): Promi
     }
     throw err;
   }
+}
+
+// ── CV Translation (stub) ──────────────────────────────────────────────────
+//
+// TODO: replace stub with real endpoint call:
+//   return apiService.post<TranslateResponse>('/protected/ai/translate', { cvId, targetLanguage }, { timeout: 120000 });
+//
+// To exercise all dialog states during development, the stub cycles through
+// responses based on `targetLanguage`:
+//   'fr' → success with sample operations
+//   'de' → empty (no changes needed)
+//   any other → error
+//
+export async function translateCV(_cvId: string, targetLanguage: string): Promise<TranslateResponse> {
+  await new Promise((resolve) => setTimeout(resolve, 1500)); // simulate network latency
+
+  if (targetLanguage === 'fr') {
+    return {
+      operations: [
+        {
+          operationType: 'set_field',
+          field: 'jobTitle',
+          originalValue: 'Software Engineer',
+          newValue: 'Ingénieur Logiciel',
+        },
+        {
+          operationType: 'set_about_me',
+          originalValue: '<p>Passionate developer with 5 years of experience.</p>',
+          newValue: '<p>Développeur passionné avec 5 ans d\'expérience.</p>',
+        },
+      ] as CVEditOperation[],
+    };
+  }
+
+  if (targetLanguage === 'de') {
+    return { operations: [], message: 'No changes were needed — your CV content is already in German.' };
+  }
+
+  return { error: 'Translation service is temporarily unavailable. Please try again later.' };
 }

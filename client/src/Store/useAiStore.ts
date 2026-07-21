@@ -31,6 +31,8 @@ export interface AiStore {
   acceptAll: () => void;
   reject: () => void;
   reset: () => void;
+  /** Apply a set of operations directly to the CV store without touching pendingOperations. */
+  applyOperations: (ops: CVEditOperation[]) => void;
 }
 
 function parseDate(value: unknown): Date {
@@ -302,6 +304,11 @@ export const useAiStore = create<AiStore>()(
           isLoading: false,
           abortController: null,
         });
+      },
+
+      applyOperations: (ops: CVEditOperation[]) => {
+        if (ops.length === 0) return;
+        applyAIOperations(ops);
       },
     }),
     {
