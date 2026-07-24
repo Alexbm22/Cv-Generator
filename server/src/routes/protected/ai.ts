@@ -17,4 +17,10 @@ router.post(
   (req, res) => AiController.ProtectedAboutMeChat(req as AuthRequest, res as Response),
 );
 
+router.post(
+  '/translate',
+  RateLimitInstance.globalRateLimit(),
+  (req, res) => AiController.ProtectedTranslate(req as AuthRequest, res as Response),
+);
+
 export default router;

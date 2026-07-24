@@ -41,4 +41,10 @@ export class CVServerService {
             this.apiUrl + `/${CVId}`
         )
     }
+
+    public static async detectLanguage(CVId: string) {
+        return await apiService.get<{ language: import('../interfaces/cv').CVLanguage | null }>(
+            this.apiUrl + `/${CVId}/detect-language`
+        )
+    }
 }

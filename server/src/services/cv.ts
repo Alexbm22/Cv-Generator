@@ -8,6 +8,9 @@ import cvRepository from '../repositories/cv';
 import cvMapper, { mapServerCVToAiOptimizedCVContent } from '../mappers/cv';
 import cvFactories from '../factories/cv';
 import { handleServiceError } from '../utils/serviceErrorHandler';
+import { getCVLanguageDetectionText } from "@/utils/cv";
+import { detectLanguage } from "./ai/languageDetection";
+import { callTranslateCVAI } from "./ai/chat";
 
 export class CVsService {
     @handleServiceError('Failed to create CVs')
@@ -213,7 +216,42 @@ export class CVsService {
 
     }
 
+    static async getCVDetectedLanguage(userId: number, cvPublicId: string) {
+        const cv = await cvRepository.getCVByPublicId(userId, cvPublicId);
+
+        if (!cv) {
+            throw new AppError('CV not found.', 404, ErrorTypes.NOT_FOUND);
+        }
+
+        const detectedLanguage = cv.getDataValue('detectedLanguage');
+        if (detectedLanguage) return detectedLanguage;
+
+        const content = cv.getContent();
+        if (!content) {
+            throw new AppError('CV content not found.', 404, ErrorTypes.NOT_FOUND);
+        }
+
+        const languageDetectionText = getCVLanguageDetectionText(content);
+        if (languageDetectionText && languageDetectionText.trim().length > 0 && !(languageDetectionText.trim().length < 20)) {
+            const detectedLanguage = await detectLanguage(languageDetectionText);
+            if (detectedLanguage) {
+                cv.setDataValue('detectedLanguage', detectedLanguage);
+                await cv.save();
+            }
+
+            return detectedLanguage;    
+        }
+    }
+
     static async countUserCVs(user_id: number) {
         return await cvRepository.countUserCVs(user_id);
+    }
+
+    static async translateCVContent({ currentContent, targetLanguage, signal }: {
+        currentContent: string;
+        targetLanguage: string;
+        signal: AbortSignal;
+    }) {
+        return await callTranslateCVAI({ currentContent, targetLanguage, signal });
     }
 }

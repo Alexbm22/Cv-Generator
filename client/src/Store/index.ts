@@ -5,6 +5,7 @@ import { useAuthStore } from "./useAuthStore";
 import { useCVsStore } from "./useCVsStore";
 import { useLoadingStore } from "./useLoadingStore";
 import { usePreferencesStore } from "./usePreferencesStore";
+import { useAiStore } from "./useAiStore";
 
 export { 
     useCvEditStore, 
@@ -14,4 +15,5 @@ export {
     useAuthStore,
     useLoadingStore,
     usePreferencesStore,
+    useAiStore,
 };

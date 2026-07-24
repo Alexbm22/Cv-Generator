@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, StyleSheet, Text, View } from "@react-pdf/renderer";
-import { Skill, SkillLevel, Language, ProficiencyLanguageLevel, SocialLink } from "../../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import { Skill, Language, SocialLink } from "../../../../../../../interfaces/cv";
+import cvI18n from "../../../../../../../i18n/cvi18n";
 import SectionHeader from "../../shared/SectionHeader";
 
 interface SkillsAndOtherProps {
@@ -45,9 +45,6 @@ const styles = StyleSheet.create({
     },
 });
 
-const { skills: skillsConstants, languages: languagesConstants, social_links: socialLinksConstants } =
-    CV_EDITOR_TEMPLATE_CONSTANTS.sections;
-
 const SkillsAndOther: React.FC<SkillsAndOtherProps> = ({
     skills,
     skillsVisible,
@@ -60,27 +57,44 @@ const SkillsAndOther: React.FC<SkillsAndOtherProps> = ({
     if (!showSection) return null;
 
     if (skills.length === 0) {
-        skills = skillsConstants.default as Skill[];
+        skills = JSON.parse(cvI18n.t('sections.skills.default'));
     }
     if (languages.length === 0) {
-        languages = languagesConstants.default;
+        languages = JSON.parse(cvI18n.t('sections.languages.default'));
     }
     if (socialLinks.length === 0) {
-        socialLinks = socialLinksConstants.default;
+        socialLinks = JSON.parse(cvI18n.t('sections.socialLinks.default'));
     }
 
-    const validSkills = skills.filter((s) => !!(s.level as SkillLevel));
-    const validLanguages = languages.filter((l) => !!(l.level as ProficiencyLanguageLevel));
+    const validSkills = skills.filter((s) => !!(s.level));
+    const validLanguages = languages.filter((l) => !!l.level);
+
+    const languageLevelsMap: Record<NonNullable<Language['level']>, string> = {
+        1: 'A1 - ' + cvI18n.t('sections.languages.Levels.beginner'),
+        2: 'A2 - ' + cvI18n.t('sections.languages.Levels.elementary'),
+        3: 'B1 - ' + cvI18n.t('sections.languages.Levels.intermediate'),
+        4: 'B2 - ' + cvI18n.t('sections.languages.Levels.upperIntermediate'),
+        5: 'C1 - ' + cvI18n.t('sections.languages.Levels.advanced'),
+        6: 'C2 - ' + cvI18n.t('sections.languages.Levels.proficient'),
+    };
+
+    const skillLevelsMap: Record<NonNullable<Skill['level']>, string> = {
+        1: cvI18n.t('sections.skills.Levels.beginner'),
+        2: cvI18n.t('sections.skills.Levels.intermediate'),
+        3: cvI18n.t('sections.skills.Levels.advanced'),
+        4: cvI18n.t('sections.skills.Levels.expert'),
+    };
 
     return (
         <View style={styles.container}>
-            <SectionHeader title="Skills & Other" />
+            <SectionHeader title={cvI18n.t('sections.skillsAndOther.title')} />
 
             {skillsVisible && validSkills.length > 0 ? (
                 <View style={styles.row}>
-                    <Text style={styles.subsectionLabel}>{skillsConstants.title}:</Text>
+                    <Text style={styles.subsectionLabel}>{cvI18n.t('sections.skills.title')}:</Text>
                     {validSkills.map((skill, index) => {
-                        const label = skill.name !== '' ? `${skill.name}: ${skill.level}` : `${skill.level}`;
+                        const levelLabel = skill.level ? (skillLevelsMap[skill.level] ?? `${skill.level}`) : '';
+                        const label = skill.name !== '' ? `${skill.name}: ${levelLabel}` : levelLabel;
                         return (
                             <React.Fragment key={skill.id ?? index}>
                                 <Text style={styles.item}>{label}</Text>
@@ -95,9 +109,10 @@ const SkillsAndOther: React.FC<SkillsAndOtherProps> = ({
 
             {languagesVisible && validLanguages.length > 0 ? (
                 <View style={styles.row}>
-                    <Text style={styles.subsectionLabel}>{languagesConstants.title}:</Text>
+                    <Text style={styles.subsectionLabel}>{cvI18n.t('sections.languages.title')}:</Text>
                     {validLanguages.map((language, index) => {
-                        const label = language.name !== '' ? `${language.name}: ${language.level}` : `${language.level}`;
+                        const levelLabel = language.level ? (languageLevelsMap[language.level] ?? `${language.level}`) : '';
+                        const label = language.name !== '' ? `${language.name}: ${levelLabel}` : levelLabel;
                         return (
                             <React.Fragment key={language.id}>
                                 <Text style={styles.item}>{label}</Text>
@@ -112,7 +127,7 @@ const SkillsAndOther: React.FC<SkillsAndOtherProps> = ({
 
             {socialLinksVisible && socialLinks.length > 0 ? (
                 <View style={styles.row}>
-                    <Text style={styles.subsectionLabel}>{socialLinksConstants.title}:</Text>
+                    <Text style={styles.subsectionLabel}>{cvI18n.t('sections.socialLinks.title')}:</Text>
                     {socialLinks.map((link, index) => {
                         const platformLabel = link.platform !== '' ? `${link.platform}: ` : '';
                         const linkUrl = link.url !== '' ? 'https://' + link.url : '';

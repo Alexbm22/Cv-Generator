@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { SocialLink } from "../../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import cvI18n from "../../../../../../../i18n/cvi18n";
 
 const styles = StyleSheet.create({
     container: {
@@ -33,19 +33,17 @@ type SocialLinksProps = {
     socialLinks: SocialLink[]
 }
 
-const { social_links: socialLinksConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
-
 const SocialLinks: React.FC<SocialLinksProps> = ({
     socialLinks
 }) => {
 
     if(socialLinks.length === 0) {
-        socialLinks = socialLinksConstants.default;
+        socialLinks = JSON.parse(cvI18n.t('sections.socialLinks.default'));
     }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{socialLinksConstants.title}</Text>
+            <Text style={styles.title}>{cvI18n.t('sections.socialLinks.title')}</Text>
             <View style={styles.contentContainer}>
                 {
                     socialLinks.map((link, index) => {

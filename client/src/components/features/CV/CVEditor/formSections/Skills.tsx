@@ -1,15 +1,16 @@
 import React, { useContext } from 'react';
 import { useCvEditStore } from '../../../../../Store';
-import { Skill, SkillLevel } from '../../../../../interfaces/cv';
+import { Skill } from '../../../../../interfaces/cv';
 import {
     Collapsable,
     TextInputField,
     SliderPicker
 } from '../../../../UI';
 import { CV_EDITOR_FORM_CONSTANTS } from '../../../../../constants/CV/CVEditor';
-import { SkillsLevelsMap } from '../../../../../constants/CV/skillLevelsMap';
 import { CollapsableAiContext } from '../../../../UI/Collapsable';
 import { AiPanel } from '../../../../UI/TextEditor/AiAssistant';
+import { useTranslation } from 'react-i18next';
+import cvI18n from '../../../../../i18n/cvi18n';
 
 interface ComponentProps {
     skill: Skill
@@ -23,6 +24,14 @@ const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
 
     const collapsableCtx = useContext(CollapsableAiContext);
     const aiOpen = collapsableCtx ? collapsableCtx.aiOpen : false;
+
+    const { t } = useTranslation('cvTemplate', { keyPrefix: 'sections.skills.Levels', i18n: cvI18n });
+    const SkillsLevelsMap = {
+        1:  { index: 0, color: '#da4500', label: t('beginner') },
+        2:  { index: 1, color: '#ffd413', label: t('intermediate') },
+        3:  { index: 2, color: '#5cd41c', label: t('advanced') },
+        4:  { index: 3, color: '#41bc00', label: t('expert') }
+    }
 
     return (
         <div className='p-0.5'>
@@ -39,7 +48,7 @@ const SkillComponent: React.FC<ComponentProps> = ({ skill }) => {
                     LevelsMap={SkillsLevelsMap}
                     selectedLevel={skill.level}
                     sectionId={skill.id}
-                    onLevelChange={(id: string, level: SkillLevel) => updateSkill(id, { level })}
+                    onLevelChange={(id: string, level: number) => updateSkill(id, { level })}
                 />
 
 

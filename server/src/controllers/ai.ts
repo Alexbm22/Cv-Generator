@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import { AuthRequest } from '../interfaces/auth';
-import { aiGuestRequestSchema, aiProtectedRequestSchema, aiAboutMeProtectedRequestSchema, aiAboutMeGuestRequestSchema } from '../validators/ai_validators';
+import { aiGuestRequestSchema, aiProtectedRequestSchema, aiAboutMeProtectedRequestSchema, aiAboutMeGuestRequestSchema, aiProtectedTranslateCVRequestSchema, aiGuestTranslateCVRequestSchema } from '../validators/ai_validators';
 import { optimizeHistory } from '../services/ai/tokenOptimizer';
 import { callSectionEditAI, callCVEditAI, callAboutMeEditAI } from '../services/ai/chat';
 import { HistoryEntry } from '../interfaces/ai';
@@ -159,8 +159,6 @@ export const AiController = {
     }
   },
 
-  // ── About Me ──────────────────────────────────────────────────────────────
-
   ProtectedAboutMeChat: async (req: AuthRequest, res: Response): Promise<void> => {
     const parsed = aiAboutMeProtectedRequestSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -253,4 +251,73 @@ export const AiController = {
       }
     }
   },
+
+  ProtectedTranslate: async (req: AuthRequest, res: Response): Promise<void> => {
+    const parsed = aiProtectedTranslateCVRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ message: 'Invalid request', errors: parsed.error.issues });
+      return;
+    }
+
+    const { CVId, targetLanguage } = parsed.data;
+
+    const controller = new AbortController();
+    req.on('close', () => controller.abort());
+
+    try {
+      const { content } = await CVsService.getAiOptimizedCVContent(
+        req.user.get().id, CVId
+      );
+      const currentContent = JSON.stringify(content);
+
+      const aiResponse = await CVsService.translateCVContent({
+        currentContent,
+        targetLanguage,
+        signal: controller.signal,
+      });
+
+      res.status(200).json({
+        operations: aiResponse.CVEditOperations,
+        message: aiResponse.message,
+      });
+    } catch (err: unknown) {
+      const isAbort = err instanceof Error && err.name === 'AbortError';
+      if (!isAbort) {
+        res.status(500).json({ message: 'An error occurred while processing your request.' });
+      }
+    }
+  },
+
+  GuestTranslate: async (req: Request, res: Response): Promise<void> => {
+    const parsed = aiGuestTranslateCVRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ message: 'Invalid request', errors: parsed.error.issues });
+      return;
+    }
+
+    const { cvData, targetLanguage } = parsed.data;
+
+    const controller = new AbortController();
+    req.on('close', () => controller.abort());
+
+    try {
+      const currentContent = JSON.stringify(cvData);
+
+      const aiResponse = await CVsService.translateCVContent({
+        currentContent,
+        targetLanguage,
+        signal: controller.signal,
+      });
+
+      res.status(200).json({
+        operations: aiResponse.CVEditOperations,
+        message: aiResponse.message,
+      });
+    } catch (err: unknown) {
+      const isAbort = err instanceof Error && err.name === 'AbortError';
+      if (!isAbort) {
+        res.status(500).json({ message: 'An error occurred while processing your request.' });
+      }
+    }
+  }
 };

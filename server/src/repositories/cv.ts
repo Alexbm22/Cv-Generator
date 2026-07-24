@@ -45,6 +45,15 @@ const getCVWithMediaFiles = async (userId: number, cvPublicId: string) => {
     }) as CVWithMediaFiles;
 }
 
+const getCVByPublicId = async (userId: number, cvPublicId: string) => {
+    return await CV.findOne({
+        where: {
+            user_id: userId,
+            public_id: cvPublicId,
+        }
+    });
+}
+
 const countUserCVs = async (userId: number) => {
     return await CV.count({
         where: {
@@ -76,6 +85,7 @@ export default {
     createCV,
     getCVsWithMediaFiles, 
     getCVWithMediaFiles,
+    getCVByPublicId,
     updateCV,
     deleteCV
 }

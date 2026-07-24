@@ -118,4 +118,26 @@ export class CVsController {
             return next(error);
         }
     }
+
+    static async detectLanguage(req: AuthRequest, res: Response, next: NextFunction) {
+        const authenticatedUser = req.user;
+        const userInfo = authenticatedUser.get();
+
+        const cvPublicId = req.params.id;
+        
+        try {
+            if (!cvPublicId) {
+                throw new AppError(
+                    "CV id is required!", 
+                    400, 
+                    ErrorTypes.BAD_REQUEST
+                );
+            }
+
+            const detectedLanguage = await CVsService.getCVDetectedLanguage(userInfo.id, cvPublicId);
+            return res.status(200).json({ language: detectedLanguage });
+        } catch (error) {
+            return next(error);
+        }
+    }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { Skill, SkillLevel } from "../../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import cvI18n from "../../../../../../../i18n/cvi18n";
 import SectionHeader from "../../shared/SectionHeader";
 
 const styles = StyleSheet.create({
@@ -29,11 +29,9 @@ type SkillsProps = {
     skills: Skill[];
 };
 
-const { skills: skillsConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
-
 const Skills: React.FC<SkillsProps> = ({ skills }) => {
     if (skills.length === 0) {
-        skills = skillsConstants.default as Skill[];
+        skills = JSON.parse(cvI18n.t('sections.skills.default'));
     }
 
     const validSkills = skills.filter((skill) => {
@@ -43,7 +41,7 @@ const Skills: React.FC<SkillsProps> = ({ skills }) => {
 
     return (
         <View style={styles.container}>
-            <SectionHeader title={skillsConstants.title} />
+            <SectionHeader title={cvI18n.t('sections.skills.title')} />
             <View style={styles.itemsContainer}>
                 {validSkills.map((skill, index) => {
                     const skillName = skill.name !== '' ? skill.name : '';

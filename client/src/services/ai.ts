@@ -1,5 +1,5 @@
 import { apiService } from './api';
-import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody, CVEditOperation, SectionItemOperation } from '../interfaces/ai';
+import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody, CVEditOperation, SectionItemOperation, TranslateResponse } from '../interfaces/ai';
 import axios from 'axios';
 
 export interface JobData {
@@ -212,6 +212,42 @@ export async function sendAboutMeEditMessage(params: AboutMeAIChatParams): Promi
       '/ai/about-me',
       { prompt, history, currentText: currentText ?? '', pendingTextChange, jobData },
       { signal, timeout: 60000 },
+    );
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const message: string =
+        err.response?.data?.message ?? `AI request failed (${err.response?.status ?? 'unknown'})`;
+      throw new Error(message);
+    }
+    throw err;
+  }
+}
+
+export interface CVTranslateParams {
+  targetLanguage: string;
+  cvId?: string;
+  cvData?: unknown;
+}
+
+export async function translateCV({ cvId: _cvId, cvData, targetLanguage }: CVTranslateParams): Promise<TranslateResponse> {
+
+  try {
+    if (_cvId) {
+      return await apiService.post<TranslateResponse>(
+        '/protected/ai/translate',
+        { CVId: _cvId, targetLanguage },
+        { timeout: 60000 },
+      );
+    }
+
+    if (!cvData) {
+      throw new Error('cvData must be provided for guests.');
+    }
+
+    return await apiService.post<TranslateResponse>(
+      '/ai/translate',
+      { cvData, targetLanguage },
+      { timeout: 60000 },
     );
   } catch (err) {
     if (axios.isAxiosError(err)) {

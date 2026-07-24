@@ -1,4 +1,4 @@
-import { CVTemplates, Language, ProficiencyLanguageLevel, SkillLevel, SocialLink } from "../../interfaces/cv";
+import { CVLanguage, CVTemplates, Language, ProficiencyLanguageLevel, SkillLevel, SocialLink } from "../../interfaces/cv";
 
 export const CV_COLOR_THEMES = [
     '#2563EB', // Blue
@@ -223,110 +223,14 @@ export const CV_EDITOR_FORM_CONSTANTS = {
     },
 };
 
-export const CV_EDITOR_TEMPLATE_CONSTANTS = {
-    sections: {
-        about_me: {
-            title: 'About Me',
-            default: '<p>Results-driven and detail-oriented professional with a strong background in [Your Field, e.g., software development, project management, data analysis, etc.]. Proven ability to deliver high-quality results in fast-paced, deadline-driven environments. Skilled in [mention key skills, e.g., full-stack development, team collaboration, problem-solving], with a passion for continuous learning and improvement. Adept at working both independently and as part of a team to achieve organizational goals and drive innovation.</p>',
-        },
-        personal_infos: {
-            default: {
-                phone_number: '0123456789',
-                email: 'john.doe@example.com',
-                address: '123 Main St, Anytown, USA',
-            },
-        },
-        social_links: {
-            title: 'Social Links',
-            default: [
-                {
-                    platform: 'LinkedIn',
-                    url: 'linkedin.com/in/your-profile',
-                },
-                {
-                    platform: 'GitHub',
-                    url: 'github.com/your-username',
-                },
-            ] as SocialLink[],
-        },
-        skills: {
-            title: 'Skills',
-            default: [
-                { name: 'JavaScript', level: SkillLevel.EXPERT },
-                { name: 'React', level: SkillLevel.INTERMEDIATE },
-                { name: 'Node.js', level: SkillLevel.INTERMEDIATE },
-            ],
-        },
-        languages: {
-            title: 'Languages',
-            default: [
-                { name: 'English', level: ProficiencyLanguageLevel.B2 },
-                { name: 'French', level: ProficiencyLanguageLevel.A2 },
-            ] as Language[],
-        },
-        work_experience: {
-            title: 'Work Experience',
-            default: [
-                {
-                    id: 'default-work-experience-entry',
-                    jobTitle: 'Software Engineer',
-                    company: 'Tech Solutions Inc.',
-                    startDate: new Date('2022-01-01'),
-                    endDate: new Date('2024-06-30'),
-                    description: '<p>Developed and maintained full-stack applications using React and Node.js. Led a team of 3 developers and implemented CI/CD pipelines.</p>',
-                },
-            ],
-        },
-        education: {
-            title: 'Education',
-            default: [
-                {
-                    id: 'default-education-entry',
-                    degree: 'Bachelor of Science in Computer Science',
-                    institution: 'University of Technology',
-                    startDate: new Date('2018-09-01'),
-                    endDate: new Date('2022-06-30'),
-                    description: '<p>Focused on software engineering, algorithms, and database systems.</p>',
-                },
-            ],
-        },
-        projects: {
-            title: 'Projects',
-            default: [
-                {
-                    id: 'default-project-entry',
-                    name: 'Personal Portfolio',
-                    url: 'https://yourportfolio.com',
-                    startDate: new Date('2023-01-01'),
-                    endDate: new Date('2023-03-01'),
-                    description: '<p>Built a personal portfolio using React and TailwindCSS.</p>',
-                },
-            ],
-        },
-        custom_section: {
-            title: 'Certifications',
-            default: {
-                title: 'Certifications',
-                content: [
-                    {
-                        id: 'default-custom-section-entry',
-                        title: 'AWS Certified Developer – Associate',
-                        startDate: new Date('2023-05-01'),
-                        endDate: new Date('2023-05-01'),
-                        description: '<p>Validated skills in developing and deploying applications on AWS infrastructure.</p>',
-                    },
-                ],
-            },
-        },
-    },
-};
-
 export const DEFAULT_CV_EDITOR_STATE = {
     title: 'Untitled',
     photo_last_uploaded: null,
     jobTitle: '',
     jobDescription: '',
     companyName: '',
+    language: 'en' as CVLanguage,
+    detectedLanguage: null,
     template: CVTemplates.CASTOR,
     templateColor: CV_COLOR_THEMES[0],
     aboutMe: '',
@@ -363,6 +267,8 @@ export const DEFAULT_CV_DATA = {
     jobTitle: '',
     jobDescription: '',
     companyName: '',
+    language: 'ro' as CVLanguage,
+    detectedLanguage: null,
     template: CVTemplates.CASTOR,
     templateColor: CV_COLOR_THEMES[0],
     aboutMe: '',

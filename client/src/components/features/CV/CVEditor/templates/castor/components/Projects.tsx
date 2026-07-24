@@ -3,21 +3,19 @@ import { View } from "@react-pdf/renderer";
 import Section from "../../shared/Section";
 import SectionEntry from "../../shared/SectionEntry";
 import { Project } from "../../../../../../../interfaces/cv";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import cvI18n from "../../../../../../../i18n/cvi18n";
 
 interface ProjectsSectionProps {
     projects: Project[];
 }
 
-const { projects: projectsConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
-
 const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) => {
     if (projects.length === 0) {
-        projects = projectsConstants.default as Project[];
+        projects = JSON.parse(cvI18n.t('sections.projects.default'));
     }
 
     return (
-        <Section title={projectsConstants.title}>
+        <Section title={cvI18n.t('sections.projects.title')}>
             <View>
                 {projects.map((entry) => (
                     <SectionEntry

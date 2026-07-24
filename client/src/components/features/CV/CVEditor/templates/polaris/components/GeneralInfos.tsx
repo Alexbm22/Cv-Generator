@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { CV_EDITOR_TEMPLATE_CONSTANTS } from "../../../../../../../constants/CV/CVEditor";
+import cvI18n from "../../../../../../../i18n/cvi18n";
 
 interface GeneralInfosProps {
     phoneNumber: string;
@@ -22,23 +22,22 @@ const styles = StyleSheet.create({
     },
 });
 
-const { personal_infos: personalInfosConstants } = CV_EDITOR_TEMPLATE_CONSTANTS.sections;
-
 const GeneralInfos: React.FC<GeneralInfosProps> = ({
     phoneNumber,
     email,
     address,
     birthDate,
 }) => {
-    const phoneNumVal = phoneNumber !== '' ? phoneNumber : personalInfosConstants.default.phone_number;
-    const emailVal = email !== '' ? email : personalInfosConstants.default.email;
-    const addressVal = address !== '' ? address : personalInfosConstants.default.address;
+    const defaultPersonalInfos = JSON.parse(cvI18n.t('sections.personalInfos.default'));
+    const phoneNumVal = phoneNumber !== '' ? phoneNumber : defaultPersonalInfos.phone_number;
+    const emailVal = email !== '' ? email : defaultPersonalInfos.email;
+    const addressVal = address !== '' ? address : defaultPersonalInfos.address;
 
     return (
         <View style={styles.container}>
-            <Text style={styles.infoText}>Home: {addressVal}</Text>
-            <Text style={styles.infoText}>Phone: {phoneNumVal}</Text>
-            <Text style={styles.infoText}>Email: {emailVal}</Text>
+            <Text style={styles.infoText}>{cvI18n.t('sections.personalInfos.home')}: {addressVal}</Text>
+            <Text style={styles.infoText}>{cvI18n.t('sections.personalInfos.phone')}: {phoneNumVal}</Text>
+            <Text style={styles.infoText}>{cvI18n.t('sections.personalInfos.email')}: {emailVal}</Text>
         </View>
     );
 };

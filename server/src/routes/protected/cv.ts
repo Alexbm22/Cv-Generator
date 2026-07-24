@@ -41,4 +41,10 @@ router.delete(
     catchAsync(CVsController.delete)
 )
 
+router.get(
+    `/:id/detect-language`,
+    RateLimitInstance.CVsRateLimit(),
+    catchAsync(CVsController.detectLanguage)
+)
+
 export default router;

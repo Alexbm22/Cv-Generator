@@ -2,6 +2,7 @@ import { pdf } from "@react-pdf/renderer";
 import { createElement, ComponentType } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import cvI18n from "../i18n/cvi18n";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -10,6 +11,11 @@ export const generatePdfBlob = async <T extends object>(
   documentProps: T
 ) => {
   try {
+    const cvLanguage = (documentProps as { CV?: { language?: string } }).CV?.language;
+    if (cvLanguage) {
+      await cvI18n.changeLanguage(cvLanguage);
+    }
+
     const blob = await pdf(createElement(PdfDocument, documentProps)).toBlob();
 
     const maxSizeInBytes = 10 * 1024 * 1024;

@@ -6,6 +6,7 @@ import { routes } from "../../router/routes";
 import { CVStateMode, GuestCVAttributes } from "../../interfaces/cv";
 import { useNavigate } from "react-router-dom";
 import { ErrorTypes } from "../../interfaces/error";
+import cvI18n from "../../i18n/cvi18n";
 
 export const useFetchUserCV = (id?: string) => {
     const CVStoreMode = useCVsStore(state => state.CVState.mode);
@@ -40,6 +41,7 @@ export const useFetchUserCV = (id?: string) => {
         if(isSuccess) {
             setCV(CV);
             setSelectedCV(CV);
+            cvI18n.changeLanguage(CV.language);
         }
     }, [CV, isSuccess, setCV]);
 
@@ -76,6 +78,7 @@ export const useFetchGuestCV = (id?: string) => {
             setCV(selectedCV); 
             setSelectedCV(selectedCV);
             setCVToEdit(selectedCV);
+            cvI18n.changeLanguage(selectedCV.language);
         } 
 
         setIsLoading(false);

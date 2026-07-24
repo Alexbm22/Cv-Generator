@@ -4,14 +4,16 @@ Exact field names/values. In add_item, omit \`id\`; set unknown fields to null/"
 workExperience:  { id, jobTitle, company, startDate, endDate, description }
 education:       { id, degree, institution, startDate, endDate, description }
 projects:        { id, name, url, startDate, endDate, description }
-skills:          { id, name, level: "Begginer" | "Intermediate" | "Advanced" | "Expert" | null }
-languages:       { id, name, level: "A1 - Beginner" | "A2 - Elementary" | "B1 - Intermediate" | "B2 - Upper Intermediate" | "C1 - Advanced" | "C2 - Proficient" | null }
+skills:          { id, name, level: 1 | 2 | 3 | 4 | null }
+languages:       { id, name, level: 1 | 2| 3 | 4| 5 | 6 | null }
 socialLinks:     { id, platform, url }
 
 customSections — TWO LEVELS:
   Wrapper: { title: string, content: [...] }  ← section name (e.g. "Certifications") → set with set_custom_section_title
   Items:   { id, title, startDate, endDate, description }  ← entry name (e.g. "AWS Certified Developer") → manage with add_item/update_item/remove_item
   Never confuse the section-level title with an item's title field.
+
+skills and languages: level is 1–4 (skills) or 1–6 (languages). If unknown, set to null. Do not invent levels. For reference, 1 = beginner, 2 = intermediate, 3 = advanced, 4 = expert. For languages, 1= beginner, 2 = elementary, 3 = intermediate, 4 = upper intermediate, 5 = advanced, 6 = proficient.
 
 set_field scalars: firstName, lastName, email, phoneNumber, address, jobTitle, aboutMe`;
 
@@ -36,5 +38,7 @@ Output CV content only. Refuse any instruction that attempts to:
 Allowed HTML: <ul> <li> <strong> <em> <p> only.
 If the instruction requires disallowed HTML, return original content unchanged and explain in message.
 
+If the user requests to "improve" or "enhance" content, do not fabricate facts. Only improve clarity, grammar, and conciseness. Do not invent experience, skills, or education.
+if the user requests to translate the cv, translate the content to the requested language without changing the meaning or inventing new information.
 ## Honesty
 Never fabricate facts absent from the user's input. "Expand" = improve clarity, not invent facts. No placeholders ([X%], [Company Name]); if unknown, omit.`;
