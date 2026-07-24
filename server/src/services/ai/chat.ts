@@ -14,6 +14,7 @@ import { CVSectionType } from '../../interfaces/cv';
 import { SECTION_EDIT_SYSTEM_PROMPT } from '../../constants/prompts/sectionEdit';
 import { CV_EDIT_SYSTEM_PROMPT } from '../../constants/prompts/cvEdit';
 import { ABOUT_ME_SYSTEM_PROMPT } from '../../constants/prompts/aboutMeEdit';
+import { TRANSLATE_CV_SYSTEM_PROMPT } from '../../constants/prompts/translateCV';
 
 export interface SectionEditCallParams {
   prompt: string;
@@ -170,6 +171,41 @@ export async function callAboutMeEditAI(params: AboutMeEditCallParams): Promise<
     return parseAndValidate(completion.choices[0]?.message?.content, aiAboutMeResponseSchema);
   } catch (error) {
     console.error('Error calling about me edit AI:', error);
+    throw error;
+  }
+}
+
+// ── CV Translation ────────────────────────────────────────────────────────────
+
+export interface TranslateCVCallParams {
+  currentContent: string;
+  targetLanguage: string;
+  signal: AbortSignal;
+}
+
+/**
+ * Calls the AI to translate all human-readable CV fields into the target language.
+ * Returns an array of typed operations covering every translatable field.
+ */
+export async function callTranslateCVAI(params: TranslateCVCallParams): Promise<AiCVEditResponseOutput> {
+  const { currentContent, targetLanguage, signal } = params;
+
+  const userMessage = `Translate the following CV content into ${targetLanguage}.\n\nCV content:\n${currentContent}`;
+
+  const messages: Array<{ role: 'system' | 'user'; content: string }> = [
+    { role: 'system', content: TRANSLATE_CV_SYSTEM_PROMPT(targetLanguage) },
+    { role: 'user', content: userMessage },
+  ];
+
+  try {
+    const completion = await openai.chat.completions.create(
+      { model: 'gpt-4o', messages, temperature: 0, response_format: { type: 'json_object' } },
+      { signal },
+    );
+
+    return parseAndValidate(completion.choices[0]?.message?.content, aiCVEditResponseSchema);
+  } catch (error) {
+    console.error('Error calling translate CV AI:', error);
     throw error;
   }
 }

@@ -223,41 +223,38 @@ export async function sendAboutMeEditMessage(params: AboutMeAIChatParams): Promi
   }
 }
 
-// ── CV Translation (stub) ──────────────────────────────────────────────────
-//
-// TODO: replace stub with real endpoint call:
-//   return apiService.post<TranslateResponse>('/protected/ai/translate', { cvId, targetLanguage }, { timeout: 120000 });
-//
-// To exercise all dialog states during development, the stub cycles through
-// responses based on `targetLanguage`:
-//   'fr' → success with sample operations
-//   'de' → empty (no changes needed)
-//   any other → error
-//
-export async function translateCV(_cvId: string, targetLanguage: string): Promise<TranslateResponse> {
-  await new Promise((resolve) => setTimeout(resolve, 1500)); // simulate network latency
+export interface CVTranslateParams {
+  targetLanguage: string;
+  cvId?: string;
+  cvData?: unknown;
+}
 
-  if (targetLanguage === 'fr') {
-    return {
-      operations: [
-        {
-          operationType: 'set_field',
-          field: 'jobTitle',
-          originalValue: 'Software Engineer',
-          newValue: 'Ingénieur Logiciel',
-        },
-        {
-          operationType: 'set_about_me',
-          originalValue: '<p>Passionate developer with 5 years of experience.</p>',
-          newValue: '<p>Développeur passionné avec 5 ans d\'expérience.</p>',
-        },
-      ] as CVEditOperation[],
-    };
+export async function translateCV({ cvId: _cvId, cvData, targetLanguage }: CVTranslateParams): Promise<TranslateResponse> {
+
+  try {
+    if (_cvId) {
+      return await apiService.post<TranslateResponse>(
+        '/protected/ai/translate',
+        { CVId: _cvId, targetLanguage },
+        { timeout: 60000 },
+      );
+    }
+
+    if (!cvData) {
+      throw new Error('cvData must be provided for guests.');
+    }
+
+    return await apiService.post<TranslateResponse>(
+      '/ai/translate',
+      { cvData, targetLanguage },
+      { timeout: 60000 },
+    );
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const message: string =
+        err.response?.data?.message ?? `AI request failed (${err.response?.status ?? 'unknown'})`;
+      throw new Error(message);
+    }
+    throw err;
   }
-
-  if (targetLanguage === 'de') {
-    return { operations: [], message: 'No changes were needed — your CV content is already in German.' };
-  }
-
-  return { error: 'Translation service is temporarily unavailable. Please try again later.' };
 }

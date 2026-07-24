@@ -16,4 +16,10 @@ router.post(
   (req, res) => AiController.GuestAboutMeChat(req as Request, res as Response),
 );
 
+router.post(
+  '/translate',
+  RateLimitInstance.globalRateLimit(),
+  (req, res) => AiController.GuestTranslate(req as Request, res as Response),
+);
+
 export default router;

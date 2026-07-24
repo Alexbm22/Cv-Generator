@@ -10,6 +10,7 @@ import cvFactories from '../factories/cv';
 import { handleServiceError } from '../utils/serviceErrorHandler';
 import { getCVLanguageDetectionText } from "@/utils/cv";
 import { detectLanguage } from "./ai/languageDetection";
+import { callTranslateCVAI } from "./ai/chat";
 
 export class CVsService {
     @handleServiceError('Failed to create CVs')
@@ -244,5 +245,13 @@ export class CVsService {
 
     static async countUserCVs(user_id: number) {
         return await cvRepository.countUserCVs(user_id);
+    }
+
+    static async translateCVContent({ currentContent, targetLanguage, signal }: {
+        currentContent: string;
+        targetLanguage: string;
+        signal: AbortSignal;
+    }) {
+        return await callTranslateCVAI({ currentContent, targetLanguage, signal });
     }
 }

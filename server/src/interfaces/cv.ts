@@ -4,6 +4,8 @@ import { CV, MediaFiles } from "@/models"
 
 export const CVSectionTypes = ['aboutMe', 'workExperience', 'education', 'projects', 'customSections', 'socialLinks', 'skills', 'languages'] as const;
 export type CVSectionType = typeof CVSectionTypes[number];
+export const CVLanguageCodes = ['en', 'fr', 'es', 'de', 'it', 'pt', 'ro', 'el', 'ru'] as const;
+export type CVLanguage = typeof CVLanguageCodes[number];
 
 export interface Language {
     id: string,
@@ -88,8 +90,6 @@ export enum CVTemplates {
     CASTOR = 'castor',
     POLARIS = 'polaris',
 }
-
-export type CVLanguage = 'en' | 'fr' | 'es' | 'de' | 'it' | 'pt' | 'ro' | 'el' | 'ru';
 
 export interface CVContentAttributes {
     firstName: string,

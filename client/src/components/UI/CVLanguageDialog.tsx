@@ -204,7 +204,7 @@ const CVLanguageDialog: React.FC<CVLanguageDialogProps> = ({ isOpen, onClose }) 
                         className={[
                             'fixed z-[60] bg-white/90 backdrop-blur-xl focus:outline-none',
                             // desktop: centered, compact width
-                            'sm:left-1/2 sm:top-1/2 sm:w-[400px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl',
+                            'sm:left-1/2 sm:top-1/2 sm:w-[450px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl',
                             // mobile: bottom sheet
                             'max-sm:bottom-0 max-sm:left-0 max-sm:right-0 max-sm:rounded-t-2xl max-sm:rounded-b-none',
                             // shadow
@@ -240,7 +240,7 @@ const CVLanguageDialog: React.FC<CVLanguageDialogProps> = ({ isOpen, onClose }) 
                         </div>
 
                         {/* Language list */}
-                        <div className="py-4 px-4 flex flex-col gap-1 max-h-[60dvh] overflow-y-auto">
+                        <div className="py-3 px-4  flex flex-col gap-1 max-h-[60dvh] overflow-y-auto">
                             {LANGUAGES.map(([code, { svg, label }]) => {
                                 const isSelected = selectedLanguage === code;
                                 const isDetected = detectedLanguage === code;

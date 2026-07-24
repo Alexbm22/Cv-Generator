@@ -113,6 +113,8 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
     const cvId = useCvEditStore((s) => s.id);
     const applyOperations = useAiStore((s) => s.applyOperations);
 
+    const setLanguage = useCvEditStore((state) => state.setLanguage);
+
     const workExperience = useCvEditStore((s) => s.workExperience);
     const education = useCvEditStore((s) => s.education);
     const projects = useCvEditStore((s) => s.projects);
@@ -155,7 +157,8 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
 
         let response: TranslateResponse;
         try {
-            response = await translateCV(cvId, targetLanguage);
+            response = await translateCV({ cvId, targetLanguage });
+            setLanguage(targetLanguage); // Update the CV language in the store if translation is successful
         } catch (err) {
             if (controller.signal.aborted) return;
             const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';

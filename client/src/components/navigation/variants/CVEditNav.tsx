@@ -7,6 +7,7 @@ import BackBtn from "../../UI/Buttons/backBtn";
 import CvEditorTypeSelector from "../../features/CV/CVEditor/CvEditorTypeSelector";
 import { getFlagFromLanguage } from "../../../constants/CV/languageFlagMap";
 import CVLanguageDialog from "../../UI/CVLanguageDialog";
+import { Languages } from "lucide-react";
 
 const CVEditNav = () => {
 
@@ -60,13 +61,9 @@ const CVEditNav = () => {
                                 type="button"
                                 aria-label={languageLabel}
                                 onClick={() => setLanguageDialogOpen(true)}
-                                className="h-[90%] w-auto px-2 rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] cursor-pointer hover:bg-black/[0.05] flex items-center justify-center transition-all duration-350 active:scale-95"
+                                className="h-[90%] w-auto px-3 rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] cursor-pointer hover:bg-black/[0.05] flex items-center justify-center transition-all duration-350 active:scale-95"
                             >
-                                <img
-                                    src={languageFlag}
-                                    alt={languageLabel}
-                                    className="w-auto h-5 rounded-[3px] object-cover"
-                                />
+                                <Languages className="w-5 h-5 text-[#0056b3]" />
                             </button>
 
                             {/* Action group */}

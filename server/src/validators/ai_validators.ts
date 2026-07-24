@@ -1,6 +1,7 @@
 import { CVSectionTypes } from '@/interfaces/cv';
 import { z } from 'zod';
 import { GuestCVSchema, sectionDataSchema } from './cv_validators';
+import { CVLanguageCodes } from '@/interfaces/cv';
 
 export const historyEntrySchema = z.object({
   role: z.enum(['user', 'assistant', 'system']),
@@ -81,6 +82,20 @@ export const aiProtectedRequestSchema = z.object({
     contentId: z.uuidv4(),
     sectionType: z.enum(CVSectionTypes),
   }).optional()
+});
+
+export const aiProtectedTranslateCVRequestSchema = z.object({
+  CVId: z.uuidv4(),
+  targetLanguage: z.enum(CVLanguageCodes).refine((lang) => CVLanguageCodes.includes(lang), {
+    message: 'Invalid target language',
+  }),
+});
+
+export const aiGuestTranslateCVRequestSchema = z.object({
+  cvData: GuestCVSchema,
+  targetLanguage: z.enum(CVLanguageCodes).refine((lang) => CVLanguageCodes.includes(lang), {
+    message: 'Invalid target language',
+  }),
 });
 
 export const aiSectionEditResponseSchema = z.object({
