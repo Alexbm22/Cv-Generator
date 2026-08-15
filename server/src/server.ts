@@ -4,6 +4,7 @@ import https from 'https';
 import fs from 'fs';
 import { config } from './config/env';
 import { initModels } from './config/DB/database_init';
+import { startDownloadPendingCleanup } from './services/downloadPendingCleanup';
 
 const PORT: number = config.PORT;
 
@@ -23,6 +24,7 @@ const startServer = async () => {
     try {
         await sequelize.authenticate();
         await initModels();
+        startDownloadPendingCleanup();
 
         https.createServer(sslOptions, app).listen(PORT, () => {
           console.log(`Server is running on port ${PORT}`);

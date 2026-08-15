@@ -1,49 +1,65 @@
 import { saveAs } from 'file-saver';
 import { apiService } from "./api";
 import { UserCVAttributes } from "../interfaces/cv";
-import { DownloadAttributes, DownloadValidationResult } from '../interfaces/downloads';
+import { DownloadAttributes, DownloadFailureType, DownloadPreparation } from '../interfaces/downloads';
 import { fetchFile } from './MediaFiles';
 
 export class DownloadService {
     private static apiUrl = '/protected/downloads';
 
-    // Sends the document data and PDF blob to the server.
-    // The server verifies if the user has an active subscription or sufficient credits.
-    // If verification passes, the server records the download and responds with a 204 status.
-    static async executeDownload(PdfBlob: Blob, documentData: UserCVAttributes, validationToken: string) {
-        // verify if the user has permission to download
+    static async checkDownloadRights() {
+        return await apiService.get<boolean>(this.apiUrl + '/check-download-rights');
+    }
 
-        const filename = `${documentData.title}.pdf`;
-        const file = new File([PdfBlob], filename, { 
-            type: "application/pdf",
-            lastModified: Date.now()
+    static async checkDuplicateDownload(CVId: string) {
+        return await apiService.get<boolean>(this.apiUrl + `/check-duplicate`, { params: { CVId } });
+    }
+
+    static async prepareDownload(cvId: string) {
+        return await apiService.post<DownloadPreparation, { cvId: string }>(
+            this.apiUrl + '/prepare',
+            { cvId }
+        );
+    }
+
+    static async uploadPreparedPdf(putUrl: string, pdfBlob: Blob) {
+        const response = await fetch(putUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/pdf' },
+            body: pdfBlob
         });
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('documentData', JSON.stringify(documentData));
-        formData.append('validationToken', validationToken);
+        if (!response.ok) {
+            throw new Error(`PDF upload failed with status ${response.status}.`);
+        }
+    }
 
-        return await apiService.post<DownloadAttributes, FormData>( 
-            this.apiUrl + '/',
-            formData,
-            { 
-                headers: { 'Content-Type': 'multipart/form-data' } 
-            }
+    static async completeDownload(downloadId: string, actionId: string) {
+        return await apiService.post<DownloadAttributes, { actionId: string }>(
+            `${this.apiUrl}/${downloadId}/complete`,
+            { actionId }
+        );
+    }
+
+    static async failDownload(
+        downloadId: string,
+        actionId: string,
+        failureType: DownloadFailureType,
+        message: string
+    ) {
+        return await apiService.post<void, { actionId: string; failureType: DownloadFailureType; message: string }>(
+            `${this.apiUrl}/${downloadId}/fail`,
+            { actionId, failureType, message: message.slice(0, 2000) }
         );
     }
 
     static async redownloadFile(download: DownloadAttributes) {
         const downloadFile = download.downloadFile;
+        if (!downloadFile.get_URL) {
+            throw new Error('The completed PDF does not have a download URL.');
+        }
         const downloadFileBlob = await fetchFile(downloadFile.get_URL);
         saveAs(downloadFileBlob, download.fileName);
-    }
-
-    static async validateDownload(documentData: UserCVAttributes) {
-        return await apiService.post<DownloadValidationResult, UserCVAttributes>(
-            this.apiUrl + '/validate',
-            documentData
-        );
     }
 
     static async getDownloads() {

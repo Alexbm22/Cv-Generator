@@ -1,5 +1,6 @@
 import { MediaFilesCreationAttributes, OwnerType } from "@/interfaces/mediaFiles";
 import { MediaFiles } from "../models";
+import { Transaction } from 'sequelize';
 
 const getMediaFile = async (public_id: string) => {
     return await MediaFiles.findOne({
@@ -11,8 +12,8 @@ const getMediaFileById = async (id: number) => {
     return await MediaFiles.findByPk(id);
 }
 
-const createMediaFile = async (mediaFile: MediaFilesCreationAttributes) => {
-    return await MediaFiles.create(mediaFile);
+const createMediaFile = async (mediaFile: MediaFilesCreationAttributes, transaction?: Transaction) => {
+    return await MediaFiles.create(mediaFile, { transaction });
 }
 
 const bulkCreateMediaFiles = async (mediaFiles: MediaFilesCreationAttributes[]) => {

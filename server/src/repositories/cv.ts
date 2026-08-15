@@ -1,6 +1,7 @@
 import { CVCreationAttributes, CVWithMediaFiles, ServerCVAttributes } from "../interfaces/cv";
 import { CV, MediaFiles } from "../models";
 import cvFactories from '../factories/cv';
+import { Transaction } from 'sequelize';
 
 const createCVs = async (cvs: Omit<ServerCVAttributes, 'id' | 'encryptedContent' | 'updatedAt' | 'createdAt'>[]) => {
     return await CV.bulkCreate(cvs, {
@@ -8,12 +9,12 @@ const createCVs = async (cvs: Omit<ServerCVAttributes, 'id' | 'encryptedContent'
     });
 }
 
-const createCV = async (userId: number, data?: Partial<CVCreationAttributes>) => {
+const createCV = async (userId: number, data?: Partial<CVCreationAttributes>, transaction?: Transaction) => {
     return await CV.create({
         user_id: userId,
         ...cvFactories.createDefaultCVObject(),
         ...data
-    });
+    }, { transaction });
 }
 
 const getCVsWithMediaFiles = async (userId: number) => {

@@ -1,4 +1,4 @@
-import { DownloadAttributes, DownloadCreationAttributes, DownloadMetadataCVAttributes, PublicDownloadData } from "../interfaces/downloads";
+import { DownloadAttributes, DownloadCreationAttributes, DownloadMetadataCVAttributes, DownloadStatus } from "../interfaces/downloads";
 import { decrypt, encrypt } from "../utils/encryption";
 import { DataTypes, Model } from "sequelize";
 import sequelize from '../config/DB/database_config';
@@ -12,6 +12,12 @@ class Download extends Model<DownloadAttributes, DownloadCreationAttributes> imp
     public public_id!: string;
     public origin_id!: string;
     public user_id!: number;
+    public snapshot_id!: number;
+    public snapshot_hash!: string;
+    public status!: DownloadStatus;
+    public action_id!: string;
+    public pending_expires_at!: Date | null;
+    public completed_at!: Date | null;
     public metadata!: DownloadMetadataCVAttributes;
     public encryptedMetadata!: string;
     public fileName!: string;
@@ -58,6 +64,36 @@ Download.init({
             key: 'id'
         }
     },
+    snapshot_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: 'cv_snapshots',
+            key: 'id'
+        }
+    },
+    snapshot_hash: {
+        type: DataTypes.CHAR(64),
+        allowNull: false,
+    },
+    status: {
+        type: DataTypes.ENUM(...Object.values(DownloadStatus)),
+        allowNull: false,
+        defaultValue: DownloadStatus.PENDING,
+    },
+    action_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+    },
+    pending_expires_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    completed_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
     metadata: {
         type: DataTypes.VIRTUAL,
         get() {
@@ -86,6 +122,10 @@ Download.init({
     tableName: 'downloads',
     timestamps: true,
     underscored: true,
+    indexes: [
+        { unique: true, fields: ['user_id', 'origin_id', 'snapshot_hash'] },
+        { fields: ['status', 'pending_expires_at'] }
+    ],
     hooks: {
         beforeCreate: (download: Download) => {
             const metadata = download.getDataValue('metadata');

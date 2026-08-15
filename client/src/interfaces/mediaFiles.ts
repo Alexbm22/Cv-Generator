@@ -24,5 +24,6 @@ export enum MediaTypes {
 export enum OwnerTypes {
     DOWNLOAD = 'DOWNLOAD',
     CV = 'CV',
+    CV_SNAPSHOT = 'CV_SNAPSHOT',
     USER = 'USER'
 }

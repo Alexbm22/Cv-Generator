@@ -11,6 +11,7 @@ import { handleServiceError } from '../utils/serviceErrorHandler';
 import { getCVLanguageDetectionText } from "@/utils/cv";
 import { detectLanguage } from "./ai/languageDetection";
 import { callTranslateCVAI } from "./ai/chat";
+import sequelize from '@/config/DB/database_config';
 
 export class CVsService {
     @handleServiceError('Failed to create CVs')
@@ -102,15 +103,21 @@ export class CVsService {
         CVPreviewMedia: MediaFiles, 
         CVPhotoMedia: MediaFiles
     ) {
-        const cv = await cvRepository.createCV(CVAttributes.user_id, CVAttributes);
-        const photo = await MediaFilesServices.duplicateMediaFile(
-            cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, CVAttributes.user_id),
-            CVPhotoMedia.get(),
-        )
-        const preview = await MediaFilesServices.duplicateMediaFile(
-            cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title, CVAttributes.user_id),
-            CVPreviewMedia.get(),
-        )
+        const { cv, photo, preview } = await sequelize.transaction(async transaction => {
+            const cv = await cvRepository.createCV(CVAttributes.user_id, CVAttributes, transaction);
+            const photo = await MediaFilesServices.duplicateMediaFile(
+                cvFactories.createCVPhotoMediaFileObj(cv.id, cv.get().title, CVAttributes.user_id, CVPhotoMedia.get().is_active),
+                CVPhotoMedia.get(),
+                transaction
+            );
+            const preview = await MediaFilesServices.duplicateMediaFile(
+                cvFactories.createCVPreviewMediaFileObj(cv.id, cv.get().title, CVAttributes.user_id),
+                CVPreviewMedia.get(),
+                transaction
+            );
+
+            return { cv, photo, preview };
+        });
         
         return cvMapper.mapServerCVToPublicCV(cv.get(), photo.get('public_id'), preview.get('public_id'));
     }
