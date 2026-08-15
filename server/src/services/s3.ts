@@ -1,5 +1,5 @@
 import { config } from '../config/env';
-import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AppError } from '../middleware/error_middleware';
@@ -170,13 +170,14 @@ class S3Service {
     public async generatePresignedPutUrl(
         key: string,
         bucketName: string,
-        expiresIn: number = 5 * 60
+        expiresIn: number = 5 * 60,
+        contentType?: string
     ) {
         try {
             const params = {
                 Bucket: bucketName,
                 Key: key,
-                ContentType: 'image/png'
+                ...(contentType && { ContentType: contentType })
             };
 
             const command = new PutObjectCommand(params);
@@ -238,9 +239,13 @@ class S3Service {
         sourceKey: string, 
         targetKey: string
     ) {
+        const encodedSourceKey = sourceKey
+            .split('/')
+            .map(encodeURIComponent)
+            .join('/');
         const params = {
             Bucket: bucketName,
-            CopySource: `${bucketName}/${sourceKey}`, // source
+            CopySource: `${bucketName}/${encodedSourceKey}`,
             Key: targetKey, 
         };
 
@@ -277,6 +282,25 @@ class S3Service {
                 error.message : "Failed to delete file from S3";
             console.error(`Failed to delete file: ${errorMessage}`);
             return false;
+        }
+    }
+
+    public async getObjectMetadata(key: string, bucketName: string) {
+        try {
+            const response = await this.s3Client.send(new HeadObjectCommand({
+                Bucket: bucketName,
+                Key: key
+            }));
+
+            return {
+                contentLength: response.ContentLength ?? 0,
+                contentType: response.ContentType ?? null
+            };
+        } catch (error) {
+            const errorMessage = error && typeof error === 'object' && 'message' in error
+                ? error.message
+                : 'Failed to inspect S3 object';
+            throw new AppError(`S3 headObject error: ${errorMessage}`, 500, ErrorTypes.BAD_REQUEST);
         }
     }
 

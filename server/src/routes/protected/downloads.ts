@@ -18,10 +18,33 @@ const upload = multer({
 })
 
 router.post(
-    '/',
+    '/prepare',
     RateLimitInstance.globalRateLimit(),
-    upload.single('file'),
-    catchAsync(DownloadsController.executeDownload)
+    catchAsync(DownloadsController.prepareDownload)
+)
+
+router.post(
+    '/:id/complete',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(DownloadsController.completeDownload)
+)
+
+router.post(
+    '/:id/fail',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(DownloadsController.failDownload)
+)
+
+router.get(
+    '/check-download-rights',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(DownloadsController.checkDownloadRights)
+)
+
+router.get(
+    '/check-duplicate',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(DownloadsController.checkDuplicateDownload)
 )
 
 router.post(

@@ -42,7 +42,7 @@ export class DownloadValidationTokenService extends BaseTokenService {
     }
 
     private createAttributesHash(cvAttributes: PublicCVAttributes): string {
-        const { updatedAt, preview, photo, ...essentialAttributes } = cvAttributes;
+        const { updatedAt, previewId, photoId, ...essentialAttributes } = cvAttributes;
         return Buffer.from(JSON.stringify(essentialAttributes)).toString('base64');
     }
 }

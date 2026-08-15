@@ -7,12 +7,14 @@ import { generateS3ObjKey } from '@/utils/mediaFiles';
 import { handleServiceError } from '@/utils/serviceErrorHandler';
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
+import { Transaction } from 'sequelize';
 
 export class MediaFilesServices {
 
     @handleServiceError('Failed to create media file')
     static async create(
-        mediaFileObj: Omit<MediaFilesCreationAttributes, 's3_key'>
+        mediaFileObj: Omit<MediaFilesCreationAttributes, 's3_key'>,
+        transaction?: Transaction
     ) {
         const s3ObjKey = generateS3ObjKey(
             mediaFileObj.owner_type, 
@@ -23,21 +25,27 @@ export class MediaFilesServices {
         );
 
         const mediaFileData = { ...mediaFileObj, s3_key: s3ObjKey }
-        return await mediaFilesRepository.createMediaFile(mediaFileData);
+        return await mediaFilesRepository.createMediaFile(mediaFileData, transaction);
     }
 
     @handleServiceError('Failed to duplicate media file')
     static async duplicateMediaFile(
         newMediaFileData: Omit<MediaFilesCreationAttributes, 's3_key'>,
-        duplicatedMediaFile: MediaFilesAttributes
+        duplicatedMediaFile: MediaFilesAttributes,
+        transaction?: Transaction
     ) {
-        const createdMediaFile = await this.create(newMediaFileData);
+        const createdMediaFile = await this.create(newMediaFileData, transaction);
 
-        await S3Service.duplicateFile(
-            config.AWS_S3_BUCKET,
-            duplicatedMediaFile.s3_key,
-            createdMediaFile.get('s3_key')
-        )
+        try {
+            await S3Service.duplicateFile(
+                config.AWS_S3_BUCKET,
+                duplicatedMediaFile.s3_key,
+                createdMediaFile.get('s3_key')
+            );
+        } catch (error) {
+            console.error(`Failed to duplicate media file in S3: ${error}`);
+            await createdMediaFile.update({ is_active: false }, { transaction });
+        }
 
         return createdMediaFile;
     }
@@ -182,7 +190,12 @@ export class MediaFilesServices {
                 presignedUrl = await S3Service.generatePresignedGetUrl(s3Key, bucket, timeToLive);
                 break;
             case 'PUT':
-                presignedUrl = await S3Service.generatePresignedPutUrl(s3Key, bucket, timeToLive);
+                presignedUrl = await S3Service.generatePresignedPutUrl(
+                    s3Key,
+                    bucket,
+                    timeToLive,
+                    mediaFile.get().mime_type
+                );
                 break;
             case 'DELETE':
                 presignedUrl = await S3Service.generatePresignedDeleteUrl(s3Key, bucket, timeToLive);

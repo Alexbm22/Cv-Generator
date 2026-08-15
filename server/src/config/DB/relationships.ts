@@ -57,6 +57,28 @@ export const defineTablesRelationships = () => {
         onUpdate: 'CASCADE'
     });
 
+    Models.CVSnapshot.belongsTo(Models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+        onUpdate: 'CASCADE'
+    });
+
+    Models.User.hasMany(Models.CVSnapshot, {
+        foreignKey: 'user_id',
+        as: 'cvSnapshots',
+    });
+
+    Models.CVSnapshot.hasMany(Models.Download, {
+        foreignKey: 'snapshot_id',
+        as: 'downloads',
+    });
+
+    Models.Download.belongsTo(Models.CVSnapshot, {
+        foreignKey: 'snapshot_id',
+        as: 'snapshot',
+        onUpdate: 'CASCADE'
+    });
+
 
     Models.CV.hasMany(
         Models.MediaFiles,
@@ -75,6 +97,26 @@ export const defineTablesRelationships = () => {
             constraints: false,
             scope: { owner_type: OwnerType.CV },
             as: 'cv' 
+        }
+    );
+
+    Models.CVSnapshot.hasMany(
+        Models.MediaFiles,
+        {
+            foreignKey: 'owner_id',
+            constraints: false,
+            scope: { owner_type: OwnerType.CV_SNAPSHOT },
+            as: 'mediaFiles',
+        }
+    );
+
+    Models.MediaFiles.belongsTo(
+        Models.CVSnapshot,
+        {
+            foreignKey: 'owner_id',
+            constraints: false,
+            scope: { owner_type: OwnerType.CV_SNAPSHOT },
+            as: 'snapshot'
         }
     );
 

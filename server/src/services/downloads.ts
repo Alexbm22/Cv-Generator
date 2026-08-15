@@ -102,8 +102,13 @@ export class DownloadsService {
             jobTitle: cvRawData.jobTitle,
             title: cvRawData.title,
             template: cvRawData.template,
+            templateColor: cvRawData.templateColor,
             content: cvRawData.content,
-            sectionsOrder: cvRawData.sectionsOrder
+            sectionsOrder: cvRawData.sectionsOrder,
+            jobDescription: cvRawData.jobDescription,
+            companyName: cvRawData.companyName,
+            language: cvRawData.language,
+            detectedLanguage: cvRawData.detectedLanguage
         };
 
         // Deduct credit/check subscription early to avoid wasted processing
@@ -305,6 +310,11 @@ export class DownloadsService {
             jobTitle: cvData.jobTitle,
             title: cvData.title,
             template: cvData.template,
+            templateColor: cvData.templateColor,
+            jobDescription: cvData.jobDescription,
+            companyName: cvData.companyName,
+            language: cvData.language,
+            detectedLanguage: cvData.detectedLanguage,
             sectionsOrder: cvData.sectionsOrder,
             content: {
                 firstName: cvData.firstName,
@@ -382,11 +392,23 @@ export class DownloadsService {
     }
 
     @handleServiceError("Error checking download permissions")
-    static async hasDownloadPermission(user_id: number) {
+    static async checkDownloadRights(user: User) {
+        const user_id = user.get().id;
         const hasSubscription = await SubscriptionService.getUserSubscription(user_id)
         const userCredits = await CreditsService.getUserCredits(user_id);
 
         return (!!hasSubscription || userCredits > 0);
+    }
+
+    private static async hasDownloadPermission(userId: number) {
+        const hasSubscription = await SubscriptionService.getUserSubscription(userId);
+        const userCredits = await CreditsService.getUserCredits(userId);
+        return !!hasSubscription || userCredits > 0;
+    }
+
+    @handleServiceError("Error checking if duplicate download exists")
+    static async checkDuplicateDownload(user: User, cvId: string) {
+        const user_id = user.get().id;
     }
 
     @handleServiceError("Error counting user downloads")
