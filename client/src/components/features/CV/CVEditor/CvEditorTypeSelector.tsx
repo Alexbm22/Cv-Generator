@@ -47,7 +47,7 @@ const CvEditorTypeSelector: React.FC<CvEditorTypeSelectorProps> = ({ value, onCh
             ref={containerRef}
             role="tablist"
             aria-label="CV editor mode"
-            className="flex items-center rounded-full p-1 gap-0.5 relative h-[70%]"
+            className="flex items-center rounded-full p-1 gap-0.5 relative h-11"
             style={{
                 background: 'rgba(0, 0, 0, 0.05)',
                 border: '1px solid rgba(255,255,255,0.4)',

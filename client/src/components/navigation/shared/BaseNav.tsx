@@ -80,7 +80,7 @@ const BaseNav: React.FC<BaseNavProps> = ({
   const renderNavItems = (items: NavItem[]) => {
     return items.map((item) => {
       if (item.component) {
-        return <div key={item.id} className="h-full">{item.component}</div>;
+        return <div key={item.id} className="h-full flex items-center">{item.component}</div>;
       }
 
       const itemClasses = [

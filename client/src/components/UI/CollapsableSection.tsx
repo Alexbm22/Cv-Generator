@@ -41,7 +41,7 @@ const CollapsableSection: React.FC<CollapsableSectionProps> = ({ title, descript
     };
 
     return (
-        <div>
+        <div id="collapsable-section">
             <div className="flex items-center justify-between cursor-pointer select-none py-1" onClick={handleToggle} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
                 <div>
                     <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-[#1d1d1f]">{title}</h2>

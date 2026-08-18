@@ -13,7 +13,7 @@ const AddSectionButton: React.FC<LegacyComponentProps> = ({ onClick: OnClick, se
         <Button 
             onClick={OnClick}
             className="h-fit"
-            buttonStyle={ButtonStyles.secondary}
+            buttonStyle={ButtonStyles.light}
         >
             {'+ Add ' + sectionName}
         </Button>

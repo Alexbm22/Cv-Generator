@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Eye, EyeOff } from 'lucide-react';
@@ -18,6 +18,8 @@ interface SortableSectionItemProps {
     titlePlaceholder?: string;
     onTitleChange?: (title: string) => void;
     showAiToggle?: boolean;
+    /** When provided, the section auto-collapses at 0 items and auto-expands when items appear. */
+    itemCount?: number;
     children: React.ReactNode;
 }
 
@@ -33,6 +35,7 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
     titlePlaceholder,
     onTitleChange,
     showAiToggle,
+    itemCount,
     children,
 }) => {
     const [aiOpen, setAiOpen] = useState(false);
@@ -47,9 +50,9 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
     } = useSortable({ id });
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(itemCount !== 0);
     const [hover, setHover] = useState(false);
-    const [height, setHeight] = useState<string>('auto');
+    const [height, setHeight] = useState<string>(itemCount === 0 ? '0px' : 'auto');
 
     const style: React.CSSProperties = {
         transform: CSS.Transform.toString(transform),
@@ -58,22 +61,31 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
         position: 'relative',
     };
 
+    const collapse = () => {
+        if (containerRef.current) {
+            setHeight(`${containerRef.current.scrollHeight}px`);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    setHeight('0px');
+                });
+            });
+        }
+        setIsOpen(false);
+    };
+
+    const expand = () => {
+        if (containerRef.current) {
+            setHeight(`${containerRef.current.scrollHeight}px`);
+        }
+        setIsOpen(true);
+    };
+
     const handleToggleCollapse = () => {
         if (isOpen) {
-            if (containerRef.current) {
-                setHeight(`${containerRef.current.scrollHeight}px`);
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        setHeight('0px');
-                    });
-                });
-            }
-        } else {
-            if (containerRef.current) {
-                setHeight(`${containerRef.current.scrollHeight}px`);
-            }
+            collapse();
+        } else if (itemCount !== 0) {
+            expand();
         }
-        setIsOpen(!isOpen);
     };
 
     const handleTransitionEnd = () => {
@@ -83,11 +95,25 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
     };
 
     const handleAdd = () => {
-        if (!isOpen) {
+        if (!isOpen && itemCount !== 0) {
             handleToggleCollapse();
         }
         onAdd?.();
     };
+
+    const prevItemCountRef = useRef(itemCount);
+    useEffect(() => {
+        if (itemCount === undefined) return;
+        const prevItemCount = prevItemCountRef.current;
+        prevItemCountRef.current = itemCount;
+
+        if (itemCount === 0 && isOpen) {
+            collapse();
+        } else if (prevItemCount === 0 && itemCount > 0 && !isOpen) {
+            expand();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [itemCount]);
 
     return (
         <div ref={setNodeRef} style={style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
@@ -105,7 +131,7 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
                     </button>
 
                     {/* Title + Description (clickable to collapse) */}
-                    <div className="flex-1 cursor-pointer min-w-0" onClick={handleToggleCollapse}>
+                    <div className={`flex-1 min-w-0 ${itemCount === 0 ? 'cursor-default' : 'cursor-pointer'}`} onClick={handleToggleCollapse}>
                         {editableTitle ? (
                             <input
                                 type="text"
@@ -140,7 +166,7 @@ const SortableSectionItem: React.FC<SortableSectionItemProps> = ({
 
                     {/* Collapse arrow */}
                     <span
-                        className={`inline-block transition-all duration-300 text-[#6e6e73] flex-shrink-0 cursor-pointer select-none text-xs ${hover ? 'opacity-100' : 'opacity-0'}`}
+                        className={`inline-block transition-all duration-300 text-[#6e6e73] flex-shrink-0 select-none text-xs ${itemCount === 0 ? 'cursor-default' : 'cursor-pointer'} ${hover ? 'opacity-100' : 'opacity-0'}`}
                         style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
                         onClick={handleToggleCollapse}
                     >

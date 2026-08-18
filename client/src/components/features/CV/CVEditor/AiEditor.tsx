@@ -76,7 +76,7 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
       className="transition-all duration-1000 bg-[#f5f5f7] w-full shadow-lg z-0.5 flex flex-col max-h-[calc(100vh-60px)] overflow-hidden"
       style={isShowingPreview ? { flexBasis: '56.25%' } : { flexBasis: '100%' }}
     >
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-[#daeaf9] bg-white shrink-0 min-h-0">
+      <div className="flex items-center gap-3 px-6 py-3 border-b border-[#daeaf9] bg-white shrink-0 min-h-0">
         <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#ebf4ff] text-[#007dff]">
           <Sparkles size={16} strokeWidth={1.5} />
         </div>
@@ -84,9 +84,9 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
           <h2 className="text-[14px] font-semibold text-[#1d1d1f] leading-tight">AI Editor</h2>
           <p className="text-[11px] text-[#6e6e73]">Edit your entire CV with AI</p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-0.5">
           {isLoading && (
-            <div className="flex items-center gap-1.5 text-[11px] text-[#0071e3] font-medium">
+            <div className="flex items-center gap-1.5 mr-2 text-[11px] text-[#0071e3] font-medium">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0071e3] animate-pulse" />
               Thinking…
             </div>
@@ -94,19 +94,21 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
 
           <button
             onClick={handleAddJobDetails}
-            className="flex items-center gap-1.5 px-3 py-[5px] h-9 rounded-full text-[12px] font-medium text-[#404245] bg-white border hover:bg-[#f2f2f7] border-[#cecbcb] active:bg-[#e5e5ea] shadow-xs transition-all duration-250 shrink-0 cursor-pointer select-none"
+            className="group flex items-center h-9 hover:px-[9px] rounded-xl text-[12px] font-medium gap-2 text-[#404245] hover:bg-[#f2f2f7] active:bg-[#cfe3f7] transition-all duration-600 shrink-0 cursor-pointer select-none"
             aria-label="Add job details"
           >
-            <Briefcase size={15} strokeWidth={1.75} />
-            Add job details
+            <Briefcase size={20} strokeWidth={1.75} className="shrink-0" />
+            <span className="max-w-0 group-hover:max-w-[110px] opacity-0 group-hover:opacity-100  overflow-hidden whitespace-nowrap transition-all duration-600 ease-in-out">
+              Add job details
+            </span>
           </button>
 
           <button
-            className="flex items-center justify-center w-9 h-9 rounded-xl text-[#6e6e73] hover:bg-[#f2f2f7] active:bg-[#e5e5ea] transition-colors duration-150 cursor-pointer"
+            className="flex items-center justify-center w-9 h-9 rounded-xl text-[#404245] hover:bg-[#f2f2f7] active:bg-[#e5e5ea] transition-colors duration-150 cursor-pointer"
             aria-label="AI Editor settings"
             onClick={() => setIsSettingsOpen(true)}
           >
-            <Settings size={18} strokeWidth={1.5} />
+            <Settings size={20} strokeWidth={1.5} />
           </button>
 
           <AISettingsDialog

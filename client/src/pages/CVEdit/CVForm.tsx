@@ -67,6 +67,24 @@ const CVEditorForm: React.FC<ComponentProps> = ({ isShowingPreview }) => {
     const customSections = useCvEditStore(state => state.customSections);
     const setCustomSectionTitle = useCvEditStore(state => state.setCustomSectionTitle);
 
+    const socialLinksCount = useCvEditStore(state => state.socialLinks.length);
+    const skillsCount = useCvEditStore(state => state.skills.length);
+    const languagesCount = useCvEditStore(state => state.languages.length);
+    const workExperienceCount = useCvEditStore(state => state.workExperience.length);
+    const educationCount = useCvEditStore(state => state.education.length);
+    const projectsCount = useCvEditStore(state => state.projects.length);
+    const customSectionsCount = useCvEditStore(state => state.customSections.content.length);
+
+    const sectionItemCounts: Record<string, number> = React.useMemo(() => ({
+        socialLinks: socialLinksCount,
+        skills: skillsCount,
+        languages: languagesCount,
+        workExperience: workExperienceCount,
+        education: educationCount,
+        projects: projectsCount,
+        customSections: customSectionsCount,
+    }), [socialLinksCount, skillsCount, languagesCount, workExperienceCount, educationCount, projectsCount, customSectionsCount]);
+
     const sectionAddHandlers: Record<string, () => void> = React.useMemo(() => ({
         socialLinks: addSocialLink,
         skills: addSkill,
@@ -113,6 +131,7 @@ const CVEditorForm: React.FC<ComponentProps> = ({ isShowingPreview }) => {
                                 titlePlaceholder={sectionConstants.custom_section.section_title_placeholder}
                                 onTitleChange={section.id === 'customSections' ? setCustomSectionTitle : undefined}
                                 showAiToggle={section.id === 'aboutMe'}
+                                itemCount={sectionItemCounts[section.id]}
                             >
                                 <SectionComponent />
                             </SortableSectionItem>

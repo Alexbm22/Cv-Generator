@@ -36,18 +36,16 @@ const CVEditNav = () => {
             shadow={true}
             zIndex={50}
             className="top-0 left-0 right-0 border-blue-100/50"
-            responsiveStyle={`px-cv-editor-padding py-1.5`}
+            responsiveStyle={`px-cv-editor-padding py-2`}
             itemsContainerStyle="h-full"
             centerItems={[
                 {
                     id: 'editor-type-selector',
                     component: (
-                        <div className="flex items-center h-full">
-                            <CvEditorTypeSelector
-                                value={editorType}
-                                onChange={setEditorType}
-                            />
-                        </div>
+                        <CvEditorTypeSelector
+                            value={editorType}
+                            onChange={setEditorType}
+                        />
                     )
                 }
             ]}
@@ -55,23 +53,23 @@ const CVEditNav = () => {
                 {
                     id: 'download',
                     component: (
-                        <div className="flex flex-row items-center gap-2.5 h-full">
+                        <div className="flex flex-row items-center gap-2.5">
                             {/* Flag — language selector trigger */}
                             <button
                                 type="button"
                                 aria-label={languageLabel}
                                 onClick={() => setLanguageDialogOpen(true)}
-                                className="h-[90%] w-auto px-3 rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] cursor-pointer hover:bg-black/[0.05] flex items-center justify-center transition-all duration-350 active:scale-95"
+                                className="h-11 w-auto px-3 rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] cursor-pointer hover:bg-black/[0.05] flex items-center justify-center transition-all duration-350 active:scale-95"
                             >
-                                <Languages className="w-5 h-5 text-[#0056b3]" />
+                                <Languages className="w-5 h-5 text-[#007dff]" />
                             </button>
 
                             {/* Action group */}
-                            <div className="flex flex-row h-[90%] items-center rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] px-1 gap-0">
+                            <div className="flex flex-row h-11 items-center rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] px-1 gap-0">
                                 <DownloadBtn
                                     CVId={cvId}
                                     className="bg-transparent h-[80%] shadow-none border-none hover:bg-black/[0.05] rounded-lg transition-colors duration-150"
-                                    iconClassName="w-5 h-5 text-[#0056b3]"
+                                    iconClassName="w-5 h-5 text-[#007dff]"
                                 />
                                 <div className="w-px h-4 bg-black/10 rounded-full" />
                                 <DeleteBtn
@@ -84,11 +82,7 @@ const CVEditNav = () => {
                     )
                 }, {
                     id: 'profile-dropdown',
-                    component: (
-                        <div className="flex w-full h-[90%]">
-                            <ProfileDropdown />
-                        </div>
-                    )
+                    component: <ProfileDropdown />
                 }
             ]}
             leftItems={[
@@ -97,7 +91,7 @@ const CVEditNav = () => {
                     component: (
                         <BackBtn 
                             className="px-2.5"
-                            iconClassName="w-6 h-6 sm:w-6.5 h-6.5"
+                            iconClassName="w-6 h-6 sm:w-6.5 h-6.5 text-[#007dff] "
                         />
                     )
                 },
@@ -105,7 +99,7 @@ const CVEditNav = () => {
                     id: 'cv-title',
                     component: (
                         <div
-                            className="flex h-full items-center max-w-[140px] sm:max-w-[220px]"
+                            className="flex items-center max-w-[140px] sm:max-w-[220px]"
                         >
                             <h1 className="text-lg sm:text-[23px] font-serif select-none truncate">{cvTitle}</h1>
                         </div>

@@ -1,8 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from 'lucide-react';
-import Button from "./Button";
-import { ButtonStyles } from "../../../constants/CV/buttonStyles";
+import { twMerge } from "tailwind-merge";
 
 type BackBtnProps = {
     className?: string;
@@ -35,12 +34,15 @@ const BackBtn: React.FC<BackBtnProps> = ({
     };
 
     return (
-        <Button
+        <button
+            type="button"
             onClick={handleBackClick}
-            className={className}
-            buttonStyle={ButtonStyles.secondary}
-            ariaLabel="Go Back"
+            aria-label="Go Back"
             title="Go Back"
+            className={twMerge(
+                "h-11 w-auto px-3 rounded-xl border border-black/[0.06] bg-white/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] cursor-pointer hover:bg-black/[0.05] flex items-center justify-center transition-all duration-350 active:scale-95",
+                className
+            )}
         >
             <div className="flex items-center gap-1">
                 <ArrowLeft 
@@ -49,7 +51,7 @@ const BackBtn: React.FC<BackBtnProps> = ({
                 />
                 {showLabel && <span>Back</span>}
             </div>
-        </Button>
+        </button>
     );
 };
 

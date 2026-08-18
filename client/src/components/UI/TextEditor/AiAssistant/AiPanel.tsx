@@ -233,21 +233,23 @@ export default function AiPanel({
             Thinking…
           </span>
         )}
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-0.5">
           <button
             onClick={handleAddJobDetails}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium text-[#404245] bg-white border hover:bg-[#f2f2f7] border-[#cecbcb] active:bg-[#e5e5ea] shadow-xs transition-all duration-250 shrink-0 cursor-pointer select-none"
+            className="group flex items-center h-8 hover:px-[7px] rounded-lg text-[11px] font-medium gap-1.5 text-[#404245] hover:bg-[#f2f2f7] active:bg-[#cfe3f7] transition-all duration-600 shrink-0 cursor-pointer select-none"
             aria-label="Add job details"
           >
-            <Briefcase size={13} strokeWidth={1.75} />
-            Add job details
+            <Briefcase size={16} strokeWidth={1.75} className="shrink-0" />
+            <span className="max-w-0 group-hover:max-w-[110px] opacity-0 group-hover:opacity-100 overflow-hidden whitespace-nowrap transition-all duration-600 ease-in-out">
+              Add job details
+            </span>
           </button>
           <button
-            className="flex items-center justify-center w-7 h-7 rounded-lg text-[#6e6e73] hover:bg-[#f2f2f7] active:bg-[#e5e5ea] transition-colors duration-150 cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-[#404245] hover:bg-[#f2f2f7] active:bg-[#e5e5ea] transition-colors duration-150 cursor-pointer"
             aria-label="AI panel settings"
             onClick={() => setIsSettingsOpen(true)}
           >
-            <Settings size={14} strokeWidth={1.5} />
+            <Settings size={16} strokeWidth={1.5} />
           </button>
           <AISettingsDialog
             isOpen={isSettingsOpen}

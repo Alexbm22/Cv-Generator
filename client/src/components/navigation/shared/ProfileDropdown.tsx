@@ -7,14 +7,11 @@ import {
     Download, 
     CreditCard, 
     LogOut, 
-    Moon, 
-    Sun,
     ChevronDown 
 } from "lucide-react";
 import { useAuthStore } from "../../../Store";
 import { useLogout } from "../../../hooks/Auth/useAuth";
 import { routes } from "../../../router/routes";
-import Button from "../../UI/Buttons/Button";
 import { ButtonStyles } from "../../../constants/CV/buttonStyles";
 import useProfilePictureUrl from "../../../hooks/useProfilePictureUrl";
 
@@ -24,7 +21,6 @@ interface ProfileDropdownProps {
 
 const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(false); // to be implemented
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const navigate = useNavigate();
@@ -86,14 +82,14 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
     return (
         <div 
             ref={dropdownRef} 
-            className={twMerge("flex-1 min-w-0 items-center", className)}
+            className={twMerge("min-w-0 items-center mt-auto", className)}
         >
             {isAuthenticated ? (
-                <div className={twMerge("border w-full flex flex-col items-center border-[#bababa5b] bg-white transition-all duration-200 rounded-lg", isOpen ? 'shadow-lg' : 'shadow-xs')}>
+                <div className={twMerge("border w-full flex flex-col items-center border-black/[0.06] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10)] cursor-pointer justify-center active:scale-95 transition-all duration-300 rounded-xl", isOpen ? 'shadow-lg' : '')}>
                     {/* Button as part of the dropdown */}
                     <button
                         onClick={handleButtonClick}
-                        className="w-full h-full flex items-center cursor-pointer gap-2.5 px-2.5 py-1.5 sm:justify-evenly transition-colors duration-200"
+                        className="w-full h-11 flex items-center cursor-pointer gap-2.5 px-2.5 sm:justify-evenly transition-colors duration-200"
                         aria-label="Profile menu"
                         aria-expanded={isOpen}
                     >
@@ -109,11 +105,11 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                             </div>
                         </div>
 
-                        <div className="hidden sm:flex gap-0.5 flex-col items-start min-w-0 w-full">
-                            <span className="text-sm max-h-4 font-semibold text-gray-900 truncate max-w-[120px]">
+                        <div className="hidden sm:flex gap-0 flex-col items-start min-w-0 w-full">
+                            <span className="text-sm leading-tight font-semibold text-gray-900 truncate max-w-[120px]">
                                 {username || "User"}
                             </span>
-                            <span className="text-xs text-gray-500 truncate max-w-[120px]">
+                            <span className="text-xs leading-tight text-gray-500 truncate max-w-[120px]">
                                 {email || "user@example.com"}
                             </span>
                         </div>
@@ -163,23 +159,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
 
                         <Separator />
 
-                        {/* Action Buttons */}
-                        <Dropdown
-                            onClick={() => setIsDarkMode(!isDarkMode)}
-                            className="justify-between"
-                        >
-                            
-                            <div className="flex items-center gap-3">
-                                <div className="text-gray-600 relative w-4 h-4 flex items-center justify-center">
-                                    <Moon className={twMerge("w-4 h-4 absolute transition-all duration-700", isDarkMode ? 'opacity-0' : 'opacity-100')} />
-                                    <Sun className={twMerge("w-4 h-4 absolute transition-all duration-700", isDarkMode ? 'opacity-100' : 'opacity-0')} />
-                                </div>
-                                <span className="transition-all duration-300">{isDarkMode ? "Dark" : "Light"} Mode</span>
-                            </div>
-                            <div className={twMerge("w-10 h-5 rounded-full transition-colors duration-200 relative", isDarkMode ? 'bg-blue-500' : 'bg-gray-300')}>
-                                <div className={twMerge("absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200", isDarkMode && 'transform translate-x-5')} />
-                            </div>
-                        </Dropdown>
+
 
                             {/* Logout Button */}
                             <Dropdown
@@ -192,24 +172,12 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                     </div>
                 </div>
             ) : (
-                <div className="w-full h-full flex items-center justify-center px-2 py-1.5 shadow-xs border border-[#bababa5b] bg-[#e2f0ffda] rounded-lg">
-                    <div className="flex flex-row gap-1 w-full h-full">
-                        <Button
-                            onClick={() => handleNavigation(routes.login.path)}
-                            buttonStyle={ButtonStyles.primary}
-                            className="w-60 p-3 justify-center items-center flex"
-                        >
-                            Login
-                        </Button>
-                        <Button
-                            onClick={() => handleNavigation(routes.signup.path)}
-                            buttonStyle={ButtonStyles.secondary}
-                            className="w-30 p-3 justify-center items-center flex bg-[#7790b9] text-white"
-                        >
-                            Sign Up
-                        </Button>
-                    </div>
-                </div>
+                <button
+                    onClick={() => handleNavigation(routes.login.path)}
+                    className="w-full h-11 max-w-none p-3 px-6 cursor-pointer justify-center text-[17px] items-center flex rounded-xl bg-[#0071e3] text-white font-semibold shadow-[0_1px_3px_rgba(0,113,227,0.35)] hover:bg-[#0060c7] active:scale-95 transition-all duration-300"
+                >
+                    Login
+                </button>
             )}
         </div>
     );

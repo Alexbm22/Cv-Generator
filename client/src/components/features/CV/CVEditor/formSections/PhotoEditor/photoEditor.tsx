@@ -3,7 +3,7 @@ import PhotoSelector from "./photoSelector";
 import CVPhotoCropper from './PhotoCropper.tsx'
 import { useCVPhotoState } from "../../hooks/usePhotoEditor.ts";
 import { Edit, Trash2 } from 'lucide-react';
-import Button from "../../../../../UI/Buttons/Button.tsx";
+import { twMerge } from "tailwind-merge";
 import { ButtonStyles } from "../../../../../../constants/CV/buttonStyles.ts";
 import AddSectionButton from "../../../../../UI/Buttons/AddSectionButton.tsx";
 
@@ -55,9 +55,9 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
                 !isSelectingPhoto && (
                     <div className="bottom-0 left-0 h-full flex flex-row gap-x-4 justify-start items-end p-4 border bg-white border-[#d2d2d7]/50 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.07)]">
 
-                        <div className="h-33 w-auto overflow-hidden">
+                        <div className="h-33 w-auto overflow-hidden rounded-xl border border-[#d0d0d8] shadow-sm">
                             <img 
-                                className="h-full w-auto object-cover rounded-xl border border-[#d2d2d7]/50 shadow-sm" 
+                                className="h-full w-auto object-cover" 
                                 src={cvPhotoBlobUrl ?? "/Images/anonymous_Picture.png"} 
                                 alt="Image"
                             />
@@ -68,28 +68,28 @@ export const PhotoEditor: React.FC<ComponentProps> = ({ setIsSelectingPhoto, isS
                                 <AddSectionButton onClick={() => setIsSelectingPhoto(true)} sectionName={'Photo'} />
                             ) : (
                                 <div className="flex flex-col left-0 justify-start items-start">
-                                    <Button
+                                    <button
                                         onClick={() => {
                                             setIsSelectingPhoto(true);
                                             setSelectedPhoto(cvPhotoBlobUrl)
                                         }}
-                                        buttonStyle={ButtonStyles.secondary}
-                                        className="flex flex-row items-center gap-2 bg-transparent hover:bg-transparent hover:opacity-70 p-1"
+                                        type="button"
+                                        className="cursor-pointer text-[#0056b3] font-semibold flex flex-row items-center gap-2 bg-transparent hover:bg-transparent hover:text-[#004494] p-1"
                                     >
                                         <Edit className="w-4 h-4 sm:w-5 sm:h-5" /> 
                                         <span>Edit</span>
-                                    </Button>
-                                    <Button
+                                    </button>
+                                    <button
                                         onClick={async () => {
                                             setSelectedPhoto(null);
                                             await handleCVPhotoDelete();
                                         }}
-                                        buttonStyle={ButtonStyles.danger}
-                                        className="flex flex-row items-center gap-2 bg-transparent hover:bg-transparent hover:opacity-70 "
+                                        type="button"
+                                        className="cursor-pointer text-[#d9534f] font-semibold flex flex-row items-center gap-2 bg-transparent hover:bg-transparent hover:text-[#cf160f] p-1"
                                     >
                                         <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /> 
                                         <span>Delete</span>
-                                    </Button>
+                                    </button>
                                 </div>
                             )
                         }
