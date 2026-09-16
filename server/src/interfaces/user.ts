@@ -41,6 +41,7 @@ export interface ServerUserAttributes {
     customColors: string[];
     lastLogin: Date | null;
     tokenVersion: number;
+    stripeCustomerId: string | null;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -68,4 +69,4 @@ export interface InitialDataSyncAttributes {
 }
 
 export interface UserCreationAttributes extends Optional<ServerUserAttributes, 
-'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'useProfilePictureAsDefault' | 'customColors' | 'public_id' | 'tokenVersion'> {}
+'id' | 'googleId' | 'password' | 'lastLogin' | 'isActive' | 'needsInitialSync' | 'useProfilePictureAsDefault' | 'customColors' | 'public_id' | 'tokenVersion' | 'stripeCustomerId'> {}

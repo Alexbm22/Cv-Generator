@@ -11,6 +11,18 @@ router.post(
     catchAsync(StripeController.createPaymentIntent)
 )
 
+router.post(
+    '/create_subscription_checkout',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(StripeController.createSubscriptionCheckout)
+)
+
+router.post(
+    '/confirm_setup_and_subscribe',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(StripeController.confirmSetupAndSubscribe)
+)
+
 router.get(
     '/prices',
     RateLimitInstance.globalRateLimit(),

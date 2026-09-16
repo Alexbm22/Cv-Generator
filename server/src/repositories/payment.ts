@@ -19,11 +19,17 @@ const getPayments = async (paymentsCriteria: Partial<PaymentAttributes>) => {
 
 const updatePaymentByFields = async (
     updates: Partial<PaymentAttributes>,
-    whereConditions: Partial<PaymentAttributes> 
+    whereConditions: Partial<PaymentAttributes>,
+    options?: {
+        validate?: boolean;
+        hooks?: boolean;
+        individualHooks?: boolean;
+    }
 ) => {
     return await Payment.update(updates, {
         where: whereConditions,
-        returning: true
+        returning: true,
+        ...options,
     });
 }
 

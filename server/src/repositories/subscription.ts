@@ -11,6 +11,16 @@ const createSubscription = async (subscriptionData: SubscriptionCreationAttribut
     return await Subscription.create(subscriptionData)
 }
 
+const updateSubscriptionByFields = async (
+    updates: Partial<SubscriptionCreationAttributs>,
+    whereConditions: Partial<SubscriptionCreationAttributs>
+) => {
+    return await Subscription.update(updates, {
+        where: whereConditions,
+        returning: true
+    });
+}
+
 const deleteUserSubscriptions = async (user_id: number) => {
     return await Subscription.destroy({
         where: { user_id },
@@ -21,5 +31,6 @@ const deleteUserSubscriptions = async (user_id: number) => {
 export default {
     getSubscription,
     createSubscription,
+    updateSubscriptionByFields,
     deleteUserSubscriptions
 }

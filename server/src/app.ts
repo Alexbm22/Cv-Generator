@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import Stripe from 'stripe';
 import { config } from './config/env';
 import helmet from 'helmet';
-import { AppError, errorHandler, notFound } from './middleware/error_middleware';
+import { AppError, errorHandler, notFound, catchAsync } from './middleware/error_middleware';
 import RateLimitInstance from './middleware/rate_limit_middleware';
 import logger from './middleware/logger_middleware';
 
@@ -29,7 +29,7 @@ app.use(logger);
 app.use(
     '/webhook', 
     express.raw({ type: 'application/json' }), 
-    stripeWebHook
+    catchAsync(stripeWebHook)
 );
 
 app.use(express.json());

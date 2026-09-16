@@ -46,6 +46,17 @@ export const defineTablesRelationships = () => {
         onUpdate: 'CASCADE'
     });
 
+    Models.Subscription.hasMany(Models.Payment, {
+        foreignKey: 'subscription_id',
+        as: 'payments',
+    });
+
+    Models.Payment.belongsTo(Models.Subscription, {
+        foreignKey: 'subscription_id',
+        as: 'subscription',
+        onUpdate: 'CASCADE'
+    });
+
     Models.User.hasMany(Models.Download, {
         foreignKey: 'user_id',
         as: 'downloads',

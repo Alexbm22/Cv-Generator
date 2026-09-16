@@ -23,7 +23,7 @@ export const useDownloadCV = () => {
 
             const hasDownloadRights = await DownloadService.checkDownloadRights();
             if(!hasDownloadRights) {
-                return navigate(routes.prices.path);
+                return navigate(routes.plans.path);
             }
 
             const preparation = await DownloadService.prepareDownload(CVId);

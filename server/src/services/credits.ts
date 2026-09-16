@@ -12,7 +12,7 @@ export class CreditsService {
 
     @handleServiceError('Failed to deduct credit')
     static async deductCredit(user_id: number, currentCredits?: number): Promise<boolean> {
-        if(!currentCredits) {
+        if (currentCredits === undefined) {
             const userCredits = await this.getUserCredits(user_id);
             if (userCredits <= 0) {
                 throw new AppError(
@@ -29,13 +29,20 @@ export class CreditsService {
 
     @handleServiceError('Failed to add credits')
     static async addCredits(user_id: number, amount: number) {
-        const { userCredits, created } = await downloadCreditsRepository.findOrCreateUserCredits(user_id, amount);
-        
-        if (!created) {
-            userCredits.set('credits', userCredits.credits + amount);
-            await userCredits.save();
+        const normalizedAmount = Number.isFinite(amount) ? Math.trunc(amount) : NaN;
+        if (normalizedAmount <= 0) {
+            throw new AppError(
+                'Credits amount must be a positive integer.',
+                400,
+                ErrorTypes.BAD_REQUEST
+            );
         }
-        
+
+        // Use an atomic DB increment to avoid lost updates under concurrency.
+        const { userCredits } = await downloadCreditsRepository.findOrCreateUserCredits(user_id, 0);
+        await userCredits.increment('credits', { by: normalizedAmount });
+        await userCredits.reload();
+
         return userCredits;
     }
 
