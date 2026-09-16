@@ -4,7 +4,8 @@ export interface StripePrice {
   amount: number; 
   currency: string;
   interval: 'day' | 'week' | 'month' | 'year' | null;
-  isDefault: boolean;
+  interval_count?: number;
+  lookup_key: string | null;
 }
 
 export interface StripeProduct {

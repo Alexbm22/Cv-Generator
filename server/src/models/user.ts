@@ -16,7 +16,7 @@ import { DownloadsService } from '@/services/downloads';
 import { PaymentService } from '@/services/payments';
 import { SubscriptionService } from '@/services/subscriptions';
 import { CreditsService } from '@/services/credits';
-import { all } from 'axios';
+import { StripeService } from '@/services/stripe';
 
 class User extends Model<ServerUserAttributes, UserCreationAttributes> implements ServerUserAttributes {
     public id!: number;
@@ -32,6 +32,7 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
     public lastLogin!: Date | null;
     public password!: string | null;
     public tokenVersion!: number;
+    public stripeCustomerId!: string | null;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
@@ -142,6 +143,11 @@ User.init({
         allowNull: false,
         defaultValue: 0,
     },
+    stripeCustomerId: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        unique: true,
+    },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
 }, {
@@ -160,6 +166,19 @@ User.init({
             } catch (error) {
                 console.error('Error creating initial download credits:', error);
                 throw new AppError('Failed to create initial download credits', 500, ErrorTypes.INTERNAL_ERR);
+            }
+
+            // Stripe customer creation is a secondary operation and must never block user creation
+            try {
+                const stripeCustomerId = await StripeService.createCustomerForUser(user);
+                if (stripeCustomerId) {
+                    await User.update(
+                        { stripeCustomerId },
+                        { where: { id: user.id } }
+                    );
+                }
+            } catch (error) {
+                console.error('Error creating Stripe customer:', error);
             }
         },
         beforeCreate: async (user: User) => {

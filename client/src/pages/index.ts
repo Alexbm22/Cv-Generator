@@ -4,7 +4,7 @@ export { default as HomePage} from "./Home";
 export { default as NotFoundPage} from "./NotFound";
 export { default as Login} from "./Login";
 export { default as SignUp} from "./SignUp";
-export { default as Prices} from "./Pricing"
+export { default as Plans} from "./Plans"
 export { default as Checkout} from "./Checkout";
 export { default as Downloads } from './Settings/sections/Downloads'
 export { default as SettingsPage } from './Settings'
