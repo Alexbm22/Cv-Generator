@@ -8,6 +8,7 @@ export interface StripePrice {
   interval?: Payment_Interval;
   interval_count?: number;
   lookup_key: string | null;
+  metadata?: Record<string, string>;
 }
 
 export interface StripeProduct {

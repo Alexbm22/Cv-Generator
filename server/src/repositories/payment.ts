@@ -11,9 +11,15 @@ const getPayment = async (paymentCriteria: Partial<PaymentAttributes>) => {
     });
 }
 
-const getPayments = async (paymentsCriteria: Partial<PaymentAttributes>) => {
+const getPayments = async (
+    paymentsCriteria: Partial<PaymentAttributes>,
+    options?: {
+        order?: Array<[string, 'ASC' | 'DESC']>;
+    }
+) => {
     return await Payment.findAll({
-        where: paymentsCriteria
+        where: paymentsCriteria,
+        ...options,
     });
 }
 

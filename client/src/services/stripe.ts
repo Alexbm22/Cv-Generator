@@ -38,4 +38,16 @@ export class StripeService {
             { setupIntentId, priceLookupKey }
         )
     }
+
+    public static async cancelSubscription() {
+        return await apiService.post<{ status: string }>(
+            this.apiUrl + '/cancel_subscription'
+        )
+    }
+
+    public static async resumeSubscription() {
+        return await apiService.post<{ status: string }>(
+            this.apiUrl + '/resume_subscription'
+        )
+    }
 }

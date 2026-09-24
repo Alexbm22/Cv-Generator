@@ -27,6 +27,7 @@ export enum PaymentSource {
 
 export interface PaymentAttributes {
     id: number;
+    public_id: string;
     stripe_payment_intent_id: string | null;
     stripe_invoice_id: string | null;
     stripe_subscription_id: string | null;
@@ -54,6 +55,7 @@ export interface PaymentCreationAttributes extends Optional<PaymentAttributes,
     | 'createdAt'
     | 'updatedAt'
     | 'id'
+    | 'public_id'
     | 'subscription_id'
     | 'stripe_payment_intent_id'
     | 'stripe_invoice_id'
@@ -70,6 +72,7 @@ export interface PaymentCreationAttributes extends Optional<PaymentAttributes,
 > {}
 
 export interface PublicPaymentData {
+    payment_id: string;
     stripe_payment_intent_id: string | null;
     stripe_invoice_id: string | null;
     stripe_subscription_id: string | null;
@@ -86,4 +89,5 @@ export interface PublicPaymentData {
     canceled_at: Date | null;
     failure_message: string | null;
     receipt_url: string | null;
+    createdAt: Date;
 }

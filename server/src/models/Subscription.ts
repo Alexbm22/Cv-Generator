@@ -30,33 +30,36 @@ class Subscription extends Model<SubscriptionAttributes, SubscriptionCreationAtt
     public updatedAt!: Date;
 
     public hasCancellationRequested(): boolean {
-        return Boolean(this.cancel_at_period_end || this.canceled_at || this.cancel_at);
+        return Boolean(this.get("cancel_at_period_end") || this.get("canceled_at") || this.get("cancel_at"));
     }
 
     public willRenew(): boolean {
-        return this.isEntitledStatus(this.status)
-            && !this.cancel_at_period_end
-            && !this.ended_at;
+        return this.isEntitledStatus(this.get('status'))
+            && !this.get('cancel_at_period_end')
+            && !this.get('cancel_at')
+            && !this.get('ended_at');
     }
 
     public hasBenefits(at: Date = new Date()): boolean {
-        if (this.ended_at && this.ended_at <= at) {
+        const endedAt = this.get("ended_at");
+
+        if (endedAt && endedAt <= at) {
             return false;
         }
 
-        if (this.current_period_end <= at) {
+        if (this.get("current_period_end") <= at) {
             return false;
         }
 
-        return this.isEntitledStatus(this.status);
+        return this.isEntitledStatus(this.get('status'));
     }
 
     public getBenefitsExpiry(): Date | null {
-        if (this.ended_at) {
-            return this.ended_at;
+        if (this.get("ended_at")) {
+            return this.get("ended_at");
         }
 
-        return this.current_period_end ?? null;
+        return this.get("current_period_end") ?? null;
     }
 
     private isEntitledStatus(status: SubscriptionStatus): boolean {
