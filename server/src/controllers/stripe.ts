@@ -73,4 +73,26 @@ export class StripeController {
             return next(error);
         }
     }
+
+    static async cancelSubscription(req: AuthRequest, res: Response, next: NextFunction) {
+        const user = req.user.get();
+
+        try {
+            const result = await StripeService.cancelCurrentSubscription(user);
+            return res.status(200).json(result);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    static async resumeSubscription(req: AuthRequest, res: Response, next: NextFunction) {
+        const user = req.user.get();
+
+        try {
+            const result = await StripeService.resumeCurrentSubscription(user);
+            return res.status(200).json(result);
+        } catch (error) {
+            return next(error);
+        }
+    }
 }

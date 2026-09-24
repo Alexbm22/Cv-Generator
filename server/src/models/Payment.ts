@@ -10,6 +10,7 @@ import {
 import { StripePrice } from '../interfaces/stripe';
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
+import { generateUUID } from '../utils/uuid';
 
 
 
@@ -18,6 +19,7 @@ class Payments extends Model<
     PaymentCreationAttributes
 > implements PaymentAttributes {
     public id!: number
+    public public_id!: string;
     public stripe_payment_intent_id!: string | null;
     public stripe_invoice_id!: string | null;
     public stripe_subscription_id!: string | null;
@@ -42,6 +44,7 @@ class Payments extends Model<
 
     public toSafePayment(): PublicPaymentData {
         const {
+            public_id,
             stripe_payment_intent_id,
             stripe_invoice_id,
             stripe_subscription_id,
@@ -57,10 +60,12 @@ class Payments extends Model<
             failed_at,
             canceled_at,
             failure_message,
-            receipt_url
+            receipt_url,
+            createdAt
         } = this.get()
 
         return {
+            payment_id: public_id,
             stripe_payment_intent_id,
             stripe_invoice_id,
             stripe_subscription_id,
@@ -76,7 +81,8 @@ class Payments extends Model<
             failed_at,
             canceled_at,
             failure_message,
-            receipt_url
+            receipt_url,
+            createdAt
         }
     }
 }
@@ -87,6 +93,12 @@ Payments.init({
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
+    },
+    public_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        defaultValue: () => generateUUID(),
     },
     stripe_payment_intent_id: {
         type: DataTypes.STRING(255),

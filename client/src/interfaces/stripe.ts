@@ -6,6 +6,7 @@ export interface StripePrice {
   interval: 'day' | 'week' | 'month' | 'year' | null;
   interval_count?: number;
   lookup_key: string | null;
+  metadata?: Record<string, string>;
 }
 
 export interface StripeProduct {

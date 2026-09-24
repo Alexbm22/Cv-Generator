@@ -27,6 +27,12 @@ export interface UserPreferences {
     customColors: string[];
 }
 
+export interface UserProfileData {
+    subscription: PublicSubscriptionData | null;
+    credits: number;
+    payments: PublicPaymentData[];
+}
+
 export interface ServerUserAttributes {
     id: number;
     public_id: string;

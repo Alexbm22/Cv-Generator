@@ -11,6 +11,7 @@ import { UserCVAttributes } from "../interfaces/cv";
 import { useCvEditStore } from "../Store/useCvEditStore";
 import { useCVPhotoState } from "../components/features/CV/CVEditor/hooks/usePhotoEditor";
 import { TemplateMap } from "../constants/CV/TemplatesMap";
+import { refreshUserProfile } from "./useUser";
 
 export const useDownloadCV = () => {
     const navigate = useNavigate();
@@ -65,6 +66,8 @@ export const useDownloadCV = () => {
             const fileBlob = await fetchFile(downloadFile.get_URL)
             DownloadService.downloadPdf(fileBlob, fileName);
             await queryClient.invalidateQueries({ queryKey: ['downloads'] });
+            await queryClient.invalidateQueries({ queryKey: ['accountSettings'] });
+            await refreshUserProfile().catch((error) => console.error("Failed to refresh user profile after download: ", error));
         }, 
         onError: (error) => {
             console.error("Download error: ", error);

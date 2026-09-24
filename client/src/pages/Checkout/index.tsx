@@ -5,6 +5,7 @@ import CheckoutForm from "./CheckoutForm";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useCreatePaymentIntent, useCreateSubscriptionCheckout } from "../../hooks/useStripe";
 import { LoadingSpinner } from "../../components/UI/LoadingSpinner";
+import { TRIAL_LOOKUP_KEY } from "../../constants/plans";
 
 const CheckoutPage: React.FC = () => {
 
@@ -50,7 +51,9 @@ const CheckoutPage: React.FC = () => {
         <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center px-4 py-12">
             <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-6">
                 <h1 className="font-serif text-3xl text-[#00409f]">
-                    {mode === 'subscription' ? 'Start your trial' : 'Checkout'}
+                    {mode === 'subscription'
+                        ? (price_lookup_key === TRIAL_LOOKUP_KEY ? 'Start your trial' : 'Subscribe')
+                        : 'Checkout'}
                 </h1>
 
                 {!clientSecret ? (

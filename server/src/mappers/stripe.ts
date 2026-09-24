@@ -38,7 +38,8 @@ const toStripePrice = (price: Stripe.Price): StripePrice => {
         currency: price.currency.toUpperCase(),
         interval: price.recurring?.interval ? Payment_Interval[price.recurring?.interval] : undefined,
         interval_count: price.recurring?.interval_count ?? 1,
-        lookup_key: price.lookup_key ?? null
+        lookup_key: price.lookup_key ?? null,
+        metadata: price.metadata
     };
 }
 

@@ -145,10 +145,16 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                                 <span>Downloads</span>
                             </Dropdown>
                             <Dropdown
-                                onClick={() => handleNavigation(`${routes.settings.path}?section=subscription`)}
+                                onClick={() => handleNavigation(`${routes.settings.path}?section=access`)}
                             >
                                 <span className="text-gray-600"><CreditCard className="w-4 h-4" /></span>
-                                <span>Subscription</span>
+                                <span>Access &amp; Plan</span>
+                            </Dropdown>
+                            <Dropdown
+                                onClick={() => handleNavigation(`${routes.settings.path}?section=billing`)}
+                            >
+                                <span className="text-gray-600"><CreditCard className="w-4 h-4" /></span>
+                                <span>Payment History</span>
                             </Dropdown>
                         </div>
 

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '../../router/routes';
 import * as yup from 'yup';
 import { AuthService } from '../../services/auth';
-import { useInitialUserDataSync } from '../useUser';
+import { refreshUserProfile, useInitialUserDataSync } from '../useUser';
 
 export const useFormSubmission = <T>(
     schema: yup.ObjectSchema<{}, T, {}, "">,
@@ -46,6 +46,7 @@ export const useAuthAndSync = <T extends AuthCredentials>(
             }
 
             handleAuthSuccess(authResponse);
+            await refreshUserProfile().catch(() => undefined);
             
             if (authResponse.user?.needsInitialSync) {
                 await syncGuestData();
@@ -94,6 +95,7 @@ export const useCheckAuth = () => {
         },
         onSuccess: async (response) => {
             handleAuthSuccess(response);
+            await refreshUserProfile().catch(() => undefined);
             migrateGuestToUser();
             if (response.user?.needsInitialSync) {
                 await syncGuestData();

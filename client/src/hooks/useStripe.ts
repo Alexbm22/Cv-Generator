@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ApiError } from "../interfaces/error"
 import { StripeService } from "../services/stripe"
 import { useErrorStore } from "../Store"
@@ -26,12 +26,49 @@ export const useCreateSubscriptionCheckout = () => {
 }
 
 export const useConfirmSetupAndSubscribe = () => {
+    const queryClient = useQueryClient();
+
     return useMutation<{ subscriptionId: string; status: string }, ApiError, { setupIntentId: string, priceLookupKey: string }>({
         mutationFn: async ({ setupIntentId, priceLookupKey }) => {
             return (await StripeService.confirmSetupAndSubscribe(setupIntentId, priceLookupKey))
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['userProfile'] });
         },
         onError: (error) => {
             useErrorStore.getState().createError(error);
         }
     })
+}
+
+export const useCancelSubscription = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<{ status: string }, ApiError>({
+        mutationFn: async () => {
+            return await StripeService.cancelSubscription();
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+        },
+        onError: (error) => {
+            useErrorStore.getState().createError(error);
+        }
+    });
+}
+
+export const useResumeSubscription = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<{ status: string }, ApiError>({
+        mutationFn: async () => {
+            return await StripeService.resumeSubscription();
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+        },
+        onError: (error) => {
+            useErrorStore.getState().createError(error);
+        }
+    });
 }
