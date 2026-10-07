@@ -1,0 +1,18 @@
+const required = {
+    NODE_ENV: 'test', PORT: '3000', SSL_KEY_PATH: '', SSL_CERT_PATH: '',
+    ORIGIN: 'http://localhost:3000', RATE_LIMIT_DEFAULT_WINDOW_MS: '60000',
+    RATE_LIMIT_AUTH_WINDOW_MS: '60000', RATE_LIMIT_DEFAULT_LIMIT: '100',
+    RATE_LIMIT_AUTH_LIMIT: '10', RATE_LIMIT_REFRESH_TOKEN_WINDOW_MS: '60000',
+    RATE_LIMIT_REFRESH_TOKEN_LIMIT: '10', RATE_LIMIT_CHECK_AUTH_WINDOW_MS: '60000',
+    RATE_LIMIT_CHECK_AUTH_LIMIT: '10', RATE_LIMIT_CVS_LIMIT: '10',
+    RATE_LIMIT_CVS_WINDOW_MS: '60000', JWT_SECRET: 'test',
+    JWT_REFRESH_SECRET: 'test', JWT_EXPIRATION: '1h', JWT_REFRESH_EXPIRATION: '1d',
+    DB_HOST: 'localhost', DB_PORT: '3306', DB_USER: 'test', DB_PASSWORD: 'test',
+    DB_NAME: 'test', ENCRYPTION_KEY: '0'.repeat(64), AWS_S3_BUCKET: 'test',
+    AWS_REGION: 'us-east-1', AWS_ACCESS_KEY_ID: 'test', AWS_SECRET_ACCESS_KEY: 'test',
+    GOOGLE_CLIENT_ID: 'test', GOOGLE_ID_SALT: 'test', STRIPE_SECRET_KEY: 'sk_test',
+    STRIPE_WEBHOOK_SECRET: 'whsec_test', OPENAI_API_KEY: 'test', RESEND_API_KEY: '',
+    EMAIL_FROM_ADDRESS: 'no-reply@example.com', EMAIL_FROM_NAME: 'CV Generator',
+    EMAIL_DOMAIN: 'cvgenapp.com',
+};
+Object.assign(process.env, required);

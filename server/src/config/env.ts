@@ -47,6 +47,10 @@ const envSchema = z.object({
     STRIPE_SECRET_KEY: z.string(),
     STRIPE_WEBHOOK_SECRET: z.string(),
     OPENAI_API_KEY: z.string(),
+    RESEND_API_KEY: z.string(),
+    EMAIL_FROM_ADDRESS: z.string().email(),
+    EMAIL_FROM_NAME: z.string(),
+    EMAIL_DOMAIN: z.string(),
 });
 
 const parsed = envSchema.safeParse(process.env);
