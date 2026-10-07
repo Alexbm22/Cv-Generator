@@ -8,23 +8,25 @@ export interface PasswordResetVariables extends Record<string, string | number> 
     resetUrl: string;
 }
 
-export interface WelcomeVariables extends Record<string, string | number> {
-    userName: string;
+export interface ChangePasswordVariables extends Record<string, string | number> {
+    company_adress: string;
+    company_name: string;
+    first_name: string;
+    password_reset_url: string;
+    support_team_email: string;
 }
 
 export const emailTemplates = {
-    PASSWORD_RESET: {
-        variables: ['resetUrl'],
-    } satisfies EmailTemplateDefinition<PasswordResetVariables>,
-    WELCOME: {
-        variables: ['userName'],
-    } satisfies EmailTemplateDefinition<WelcomeVariables>,
+    change_password: {
+        id: 'change-password',
+        version: '1.0',
+        variables: ['company_adress', 'company_name', 'first_name', 'password_reset_url', 'support_team_email'],
+    } satisfies EmailTemplateDefinition<ChangePasswordVariables>,
 } as const;
 
 export type EmailTemplateKey = keyof typeof emailTemplates;
 export type EmailTemplateVariables = {
-    PASSWORD_RESET: PasswordResetVariables;
-    WELCOME: WelcomeVariables;
+    change_password: ChangePasswordVariables;
 };
 
 export type EmailTemplateRegistry = {

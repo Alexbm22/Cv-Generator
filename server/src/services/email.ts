@@ -2,8 +2,7 @@ import { Resend } from 'resend';
 import { config } from '../config/env';
 import {
     emailTemplates,
-    EmailTemplateKey,
-    EmailTemplateVariables,
+    ChangePasswordVariables,
     EmailTemplateRegistry,
 } from './email.templates';
 
@@ -12,6 +11,7 @@ export interface EmailProvider {
         from: string;
         to: string | string[];
         templateId: string;
+        subject: string;
         variables: Record<string, string | number>;
     }): Promise<unknown>;
 }
@@ -28,6 +28,7 @@ class ResendEmailProvider implements EmailProvider {
         const { data, error } = await this.resend.emails.send({
             from: input.from,
             to: input.to,
+            subject: input.subject,
             template: { id: input.templateId, variables: input.variables },
         });
         if (error) throw error;
@@ -43,22 +44,31 @@ export class EmailService {
         private readonly templates: EmailTemplateRegistry = emailTemplates,
     ) {}
 
-    async sendTemplate<TKey extends EmailTemplateKey>(
-        template: TKey,
-        to: string | string[],
-        variables: EmailTemplateVariables[TKey],
+    async sendChangePasswordEmail(
+        to: string,
+        firstName: string,
     ): Promise<unknown> {
-        const templateId = this.templates[template].id;
-        if (!templateId) throw new Error(`Email template "${template}" is not configured in Resend.`);
+        const templateId = this.templates.change_password.id;
+        if (!templateId) throw new Error('Email template "change_password" is not configured in Resend.');
+
+        const variables: ChangePasswordVariables = {
+            company_adress: config.EMAIL_DOMAIN,
+            company_name: this.fromName,
+            first_name: firstName,
+            password_reset_url: new URL('/change-password', config.ORIGIN).toString(),
+            support_team_email: this.fromAddress,
+        };
+
         try {
             return await this.provider.sendTemplate({
                 from: `${this.fromName} <${this.fromAddress}>`,
                 to,
                 templateId,
                 variables,
+                subject: 'Change your password',
             });
         } catch {
-            throw new Error(`Failed to send email template "${template}".`);
+            throw new Error('Failed to send the change-password email.');
         }
     }
 }
