@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Home, User, Crown, Zap, CreditCard, Settings, HelpCircle, Download } from "lucide-react";
+import { ArrowLeft, Home, User, Crown, CreditCard, HelpCircle, Download } from "lucide-react";
 import { twMerge } from "tailwind-merge";
-import { ButtonStyles } from "../../constants/CV/buttonStyles";
 import AccountSettings from "./sections/AccountSettings/AccountSettings";
 import Subscription from "./sections/Subscription";
-import DownloadCredits from "./sections/DownloadCredits";
 import Billing from "./sections/Billing";
-import SettingsContent from "./sections/GeneralSettings";
 import HelpPage from "./sections/Help";
 import Downloads from "./sections/Downloads";
 
-type MenuOption = "account" | "subscription" | "credits" | "billing" | "downloads" | "settings" | "help";
+type MenuOption = "account" | "access" | "billing" | "downloads" | "support";
+
+const LEGACY_SECTION_MAP: Record<string, MenuOption> = {
+  account: "account",
+  subscription: "access",
+  credits: "access",
+  access: "access",
+  billing: "billing",
+  downloads: "downloads",
+  help: "support",
+  settings: "support",
+  support: "support",
+};
 
 const SettingsPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeMenu, setActiveMenu] = useState<MenuOption>("account");
   const navigate = useNavigate();
-
-  // Read the section from query params on mount or when they change
-  useEffect(() => {
-    const section = searchParams.get("section") as MenuOption | null;
-    if (section && sectionsMap.includes(section)) {
-      setActiveMenu(section);
-    }
-  }, [searchParams]);
 
   const menuItems: Array<{
     id: MenuOption;
@@ -32,31 +33,45 @@ const SettingsPage: React.FC = () => {
     icon: React.ReactNode;
   }> = [
     { id: "account", label: "Account Settings", icon: <User className="w-4 h-4" /> },
-    { id: "subscription", label: "Subscription", icon: <Crown className="w-4 h-4" /> },
-    { id: "credits", label: "Download Credits", icon: <Zap className="w-4 h-4" /> },
-    { id: "billing", label: "Billing", icon: <CreditCard className="w-4 h-4" /> },
+    { id: "access", label: "Access & Plan", icon: <Crown className="w-4 h-4" /> },
+    { id: "billing", label: "Payment History", icon: <CreditCard className="w-4 h-4" /> },
     { id: "downloads", label: "Downloads", icon: <Download className="w-4 h-4" /> },
-    { id: "settings", label: "Settings", icon: <Settings className="w-4 h-4" /> },
-    { id: "help", label: "Help", icon: <HelpCircle className="w-4 h-4" /> },
+    { id: "support", label: "Support", icon: <HelpCircle className="w-4 h-4" /> },
   ];
 
-  const sectionsMap: string[] = menuItems.map(item => item.id);
+  useEffect(() => {
+    const section = searchParams.get("section");
+    const normalizedSection = section ? LEGACY_SECTION_MAP[section] : "account";
+
+    if (!normalizedSection) {
+      setActiveMenu("account");
+      setSearchParams({ section: "account" }, { replace: true });
+      return;
+    }
+
+    setActiveMenu(normalizedSection);
+
+    if (section !== normalizedSection) {
+      setSearchParams({ section: normalizedSection }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const selectMenu = (menu: MenuOption) => {
+    // Use replace so switching sections doesn't pollute history, keeping Back navigation to the page before Settings
+    setSearchParams({ section: menu }, { replace: true });
+  };
 
   const renderContent = () => {
     switch (activeMenu) {
       case "account":
         return <AccountSettings />;
-      case "subscription":
+      case "access":
         return <Subscription />;
-      case "credits":
-        return <DownloadCredits />;
       case "billing":
         return <Billing />;
       case "downloads":
         return <Downloads />;
-      case "settings":
-        return <SettingsContent />;
-      case "help":
+      case "support":
         return <HelpPage />;
       default:
         return <AccountSettings />;
@@ -92,11 +107,8 @@ const SettingsPage: React.FC = () => {
         <nav className="space-y-0.5">
           {menuItems.map((item) => (
             <div key={item.id}>
-              {item.id === "settings" && (
-                <div className="border-t border-gray-200 my-4" />
-              )}
               <button
-                onClick={() => setActiveMenu(item.id)}
+                onClick={() => selectMenu(item.id)}
                 aria-label={item.id}
                 className={twMerge(
                   "flex items-center cursor-pointer gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-all duration-150",

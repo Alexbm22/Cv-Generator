@@ -13,6 +13,12 @@ router.get(
     catchAsync(UserController.getAccountData)
 );
 
+router.get(
+    '/profile',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(UserController.getProfile)
+);
+
 router.post(
     '/sync_initial_data',
     RateLimitInstance.globalRateLimit(),

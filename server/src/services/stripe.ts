@@ -8,6 +8,7 @@ import User from '@/models/user';
 import { ServerUserAttributes } from '@/interfaces/user';
 import { userRepository } from '@/repositories';
 import { handleServiceError } from '@/utils/serviceErrorHandler';
+import { SubscriptionService } from './subscriptions';
 
 export class StripeService {
     // Secondary operation: must never throw, so a Stripe outage cannot block user creation.
@@ -390,7 +391,7 @@ export class StripeService {
         }
 
         const priceMetadata = price.metadata as Record<string, string>;
-        const isScheduledSubscription = priceMetadata.trial_days && !isNaN(Number(priceMetadata.trial_days)) && priceMetadata.next_phase_price_id;
+        const isScheduledSubscription = Number(priceMetadata.trial_days) > 0 && priceMetadata.next_phase_price_id;
 
         if (isScheduledSubscription) {
             // Trial subscription: create 2-phase schedule with the payment method
@@ -447,5 +448,192 @@ export class StripeService {
 
             return subscription.id;
         }
+    }
+
+    @handleServiceError('Failed to cancel subscription')
+    static async cancelCurrentSubscription(user: ServerUserAttributes): Promise<{ status: string }> {
+        const subscription = await SubscriptionService.getEntitledSubscription(user.id);
+        
+        const stripeSubscriptionId = subscription?.get("stripe_subscription_id");
+        const stripeScheduleId = subscription?.get("stripe_schedule_id");
+
+        if (!subscription || !stripeSubscriptionId) {
+            throw new AppError(
+                'No active subscription found to cancel.',
+                404,
+                ErrorTypes.NOT_FOUND
+            );
+        }
+
+
+        if (subscription.hasCancellationRequested()) {
+            return { status: 'already_canceled' };
+        }
+
+        const updatedSubscription = stripeScheduleId
+            ? await this.cancelScheduledSubscriptionAtPeriodEnd(
+                stripeScheduleId,
+                stripeSubscriptionId
+            )
+            : await stripe.subscriptions.update(stripeSubscriptionId, {
+                cancel_at_period_end: true,
+            });
+
+        await SubscriptionService.syncSubscriptionFromStripe(updatedSubscription, user.id);
+
+        return { status: 'cancellation_requested' };
+    }
+
+    @handleServiceError('Failed to resume subscription')
+    static async resumeCurrentSubscription(user: ServerUserAttributes): Promise<{ status: string }> {
+        const subscription = await SubscriptionService.getEntitledSubscription(user.id);
+
+        const stripeSubscriptionId = subscription?.get("stripe_subscription_id");
+        const stripeScheduleId = subscription?.get("stripe_schedule_id");
+
+        if (!subscription || !stripeSubscriptionId) {
+            throw new AppError(
+                'No active subscription found to resume.',
+                404,
+                ErrorTypes.NOT_FOUND
+            );
+        }
+
+        if (!subscription.hasCancellationRequested()) {
+            return { status: 'already_active' };
+        }
+
+        const updatedSubscription = stripeScheduleId
+            ? await this.resumeScheduledSubscription(
+                stripeScheduleId,
+                stripeSubscriptionId
+            )
+            : await stripe.subscriptions.update(stripeSubscriptionId, {
+                cancel_at_period_end: false,
+            });
+
+        await SubscriptionService.syncSubscriptionFromStripe(updatedSubscription, user.id);
+
+        return { status: 'resumed' };
+    }
+
+    // Converts a retrieved schedule phase back into update-params shape (price expanded -> id).
+    // `openEnded` omits `end_date` so the phase keeps auto-renewing indefinitely, matching how
+    // the final phase is originally created in createSubscriptionWithPaymentMethod (no end_date).
+    private static toScheduleUpdatePhase(
+        phase: Stripe.SubscriptionSchedule.Phase,
+        options: { openEnded?: boolean } = {}
+    ): Stripe.SubscriptionScheduleUpdateParams.Phase {
+        const apiPhase: Stripe.SubscriptionScheduleUpdateParams.Phase = {
+            items: phase.items.map(item => ({
+                price: typeof item.price === 'string' ? item.price : item.price.id,
+                quantity: item.quantity ?? 1,
+            })),
+            start_date: phase.start_date,
+            proration_behavior: phase.proration_behavior,
+        };
+
+        if (!options.openEnded) {
+            apiPhase.end_date = phase.end_date;
+        }
+
+        return apiPhase;
+    }
+
+    // Schedule-managed subscriptions can't be canceled via subscriptions.update (Stripe rejects it).
+    // Instead, truncate the schedule so the current phase is the last one and mark it to cancel once
+    // that phase's (already-paid) period ends, preserving access until then. Any future phase(s) are
+    // stashed in the schedule's metadata so resumeScheduledSubscription can restore them exactly.
+    private static async cancelScheduledSubscriptionAtPeriodEnd(
+        scheduleId: string,
+        subscriptionId: string
+    ): Promise<Stripe.Subscription> {
+        const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId);
+
+        if (schedule.end_behavior === 'cancel') {
+            // Already truncated to cancel at period end; nothing to do.
+            return await stripe.subscriptions.retrieve(subscriptionId);
+        }
+
+        if (schedule.status !== 'active' || !schedule.current_phase) {
+            throw new AppError(
+                `Subscription schedule ${scheduleId} has no active phase to cancel.`,
+                400,
+                ErrorTypes.BAD_REQUEST
+            );
+        }
+
+        const currentPhaseIndex = schedule.phases.findIndex(
+            phase => phase.start_date === schedule.current_phase!.start_date
+        );
+
+        if (currentPhaseIndex === -1) {
+            throw new AppError(
+                `Could not resolve the current phase for schedule ${scheduleId}.`,
+                500,
+                ErrorTypes.INTERNAL_ERR
+            );
+        }
+
+        const keptPhases = schedule.phases.slice(0, currentPhaseIndex + 1);
+        const futurePhases = schedule.phases.slice(currentPhaseIndex + 1);
+
+        const apiKeptPhases = keptPhases.map(phase => this.toScheduleUpdatePhase(phase));
+        const apiFuturePhases = futurePhases.map((phase, index) =>
+            // The last phase of the original schedule is always the open-ended, auto-renewing one.
+            this.toScheduleUpdatePhase(phase, { openEnded: index === futurePhases.length - 1 })
+        );
+
+        await stripe.subscriptionSchedules.update(scheduleId, {
+            end_behavior: 'cancel',
+            phases: apiKeptPhases,
+            metadata: {
+                ...(schedule.metadata ?? {}),
+                cvgen_pending_phases: apiFuturePhases.length ? JSON.stringify(apiFuturePhases) : '',
+                cvgen_reopen_last_phase: apiFuturePhases.length === 0 ? 'true' : '',
+            },
+        });
+
+        return await stripe.subscriptions.retrieve(subscriptionId);
+    }
+
+    // Reverses cancelScheduledSubscriptionAtPeriodEnd: restores any stashed future phase(s) and puts
+    // the schedule back into 'release' (its original end behavior), without creating a new schedule
+    // or subscription.
+    private static async resumeScheduledSubscription(
+        scheduleId: string,
+        subscriptionId: string
+    ): Promise<Stripe.Subscription> {
+        const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId);
+
+        if (schedule.end_behavior !== 'cancel') {
+            // No pending schedule-cancellation to undo.
+            return await stripe.subscriptions.retrieve(subscriptionId);
+        }
+
+        const metadata = schedule.metadata ?? {};
+        const pendingPhasesRaw = metadata.cvgen_pending_phases;
+        const restoredPhases: Stripe.SubscriptionScheduleUpdateParams.Phase[] = pendingPhasesRaw
+            ? JSON.parse(pendingPhasesRaw)
+            : [];
+
+        const reopenKeptLastPhase = restoredPhases.length === 0 && metadata.cvgen_reopen_last_phase === 'true';
+        const apiKeptPhases = schedule.phases.map((phase, index) =>
+            this.toScheduleUpdatePhase(phase, {
+                openEnded: reopenKeptLastPhase && index === schedule.phases.length - 1,
+            })
+        );
+
+        await stripe.subscriptionSchedules.update(scheduleId, {
+            end_behavior: 'release',
+            phases: [...apiKeptPhases, ...restoredPhases],
+            metadata: {
+                ...metadata,
+                cvgen_pending_phases: '',
+                cvgen_reopen_last_phase: '',
+            },
+        });
+
+        return await stripe.subscriptions.retrieve(subscriptionId);
     }
 }
