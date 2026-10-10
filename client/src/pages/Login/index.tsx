@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuthAndSync, useFormSubmission } from "../../hooks/Auth/useAuth";
 import GoogleLoginBtn from "./GoogleAuth/GoogleLoginBtn";
 import Field from '../../components/features/AuthForm/formField'
@@ -8,12 +9,15 @@ import { AuthService } from "../../services/auth";
 import bg from '../../assets/Images/login-bg.png'
 import Button from "../../components/UI/Buttons/Button";
 import { ButtonStyles } from "../../constants/CV/buttonStyles";
-import { Eye, EyeOff } from 'lucide-react';
+import { routes } from "../../router/routes";
+import { CircleCheck, Eye, EyeOff } from 'lucide-react';
 
 const Login: React.FC = () =>{
 
     const login = AuthService.login.bind(AuthService);
     const { mutate: mutateLogin } = useAuthAndSync(login);
+    const location = useLocation();
+    const successMessage = (location.state as { successMessage?: string } | null)?.successMessage;
 
     const [ showPassword, setShowPassword ] = useState(false);
     const toggleShowPassword = () => {
@@ -43,6 +47,14 @@ const Login: React.FC = () =>{
             </h1>
             <div className="flex flex-col items-center bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md gap-4 md:mr-40 lg:mr-50 relative z-20">
                 <h1 className="font-serif text-4xl mb-3 text-[#00409f]">Login</h1>
+
+                {successMessage && (
+                    <div role="status" aria-live="polite" className="w-full flex items-center justify-start gap-2 text-sm text-gray-600">
+                        <CircleCheck size={15} strokeWidth={1.75} className="shrink-0 text-emerald-600" aria-hidden="true" />
+                        <span>{successMessage}</span>
+                    </div>
+                )}
+
                 <form className="w-full flex flex-col gap-3" name='login' onSubmit={(e) => {
                     handleSubmit(formData)(e)
                 }}>
@@ -108,9 +120,20 @@ const Login: React.FC = () =>{
                     <GoogleLoginBtn/>
                 </div>
 
-                <p className="text-gray-600 text-sm text-center">
-                    Don't have an account? <a href="/signup" className="text-[#237bff] hover:underline font-semibold">Sign up</a>
-                </p>
+                <div className="w-full border-t border-gray-200 pt-4 flex flex-col items-center gap-2">
+                    <p className="text-gray-600 text-sm text-center">
+                        Don't have an account?{" "}
+                        <Link to={routes.signup.path} className="text-[#237bff] hover:underline font-semibold">
+                            Sign up
+                        </Link>
+                    </p>
+                    <Link
+                        to={routes.passwordForgot.path}
+                        className="text-sm text-gray-500 hover:text-[#237bff] transition-colors"
+                    >
+                        Forgot password?
+                    </Link>
+                </div>
             </div>
         </div>
     )

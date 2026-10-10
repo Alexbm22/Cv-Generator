@@ -1,25 +1,24 @@
 import { Response } from 'express';
 import { config } from '@/config/env';
-import parseDuration from '@/utils/date_utils/parseDuration';
-import { AuthTokenType } from '@/interfaces/token';
+
+export const REFRESH_COOKIE_NAME = 'refresh';
+
+const refreshCookieOptions = {
+    httpOnly: true,
+    secure: config.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    path: '/',
+};
 
 export class CookieService {
-    private static setSecureCookie(name: string, value: string, res: Response, options?: any): void {
-        res.cookie(name, value, {
-            httpOnly: true,
-            secure: config.NODE_ENV === 'production',
-            sameSite: 'strict',
-            ...options
-        });
-    }
-
     static setRefreshToken(token: string, expiration: Date, res: Response): void {
-        this.setSecureCookie('refresh', token, res, {
+        res.cookie(REFRESH_COOKIE_NAME, token, {
+            ...refreshCookieOptions,
             maxAge: expiration.getTime() - Date.now(),
         });
     }
 
     static clearRefreshToken(res: Response): void {
-        res.clearCookie('refresh');
+        res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
     }
 }

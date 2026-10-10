@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { validatePasswordPolicy } from '@/utils/passwordPolicy';
 
 export const registrationRules = [
     body('email')
@@ -7,10 +8,8 @@ export const registrationRules = [
         .withMessage('Invalid email address')
         .normalizeEmail(),
     body('password')
-        .isLength({ min: 6 })
-        .withMessage('Password must be at least 6 characters long')
-        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/)
-        .withMessage('Password must include uppercase, lowercase and number'),
+        .custom((password: unknown) => typeof password === 'string' && validatePasswordPolicy(password).ok)
+        .withMessage('Password must be between 10 and 128 characters long'),
     body('username')
         .trim()
         .isLength({ min: 3 })

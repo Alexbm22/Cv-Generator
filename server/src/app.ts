@@ -9,10 +9,13 @@ import helmet from 'helmet';
 import { AppError, errorHandler, notFound, catchAsync } from './middleware/error_middleware';
 import RateLimitInstance from './middleware/rate_limit_middleware';
 import logger from './middleware/logger_middleware';
+import { noStore } from './middleware/password_action_middleware';
 
 export const stripe = new Stripe(config.STRIPE_SECRET_KEY);
 
 const app: Application = express();
+
+app.use('/api/password', noStore);
 
 app.use(cors({
     origin: config.ORIGIN,

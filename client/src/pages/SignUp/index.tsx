@@ -11,6 +11,7 @@ import Button from "../../components/UI/Buttons/Button";
 import { ButtonStyles } from "../../constants/CV/buttonStyles";
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { routes } from "../../router/routes";
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "../PasswordAction/passwordValidation";
 import GoogleLoginBtn from "../Login/GoogleAuth/GoogleLoginBtn";
 
 const SignUp: React.FC = () =>{
@@ -109,7 +110,7 @@ const SignUp: React.FC = () =>{
                             </button>
                         </Field>
                         <p className="text-xs text-gray-500 mt-1 px-1">
-                            Password must contain: uppercase, lowercase, number, and be at least 5 characters
+                            Password must be {PASSWORD_MIN_LENGTH}–{PASSWORD_MAX_LENGTH} characters long
                         </p>
                     </div>
 

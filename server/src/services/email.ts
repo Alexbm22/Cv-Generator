@@ -1,9 +1,10 @@
 import { Resend } from 'resend';
-import { config } from '../config/env';
+import { config, passwordActionConfig } from '../config/env';
+import { PasswordActionType } from '../interfaces/passwordAction';
 import {
-    emailTemplates,
-    ChangePasswordVariables,
-    EmailTemplateRegistry,
+    passwordActionEmailTemplates,
+    PasswordActionEmailTemplateKey,
+    PasswordActionEmailVariables,
 } from './email.templates';
 
 export interface EmailProvider {
@@ -41,34 +42,61 @@ export class EmailService {
         private readonly provider: EmailProvider = new ResendEmailProvider(config.RESEND_API_KEY),
         private readonly fromAddress = config.EMAIL_FROM_ADDRESS,
         private readonly fromName = config.EMAIL_FROM_NAME,
-        private readonly templates: EmailTemplateRegistry = emailTemplates,
     ) {}
 
-    async sendChangePasswordEmail(
+    async sendPasswordActionLinkEmail(
         to: string,
-        firstName: string,
+        type: PasswordActionType,
+        userName: string,
+        link: string,
     ): Promise<unknown> {
-        const templateId = this.templates.change_password.id;
-        if (!templateId) throw new Error('Email template "change_password" is not configured in Resend.');
-
-        const variables: ChangePasswordVariables = {
-            company_adress: config.EMAIL_DOMAIN,
-            company_name: this.fromName,
-            first_name: firstName,
-            password_reset_url: new URL('/change-password', config.ORIGIN).toString(),
-            support_team_email: this.fromAddress,
+        const shared = {
+            expiry_time: `${passwordActionConfig.tokenTtlMinutes} minutes`,
         };
 
+        switch (type) {
+            case PasswordActionType.CHANGE_PASSWORD:
+                return this.sendPasswordActionTemplate(to, 'change_password', {
+                    ...shared,
+                    first_name: userName,
+                    password_reset_url: link,
+                });
+            case PasswordActionType.SET_PASSWORD:
+                return this.sendPasswordActionTemplate(to, 'set_password', {
+                    ...shared,
+                    user_name: userName,
+                    reset_url: link,
+                });
+            case PasswordActionType.RESET_PASSWORD:
+                return this.sendPasswordActionTemplate(to, 'reset_password', {
+                    ...shared,
+                    user_name: userName,
+                    reset_url: link,
+                });
+        }
+    }
+
+    async sendPasswordActionTemplate<TKey extends PasswordActionEmailTemplateKey>(
+        to: string,
+        templateKey: TKey,
+        variables: PasswordActionEmailVariables[TKey],
+    ): Promise<unknown> {
+        const template = passwordActionEmailTemplates[templateKey];
         try {
             return await this.provider.sendTemplate({
                 from: `${this.fromName} <${this.fromAddress}>`,
                 to,
-                templateId,
-                variables,
-                subject: 'Change your password',
+                templateId: template.id,
+                variables: {
+                    ...variables,
+                    company_name: this.fromName,
+                    company_adress: config.EMAIL_DOMAIN,
+                    support_team_email: this.fromAddress,
+                },
+                subject: template.subject,
             });
         } catch {
-            throw new Error('Failed to send the change-password email.');
+            throw new Error('Failed to send a password-action email.');
         }
     }
 }

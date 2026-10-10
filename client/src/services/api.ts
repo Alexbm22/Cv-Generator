@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../Store/useAuthStore';
 import { TokenClientData } from '../interfaces/auth';
 import { useErrorStore } from '../Store';
@@ -6,6 +6,9 @@ import { APIError } from '../interfaces/api';
 import { ErrorTypes } from '../interfaces/error';
 import { AppError } from './Errors';
 import { AuthService } from './auth';
+
+// Credential endpoints return 401 for bad input and must not trigger token refresh or forced logout
+const PUBLIC_AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/google_login'];
 
 interface RetryableRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
@@ -61,7 +64,7 @@ class ApiService {
     if (config.url?.includes('/auth/refresh_token')) 
       return config;
 
-    if(!config.url?.includes('/protected') && !config.url?.includes('/logout'))
+    if(!config.url?.includes('/protected'))
       return config;
 
     const { 
@@ -101,9 +104,13 @@ class ApiService {
   }
 
   private async responseErrorInterceptor(error: APIError) {
-    console.error('API Error Intercepted:', error);
     if (!error.config) {
       this.handleAPIError(error as APIError)
+      return Promise.reject(error);
+    }
+
+    if(PUBLIC_AUTH_ENDPOINTS.some((endpoint) => error.config?.url?.includes(endpoint))) {
+      this.handleAPIError(error as APIError);
       return Promise.reject(error);
     }
 
@@ -189,7 +196,6 @@ class ApiService {
   }
   
   private handleAPIError (error: APIError) {
-    console.error('API Error:', error);
     const statusCode = error.response?.status || 500;
     const message = error.response?.data?.message || 'An unexpected error occurred';
     const errType = error.response?.data?.errType || ErrorTypes.INTERNAL_ERR;

@@ -141,6 +141,45 @@ export const defineTablesRelationships = () => {
         }
     )
 
+    Models.User.hasMany(Models.PasswordActionToken, {
+        foreignKey: 'userId',
+        as: 'passwordActionTokens',
+        onDelete: 'CASCADE',
+    });
+
+    Models.PasswordActionToken.belongsTo(Models.User, {
+        foreignKey: 'userId',
+        as: 'user',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+    });
+
+    Models.User.hasMany(Models.PasswordActionSession, {
+        foreignKey: 'userId',
+        as: 'passwordActionSessions',
+        onDelete: 'CASCADE',
+    });
+
+    Models.PasswordActionSession.belongsTo(Models.User, {
+        foreignKey: 'userId',
+        as: 'user',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+    });
+
+    Models.PasswordActionToken.hasMany(Models.PasswordActionSession, {
+        foreignKey: 'passwordActionTokenId',
+        as: 'sessions',
+        onDelete: 'CASCADE',
+    });
+
+    Models.PasswordActionSession.belongsTo(Models.PasswordActionToken, {
+        foreignKey: 'passwordActionTokenId',
+        as: 'passwordActionToken',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+    });
+
     Models.User.hasOne(
         Models.MediaFiles,
         {

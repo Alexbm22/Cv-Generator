@@ -12,6 +12,7 @@ export const mapServerUserToPublicUser = async (user: UserWithMediaFiles): Promi
         needsInitialSync: userData.needsInitialSync,
         authProvider: userData.authProvider,
         useProfilePictureAsDefault: userData.useProfilePictureAsDefault,
+        hasPassword: userData.password !== null,
     };
 }
 
