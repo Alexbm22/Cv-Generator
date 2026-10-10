@@ -1,19 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuthStore } from "../../../../Store";
-import { Trash2, LogOut, Lock, AlertTriangle } from "lucide-react";
-import { routes } from "../../../../router/routes";
+import { Trash2, LogOut, Lock, KeyRound, AlertTriangle, CircleCheck } from "lucide-react";
 import { ButtonStyles } from "../../../../constants/CV/buttonStyles";
 import Button from "../../../../components/UI/Buttons/Button";
 import { useLogout } from "../../../../hooks/Auth/useAuth";
 import { UserServerService } from "../../../../services/UserServer";
 import { ProfilePictureEditor } from "../../../../components/UI";
+import { passwordApi, toPasswordActionError } from "../../../../services/passwordApi";
+import CheckYourEmailNotice from "../../../PasswordAction/CheckYourEmailNotice";
+import { useResendCooldown } from "../../../PasswordAction/hooks/useResendCooldown";
+import { AuthService } from "../../../../services/auth";
 
 const AccountSettings: React.FC = () => {
-  const navigate = useNavigate();
   const { mutate: logout } = useLogout();
-  
+  const location = useLocation();
+  const successMessage = (location.state as { successMessage?: string } | null)?.successMessage;
+
   const { data: accountData, isLoading, error, refetch } = useQuery({
     queryKey: ['accountSettings'],
     queryFn: UserServerService.getAccountData.bind(UserServerService),
@@ -22,7 +26,46 @@ const AccountSettings: React.FC = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const authProvider = useAuthStore((state) => state.authProvider);
+  const hasPassword = useAuthStore((state) => state.hasPassword);
+
+  const [passwordActionEmailSent, setPasswordActionEmailSent] = useState(false);
+  const [passwordActionErrorMessage, setPasswordActionErrorMessage] = useState<string | null>(null);
+  const { secondsLeft, start } = useResendCooldown(60);
+
+  const { mutate: requestPasswordAction, isPending: isRequestingPasswordAction } = useMutation({
+    mutationFn: async () => {
+      if (hasPassword) {
+        await passwordApi.requestChange();
+      } else {
+        await passwordApi.requestSet();
+      }
+    },
+    onSuccess: () => {
+      setPasswordActionErrorMessage(null);
+      setPasswordActionEmailSent(true);
+      start();
+    },
+    onError: (error) => {
+      const normalized = toPasswordActionError(error);
+      if (normalized.status === 409) {
+        setPasswordActionErrorMessage("Your account state changed. Refreshing your account status...");
+        void Promise.all([
+          refetch(),
+          AuthService.checkAuth().then((authResponse) => {
+            useAuthStore.getState().handleAuthSuccess(authResponse);
+            setPasswordActionErrorMessage(null);
+          }),
+        ]).catch(() => {
+          setPasswordActionErrorMessage("Your account state changed, but we couldn't refresh it. Reload the page and try again.");
+        });
+      } else if (normalized.status === 429) {
+        setPasswordActionErrorMessage("Too many requests. Please wait a bit before trying again.");
+        start();
+      } else {
+        setPasswordActionErrorMessage("Something went wrong. Please try again.");
+      }
+    },
+  });
 
   const { mutate: updateProfilePicturePreference, isPending: isUpdatingPreference } = useMutation<void, unknown, boolean>({
     mutationFn: (value: boolean) => UserServerService.updateProfilePicturePreference(value),
@@ -42,6 +85,13 @@ const AccountSettings: React.FC = () => {
       <h1 className="text-2xl font-semibold text-gray-900">
         Account Settings
       </h1>
+
+      {successMessage && (
+        <div role="status" aria-live="polite" className="flex items-center justify-start gap-2 text-sm text-gray-600">
+          <CircleCheck size={15} strokeWidth={1.75} className="shrink-0 text-emerald-600" aria-hidden="true" />
+          <span>{successMessage}</span>
+        </div>
+      )}
 
       {/* Separator */}
       <div className="border-b border-gray-200" />
@@ -102,56 +152,109 @@ const AccountSettings: React.FC = () => {
       </div>
 
 
-      {/* Account Actions Section */}
-      <section className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-        <h2 className="text-base font-semibold text-gray-900 mb-6">Account Actions</h2>
-
-        <div className="flex gap-4">
-          {authProvider === 'local' && (
-            <Button
-              onClick={() => navigate(routes.changePassword.path)}
-              buttonStyle={ButtonStyles.primary}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm"
-            >
-              <Lock className="w-4 h-4" />
-              <span>Change Password</span>
-            </Button>
-          )}
-          <Button
-            onClick={() => logout?.()}
-            buttonStyle={ButtonStyles.secondary}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm transition-colors duration-300 ease-in-out hover:bg-red-50 hover:text-red-600"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Logout</span>
-          </Button>
+      <section className="overflow-hidden rounded-2xl border border-[#e5e5ea] bg-white shadow-sm">
+        <div className="px-5 py-5 sm:px-6">
+          <h2 className="text-lg font-semibold tracking-tight text-[#1d1d1f]">Account Actions</h2>
+          <p className="mt-1 text-sm text-[#86868b]">Manage your sign-in and account preferences.</p>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-gray-100 my-5" />
+        <div className="border-t border-[#f2f2f7] px-5 sm:px-6">
+          <div className="flex items-start gap-4 py-5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f5f5f7] text-[#0071e3]">
+              {hasPassword ? <Lock className="h-5 w-5" /> : <KeyRound className="h-5 w-5" />}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-[#1d1d1f]">Password</h3>
+                  <p className="mt-1 text-sm leading-5 text-[#86868b]">
+                    {hasPassword
+                      ? "Update the password for your account."
+                      : "Your account uses Google sign-in. Adding a password won't change that."}
+                  </p>
+                </div>
+                {!passwordActionEmailSent && (
+                  <Button
+                    onClick={() => requestPasswordAction()}
+                    disabled={isRequestingPasswordAction || secondsLeft > 0}
+                    buttonStyle={ButtonStyles.primary}
+                    className="flex items-center gap-2 !max-w-none rounded-full px-4 py-2 text-sm"
+                  >
+                    {isRequestingPasswordAction
+                      ? "Sending..."
+                      : secondsLeft > 0 && passwordActionErrorMessage
+                        ? `Try again in ${secondsLeft}s`
+                        : hasPassword
+                          ? "Change Password"
+                          : "Set Password"}
+                  </Button>
+                )}
+              </div>
 
-        {/* Profile Picture Default Preference */}
-        <div className="flex items-center justify-between gap-6">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-gray-800">Use profile picture as default for future CVs</span>
-            <span className="text-xs text-gray-500">Automatically apply your profile picture when creating new CVs</span>
+              {passwordActionErrorMessage && (
+                <div className="mt-3 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+                  {passwordActionErrorMessage}
+                </div>
+              )}
+
+              {passwordActionEmailSent && (
+                <CheckYourEmailNotice
+                  compact
+                  className="mt-3"
+                  message={
+                    hasPassword
+                      ? "Check your email for a link to change your password."
+                      : "Check your email for a link to set a password for your account."
+                  }
+                  onResend={() => requestPasswordAction()}
+                  isResending={isRequestingPasswordAction}
+                  secondsLeft={secondsLeft}
+                />
+              )}
+            </div>
           </div>
-          <button
-            onClick={() => updateProfilePicturePreference(!accountData?.useProfilePictureAsDefault)}
-            disabled={isUpdatingPreference}
-            aria-label="Toggle profile picture as default for future CVs"
-            className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-              accountData?.useProfilePictureAsDefault ? 'bg-blue-500' : 'bg-gray-200'
-            } ${
-              isUpdatingPreference ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out ${
-                accountData?.useProfilePictureAsDefault ? 'translate-x-5' : 'translate-x-0'
-              }`}
-            />
-          </button>
+
+          <div className="flex items-center gap-4 border-t border-[#f2f2f7] py-5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f5f5f7] text-[#6e6e73]">
+              <LogOut className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-[#1d1d1f]">Sign Out</h3>
+              <p className="mt-1 text-sm text-[#86868b]">Sign out of your account on this device.</p>
+            </div>
+            <Button
+              onClick={() => logout?.()}
+              buttonStyle={ButtonStyles.secondary}
+              className="flex items-center gap-2 !max-w-none rounded-full px-4 py-2 text-sm !text-[#d70015] hover:!bg-[#fff2f2] hover:!text-[#b00020]"
+            >
+              Sign Out
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between gap-6 border-t border-[#f2f2f7] py-5">
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-[#1d1d1f]">Use profile picture by default</h3>
+              <p className="mt-1 text-sm text-[#86868b]">
+                Automatically apply it when creating new CVs.
+              </p>
+            </div>
+            <button
+              onClick={() => updateProfilePicturePreference(!accountData?.useProfilePictureAsDefault)}
+              disabled={isUpdatingPreference}
+              role="switch"
+              aria-checked={Boolean(accountData?.useProfilePictureAsDefault)}
+              aria-label="Toggle profile picture as default for future CVs"
+              className={`relative h-7 w-12 shrink-0 rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3] focus-visible:ring-offset-2 ${
+                accountData?.useProfilePictureAsDefault ? "bg-[#34c759]" : "bg-[#d2d2d7]"
+              } ${isUpdatingPreference ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+            >
+              <span
+                className={`absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${
+                  accountData?.useProfilePictureAsDefault ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </section>
 

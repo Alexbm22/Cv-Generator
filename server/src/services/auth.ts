@@ -108,10 +108,6 @@ export class AuthServices {
             throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
         }
 
-        if (user.get('authProvider') !== 'local') {
-            throw new AppError(`Please use ${user.get('authProvider')} login for this account`, 403, ErrorTypes.UNAUTHORIZED);
-        }
-
         const isPasswordValid = await user.comparePasswords(password);
         if(!isPasswordValid){
             throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);

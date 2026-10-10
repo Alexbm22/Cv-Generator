@@ -37,6 +37,7 @@ export const useAuthAndSync = <T extends AuthCredentials>(
     return useMutation<AuthResponse, APIError, T>({
         mutationFn: async (authCredentials: T) => {
             setIsLoadingAuth(true); 
+            useErrorStore.getState().clearErrors();
             return await authFunction(authCredentials);
         },
         onSuccess: async (authResponse: AuthResponse) => {
@@ -54,7 +55,6 @@ export const useAuthAndSync = <T extends AuthCredentials>(
             }
         },
         onSettled: () => setIsLoadingAuth(false),
-        onError: () => navigate(routes.login.path),
     })
 }
 

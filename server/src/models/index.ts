@@ -6,3 +6,5 @@ export { default as DownloadCredits} from './Download_credits';
 export { default as Download } from './Download';
 export { default as CVSnapshot } from './CV_snapshot';
 export { default as MediaFiles } from './Media_files';
+export { default as PasswordActionToken } from './PasswordActionToken';
+export { default as PasswordActionSession } from './PasswordActionSession';

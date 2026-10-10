@@ -31,21 +31,6 @@ export class UserService {
         return await mapServerUserToPublicUser(userInstance);
     }
 
-    @handleServiceError('Password change failed')
-    static async changePassword(user: User, currentPassword: string, newPassword: string): Promise<void> {
-        const userData = user.get();
-        if (userData.authProvider === 'google') {
-            throw new AppError('Password change not allowed for Google-authenticated users', 400, ErrorTypes.VALIDATION_ERR);
-        }
-
-        const isCurrentPasswordValid = await user.comparePasswords(currentPassword);
-        if (!isCurrentPasswordValid) {
-            throw new AppError('Current password is incorrect', 400, ErrorTypes.VALIDATION_ERR);
-        }
-
-        await userRespository.saveUserChanges({ password: newPassword, tokenVersion: userData.tokenVersion + 1 }, user);
-    }
-
     @handleServiceError('Failed to sync initial user data')
     static async syncInitialData(user: ServerUserAttributes, dataToSync: InitialDataSyncAttributes): Promise<SyncedDataAttributes> {
         const importedCVs = await CVsService.createCVs(user.id, dataToSync.cvs);

@@ -20,12 +20,6 @@ router.post(
 );
 
 router.post(
-    '/change_password',
-    RateLimitInstance.globalRateLimit(),
-    catchAsync(UserController.changePassword)
-);
-
-router.post(
     '/preferences/profile_picture_default',
     RateLimitInstance.globalRateLimit(),
     catchAsync(UserController.updateProfilePicturePreference)

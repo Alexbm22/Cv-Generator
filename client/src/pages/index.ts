@@ -8,5 +8,9 @@ export { default as Plans} from "./Plans"
 export { default as Checkout} from "./Checkout";
 export { default as Downloads } from './Settings/sections/Downloads'
 export { default as SettingsPage } from './Settings'
-export { default as ChangePassword } from './ChangePassword'
+export { default as ForgotPassword } from './PasswordAction/ForgotPassword'
+export { default as PasswordActionLanding } from './PasswordAction/PasswordActionLanding'
+export { default as PasswordReset } from './PasswordAction/PasswordReset'
+export { default as PasswordChange } from './PasswordAction/PasswordChange'
+export { default as PasswordSet } from './PasswordAction/PasswordSet'
 
