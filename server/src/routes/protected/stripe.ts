@@ -23,6 +23,18 @@ router.post(
     catchAsync(StripeController.confirmSetupAndSubscribe)
 )
 
+router.post(
+    '/cancel_subscription',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(StripeController.cancelSubscription)
+)
+
+router.post(
+    '/resume_subscription',
+    RateLimitInstance.globalRateLimit(),
+    catchAsync(StripeController.resumeSubscription)
+)
+
 router.get(
     '/prices',
     RateLimitInstance.globalRateLimit(),

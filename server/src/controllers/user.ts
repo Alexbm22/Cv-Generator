@@ -16,6 +16,17 @@ export class UserController {
         }
     }
 
+    static async getProfile(req: AuthRequest, res: Response, next: NextFunction) {
+        const authenticatedUser = req.user;
+
+        try {
+            const profile = await UserService.getUserProfile(authenticatedUser);
+            return res.status(200).json(profile);
+        } catch (error) {
+            return next(error);
+        }
+    }
+
     static async syncInitialData( req: AuthRequest, res: Response, next: NextFunction) {
         const authenticatedUser = req.user;
         const userInfo = authenticatedUser.get();

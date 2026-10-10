@@ -112,20 +112,24 @@ export class SubscriptionService {
             billing_interval_count: item.price.recurring.interval_count ?? 1,
             auto_renew: this.isStatusEntitled(status)
                 && !stripeSubscription.cancel_at_period_end
+                && !stripeSubscription.cancel_at
                 && !endedAt,
         };
     }
 
-    static async getUserSubscription(userId: number): Promise<PublicSubscriptionData | null> {
+    // Raw model (exposes stripe_subscription_id / stripe_schedule_id) for server-side Stripe calls;
+    // use getUserSubscription() for anything returned to the client.
+    static async getEntitledSubscription(userId: number): Promise<Subscription | null> {
         const userSubscriptions = await Subscription.findAll({
             where: { user_id: userId },
             order: [['current_period_end', 'DESC']],
         });
 
-        const entitledSubscription = userSubscriptions.find(subscription =>
-            this.hasBenefits(subscription)
-        );
+        return userSubscriptions.find(subscription => this.hasBenefits(subscription)) ?? null;
+    }
 
+    static async getUserSubscription(userId: number): Promise<PublicSubscriptionData | null> {
+        const entitledSubscription = await this.getEntitledSubscription(userId);
         return entitledSubscription ? entitledSubscription.toSafeSubscription() : null;
     }
 

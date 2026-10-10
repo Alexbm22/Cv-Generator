@@ -10,6 +10,7 @@ import Button from "../../components/UI/Buttons/Button";
 import { ButtonStyles } from "../../constants/CV/buttonStyles";
 import { useConfirmSetupAndSubscribe } from "../../hooks/useStripe";
 import { useNavigate } from "react-router-dom";
+import { refreshUserProfile } from "../../hooks/useUser";
 
 interface CheckoutFormProps {
   mode: string;
@@ -80,7 +81,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ mode, priceLookupKey, clien
                         priceLookupKey
                     },
                     {
-                        onSuccess: () => {
+                        onSuccess: async () => {
+                            await refreshUserProfile().catch(() => undefined);
                             // Redirect to resumes page after subscription is confirmed
                             navigate(routes.resumes.path);
                         },
@@ -102,10 +104,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ mode, priceLookupKey, clien
                 return_url: `${import.meta.env.VITE_APP_BASE_URL}${routes.resumes.path}`,
             };
 
-            const { error: stripeError } = await stripe.confirmPayment({ elements, confirmParams });
+            const { error: stripeError } = await stripe.confirmPayment({
+                elements,
+                confirmParams,
+                redirect: 'if_required'
+            });
 
             if (stripeError) {
                 useErrorStore.getState().createError(stripeError);
+            } else {
+                await refreshUserProfile().catch(() => undefined);
+                navigate(routes.resumes.path);
             }
 
             setProcessing(false);

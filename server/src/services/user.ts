@@ -1,4 +1,4 @@
-import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, UserWithMediaFiles, SyncedDataAttributes, UserCreationAttributes, UserAccountDetails, UserPreferences } from "@/interfaces/user";
+import { InitialDataSyncAttributes, PublicUserAttributes, ServerUserAttributes, UserWithMediaFiles, SyncedDataAttributes, UserCreationAttributes, UserAccountDetails, UserPreferences, UserProfileData } from "@/interfaces/user";
 import { User } from "@/models";
 import { generateRandomSuffix } from '@/utils/stringUtils/generateRandomSuffix'
 import userRespository from '@/repositories/user';
@@ -9,6 +9,9 @@ import { CVsService } from "./cv";
 import { DownloadsService } from "./downloads";
 import { mapServerUserToPublicUser, mapUserPreferences } from "@/mappers/user";
 import { PasswordHasher } from '@/utils/passwordHasher';
+import { SubscriptionService } from "./subscriptions";
+import { CreditsService } from "./credits";
+import { PaymentService } from "./payments";
 
 export class UserService {
 
@@ -86,6 +89,23 @@ export class UserService {
             memberSince: user.get()?.createdAt ? user.get().createdAt!.toDateString() : '',
             useProfilePictureAsDefault: user.get().useProfilePictureAsDefault
         }
+    }
+
+    @handleServiceError('Failed to get billing profile')
+    static async getUserProfile(user: User): Promise<UserProfileData> {
+        const userId = user.get().id;
+
+        const [subscription, credits, payments] = await Promise.all([
+            SubscriptionService.getUserSubscription(userId),
+            CreditsService.getUserCredits(userId),
+            PaymentService.getUserPayments(userId),
+        ]);
+
+        return {
+            subscription,
+            credits,
+            payments,
+        };
     }
 
     @handleServiceError('Failed to get user preferences')

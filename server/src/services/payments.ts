@@ -364,7 +364,10 @@ export class PaymentService {
     }
 
     static async getUserPayments(user_id: number) {
-        const payments = await paymentRepository.getPayments({ user_id: user_id })
+        const payments = await paymentRepository.getPayments(
+            { user_id: user_id },
+            { order: [['createdAt', 'DESC']] }
+        );
         return payments.map((payment) => payment.toSafePayment());
     }
 
