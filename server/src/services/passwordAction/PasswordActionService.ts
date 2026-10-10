@@ -25,6 +25,9 @@ export class PasswordActionService {
         const hasPassword = user.get('password') !== null;
         const userId = user.get('id');
 
+        if (!user.get('isActive')) {
+            throw new AppError('This account is inactive.', 403, ErrorTypes.ACCOUNT_LOCKED);
+        }
         if (type === PasswordActionType.CHANGE_PASSWORD && !hasPassword) {
             throw new AppError('A password is not set for this account.', 409, ErrorTypes.INVALID_OPERATION, {
                 code: 'NO_PASSWORD_SET',
@@ -72,6 +75,17 @@ export class PasswordActionService {
                 ip,
                 reason: null,
             });
+
+            if (!user.get('isActive')) {
+                await PasswordActionLogger.append({
+                    event: 'password.forgot.failed',
+                    userId,
+                    type: PasswordActionType.RESET_PASSWORD,
+                    ip,
+                    reason: PasswordActionFailureReason.ACCOUNT_INACTIVE,
+                });
+                return;
+            }
 
             if (user.get('password') === null) {
                 await this.mailer.sendGoogleOnlyResetNotice(user);
@@ -144,6 +158,9 @@ export class PasswordActionService {
             });
             if (!user) {
                 throw new PasswordActionError('INVALID_SESSION', PasswordActionFailureReason.NOT_FOUND);
+            }
+            if (!user.get('isActive')) {
+                throw new PasswordActionError('INVALID_SESSION', PasswordActionFailureReason.ACCOUNT_INACTIVE);
             }
 
             const policy = validatePasswordPolicy(input.newPassword);

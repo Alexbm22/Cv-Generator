@@ -1,7 +1,7 @@
 import { Op, Transaction } from 'sequelize';
 import sequelize from '@/config/DB/database_config';
 import { passwordActionConfig } from '@/config/env';
-import { PasswordActionSession, PasswordActionToken } from '@/models';
+import { PasswordActionSession, PasswordActionToken, User } from '@/models';
 import { PasswordActionType } from '@/interfaces/passwordAction';
 import { generateOpaqueSecret, hashSecret } from '@/utils/secrets';
 import { PasswordActionError, PasswordActionFailureReason } from './PasswordActionError';
@@ -120,6 +120,13 @@ export class PasswordActionTokenService {
             }
             if (opts.authenticatedUserId !== undefined && opts.authenticatedUserId !== token.get('userId')) {
                 throw new PasswordActionError('USER_MISMATCH', PasswordActionFailureReason.USER_MISMATCH);
+            }
+
+            const user = await User.findByPk(token.get('userId'), { transaction });
+            if (!user || !user.get('isActive')) {
+                throw new PasswordActionError('INVALID_TOKEN', user
+                    ? PasswordActionFailureReason.ACCOUNT_INACTIVE
+                    : PasswordActionFailureReason.NOT_FOUND);
             }
 
             const session = await PasswordActionSessionService.createForToken(token, { transaction });

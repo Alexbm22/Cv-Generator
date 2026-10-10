@@ -104,7 +104,6 @@ class ApiService {
   }
 
   private async responseErrorInterceptor(error: APIError) {
-    console.error('API Error Intercepted:', error);
     if (!error.config) {
       this.handleAPIError(error as APIError)
       return Promise.reject(error);
@@ -197,7 +196,6 @@ class ApiService {
   }
   
   private handleAPIError (error: APIError) {
-    console.error('API Error:', error);
     const statusCode = error.response?.status || 500;
     const message = error.response?.data?.message || 'An unexpected error occurred';
     const errType = error.response?.data?.errType || ErrorTypes.INTERNAL_ERR;

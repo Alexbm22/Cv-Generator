@@ -13,6 +13,7 @@ export enum PasswordActionFailureReason {
     MALFORMED = 'MALFORMED',
     USER_MISMATCH = 'USER_MISMATCH',
     INVALID_STATE = 'INVALID_STATE',
+    ACCOUNT_INACTIVE = 'ACCOUNT_INACTIVE',
 }
 
 export class PasswordActionError extends AppError {

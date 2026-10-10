@@ -8,6 +8,7 @@ import { handleServiceError } from '@/utils/serviceErrorHandler';
 import { CVsService } from "./cv";
 import { DownloadsService } from "./downloads";
 import { mapServerUserToPublicUser, mapUserPreferences } from "@/mappers/user";
+import { PasswordHasher } from '@/utils/passwordHasher';
 
 export class UserService {
 
@@ -20,7 +21,8 @@ export class UserService {
     }
 
     static async createUser(userData: UserCreationAttributes) {
-        return await userRespository.createUser(userData);
+        const password = userData.password ? await PasswordHasher.hash(userData.password) : userData.password;
+        return await userRespository.createUser({ ...userData, password });
     }
 
     static async saveUserChanges(updates: Partial<ServerUserAttributes>, userInstance: User) {

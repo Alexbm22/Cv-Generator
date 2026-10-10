@@ -11,10 +11,10 @@ export const forgotPasswordSchema = yup.object<ForgotPasswordFormData>({
     .email("Invalid email address!"),
 });
 
-const PASSWORD_MIN_LENGTH = 10;
-const PASSWORD_MAX_LENGTH = 128;
+export const PASSWORD_MIN_LENGTH = 10;
+export const PASSWORD_MAX_LENGTH = 128;
 
-const passwordLengthError = (value: string | undefined): string | undefined => {
+export const passwordLengthError = (value: string | undefined): string | undefined => {
   if (!value) return undefined;
   const length = Array.from(value).length;
   if (length < PASSWORD_MIN_LENGTH) {

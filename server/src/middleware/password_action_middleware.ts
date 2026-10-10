@@ -106,6 +106,9 @@ export const requirePasswordActionSession = async (
         if (!session || !token || !user) {
             throw new PasswordActionError('INVALID_SESSION', PasswordActionFailureReason.NOT_FOUND);
         }
+        if (!user.get('isActive')) {
+            throw new PasswordActionError('INVALID_SESSION', PasswordActionFailureReason.ACCOUNT_INACTIVE);
+        }
         req.passwordAction = { session, token, user };
         next();
     } catch (error) {

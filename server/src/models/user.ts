@@ -200,26 +200,10 @@ User.init({
             }
         },
         beforeCreate: async (user: User) => {
-            const password = user.get('password');
             const google_id = user.get('googleId');
 
             if(google_id){
                 user.set('googleId', user.hashGoogleId(google_id));
-            }
-
-            if(password){
-                const salt = await bcrypt.genSalt(10);
-                user.set('password', await bcrypt.hash(password, salt));
-            }
-        },
-
-        beforeUpdate: async (user: User) => {
-            if(user.changed('password')){
-                const password = user.get('password');
-                if(password){
-                    const salt = await bcrypt.genSalt(10);
-                    user.set('password', await bcrypt.hash(password, salt));
-                }
             }
         },
 
