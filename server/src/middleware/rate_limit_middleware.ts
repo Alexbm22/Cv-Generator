@@ -12,6 +12,7 @@ interface RateLimitConfig {
   windowMs: number;
   limit: number;
   message?: string;
+  keyGenerator?: (req: Request) => string;
 }
 
 interface RateLimitEnvironmentConfig {
@@ -57,6 +58,7 @@ export class RateLimitMiddleware {
     return rateLimit({
       windowMs: config.windowMs,
       limit: config.limit,
+      keyGenerator: config.keyGenerator,
       message: config.message || 'Too many requests from this IP, please try again later!',
       standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
       legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -70,6 +72,14 @@ export class RateLimitMiddleware {
         next(error);
       }
     });
+  }
+
+  public keyedLimit(windowMs: number, limit: number, keyGenerator: (req: Request) => string) {
+    return this.createRateLimit({ windowMs, limit, keyGenerator });
+  }
+
+  public limit(windowMs: number, limit: number) {
+    return this.createRateLimit({ windowMs, limit });
   }
 
     public globalRateLimit() {

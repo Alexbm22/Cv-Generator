@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import { loginDto, registerDto } from '../interfaces/auth';
+import { passwordLengthError } from '../pages/PasswordAction/passwordValidation';
 
 export const registrationSchema = yup.object<registerDto>({
     username: yup
@@ -18,6 +19,10 @@ export const registrationSchema = yup.object<registerDto>({
         .matches(/[a-z]/, 'Password must contain at least one lowercase letter!')
         .matches(/[A-Z]/, 'Password must contain at least one uppercase letter!')
         .matches(/\d/, 'Password must contain at least one number!')
+        .test('unicode-password-length', function (value) {
+            const message = passwordLengthError(value);
+            return message ? this.createError({ message }) : true;
+        })
 })
 
 export const loginSchema = yup.object<loginDto>({

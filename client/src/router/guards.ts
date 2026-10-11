@@ -14,10 +14,3 @@ export const requireGuest: RouteGuardFn = () => {
     if (isAuthenticated) return { redirectTo: '/resumes' };
     return true;
 };
-
-export const requireLocalAuth: RouteGuardFn = () => {
-    const { isAuthenticated, authProvider } = useAuthStore.getState();
-    if (!isAuthenticated) return { redirectTo: '/login' };
-    if (authProvider !== 'local') return { redirectTo: '/settings' };
-    return true;
-}

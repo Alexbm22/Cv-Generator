@@ -48,8 +48,8 @@ export class AuthController {
 
     async logout(req: Request, res: Response, next: NextFunction) {
         try {
-            await this.authServices.logout(res);
-            return res.status(204).end();
+            await this.authServices.logout(req, res);
+            return res.status(200).end();
         } catch (error) {
             return next(error)
         }

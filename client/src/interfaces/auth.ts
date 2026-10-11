@@ -34,6 +34,7 @@ export interface AuthStoreAttributes {
     profilePictureId: string | null;
     needsInitialSync: boolean;
     authProvider: AuthProvider | null;
+    hasPassword: boolean;
 
     isAuthenticated: boolean,
     isLoadingAuth: boolean,
@@ -51,6 +52,7 @@ export interface AuthStoreActions {
     isTokenExpired: () => boolean,
     handleAuthSuccess: (authData: AuthResponse) => void;
     setProfilePictureId: (profilePictureId: string) => void;
+    setHasPassword: (hasPassword: boolean) => void;
 }
 
 export interface AuthStore extends AuthStoreActions, AuthStoreAttributes {}

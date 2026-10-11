@@ -11,10 +11,11 @@ const RouteGuard:React.FC<componentProps> = ({children, route}: componentProps )
     
     // to do: add loading UI
     const isLoadingAuth = useAuthStore(state => state.isLoadingAuth);
+    const isAuthChecked = useAuthStore(state => state.isAuthChecked);
 
     const location = useLocation();
 
-    if(isLoadingAuth) {
+    if(isLoadingAuth && !isAuthChecked) {
         return <>Loading...</>
     }
 

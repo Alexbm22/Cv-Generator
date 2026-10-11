@@ -20,6 +20,7 @@ export interface UserAttributes {
     needsInitialSync: boolean;
     authProvider: AuthProvider | null;
     useProfilePictureAsDefault: boolean;
+    hasPassword: boolean;
 }
 
 export interface UserAccountDetails {

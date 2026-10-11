@@ -8,7 +8,7 @@ const ErrorLayout: React.FC = () => {
 
     return (
         <>
-            <div className="absolute">
+            <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
                 {
                     errorsToShow.map((error, key) => 
                         <ErrorDisplay error={error} key={key}/>

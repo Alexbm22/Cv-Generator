@@ -26,13 +26,33 @@ export interface DownloadActionLogEntry {
     };
 }
 
+export interface PasswordActionLogEntry {
+    schemaVersion: 1;
+    timestamp: string;
+    level: 'info' | 'warn' | 'error';
+    event: string;
+    actionId: string;
+    userId: number | null;
+    type: string | null;
+    ip: string;
+    reason: string | null;
+}
+
 export class ActionLogService {
     private static readonly logDirectory = path.resolve(process.cwd(), 'logs');
 
     static async append(entry: DownloadActionLogEntry): Promise<void> {
+        await this.writeEntry('download-actions', entry);
+    }
+
+    static async appendPasswordAction(entry: PasswordActionLogEntry): Promise<void> {
+        await this.writeEntry('password-actions', entry);
+    }
+
+    private static async writeEntry(prefix: string, entry: { timestamp: string }): Promise<void> {
         await mkdir(this.logDirectory, { recursive: true });
         const date = entry.timestamp.slice(0, 10);
-        const filePath = path.join(this.logDirectory, `download-actions-${date}.ndjson`);
+        const filePath = path.join(this.logDirectory, `${prefix}-${date}.ndjson`);
         await appendFile(filePath, `${JSON.stringify(entry)}\n`, 'utf8');
     }
 

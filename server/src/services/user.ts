@@ -8,6 +8,7 @@ import { handleServiceError } from '@/utils/serviceErrorHandler';
 import { CVsService } from "./cv";
 import { DownloadsService } from "./downloads";
 import { mapServerUserToPublicUser, mapUserPreferences } from "@/mappers/user";
+import { PasswordHasher } from '@/utils/passwordHasher';
 import { SubscriptionService } from "./subscriptions";
 import { CreditsService } from "./credits";
 import { PaymentService } from "./payments";
@@ -23,7 +24,8 @@ export class UserService {
     }
 
     static async createUser(userData: UserCreationAttributes) {
-        return await userRespository.createUser(userData);
+        const password = userData.password ? await PasswordHasher.hash(userData.password) : userData.password;
+        return await userRespository.createUser({ ...userData, password });
     }
 
     static async saveUserChanges(updates: Partial<ServerUserAttributes>, userInstance: User) {
@@ -32,21 +34,6 @@ export class UserService {
 
     static async getUserPublicData(userInstance: UserWithMediaFiles): Promise<PublicUserAttributes> {
         return await mapServerUserToPublicUser(userInstance);
-    }
-
-    @handleServiceError('Password change failed')
-    static async changePassword(user: User, currentPassword: string, newPassword: string): Promise<void> {
-        const userData = user.get();
-        if (userData.authProvider === 'google') {
-            throw new AppError('Password change not allowed for Google-authenticated users', 400, ErrorTypes.VALIDATION_ERR);
-        }
-
-        const isCurrentPasswordValid = await user.comparePasswords(currentPassword);
-        if (!isCurrentPasswordValid) {
-            throw new AppError('Current password is incorrect', 400, ErrorTypes.VALIDATION_ERR);
-        }
-
-        await userRespository.saveUserChanges({ password: newPassword, tokenVersion: userData.tokenVersion + 1 }, user);
     }
 
     @handleServiceError('Failed to sync initial user data')

@@ -12,6 +12,7 @@ export const useAuthStore = create<AuthStore>()(
         profilePictureId: null,
         needsInitialSync: false,
         authProvider: null,
+        hasPassword: false,
 
         isAuthenticated: false,
         isLoadingAuth: true,
@@ -28,14 +29,15 @@ export const useAuthStore = create<AuthStore>()(
                 profilePictureId: null,
                 needsInitialSync: false,
                 authProvider: null,
+                hasPassword: false,
                 isAuthenticated: false, 
                 tokenData: null, 
             })
         },
 
         getAuthenticatedUser: () => {
-            const { id, username, email, profilePictureId, needsInitialSync, authProvider } = get();
-            return { id, username, email, profilePictureId, needsInitialSync, authProvider } as UserAttributes;
+            const { id, username, email, profilePictureId, needsInitialSync, authProvider, hasPassword } = get();
+            return { id, username, email, profilePictureId, needsInitialSync, authProvider, hasPassword } as UserAttributes;
         },
 
         setIsLoadingAuth: (isLoadingAuth: boolean) => set({ isLoadingAuth }),
@@ -46,7 +48,8 @@ export const useAuthStore = create<AuthStore>()(
             email: userData.email,
             profilePictureId: userData.profilePictureId,
             needsInitialSync: userData.needsInitialSync,
-            authProvider: userData.authProvider
+            authProvider: userData.authProvider,
+            hasPassword: userData.hasPassword
         }),
 
         handleAuthSuccess(authData) {
@@ -64,6 +67,7 @@ export const useAuthStore = create<AuthStore>()(
                     profilePictureId: authData.user?.profilePictureId,
                     needsInitialSync: authData.user?.needsInitialSync ?? false,
                     authProvider: authData.user?.authProvider ?? null,
+                    hasPassword: authData.user?.hasPassword ?? false,
                 })
             }
         },
@@ -71,6 +75,8 @@ export const useAuthStore = create<AuthStore>()(
         setToken: (token: TokenClientData) => set({ tokenData: token }),
 
         setProfilePictureId: (profilePictureId) => set({ profilePictureId }),
+
+        setHasPassword: (hasPassword: boolean) => set({ hasPassword }),
 
         isTokenExpired: () => {
             const { tokenData } = get();

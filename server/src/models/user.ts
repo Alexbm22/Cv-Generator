@@ -17,6 +17,7 @@ import { PaymentService } from '@/services/payments';
 import { SubscriptionService } from '@/services/subscriptions';
 import { CreditsService } from '@/services/credits';
 import { StripeService } from '@/services/stripe';
+import { PasswordHasher } from '@/utils/passwordHasher';
 
 class User extends Model<ServerUserAttributes, UserCreationAttributes> implements ServerUserAttributes {
     public id!: number;
@@ -30,20 +31,33 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
     public useProfilePictureAsDefault!: boolean;
     public customColors!: string[];
     public lastLogin!: Date | null;
+    public passwordChangedAt!: Date | null;
     public password!: string | null;
     public tokenVersion!: number;
     public stripeCustomerId!: string | null;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
+    public toJSON(): object {
+        const values = this.get({ plain: true }) as unknown as Record<string, unknown>;
+        delete values.password;
+        delete values.googleId;
+        delete values.tokenVersion;
+        return values;
+    }
+
     public async comparePasswords(comparedPassword: string): Promise<boolean> {
         const currentPassword = this.get('password');
     
-        // Check if password exists and user is not using Google auth
-        if (!currentPassword || this.get('authProvider') === 'google') {
+        // Password login is allowed for any user with a stored hash, regardless of provider
+        if (!currentPassword) {
             return false;
         }
         
+        if (currentPassword.startsWith('$argon2id$')) {
+            return PasswordHasher.verify(currentPassword, comparedPassword);
+        }
+
         return await bcrypt.compare(comparedPassword, currentPassword);
     }
 
@@ -138,6 +152,10 @@ User.init({
         type: DataTypes.DATE,
         allowNull: true,
     },
+    passwordChangedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
     tokenVersion: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -182,26 +200,10 @@ User.init({
             }
         },
         beforeCreate: async (user: User) => {
-            const password = user.get('password');
             const google_id = user.get('googleId');
 
             if(google_id){
                 user.set('googleId', user.hashGoogleId(google_id));
-            }
-
-            if(password){
-                const salt = await bcrypt.genSalt(10);
-                user.set('password', await bcrypt.hash(password, salt));
-            }
-        },
-
-        beforeUpdate: async (user: User) => {
-            if(user.changed('password')){
-                const password = user.get('password');
-                if(password){
-                    const salt = await bcrypt.genSalt(10);
-                    user.set('password', await bcrypt.hash(password, salt));
-                }
             }
         },
 

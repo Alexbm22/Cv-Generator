@@ -12,10 +12,11 @@ import { ErrorTypes } from '../interfaces/error';
 import userRespository from '../repositories/user';
 import { handleServiceError } from '@/utils/serviceErrorHandler';
 import { AuthTokenService } from './tokens';
-import { CookieService } from './cookie';
+import { CookieService, REFRESH_COOKIE_NAME } from './cookie';
 import { PublicTokenData } from '@/interfaces/token';
 import { MediaFilesServices } from './mediaFiles';
 import { MediaType, MimeType, OwnerType } from '@/interfaces/mediaFiles';
+import { PasswordHasher } from '@/utils/passwordHasher';
 
 export class AuthServices {
     private googleService: GoogleServices;
@@ -108,13 +109,15 @@ export class AuthServices {
             throw new AppError(`This account is inactive. Please contact support.`, 403, ErrorTypes.ACCOUNT_LOCKED);
         }
 
-        if (user.get('authProvider') !== 'local') {
-            throw new AppError(`Please use ${user.get('authProvider')} login for this account`, 403, ErrorTypes.UNAUTHORIZED);
-        }
-
         const isPasswordValid = await user.comparePasswords(password);
         if(!isPasswordValid){
             throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
+        }
+
+        const passwordHash = user.get('password');
+        if (passwordHash && PasswordHasher.needsRehash(passwordHash)) {
+            const rehashedPassword = await PasswordHasher.hash(password);
+            await userRespository.updateUserByFields({ password: rehashedPassword }, { id: user.get('id') });
         }
 
         await UserService.saveUserChanges({ lastLogin: new Date() }, user);
@@ -162,16 +165,31 @@ export class AuthServices {
     }
 
     @handleServiceError('Logout failed')
-    async logout(res: Response): Promise<void> {
+    async logout(req: Request, res: Response): Promise<void> {
         CookieService.clearRefreshToken(res);
+
+        const token = req.cookies?.[REFRESH_COOKIE_NAME];
+        if (typeof token !== 'string') {
+            return;
+        }
+
+        const decodedToken = this.tokenService.decodeRefreshToken(token);
+        if (!decodedToken) {
+            return;
+        }
+
+        await userRespository.updateUserByFields(
+            { tokenVersion: decodedToken.version + 1 },
+            { id: decodedToken.user_id, tokenVersion: decodedToken.version },
+        );
     }
 
     // refreshing user tokens
     @handleServiceError('Token refresh failed')
     async refreshToken(req: Request, res: Response): Promise<PublicTokenData> {
-        const token = req.cookies.refreshToken;
+        const token = req.cookies?.[REFRESH_COOKIE_NAME];
 
-        if(!token){
+        if(typeof token !== 'string'){
             CookieService.clearRefreshToken(res);
             throw new AppError('Session ended', 404, ErrorTypes.MISSING_TOKEN);
         }
@@ -201,7 +219,10 @@ export class AuthServices {
 
     @handleServiceError('Auth check failed')
     async checkAuth(req: Request, res: Response): Promise<AuthResponse> {
-        const decodedToken = this.tokenService.decodeRefreshToken(req.cookies.refresh);
+        const token = req.cookies?.[REFRESH_COOKIE_NAME];
+        const decodedToken = typeof token === 'string'
+            ? this.tokenService.decodeRefreshToken(token)
+            : null;
 
         if (!decodedToken) {
             CookieService.clearRefreshToken(res);
