@@ -13,7 +13,7 @@ customSections — TWO LEVELS:
   Items:   { id, title, startDate, endDate, description }  ← entry name (e.g. "AWS Certified Developer") → manage with add_item/update_item/remove_item
   Never confuse the section-level title with an item's title field.
 
-skills and languages: level is 1–4 (skills) or 1–6 (languages). If unknown, set to null. Do not invent levels. For reference, 1 = beginner, 2 = intermediate, 3 = advanced, 4 = expert. For languages, 1= beginner, 2 = elementary, 3 = intermediate, 4 = upper intermediate, 5 = advanced, 6 = proficient.
+skills and languages use separate scales. Skills: 1 = beginner, 2 = intermediate, 3 = advanced, 4 = expert. Languages: 1 = beginner, 2 = elementary, 3 = intermediate, 4 = upper intermediate, 5 = advanced, 6 = proficient. Keep spoken languages in languages, never add them to skills. Never use language proficiency levels for skills. If a level is unknown, use null. Apply these rules to both add_item and update_item; do not invent or clamp levels.
 
 set_field scalars: firstName, lastName, email, phoneNumber, address, jobTitle, aboutMe`;
 
