@@ -13,19 +13,17 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
     const containerRef = useRef<HTMLDivElement>(null);
     const parentRef = useRef<HTMLDivElement>(null);
 
-    const levelInfo = selectedLevel ? LevelsMap[selectedLevel] : null;
+    const levelInfo = selectedLevel == null ? null : LevelsMap[selectedLevel] ?? null;
 
     const updateSliderPosition = () => {
         if ( sliderRef.current && containerRef.current ) {
             const container = containerRef.current;
             const buttonWidth = container.offsetWidth / Object.keys(LevelsMap).length;
 
-            if(!selectedLevel){
+            if (!levelInfo) {
                 sliderRef.current.style.opacity = '0';
                 return;
             }
-
-            const levelInfo = LevelsMap[selectedLevel];
 
             if (levelInfo.index >= 0) {
                 sliderRef.current.style.opacity = '0.7';
@@ -53,7 +51,7 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
 
         return () => observer.disconnect();
     
-    }, [selectedLevel]);
+    }, [selectedLevel, LevelsMap]);
 
     const handleButtonClick = (level: number) => {
         onLevelChange(sectionId, level);
@@ -66,7 +64,7 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
                 <label className="text-sm font-semibold text-[#1d1d1f]">Level:</label>
                 <p 
                     className='text-sm font-semibold tracking-[-0.01em]' 
-                    style={{ color: selectedLevel ? LevelsMap[selectedLevel].color : '#9c9ca4' }}>
+                    style={{ color: levelInfo?.color ?? '#9c9ca4' }}>
                     {levelInfo ? levelInfo.label : 'Choose a level'}
                 </p>
             </div>
@@ -82,8 +80,8 @@ const SliderPicker:React.FC<SliderPickerProps> = ({LevelsMap, selectedLevel, sec
                             key={level}
                             className='w-full cursor-pointer z-10 text-sm font-semibold tracking-[-0.01em]'
                             style={{ color: '#1d1d1f' }}
-                            onClick={() => handleButtonClick(level)}
-                        > {LevelsMap[level].displayedVal} </button>
+                            onClick={() => handleButtonClick(Number(level))}
+                        > {LevelsMap[Number(level)].displayedVal} </button>
                     );
                 })}
             </div>

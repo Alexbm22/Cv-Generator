@@ -69,7 +69,11 @@ export async function callSectionEditAI(params: SectionEditCallParams): Promise<
       { signal },
     );
 
-    return parseAndValidate(completion.choices[0]?.message?.content, aiSectionEditResponseSchema);
+    const response = parseAndValidate(completion.choices[0]?.message?.content, aiSectionEditResponseSchema);
+    return {
+      ...response,
+      ItemEditOperation: sanitizeSkillLevelOperation(response.ItemEditOperation),
+    };
   } catch (error) {
     console.error('Error calling section edit AI:', error);
     throw error;
@@ -107,7 +111,11 @@ export async function callCVEditAI(params: CVEditCallParams): Promise<AiCVEditRe
     { signal },
   );
 
-  return parseAndValidate(completion.choices[0]?.message?.content, aiCVEditResponseSchema);
+  const response = parseAndValidate(completion.choices[0]?.message?.content, aiCVEditResponseSchema);
+  return {
+    ...response,
+    CVEditOperations: response.CVEditOperations.map(sanitizeSkillLevelOperation),
+  };
 }
 
 function parseAndValidate<T>(raw: string | null | undefined, schema: z.ZodType<T>): T {
@@ -127,6 +135,62 @@ function parseAndValidate<T>(raw: string | null | undefined, schema: z.ZodType<T
   }
 
   return result.data;
+}
+
+function normalizeLevel(value: unknown, sectionType: 'skills' | 'languages'): number | null | undefined {
+  if (value === null) return null;
+
+  const maxLevel = sectionType === 'skills' ? 4 : 6;
+  const numericLevel = typeof value === 'number'
+    ? value
+    : typeof value === 'string' && value.trim() !== ''
+      ? Number(value.trim())
+      : NaN;
+  if (Number.isInteger(numericLevel) && numericLevel >= 1 && numericLevel <= maxLevel) {
+    return numericLevel;
+  }
+
+  if (typeof value !== 'string') return undefined;
+  const label = value.trim().toLowerCase().replace(/\s+/g, ' ');
+  const labels: Record<'skills' | 'languages', Record<string, number>> = {
+    skills: { beginner: 1, intermediate: 2, advanced: 3, expert: 4 },
+    languages: {
+      a1: 1, 'a1 - beginner': 1, beginner: 1,
+      a2: 2, 'a2 - elementary': 2, elementary: 2,
+      b1: 3, 'b1 - intermediate': 3, intermediate: 3,
+      b2: 4, 'b2 - upper intermediate': 4, 'upper intermediate': 4,
+      c1: 5, 'c1 - advanced': 5, advanced: 5,
+      c2: 6, 'c2 - proficient': 6, proficient: 6,
+    },
+  };
+  return labels[sectionType][label];
+}
+
+function sanitizeSkillLevelOperation<T extends { operationType: string }>(operation: T): T {
+  if (operation.operationType !== 'add_item' && operation.operationType !== 'update_item') return operation;
+  if (!('sectionType' in operation) || !('newValue' in operation)) return operation;
+  if (operation.sectionType !== 'skills' && operation.sectionType !== 'languages') return operation;
+  if (typeof operation.newValue !== 'string') return operation;
+
+  let item: Record<string, unknown>;
+  try {
+    const parsed: unknown = JSON.parse(operation.newValue);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return operation;
+    item = parsed as Record<string, unknown>;
+  } catch {
+    return operation;
+  }
+
+  const level = normalizeLevel(item.level, operation.sectionType);
+  if (operation.operationType === 'add_item') {
+    item.level = level ?? null;
+  } else if (Object.prototype.hasOwnProperty.call(item, 'level') && level !== undefined) {
+    item.level = level;
+  } else if (Object.prototype.hasOwnProperty.call(item, 'level')) {
+    delete item.level;
+  }
+
+  return { ...operation, newValue: JSON.stringify(item) } as T;
 }
 
 // ── About Me ──────────────────────────────────────────────────────────────────
@@ -203,7 +267,11 @@ export async function callTranslateCVAI(params: TranslateCVCallParams): Promise<
       { signal },
     );
 
-    return parseAndValidate(completion.choices[0]?.message?.content, aiCVEditResponseSchema);
+    const response = parseAndValidate(completion.choices[0]?.message?.content, aiCVEditResponseSchema);
+    return {
+      ...response,
+      CVEditOperations: response.CVEditOperations.map(sanitizeSkillLevelOperation),
+    };
   } catch (error) {
     console.error('Error calling translate CV AI:', error);
     throw error;

@@ -41,6 +41,16 @@ function parseDate(value: unknown): Date {
   return isNaN(d.getTime()) ? new Date() : d;
 }
 
+function normalizeLevel(value: unknown, maxLevel: number): number | null | undefined {
+  if (value === null) return null;
+  const level = typeof value === 'number'
+    ? value
+    : typeof value === 'string' && value.trim() !== ''
+      ? Number(value.trim())
+      : NaN;
+  return Number.isInteger(level) && level >= 1 && level <= maxLevel ? level : undefined;
+}
+
 function applyAIOperations(operations: CVEditOperation[]) {
   const store = useCvEditStore.getState();
 
@@ -85,10 +95,26 @@ function applyAIOperations(operations: CVEditOperation[]) {
               });
               break;
             case 'skills':
-              store.updateSkill(op.itemId, next as Partial<Skill>);
+              {
+                const update: Partial<Skill> = {};
+                if (typeof next.name === 'string') update.name = next.name;
+                if (Object.prototype.hasOwnProperty.call(next, 'level')) {
+                  const level = normalizeLevel(next.level, 4);
+                  if (level !== undefined) update.level = level as Skill['level'];
+                }
+                store.updateSkill(op.itemId, update);
+              }
               break;
             case 'languages':
-              store.updateLanguage(op.itemId, next as Partial<Language>);
+              {
+                const update: Partial<Language> = {};
+                if (typeof next.name === 'string') update.name = next.name;
+                if (Object.prototype.hasOwnProperty.call(next, 'level')) {
+                  const level = normalizeLevel(next.level, 6);
+                  if (level !== undefined) update.level = level as Language['level'];
+                }
+                store.updateLanguage(op.itemId, update);
+              }
               break;
             case 'socialLinks':
               store.updateSocialLink(op.itemId, next as Partial<SocialLink>);
@@ -139,13 +165,13 @@ function applyAIOperations(operations: CVEditOperation[]) {
             case 'skills':
               store.addSkill({
                 name: String(item.name ?? ''),
-                level: (item.level as Skill['level']) ?? null,
+                level: (normalizeLevel(item.level, 4) ?? null) as Skill['level'],
               });
               break;
             case 'languages':
               store.addLanguage({
                 name: String(item.name ?? ''),
-                level: (item.level as Language['level']) ?? null,
+                level: (normalizeLevel(item.level, 6) ?? null) as Language['level'],
               });
               break;
             case 'socialLinks':

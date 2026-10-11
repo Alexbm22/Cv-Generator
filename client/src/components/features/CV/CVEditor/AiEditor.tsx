@@ -45,8 +45,9 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
   }), [workExperience, education, projects, skills, languages, socialLinks, customSections]);
 
   const handleSend = useCallback(async () => {
-    await sendMessage(prompt);
+    const submittedPrompt = prompt;
     setPrompt('');
+    await sendMessage(submittedPrompt);
   }, [prompt, sendMessage]);
 
   const handleAcceptAll = useCallback(() => {
