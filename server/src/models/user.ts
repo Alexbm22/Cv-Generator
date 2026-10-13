@@ -9,6 +9,7 @@ import { ServerUserAttributes, UserCreationAttributes } from '../interfaces/user
 import DownloadCredits from './Download_credits';
 import { config } from '../config/env';
 import { generateUUID } from '@/utils/uuid';
+import { lowerCaseIfString } from '@/utils/stringUtils/lowerCaseIfString';
 import { CVsService } from '@/services/cv';
 import { MediaFilesServices } from '@/services/mediaFiles';
 import { OwnerType } from '@/interfaces/mediaFiles';
@@ -20,23 +21,23 @@ import { StripeService } from '@/services/stripe';
 import { PasswordHasher } from '@/utils/passwordHasher';
 
 class User extends Model<ServerUserAttributes, UserCreationAttributes> implements ServerUserAttributes {
-    public id!: number;
-    public public_id!: string;
-    public username!: string;
-    public email!: string;
-    public googleId!: string | null;
-    public authProvider!: AuthProvider;
-    public isActive!: boolean;
-    public needsInitialSync!: boolean;
-    public useProfilePictureAsDefault!: boolean;
-    public customColors!: string[];
-    public lastLogin!: Date | null;
-    public passwordChangedAt!: Date | null;
-    public password!: string | null;
-    public tokenVersion!: number;
-    public stripeCustomerId!: string | null;
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+    declare id: number;
+    declare public_id: string;
+    declare username: string;
+    declare email: string;
+    declare googleId: string | null;
+    declare authProvider: AuthProvider;
+    declare isActive: boolean;
+    declare needsInitialSync: boolean;
+    declare useProfilePictureAsDefault: boolean;
+    declare customColors: string[];
+    declare lastLogin: Date | null;
+    declare passwordChangedAt: Date | null;
+    declare password: string | null;
+    declare tokenVersion: number;
+    declare stripeCustomerId: string | null;
+    declare readonly createdAt: Date;
+    declare readonly updatedAt: Date;
 
     public toJSON(): object {
         const values = this.get({ plain: true }) as unknown as Record<string, unknown>;
@@ -78,7 +79,7 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
 
 User.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
@@ -93,6 +94,9 @@ User.init({
         type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
+        set(value: string) {
+            this.setDataValue('username', lowerCaseIfString(value) as string);
+        },
         validate: {
             notEmpty: true,
             len: [3, 50]
@@ -102,6 +106,9 @@ User.init({
         type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
+        set(value: string) {
+            this.setDataValue('email', lowerCaseIfString(value) as string);
+        },
         validate: {
             isEmail: true,
             notEmpty: true,
@@ -175,7 +182,7 @@ User.init({
     underscored: true,
     hooks: {
         afterCreate: async (user: User) => {
-            const user_id = user.id;   
+            const user_id = user.get('id');
 
             try {
                 // Create initial download credits for the user
@@ -192,7 +199,7 @@ User.init({
                 if (stripeCustomerId) {
                     await User.update(
                         { stripeCustomerId },
-                        { where: { id: user.id } }
+                        { where: { id: user.get('id') } }
                     );
                 }
             } catch (error) {

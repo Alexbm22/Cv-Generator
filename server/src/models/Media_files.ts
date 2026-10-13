@@ -6,19 +6,19 @@ import S3Service from "@/services/s3";
 import { config } from "@/config/env";
 
 class MediaFiles extends Model<MediaFilesAttributes, MediaFilesCreationAttributes> implements MediaFilesAttributes {
-    public id!: number;
-    public public_id!: string;
-    public user_id!: number;
-    public owner_id!: number;
-    public owner_type!: OwnerType;
-    public filename!: string;
-    public mime_type!: MimeType;
-    public s3_key!: string;
-    public type!: MediaType;
-    public size!: number;
-    public is_active!: boolean;
-    public createdAt!: Date;
-    public updatedAt!: Date;
+    declare id: number;
+    declare public_id: string;
+    declare user_id: number;
+    declare owner_id: number;
+    declare owner_type: OwnerType;
+    declare filename: string;
+    declare mime_type: MimeType;
+    declare s3_key: string;
+    declare type: MediaType;
+    declare size: number;
+    declare is_active: boolean;
+    declare createdAt: Date;
+    declare updatedAt: Date;
 }
 
 MediaFiles.init({
@@ -34,7 +34,7 @@ MediaFiles.init({
         defaultValue: () => generateUUID(),
     },
     owner_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     owner_type: {

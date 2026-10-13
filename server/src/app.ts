@@ -26,14 +26,15 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(RateLimitInstance.globalRateLimit());
-app.use(logger);
-
 app.use(
     '/webhook', 
     express.raw({ type: 'application/json' }), 
     catchAsync(stripeWebHook)
 );
+
+app.use(RateLimitInstance.globalRateLimit());
+app.use(logger);
+
 
 app.use(express.json());
 app.use('/api', Routes);

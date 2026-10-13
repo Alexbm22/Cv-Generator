@@ -18,29 +18,29 @@ class Payments extends Model<
     PaymentAttributes, 
     PaymentCreationAttributes
 > implements PaymentAttributes {
-    public id!: number
-    public public_id!: string;
-    public stripe_payment_intent_id!: string | null;
-    public stripe_invoice_id!: string | null;
-    public stripe_subscription_id!: string | null;
-    public source!: PaymentSource;
-    public user_id!: number;
-    public subscription_id!: number | null;
-    public customer_id!: string | null;
-    public amount!: number;
-    public amount_received!: number | null;
-    public quantity!: number | null;
-    public currency!: string;
-    public status!: PaymentStatus;
-    public payment_method_type!: string | null;
-    public price!: StripePrice | null;
-    public paid_at!: Date | null;
-    public failed_at!: Date | null;
-    public canceled_at!: Date | null;
-    public failure_message!: string | null;
-    public receipt_url!: string | null;
-    public createdAt!: Date;
-    public updatedAt!: Date;
+    declare id: number;
+    declare public_id: string;
+    declare stripe_payment_intent_id: string | null;
+    declare stripe_invoice_id: string | null;
+    declare stripe_subscription_id: string | null;
+    declare source: PaymentSource;
+    declare user_id: number;
+    declare subscription_id: number | null;
+    declare customer_id: string | null;
+    declare amount: number;
+    declare amount_received: number | null;
+    declare quantity: number | null;
+    declare currency: string;
+    declare status: PaymentStatus;
+    declare payment_method_type: string | null;
+    declare price: StripePrice | null;
+    declare paid_at: Date | null;
+    declare failed_at: Date | null;
+    declare canceled_at: Date | null;
+    declare failure_message: string | null;
+    declare receipt_url: string | null;
+    declare createdAt: Date;
+    declare updatedAt: Date;
 
     public toSafePayment(): PublicPaymentData {
         const {
@@ -89,7 +89,7 @@ class Payments extends Model<
 
 Payments.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
@@ -120,7 +120,7 @@ Payments.init({
         defaultValue: PaymentSource.PAYMENT_INTENT,
     },
     user_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: 'users',
@@ -128,7 +128,7 @@ Payments.init({
         }
     },
     subscription_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: true,
         references: {
             model: 'subscriptions',
@@ -140,15 +140,15 @@ Payments.init({
         allowNull: true
     },
     amount: {
-        type: DataTypes.BIGINT.UNSIGNED,
+        type: DataTypes.BIGINT,
         allowNull: false
     },
     amount_received: {
-        type: DataTypes.BIGINT.UNSIGNED,
+        type: DataTypes.BIGINT,
         allowNull: true
     },
     quantity: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: true 
     },
     currency: {

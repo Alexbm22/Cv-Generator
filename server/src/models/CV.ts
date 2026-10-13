@@ -30,23 +30,23 @@ const getFrancAll = async (): Promise<FrancAllFn> => {
 };
 
 class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements ServerCVAttributes {
-    public id!: number;
-    public public_id!: string;
-    public user_id!: number;
-    public title!: string;
-    public photo_last_uploaded!: Date | null;
-    public jobTitle!: string;
-    public template!: CVTemplates;
-    public templateColor!: string;
-    public content!: CVContentAttributes;
-    public sectionsOrder!: Section[];
-    public encryptedContent!: string;
-    public jobDescription!: string;
-    public companyName!: string;
-    public language!: CVLanguage | null;
-    public detectedLanguage!: CVLanguage | null;
-    public createdAt!: Date;
-    public updatedAt!: Date;
+    declare id: number;
+    declare public_id: string;
+    declare user_id: number;
+    declare title: string;
+    declare photo_last_uploaded: Date | null;
+    declare jobTitle: string;
+    declare template: CVTemplates;
+    declare templateColor: string;
+    declare content: CVContentAttributes;
+    declare sectionsOrder: Section[];
+    declare encryptedContent: string;
+    declare jobDescription: string;
+    declare companyName: string;
+    declare language: CVLanguage | null;
+    declare detectedLanguage: CVLanguage | null;
+    declare createdAt: Date;
+    declare updatedAt: Date;
 
     public setContent(data: CVContentAttributes) {
         this.setDataValue('encryptedContent',  encrypt(JSON.stringify(data)));
@@ -63,7 +63,7 @@ class CV extends Model<ServerCVAttributes, CVCreationAttributes> implements Serv
 
 CV.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
@@ -75,7 +75,7 @@ CV.init({
         defaultValue: () => generateUUID(),
     },
     user_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: 'users',

@@ -2,7 +2,7 @@ import { Sequelize, Options } from "sequelize";
 import { config } from "../env";
 
 const dbConfig: Options = {
-    dialect: "mysql",
+    dialect: config.DB_DIALECT,
     port: config.DB_PORT,
     host: config.DB_HOST,
     pool: {

@@ -14,11 +14,11 @@ interface DownloadCreditsCreationAttributes extends Optional<DownloadCreditsAttr
 > {}
 
 class DownloadCredits extends Model<DownloadCreditsAttributes, DownloadCreditsCreationAttributes> implements DownloadCreditsAttributes {
-    public id!: number;
-    public user_id!: number;
-    public credits!: number;
-    public createdAt!: Date;
-    public updatedAt!: Date;
+    declare id: number;
+    declare user_id: number;
+    declare credits: number;
+    declare createdAt: Date;
+    declare updatedAt: Date;
 }
 
 DownloadCredits.init({
@@ -28,7 +28,7 @@ DownloadCredits.init({
         primaryKey: true
     },
     user_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: 'users',
@@ -36,7 +36,7 @@ DownloadCredits.init({
         }
     },
     credits: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0
     },

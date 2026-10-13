@@ -9,31 +9,31 @@ class PasswordActionSession extends Model<
     PasswordActionSessionAttributes,
     PasswordActionSessionCreationAttributes
 > implements PasswordActionSessionAttributes {
-    public id!: number;
-    public userId!: number;
-    public passwordActionTokenId!: number;
-    public sessionSecretHash!: string;
-    public expiresAt!: Date;
-    public createdAt!: Date;
-    public completedAt!: Date | null;
-    public revokedAt!: Date | null;
+    declare id: number;
+    declare userId: number;
+    declare passwordActionTokenId: number;
+    declare sessionSecretHash: string;
+    declare expiresAt: Date;
+    declare createdAt: Date;
+    declare completedAt: Date | null;
+    declare revokedAt: Date | null;
 }
 
 PasswordActionSession.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
     },
     userId: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: { model: 'users', key: 'id' },
         onDelete: 'CASCADE',
     },
     passwordActionTokenId: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: { model: 'password_action_tokens', key: 'id' },
         onDelete: 'CASCADE',
