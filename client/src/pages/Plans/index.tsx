@@ -114,7 +114,7 @@ const PlansPage: React.FC = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f5f5f7]">
-        <p className="text-red-500 font-medium">Something went wrong while loading the plans.</p>
+        <p className="text-red-500 font-bold">Something went wrong while loading the plans.</p>
       </div>
     )
   }

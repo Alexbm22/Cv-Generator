@@ -112,7 +112,7 @@ export default function AIDiffViewer({ original, proposed, onAccept, onReject, a
             onClick={onReject}
             disabled={areActionsDisabled}
             className={[
-                'cursor-pointer px-3 py-1 rounded-full text-[11px] font-medium',
+                'cursor-pointer px-3 py-1 rounded-full text-[11px] font-bold',
                 'text-red-500 bg-transparent',
                 'hover:bg-[#ffe5e5] transition-colors duration-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1',
@@ -152,7 +152,7 @@ export default function AIDiffViewer({ original, proposed, onAccept, onReject, a
                     return (
                     <mark
                         key={idx}
-                        className="bg-[#bbf7d0] text-[#15803d] rounded px-1.5 py-0.5 mx-px not-italic font-medium"
+                        className="bg-[#bbf7d0] text-[#15803d] rounded px-1.5 py-0.5 mx-px not-italic font-bold"
                     >
                         {token.text}{' '}
                     </mark>
@@ -162,7 +162,7 @@ export default function AIDiffViewer({ original, proposed, onAccept, onReject, a
                 return (
                     <mark
                     key={idx}
-                    className="bg-[#fee2e2] text-[#dc2626] rounded px-1.5 py-0.5 mx-px not-italic font-medium"
+                    className="bg-[#fee2e2] text-[#dc2626] rounded px-1.5 py-0.5 mx-px not-italic font-bold"
                     >
                     {token.text}{' '}
                     </mark>

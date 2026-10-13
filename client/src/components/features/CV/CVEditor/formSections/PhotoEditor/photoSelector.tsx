@@ -53,7 +53,7 @@ export const PhotoSelector: React.FC<PhotoSelectorProps> = ({handleSelectingCanc
     const inputRef = useRef<HTMLInputElement>(null);
 
     return (
-            <div className="flex flex-col justify-center w-full h-full min-h-40 border border-[#d2d2d7]/50 bg-white rounded-2xl font-medium shadow-[0_2px_12px_rgba(0,0,0,0.07)]">
+            <div className="flex flex-col justify-center w-full h-full min-h-40 border border-[#d2d2d7]/50 bg-white rounded-2xl font-bold shadow-[0_2px_12px_rgba(0,0,0,0.07)]">
                 <div
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
@@ -65,7 +65,7 @@ export const PhotoSelector: React.FC<PhotoSelectorProps> = ({handleSelectingCanc
                         <button
                             type="button"
                             onClick={() => inputRef.current?.click()}
-                            className="font-medium text-sm py-2 px-4 text-white w-fit cursor-pointer bg-[#0071e3] 
+                            className="font-bold text-sm py-2 px-4 text-white w-fit cursor-pointer bg-[#0071e3] 
                             hover:bg-[#0060c7] transition-colors duration-200 rounded-full"
                         >
                             Select Photo
@@ -73,7 +73,7 @@ export const PhotoSelector: React.FC<PhotoSelectorProps> = ({handleSelectingCanc
                         <button
                             type="button"
                             onClick={handleSelectingCancel}
-                            className="font-medium text-sm py-2 px-4 text-[#0071e3] w-fit cursor-pointer bg-[#f5f5f7] border border-[#d2d2d7]/60
+                            className="font-bold text-sm py-2 px-4 text-[#0071e3] w-fit cursor-pointer bg-[#f5f5f7] border border-[#d2d2d7]/60
                             hover:bg-[#e8e8ed] transition-colors duration-200 rounded-full"
                         >
                             Cancel

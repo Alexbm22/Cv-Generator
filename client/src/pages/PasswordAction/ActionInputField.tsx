@@ -56,7 +56,7 @@ const ActionInputField: React.FC<ActionInputFieldProps> = ({
           autoFocus={autoFocus}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className="w-full h-11 font-medium text-gray-600 px-4 py-2 pr-12 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
+          className="w-full h-11 font-bold text-gray-600 px-4 py-2 pr-12 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
         />
         {children && (
           <div className="absolute right-0 top-0 h-full flex items-center pr-3">

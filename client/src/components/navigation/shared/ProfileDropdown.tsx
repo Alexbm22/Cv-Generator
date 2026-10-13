@@ -193,7 +193,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className = "" }) => 
                                 className="text-red-600 bg-red-50 hover:bg-[#ffdbdb] transition-colors duration-300"
                             >
                                 <LogOut className="w-4 h-4" />
-                                <span className="font-medium">Logout</span>
+                                <span className="font-bold">Logout</span>
                             </Dropdown>
                     </div>
                 </div>

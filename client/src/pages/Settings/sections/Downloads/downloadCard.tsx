@@ -106,7 +106,7 @@ const DownloadCard: React.FC<DownloadCardProps> = ({download}) => {
                 </Dialog.Portal>
             </Dialog.Root>
             <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-gray-900">{download.fileName}</p>
+                <p className="truncate text-sm font-bold text-gray-900">{download.fileName}</p>
                 <p className="mt-1 text-xs text-gray-500">Created {date}</p>
             </div>
             <div className="col-span-2 flex items-center gap-2.5 sm:col-span-1" aria-label={`Actions for ${download.fileName}`}>
@@ -141,7 +141,7 @@ const DownloadCard: React.FC<DownloadCardProps> = ({download}) => {
                     disabled={isBusy}
                     title="Reuse this version in the editor"
                     aria-label="Reuse this version in the editor"
-                    className="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#f2f2f7] px-4 text-sm font-medium text-[#1d1d1f] transition-colors duration-150 hover:bg-[#e5e5ea] active:bg-[#d1d1d6] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                    className="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#f2f2f7] px-4 text-sm font-bold text-[#1d1d1f] transition-colors duration-150 hover:bg-[#e5e5ea] active:bg-[#d1d1d6] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                 >
                     {isReusing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FilePenLine className="h-4 w-4" />}
                     <span>Reuse</span>

@@ -22,7 +22,7 @@ function OptionChip({ option, isSelected, onToggle }: OptionChipProps) {
       onClick={() => onToggle(option)}
       className={[
         "inline-flex items-center px-3 py-1.5 rounded-full",
-        "text-[12px] font-medium whitespace-nowrap",
+        "text-[12px] font-bold whitespace-nowrap",
         "transition-all duration-150 ease-out",
         "cursor-pointer select-none active:scale-[0.94]",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]",

@@ -91,10 +91,10 @@ const ConfirmTranslateDialog: React.FC<ConfirmDialogProps> = ({
                             Translate CV to {langInfo?.label}?
                         </Dialog.Title>
                         <Dialog.Description className="text-[14px] text-gray-500 font-normal leading-relaxed mb-2 mt-2">
-                            AI will rewrite the <span className="font-medium text-gray-700">entire CV content</span> in {langInfo?.label}. This may alter phrasing and wording, even within the same meaning
+                            AI will rewrite the <span className="font-bold text-gray-700">entire CV content</span> in {langInfo?.label}. This may alter phrasing and wording, even within the same meaning
                         </Dialog.Description>
                         <p className="text-[12px] text-gray-400 leading-relaxed">
-                            To change the template language (labels), use the <span className="font-medium text-gray-500">Template</span> tab instead.
+                            To change the template language (labels), use the <span className="font-bold text-gray-500">Template</span> tab instead.
                         </p>
                     </div>
 
@@ -110,7 +110,7 @@ const ConfirmTranslateDialog: React.FC<ConfirmDialogProps> = ({
                         <button
                             type="button"
                             onClick={onCancel}
-                            className="w-full py-2.5 rounded-[13px] bg-black/[0.06] hover:bg-black/[0.09] active:bg-black/[0.12] text-gray-800 text-[15px] font-medium tracking-tight transition-colors duration-150 cursor-pointer"
+                            className="w-full py-2.5 rounded-[13px] bg-black/[0.06] hover:bg-black/[0.09] active:bg-black/[0.12] text-gray-800 text-[15px] font-bold tracking-tight transition-colors duration-150 cursor-pointer"
                         >
                             Cancel
                         </button>
@@ -267,7 +267,7 @@ const CVLanguageDialog: React.FC<CVLanguageDialogProps> = ({ isOpen, onClose }) 
                                                 'flex-1 text-left text-sm inline-flex items-center gap-2',
                                                 isSelected
                                                     ? 'font-semibold text-blue-600'
-                                                    : 'font-medium text-gray-800',
+                                                    : 'font-bold text-gray-800',
                                             ].join(' ')}
                                         >
                                             {label}

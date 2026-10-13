@@ -135,7 +135,7 @@ const SignUp: React.FC = () =>{
 
                 <div className="w-full flex items-center gap-3 my-2">
                     <hr className="flex-1 border-gray-300" />
-                    <span className="text-gray-400 text-sm font-medium">or</span>
+                    <span className="text-gray-400 text-sm font-bold">or</span>
                     <hr className="flex-1 border-gray-300" />
                 </div>
 

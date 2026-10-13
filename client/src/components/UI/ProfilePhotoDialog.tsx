@@ -203,7 +203,7 @@ const ImageSelectStep: React.FC<ImageSelectStepProps> = ({ onImageSelect, onCanc
           )}
         </div>
         
-        <p className="text-sm font-medium text-gray-700 mb-1">
+        <p className="text-sm font-bold text-gray-700 mb-1">
           {isDragging ? 'Drop image here' : 'Drag and drop your photo'}
         </p>
         <p className="text-xs text-gray-500">
@@ -231,7 +231,7 @@ const ImageSelectStep: React.FC<ImageSelectStepProps> = ({ onImageSelect, onCanc
       <div className="flex justify-end pt-2">
         <button
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+          className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
         >
           Cancel
         </button>
@@ -314,7 +314,7 @@ const ImageCropStep: React.FC<ImageCropStepProps> = ({
         <button
           onClick={onBack}
           disabled={isProcessing}
-          className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+          className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
         >
           Back
         </button>
@@ -322,7 +322,7 @@ const ImageCropStep: React.FC<ImageCropStepProps> = ({
           <button
             onClick={onCancel}
             disabled={isProcessing}
-            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -352,7 +352,7 @@ const SavingStep: React.FC = () => {
       <div className="mb-4">
         <LoadingSpinner size="lg" />
       </div>
-      <p className="text-sm font-medium text-gray-700">Saving your photo...</p>
+      <p className="text-sm font-bold text-gray-700">Saving your photo...</p>
       <p className="text-xs text-gray-500 mt-1">This will only take a moment</p>
     </div>
   );

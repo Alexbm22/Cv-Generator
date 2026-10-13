@@ -228,7 +228,7 @@ export default function AiPanel({
           AI Writing Assistant
         </span>
         {state.isLoading && (
-          <span className="ml-2 flex items-center gap-1.5 text-[10px] text-[#0071e3] font-medium">
+          <span className="ml-2 flex items-center gap-1.5 text-[10px] text-[#0071e3] font-bold">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0071e3] animate-pulse" />
             Thinking…
           </span>
@@ -236,7 +236,7 @@ export default function AiPanel({
         <div className="ml-auto flex items-center gap-1.5">
           <button
             onClick={handleAddJobDetails}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium text-[#404245] bg-white border hover:bg-[#f2f2f7] border-[#cecbcb] active:bg-[#e5e5ea] shadow-xs transition-all duration-250 shrink-0 cursor-pointer select-none"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold text-[#404245] bg-white border hover:bg-[#f2f2f7] border-[#cecbcb] active:bg-[#e5e5ea] shadow-xs transition-all duration-250 shrink-0 cursor-pointer select-none"
             aria-label="Add job details"
           >
             <Briefcase size={13} strokeWidth={1.75} />

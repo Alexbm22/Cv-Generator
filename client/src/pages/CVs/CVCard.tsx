@@ -95,7 +95,7 @@ const CVCard: React.FC<CVCardProps> = ({ CV }) => {
                         aria-label={`Edit ${cvTitle}`}
                         className="flex flex-1 items-center justify-center gap-1.5 h-8 rounded-xl
                             bg-[#f2f2f7] hover:bg-[#e5e5ea] active:bg-[#d1d1d6]
-                            text-[#1d1d1f] text-[12px] font-medium
+                            text-[#1d1d1f] text-[12px] font-bold
                             transition-colors duration-150 cursor-pointer"
                     >
                         <Edit className="w-3.5 h-3.5" />

@@ -60,7 +60,7 @@ const EmptyState: React.FC<{ message: string; onClose: () => void }> = ({ messag
         <button
             type="button"
             onClick={onClose}
-            className="mt-1 w-full py-2.5 rounded-[13px] bg-black/[0.06] hover:bg-black/[0.09] active:bg-black/[0.12] text-gray-800 text-[15px] font-medium tracking-tight transition-colors duration-150 cursor-pointer"
+            className="mt-1 w-full py-2.5 rounded-[13px] bg-black/[0.06] hover:bg-black/[0.09] active:bg-black/[0.12] text-gray-800 text-[15px] font-bold tracking-tight transition-colors duration-150 cursor-pointer"
         >
             Done
         </button>
@@ -94,7 +94,7 @@ const ErrorState: React.FC<{ message: string; onRetry: () => void; onClose: () =
             <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-2.5 rounded-[13px] bg-black/[0.06] hover:bg-black/[0.09] active:bg-black/[0.12] text-gray-800 text-[15px] font-medium tracking-tight transition-colors duration-150 cursor-pointer"
+                className="w-full py-2.5 rounded-[13px] bg-black/[0.06] hover:bg-black/[0.09] active:bg-black/[0.12] text-gray-800 text-[15px] font-bold tracking-tight transition-colors duration-150 cursor-pointer"
             >
                 Cancel
             </button>

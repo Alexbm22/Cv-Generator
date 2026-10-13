@@ -29,10 +29,10 @@ const styles = StyleSheet.create({
     },
 })
 
-// Helvetica Bold at fontSize 26pt has an average character width of ~14pt.
+// Noto Sans Bold at fontSize 26pt has an average character width of ~14.5pt.
 // The name container is approximately 50% of A4 page width (~297pt).
 // If the full name exceeds 60% of that width (~178pt / ~12 chars), break to two lines.
-const AVG_CHAR_WIDTH_PT = 14;
+const AVG_CHAR_WIDTH_PT = 14.5;
 const NAME_CONTAINER_WIDTH_PT = 400;
 const OVERFLOW_THRESHOLD = NAME_CONTAINER_WIDTH_PT * 0.6;
 

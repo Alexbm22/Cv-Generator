@@ -73,7 +73,7 @@ const CVPhotoCropper: React.FC<CVPhotoCropperProps> = ({ imageSrc, onCropFail, o
           <button
             onClick={handleCropImage}
             disabled={isProcessing}
-            className="font-medium text-md p-2 pl-3 pr-3 text-[#007dff] w-fit cursor-pointer bg-[#d7e9ff] 
+            className="font-bold text-md p-2 pl-3 pr-3 text-[#007dff] w-fit cursor-pointer bg-[#d7e9ff] 
             hover:bg-[#cce0f9] transition-colors duration-200 rounded-md"
           >
             {isProcessing ? 'Processing...' : 'Crop Image'}
@@ -82,7 +82,7 @@ const CVPhotoCropper: React.FC<CVPhotoCropperProps> = ({ imageSrc, onCropFail, o
           <button
             onClick={onCropFail}
             disabled={isProcessing}
-            className="font-medium text-md p-2 pl-3 pr-3 text-[#007dff] w-fit cursor-pointer bg-[#d7e9ff] 
+            className="font-bold text-md p-2 pl-3 pr-3 text-[#007dff] w-fit cursor-pointer bg-[#d7e9ff] 
             hover:bg-[#cce0f9] transition-colors duration-200 rounded-md"
           >
             Cancel

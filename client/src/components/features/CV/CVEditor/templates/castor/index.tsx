@@ -1,17 +1,13 @@
 import React from 'react';
-import { Page, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { Page, View, Document, StyleSheet } from '@react-pdf/renderer';
 import * as CVComponents from './components';
 import { TemplateComponentProps } from '../../../../../../interfaces/cv';
 import { Name } from './components';
-
-Font.register({
-    family: 'Nunito Sans',
-    src: '/fonts/NunitoSans.ttf',
-})
+import { PDF_FONT_FAMILY } from '../../../../../../fonts/pdfFonts';
 
 const styles = StyleSheet.create({
     page: { 
-        fontFamily: 'Helvetica', 
+        fontFamily: PDF_FONT_FAMILY.sans, 
     },
     pageContainer: {
         flexDirection: 'row',
