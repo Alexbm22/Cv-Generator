@@ -15,8 +15,8 @@ const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']),
     PORT: z.string().regex(/^\d+$/).transform(Number),
 
-    SSL_KEY_PATH: z.string(),
-    SSL_CERT_PATH: z.string(),
+    SSL_KEY_PATH: z.string().optional(),
+    SSL_CERT_PATH: z.string().optional(),
 
     ORIGIN: z.string(),
 

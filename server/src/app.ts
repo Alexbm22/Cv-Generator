@@ -15,6 +15,8 @@ export const stripe = new Stripe(config.STRIPE_SECRET_KEY);
 
 const app: Application = express();
 
+app.set('trust proxy', 1);
+
 app.use('/api/password', noStore);
 
 app.use(cors({
