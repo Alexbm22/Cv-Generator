@@ -11,7 +11,7 @@ export const LoadingLayout: React.FC<LoadingLayoutProps> = ({ message }) => {
       <div className="flex flex-col items-center gap-4 p-8">
         <LoadingSpinner size="lg" />
         {message && (
-          <p className="text-lg font-medium text-white">{message}</p>
+          <p className="text-lg font-bold text-white">{message}</p>
         )}
       </div>
     </div>

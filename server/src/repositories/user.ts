@@ -1,16 +1,24 @@
 import { Op } from "sequelize";
 import { ServerUserAttributes, UserWithMediaFiles, UserCreationAttributes } from "../interfaces/user"
 import { MediaFiles, User } from "../models"
+import { lowerCaseIfString } from "../utils/stringUtils/lowerCaseIfString"
+
+// Email and username are stored lowercase, so every lookup and write must use the same casing.
+const normalizeCredentialFields = (fields: Partial<ServerUserAttributes>): Partial<ServerUserAttributes> => ({
+    ...fields,
+    ...('email' in fields && { email: lowerCaseIfString(fields.email) as string }),
+    ...('username' in fields && { username: lowerCaseIfString(fields.username) as string }),
+});
 
 const getUserByFields = async (fields: Partial<ServerUserAttributes>) => {
     return await User.findOne({
-        where: fields
+        where: normalizeCredentialFields(fields)
     });
 }
 
 const getUserWithMediaFile = async (fields: Partial<ServerUserAttributes>) => {
     return await User.findOne({
-        where: fields,
+        where: normalizeCredentialFields(fields),
         include: [{
             model: MediaFiles,
             as: 'mediaFile'
@@ -20,7 +28,7 @@ const getUserWithMediaFile = async (fields: Partial<ServerUserAttributes>) => {
 
 const getUsersByFields = async (fields: Partial<ServerUserAttributes>) => {
     return await User.findOne({
-        where: fields
+        where: normalizeCredentialFields(fields)
     });
 }
 
@@ -28,8 +36,8 @@ const findExistingCredentials = async (email: string, username: string) => {
     return await User.findAll({
         where: {
             [Op.or]: [
-                { email },
-                { username }
+                { email: email.toLowerCase() },
+                { username: username.toLowerCase() }
             ]
         },
         attributes: ['email', 'username'] // optimizare - selectăm doar câmpurile necesare
@@ -56,8 +64,8 @@ const updateUserByFields = async (
     updates: Partial<ServerUserAttributes>,
     whereConditions: Partial<ServerUserAttributes> 
 ) => {
-    return await User.update(updates, {
-        where: whereConditions
+    return await User.update(normalizeCredentialFields(updates), {
+        where: normalizeCredentialFields(whereConditions)
     });
 }
 

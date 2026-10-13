@@ -10,25 +10,25 @@ class PasswordActionToken extends Model<
     PasswordActionTokenAttributes,
     PasswordActionTokenCreationAttributes
 > implements PasswordActionTokenAttributes {
-    public id!: number;
-    public userId!: number;
-    public tokenHash!: string;
-    public type!: PasswordActionType;
-    public expiresAt!: Date;
-    public createdAt!: Date;
-    public usedAt!: Date | null;
-    public revokedAt!: Date | null;
+    declare id: number;
+    declare userId: number;
+    declare tokenHash: string;
+    declare type: PasswordActionType;
+    declare expiresAt: Date;
+    declare createdAt: Date;
+    declare usedAt: Date | null;
+    declare revokedAt: Date | null;
 }
 
 PasswordActionToken.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
     },
     userId: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: { model: 'users', key: 'id' },
         onDelete: 'CASCADE',

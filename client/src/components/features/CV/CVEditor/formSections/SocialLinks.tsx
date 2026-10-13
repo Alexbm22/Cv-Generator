@@ -19,7 +19,7 @@ const SocialLinkComponent: React.FC<ComponentProps> = ({ socialLink }) => {
     return (
         <>
             <div className="flex items-center justify-between col-span-2">
-                <span className="text-lg font-medium text-gray-700">{socialLink.platform == '' ? 'Untitled' : socialLink.platform }</span>
+                <span className="text-lg font-bold text-gray-700">{socialLink.platform == '' ? 'Untitled' : socialLink.platform }</span>
                 <button onClick={() => removeSocialLink(socialLink.id)} className='cursor-pointer'><Trash2 className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" /></button>
             </div>
 

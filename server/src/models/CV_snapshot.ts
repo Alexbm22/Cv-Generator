@@ -27,29 +27,29 @@ export interface CVSnapshotAttributes {
 }
 
 class CVSnapshot extends Model<CVSnapshotAttributes, Optional<CVSnapshotAttributes, 'id' | 'public_id' | 'createdAt' | 'updatedAt'>> implements CVSnapshotAttributes {
-    public id!: number;
-    public public_id!: string;
-    public user_id!: number;
-    public origin_id!: string;
-    public snapshot_hash!: string;
-    public title!: string;
-    public template!: CVTemplates;
-    public templateColor!: string;
-    public content!: string; // Encrypted content
-    public sectionsOrder!: Section[];
-    public jobTitle!: string;
-    public jobDescription!: string;
-    public companyName!: string;
-    public language!: CVLanguage | null;
-    public detectedLanguage!: CVLanguage | null;
-    public createdAt!: Date;
-    public updatedAt!: Date;
+    declare id: number;
+    declare public_id: string;
+    declare user_id: number;
+    declare origin_id: string;
+    declare snapshot_hash: string;
+    declare title: string;
+    declare template: CVTemplates;
+    declare templateColor: string;
+    declare content: string; // Encrypted content
+    declare sectionsOrder: Section[];
+    declare jobTitle: string;
+    declare jobDescription: string;
+    declare companyName: string;
+    declare language: CVLanguage | null;
+    declare detectedLanguage: CVLanguage | null;
+    declare createdAt: Date;
+    declare updatedAt: Date;
 }
 
 CVSnapshot.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
             allowNull: false,
@@ -61,7 +61,7 @@ CVSnapshot.init(
             defaultValue: () => generateUUID(),
         },
         user_id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.INTEGER,
             references: {
                 model: 'users',
                 key: 'id'

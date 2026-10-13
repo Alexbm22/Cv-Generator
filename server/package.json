@@ -1,11 +1,11 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
-    "start": "node dist/index.js",
-    "build": "tsc",
+    "start": "node dist/server.js",
+    "build": "tsc && tsc-alias -p tsconfig.json",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -32,6 +32,7 @@
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.9.7",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.2"
   },
@@ -54,8 +55,9 @@
     "js-tiktoken": "^1.0.21",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "mysql2": "^3.13.0",
     "openai": "^6.35.0",
+    "pg": "^8.23.1",
+    "pg-hstore": "^2.3.4",
     "resend": "^6.32.1",
     "sequelize": "^6.37.6",
     "stripe": "^18.3.0",

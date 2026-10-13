@@ -8,21 +8,21 @@ import { OwnerType } from "@/interfaces/mediaFiles";
 
 // to do add preview image
 class Download extends Model<DownloadAttributes, DownloadCreationAttributes> implements DownloadAttributes {
-    public id!: number;
-    public public_id!: string;
-    public origin_id!: string;
-    public user_id!: number;
-    public snapshot_id!: number;
-    public snapshot_hash!: string;
-    public status!: DownloadStatus;
-    public action_id!: string;
-    public pending_expires_at!: Date | null;
-    public completed_at!: Date | null;
-    public metadata!: DownloadMetadataCVAttributes;
-    public encryptedMetadata!: string;
-    public fileName!: string;
-    public createdAt!: Date;
-    public updatedAt!: Date;
+    declare id: number;
+    declare public_id: string;
+    declare origin_id: string;
+    declare user_id: number;
+    declare snapshot_id: number;
+    declare snapshot_hash: string;
+    declare status: DownloadStatus;
+    declare action_id: string;
+    declare pending_expires_at: Date | null;
+    declare completed_at: Date | null;
+    declare metadata: DownloadMetadataCVAttributes;
+    declare encryptedMetadata: string;
+    declare fileName: string;
+    declare createdAt: Date;
+    declare updatedAt: Date;
 
     public setMetadata(value: DownloadMetadataCVAttributes) {
         if (value) {
@@ -41,7 +41,7 @@ class Download extends Model<DownloadAttributes, DownloadCreationAttributes> imp
 
 Download.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
@@ -57,7 +57,7 @@ Download.init({
         allowNull: false,
     },
     user_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: 'users',
@@ -65,7 +65,7 @@ Download.init({
         }
     },
     snapshot_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: 'cv_snapshots',

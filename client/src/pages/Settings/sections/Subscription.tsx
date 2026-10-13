@@ -118,7 +118,7 @@ const Subscription: React.FC = () => {
         <>
           <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-sm font-medium text-gray-500">Current plan</h2>
+              <h2 className="text-sm font-bold text-gray-500">Current plan</h2>
             </div>
 
             <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
@@ -166,19 +166,19 @@ const Subscription: React.FC = () => {
             <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 pt-5 sm:grid-cols-3">
               <div>
                 <p className="text-xs text-gray-500">Billing cycle</p>
-                <p className="mt-0.5 text-sm font-medium text-gray-900">
+                <p className="mt-0.5 text-sm font-bold text-gray-900">
                   {formatBillingInterval(activeSubscription.billing_interval, activeSubscription.billing_interval_count)}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">{activeSubscription.will_renew ? "Renews at" : "Access until"}</p>
-                <p className="mt-0.5 text-sm font-medium text-gray-900">
+                <p className="mt-0.5 text-sm font-bold text-gray-900">
                   {formatDate(activeSubscription.will_renew ? activeSubscription.current_period_end : activeSubscription.benefits_expires_at)}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Auto renew</p>
-                <p className="mt-0.5 text-sm font-medium text-gray-900">{activeSubscription.will_renew ? "Enabled" : "Disabled"}</p>
+                <p className="mt-0.5 text-sm font-bold text-gray-900">{activeSubscription.will_renew ? "Enabled" : "Disabled"}</p>
               </div>
             </div>
 
@@ -206,7 +206,7 @@ const Subscription: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
             <div className="flex items-center justify-between gap-3 mb-5">
-              <h2 className="text-sm font-medium text-gray-500">Export credits</h2>
+              <h2 className="text-sm font-bold text-gray-500">Export credits</h2>
               <Coins className="w-4 h-4 text-gray-400" />
             </div>
 

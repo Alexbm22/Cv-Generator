@@ -88,7 +88,7 @@ const SettingsPage: React.FC = () => {
           className="flex items-center cursor-pointer gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 mb-2"
         >
           <ArrowLeft className="w-4 h-4 text-gray-500" />
-          <span className="font-medium">Back</span>
+          <span className="font-bold">Back</span>
         </button>
 
         {/* Home Link */}
@@ -97,7 +97,7 @@ const SettingsPage: React.FC = () => {
           className="flex items-center cursor-pointer gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 mb-8"
         >
           <Home className="w-4 h-4 text-gray-500" />
-          <span className="font-medium">Home</span>
+          <span className="font-bold">Home</span>
         </button>
 
         {/* Divider */}
@@ -113,7 +113,7 @@ const SettingsPage: React.FC = () => {
                 className={twMerge(
                   "flex items-center cursor-pointer gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-all duration-150",
                   activeMenu === item.id
-                    ? "bg-blue-50 text-blue-600 font-medium"
+                    ? "bg-blue-50 text-blue-600 font-bold"
                     : "text-gray-700 hover:bg-gray-100"
                 )}
               >

@@ -95,8 +95,8 @@ export const useCheckAuth = () => {
         },
         onSuccess: async (response) => {
             handleAuthSuccess(response);
-            await refreshUserProfile().catch(() => undefined);
             migrateGuestToUser();
+            await refreshUserProfile().catch(() => undefined);
             if (response.user?.needsInitialSync) {
                 await syncGuestData();
             }

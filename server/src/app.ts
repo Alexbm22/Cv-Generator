@@ -15,6 +15,8 @@ export const stripe = new Stripe(config.STRIPE_SECRET_KEY);
 
 const app: Application = express();
 
+app.set('trust proxy', 1);
+
 app.use('/api/password', noStore);
 
 app.use(cors({
@@ -26,14 +28,15 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(RateLimitInstance.globalRateLimit());
-app.use(logger);
-
 app.use(
     '/webhook', 
     express.raw({ type: 'application/json' }), 
     catchAsync(stripeWebHook)
 );
+
+app.use(RateLimitInstance.globalRateLimit());
+app.use(logger);
+
 
 app.use(express.json());
 app.use('/api', Routes);

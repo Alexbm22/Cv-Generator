@@ -109,7 +109,7 @@ const AccountSettings: React.FC = () => {
           <div className="grid grid-cols-2 gap-6 mb-6">
             {/* Email */}
             <div className="overflow-hidden">
-              <label className="text-sm font-medium text-gray-700 block mb-3">Email</label>
+              <label className="text-sm font-bold text-gray-700 block mb-3">Email</label>
               <div className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-600 text-sm truncate">
                 {accountData?.email}
               </div>
@@ -117,7 +117,7 @@ const AccountSettings: React.FC = () => {
 
             {/* Username */}
             <div className="overflow-hidden">
-              <label className="text-sm font-medium text-gray-700 block mb-3">Username</label>
+              <label className="text-sm font-bold text-gray-700 block mb-3">Username</label>
               <div className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-600 text-sm truncate">
                 {accountData?.username}
               </div>
@@ -130,20 +130,20 @@ const AccountSettings: React.FC = () => {
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-6">
             <div>
-              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide block mb-2">Active CVs</label>
+              <label className="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-2">Active CVs</label>
               <div className="text-3xl font-semibold text-gray-900">
                 {accountData?.activeCVs || 0}
               </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide block mb-2">Total Downloads</label>
+              <label className="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-2">Total Downloads</label>
               <div className="text-3xl font-semibold text-gray-900">
                 {accountData?.totalDownloads || 0}
               </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide block mb-5">Member Since</label>
-              <div className="text-sm font-medium text-gray-900 mt-auto">
+              <label className="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-5">Member Since</label>
+              <div className="text-sm font-bold text-gray-900 mt-auto">
                 {accountData?.memberSince || ""}
               </div>
             </div>
@@ -270,7 +270,7 @@ const AccountSettings: React.FC = () => {
           </p>
           <Button
             onClick={() => {}}
-            buttonStyle="cursor-pointer font-medium text-white bg-red-600 hover:bg-red-700 py-2.5 px-5 rounded-lg transition-colors duration-300 ease-in-out text-sm"
+            buttonStyle="cursor-pointer font-bold text-white bg-red-600 hover:bg-red-700 py-2.5 px-5 rounded-lg transition-colors duration-300 ease-in-out text-sm"
             className="flex items-center gap-2 w-fit"
           >
             <Trash2 className="w-4 h-4" />

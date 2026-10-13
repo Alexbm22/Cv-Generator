@@ -12,10 +12,10 @@ interface SectionEntryProps {
     link?: string;
 }
 
-// Helvetica Bold at fontSize 11.5pt has an average character width of ~6.2pt.
+// Noto Sans Bold at fontSize 11.5pt has an average character width of ~6.4pt.
 // The right column is 65% of A4 (595pt) minus 50pt padding = ~337pt.
 // If the display title exceeds 100% of container width, break subtitle to a new line.
-const AVG_CHAR_WIDTH_PT = 6.2;
+const AVG_CHAR_WIDTH_PT = 6.4;
 const TITLE_CONTAINER_WIDTH_PT = 337;
 
 const styles = StyleSheet.create({

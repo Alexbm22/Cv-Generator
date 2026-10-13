@@ -76,7 +76,7 @@ const CvEditorTypeSelector: React.FC<CvEditorTypeSelectorProps> = ({ value, onCh
                         onClick={() => onChange(option.value)}
                         className={[
                             'relative z-10 flex items-center gap-1.5 px-3 py-1 rounded-full',
-                            'text-[11px] font-medium tracking-wide select-none',
+                            'text-[11px] font-bold tracking-wide select-none',
                             'transition-colors duration-200 outline-none',
                             'focus-visible:ring-2 focus-visible:ring-[#007dff] focus-visible:ring-offset-1',
                             'cursor-pointer',

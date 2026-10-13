@@ -97,12 +97,12 @@ function DescriptionDiff({ original, updated }: { original: string; updated: str
         if (t.type === 'equal') return <span key={i}>{t.text} </span>;
         if (t.type === 'insert')
           return (
-            <mark key={i} className="bg-[#bbf7d0] text-[#15803d] rounded px-1 py-0.5 mx-px not-italic font-medium">
+            <mark key={i} className="bg-[#bbf7d0] text-[#15803d] rounded px-1 py-0.5 mx-px not-italic font-bold">
               {t.text}{' '}
             </mark>
           );
         return (
-          <mark key={i} className="bg-[#fee2e2] text-[#dc2626] line-through rounded px-1 py-0.5 mx-px not-italic font-medium">
+          <mark key={i} className="bg-[#fee2e2] text-[#dc2626] line-through rounded px-1 py-0.5 mx-px not-italic font-bold">
             {t.text}{' '}
           </mark>
         );
@@ -118,7 +118,7 @@ function PlainDiff({ original, updated }: { original: string; updated: string })
         {original || '—'}
       </span>
       <span className="text-[#6e6e73]">→</span>
-      <span className="text-[#15803d] bg-[#bbf7d0] rounded px-1.5 py-0.5 font-medium">
+      <span className="text-[#15803d] bg-[#bbf7d0] rounded px-1.5 py-0.5 font-bold">
         {updated || '—'}
       </span>
     </div>
@@ -168,7 +168,7 @@ export default function AISectionDiffViewer({ operation, onAccept, onReject }: A
           <button
             type="button"
             onClick={onReject}
-            className="cursor-pointer px-3 py-1 rounded-full text-[11px] font-medium text-red-500 bg-transparent hover:bg-[#ffe5e5] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
+            className="cursor-pointer px-3 py-1 rounded-full text-[11px] font-bold text-red-500 bg-transparent hover:bg-[#ffe5e5] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
           >
             Reject
           </button>

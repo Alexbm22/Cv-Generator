@@ -56,7 +56,7 @@ const Downloads: React.FC = () => {
             <div className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-white text-gray-400 shadow-sm">
               <FileText className="h-5 w-5" />
             </div>
-            <p className="text-sm font-medium text-gray-800">No completed downloads yet</p>
+            <p className="text-sm font-bold text-gray-800">No completed downloads yet</p>
             <p className="mt-1 text-sm text-gray-500">Your generated CV PDFs will appear here.</p>
           </div>
         ) : (

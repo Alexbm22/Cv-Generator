@@ -1,4 +1,5 @@
 import ReactDOM from "react-dom/client";
+import "./fonts/fonts.generated.css";
 import App from "./App";
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { QueryClientProvider } from "@tanstack/react-query";

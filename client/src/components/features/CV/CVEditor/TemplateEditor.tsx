@@ -296,7 +296,7 @@ const TemplateEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPrev
                                 />
                                 <span className="text-[14px] font-semibold text-gray-800">{languageLabel}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-[12px] font-medium text-gray-400">
+                            <div className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400">
                                 <span>{showLanguageSelector ? 'Close' : 'Change'}</span>
                                 <ChevronDown
                                     className="h-4 w-4 flex-shrink-0 transition-transform duration-300"
@@ -335,7 +335,7 @@ const TemplateEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPrev
                                                     />
                                                     <span className={[
                                                         'flex-1 text-left text-[14px]',
-                                                        isSelected ? 'font-semibold text-[#007dff]' : 'font-medium text-gray-800',
+                                                        isSelected ? 'font-semibold text-[#007dff]' : 'font-bold text-gray-800',
                                                     ].join(' ')}>
                                                         {label} {detectedLanguage && detectedLanguage == code ? (
                                                             <span className="text-[11px] font-normal text-gray-400 ml-1.5">
@@ -428,7 +428,7 @@ const TemplateEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPrev
                                 />
                                 <span className="text-[13px] text-gray-400">
                                     Selected:{' '}
-                                    <span className="font-mono font-medium text-gray-700">
+                                    <span className="font-mono font-bold text-gray-700">
                                         {templateColor.toUpperCase()}
                                     </span>
                                 </span>

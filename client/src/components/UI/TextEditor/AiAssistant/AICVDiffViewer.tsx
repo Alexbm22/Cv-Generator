@@ -117,12 +117,12 @@ function WordDiff({ original, updated }: { original: string; updated: string }) 
         if (t.type === 'equal') return <span key={i}>{t.text} </span>;
         if (t.type === 'insert')
           return (
-            <mark key={i} className="bg-[#bbf7d0] text-[#15803d] rounded px-1 py-0.5 mx-px not-italic font-medium">
+            <mark key={i} className="bg-[#bbf7d0] text-[#15803d] rounded px-1 py-0.5 mx-px not-italic font-bold">
               {t.text}{' '}
             </mark>
           );
         return (
-          <mark key={i} className="bg-[#fee2e2] text-[#dc2626] line-through rounded px-1 py-0.5 mx-px not-italic font-medium">
+          <mark key={i} className="bg-[#fee2e2] text-[#dc2626] line-through rounded px-1 py-0.5 mx-px not-italic font-bold">
             {t.text}{' '}
           </mark>
         );
@@ -138,7 +138,7 @@ function PlainDiff({ original, updated }: { original: string; updated: string })
         {original || '—'}
       </span>
       <span className="text-[#6e6e73]">→</span>
-      <span className="text-[#15803d] bg-[#bbf7d0] rounded px-1.5 py-0.5 font-medium">
+      <span className="text-[#15803d] bg-[#bbf7d0] rounded px-1.5 py-0.5 font-bold">
         {updated || '—'}
       </span>
     </div>
@@ -206,7 +206,7 @@ function UpdateItemBlock({ op }: { op: UpdateItemOp }) {
         <span className="shrink-0 text-[10px] bg-[#e5e5ea] text-[#3c3c43] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide">
           edit
         </span>
-        <span className="text-[13px] font-medium text-[#1d1d1f] truncate">{summary}</span>
+        <span className="text-[13px] font-bold text-[#1d1d1f] truncate">{summary}</span>
       </div>
       <div className="flex flex-col gap-3">
         {changedFields.map((f) => (
@@ -241,13 +241,13 @@ function AddItemBlock({ op }: { op: AddItemOp }) {
         <span className="shrink-0 text-[10px] bg-[#bbf7d0] text-[#15803d] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide">
           + add
         </span>
-        <span className="text-[13px] font-medium text-[#1d1d1f] truncate">{summary}</span>
+        <span className="text-[13px] font-bold text-[#1d1d1f] truncate">{summary}</span>
       </div>
       {fields.length > 0 && (
         <div className="flex flex-col gap-1 mt-0.5">
           {fields.map(({ key, value }) => (
             <div key={key} className="flex gap-2 text-[12px]">
-              <span className="text-[#6e6e73] font-medium shrink-0 min-w-[72px]">{FIELD_LABELS[key] ?? key}</span>
+              <span className="text-[#6e6e73] font-bold shrink-0 min-w-[72px]">{FIELD_LABELS[key] ?? key}</span>
               <span className="text-[#1d1d1f]">
                 {DESCRIPTION_FIELDS.has(key)
                   ? value.replace(/<[^>]*>/g, '').trim()
@@ -272,7 +272,7 @@ function RemoveItemBlock({ op, sectionItems }: { op: RemoveItemOp; sectionItems?
       <span className="shrink-0 text-[10px] bg-[#fee2e2] text-[#dc2626] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide">
         – remove
       </span>
-      <span className="text-[13px] font-medium text-[#1d1d1f] truncate">{summary}</span>
+      <span className="text-[13px] font-bold text-[#1d1d1f] truncate">{summary}</span>
     </div>
   );
 }
@@ -295,7 +295,7 @@ function SetCustomSectionTitleBlock({ op }: { op: SetTitleOp }) {
       <span className="text-[10px] font-semibold text-[#6e6e73] tracking-widest uppercase">
         Section Title
       </span>
-      <span className="text-[13px] text-[#15803d] bg-[#bbf7d0] rounded px-1.5 py-0.5 inline-block w-fit font-medium">
+      <span className="text-[13px] text-[#15803d] bg-[#bbf7d0] rounded px-1.5 py-0.5 inline-block w-fit font-bold">
         {op.value}
       </span>
     </div>
@@ -385,7 +385,7 @@ export default function AICVDiffViewer({
         <button
           type="button"
           onClick={onReject}
-          className={`cursor-pointer px-3 py-1 rounded-full text-[11px] font-medium text-red-500 hover:bg-[#ffe5e5] transition-colors duration-200 focus:outline-none ${areActionsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`cursor-pointer px-3 py-1 rounded-full text-[11px] font-bold text-red-500 hover:bg-[#ffe5e5] transition-colors duration-200 focus:outline-none ${areActionsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={areActionsDisabled}
         >
           Reject

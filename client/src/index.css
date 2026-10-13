@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @theme {
+    --font-sans: "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-serif: "Noto Serif", ui-serif, Georgia, serif;
     --breakpoint-s: 850px;
     --breakpoint-sm: 1000px;
     --breakpoint-md: 1300px;

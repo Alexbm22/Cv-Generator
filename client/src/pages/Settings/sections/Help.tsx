@@ -25,15 +25,15 @@ const HelpContent: React.FC = () => {
 
         <div className="space-y-4 text-sm text-gray-700">
           <div>
-            <p className="font-medium text-gray-900">When are credits consumed?</p>
+            <p className="font-bold text-gray-900">When are credits consumed?</p>
             <p className="mt-1 text-gray-600">Credits are used only when you export without active subscription benefits.</p>
           </div>
           <div>
-            <p className="font-medium text-gray-900">What happens after I cancel my subscription?</p>
+            <p className="font-bold text-gray-900">What happens after I cancel my subscription?</p>
             <p className="mt-1 text-gray-600">Cancellation stops auto-renewal, but your full access remains active until the current period ends.</p>
           </div>
           <div>
-            <p className="font-medium text-gray-900">Why can status updates take a moment?</p>
+            <p className="font-bold text-gray-900">Why can status updates take a moment?</p>
             <p className="mt-1 text-gray-600">Payment and subscription events are synced from Stripe webhooks and can take a short time to appear.</p>
           </div>
         </div>

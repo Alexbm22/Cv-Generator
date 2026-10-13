@@ -87,7 +87,7 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
         </div>
         <div className="ml-auto flex items-center gap-2">
           {isLoading && (
-            <div className="flex items-center gap-1.5 text-[11px] text-[#0071e3] font-medium">
+            <div className="flex items-center gap-1.5 text-[11px] text-[#0071e3] font-bold">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0071e3] animate-pulse" />
               Thinking…
             </div>
@@ -95,7 +95,7 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
 
           <button
             onClick={handleAddJobDetails}
-            className="flex items-center gap-1.5 px-3 py-[5px] h-9 rounded-full text-[12px] font-medium text-[#404245] bg-white border hover:bg-[#f2f2f7] border-[#cecbcb] active:bg-[#e5e5ea] shadow-xs transition-all duration-250 shrink-0 cursor-pointer select-none"
+            className="flex items-center gap-1.5 px-3 py-[5px] h-9 rounded-full text-[12px] font-bold text-[#404245] bg-white border hover:bg-[#f2f2f7] border-[#cecbcb] active:bg-[#e5e5ea] shadow-xs transition-all duration-250 shrink-0 cursor-pointer select-none"
             aria-label="Add job details"
           >
             <Briefcase size={15} strokeWidth={1.75} />
@@ -125,7 +125,7 @@ const AiEditor: React.FC<{ isShowingPreview: boolean }> = ({ isShowingPreview })
               <Sparkles size={22} strokeWidth={1.5} />
             </div>
             <div className="flex flex-col gap-1">
-              <p className="text-[13px] font-medium text-[#1d1d1f]">Start editing your CV</p>
+              <p className="text-[13px] font-bold text-[#1d1d1f]">Start editing your CV</p>
               <p className="text-[12px] text-[#6e6e73] max-w-xs leading-relaxed">
                 Describe what you'd like to improve — strengthen language, fix dates, add bullet points, and more.
               </p>

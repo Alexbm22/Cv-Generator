@@ -117,7 +117,7 @@ const AISettingsDialog: React.FC<AISettingsDialogProps> = ({
               <div className="space-y-1.5">
                 <label
                   htmlFor="ai-company-name"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-bold text-gray-700"
                 >
                   Company Name
                 </label>
@@ -135,7 +135,7 @@ const AISettingsDialog: React.FC<AISettingsDialogProps> = ({
               <div className="space-y-1.5">
                 <label
                   htmlFor="ai-job-description"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-bold text-gray-700"
                 >
                   Job Description
                 </label>
@@ -155,7 +155,7 @@ const AISettingsDialog: React.FC<AISettingsDialogProps> = ({
           {/* Footer */}
           <div className="flex justify-end gap-2 border-t border-gray-100 px-6 py-4">
             <Dialog.Close asChild>
-              <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+              <button className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
                 Cancel
               </button>
             </Dialog.Close>

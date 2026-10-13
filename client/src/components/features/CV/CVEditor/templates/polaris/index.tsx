@@ -2,10 +2,11 @@ import React from 'react';
 import { Page, View, Document, StyleSheet } from '@react-pdf/renderer';
 import * as CVComponents from './components';
 import { TemplateComponentProps } from '../../../../../../interfaces/cv';
+import { PDF_FONT_FAMILY } from '../../../../../../fonts/pdfFonts';
 
 const styles = StyleSheet.create({
     page: {
-        fontFamily: 'Helvetica',
+        fontFamily: PDF_FONT_FAMILY.sans,
         backgroundColor: 'white',
         color: '#1a1a1a',
     },
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 14,
         paddingBottom: 12,
-        fontFamily: 'Times-Roman',
+        fontFamily: PDF_FONT_FAMILY.serif,
     },
     body: {
         flex: 1,

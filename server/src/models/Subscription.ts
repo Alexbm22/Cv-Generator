@@ -10,24 +10,24 @@ import { Payment_Interval } from '../interfaces/payments';
 import { generateUUID } from '../utils/uuid';
 
 class Subscription extends Model<SubscriptionAttributes, SubscriptionCreationAttributs> implements SubscriptionAttributes{
-    public id!: number;
-    public public_id!: string;
-    public stripe_subscription_id!: string | null;
-    public stripe_schedule_id!: string | null;
-    public plan_id!: string;
-    public user_id!: number;
-    public status!: SubscriptionStatus;
-    public current_period_start!: Date;
-    public current_period_end!: Date;
-    public cancel_at_period_end!: boolean;
-    public cancel_at!: Date | null;
-    public canceled_at!: Date | null;
-    public ended_at!: Date | null;
-    public billing_interval!: Payment_Interval;
-    public billing_interval_count!: number;
-    public auto_renew!: boolean;
-    public createdAt!: Date;
-    public updatedAt!: Date;
+    declare id: number;
+    declare public_id: string;
+    declare stripe_subscription_id: string | null;
+    declare stripe_schedule_id: string | null;
+    declare plan_id: string;
+    declare user_id: number;
+    declare status: SubscriptionStatus;
+    declare current_period_start: Date;
+    declare current_period_end: Date;
+    declare cancel_at_period_end: boolean;
+    declare cancel_at: Date | null;
+    declare canceled_at: Date | null;
+    declare ended_at: Date | null;
+    declare billing_interval: Payment_Interval;
+    declare billing_interval_count: number;
+    declare auto_renew: boolean;
+    declare createdAt: Date;
+    declare updatedAt: Date;
 
     public hasCancellationRequested(): boolean {
         return Boolean(this.get("cancel_at_period_end") || this.get("canceled_at") || this.get("cancel_at"));
@@ -112,7 +112,7 @@ class Subscription extends Model<SubscriptionAttributes, SubscriptionCreationAtt
 
 Subscription.init({
     id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         unique: true,
         allowNull: false,
@@ -138,7 +138,7 @@ Subscription.init({
         allowNull: false,
     },
     user_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: 'users',
@@ -179,7 +179,7 @@ Subscription.init({
         allowNull: false,
     },
     billing_interval_count: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     auto_renew: {

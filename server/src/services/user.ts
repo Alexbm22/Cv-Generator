@@ -56,10 +56,10 @@ export class UserService {
         const errors: Record<string, string> = {};
         
         existingUsers.forEach(user => {
-            if (user.email === email) {
+            if (user.email === email.toLowerCase()) {
                 errors.email = 'Email is already registered';
             }
-            if (user.username === username) {
+            if (user.username === username.toLowerCase()) {
                 errors.username = 'Username is already taken';
             }
         });

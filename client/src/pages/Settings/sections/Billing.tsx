@@ -114,7 +114,7 @@ const Billing: React.FC = () => {
             <div className="mb-3 grid h-11 w-11 place-items-center rounded-full bg-white text-gray-400 shadow-sm">
               <History className="h-5 w-5" />
             </div>
-            <p className="text-sm font-medium text-gray-800">No payments yet</p>
+            <p className="text-sm font-bold text-gray-800">No payments yet</p>
             <p className="mt-1 text-sm text-gray-500">Your transactions will appear here.</p>
           </div>
         ) : (
@@ -135,7 +135,7 @@ const Billing: React.FC = () => {
                   <div className="mt-3 text-xs text-gray-600">
                     <p className="text-gray-500">Reference</p>
                     <div className="group mt-0.5 flex items-start gap-1.5 max-w-full">
-                      <p className="font-medium text-gray-800 break-all">{payment.payment_id ?? "Not available"}</p>
+                      <p className="font-bold text-gray-800 break-all">{payment.payment_id ?? "Not available"}</p>
                       {payment.payment_id ? (
                         <button
                           type="button"
