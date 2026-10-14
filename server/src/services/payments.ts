@@ -1,4 +1,5 @@
 import { AppError } from "@/middleware/error_middleware";
+import { Transaction } from "sequelize";
 import Stripe from "stripe";
 import { stripe } from "@/app";
 import { ErrorTypes } from "@/interfaces/error";
@@ -45,16 +46,17 @@ export class PaymentService {
     private static async findExistingPaymentByStripeIdentifiers(
         stripePaymentIntentId: string | null,
         stripeInvoiceId: string | null,
+        transaction?: Transaction,
     ) {
         if (stripeInvoiceId) {
-            const byInvoice = await paymentRepository.getPayment({ stripe_invoice_id: stripeInvoiceId });
+            const byInvoice = await paymentRepository.getPayment({ stripe_invoice_id: stripeInvoiceId }, { transaction });
             if (byInvoice) {
                 return byInvoice;
             }
         }
 
         if (stripePaymentIntentId) {
-            const byIntent = await paymentRepository.getPayment({ stripe_payment_intent_id: stripePaymentIntentId });
+            const byIntent = await paymentRepository.getPayment({ stripe_payment_intent_id: stripePaymentIntentId }, { transaction });
             if (byIntent) {
                 return byIntent;
             }
@@ -85,10 +87,12 @@ export class PaymentService {
             stripe_invoice_id: string | null;
         },
         payload: Omit<PaymentCreationAttributes, 'stripe_payment_intent_id' | 'stripe_invoice_id'>,
+        transaction?: Transaction,
     ) {
         const existingPayment = await this.findExistingPaymentByStripeIdentifiers(
             identifiers.stripe_payment_intent_id,
             identifiers.stripe_invoice_id,
+            transaction,
         );
 
         if (existingPayment) {
@@ -99,14 +103,15 @@ export class PaymentService {
                     stripe_payment_intent_id: identifiers.stripe_payment_intent_id ?? existingData.stripe_payment_intent_id,
                     stripe_invoice_id: identifiers.stripe_invoice_id ?? existingData.stripe_invoice_id,
                 },
-                { id: existingData.id }
+                { id: existingData.id },
+                { transaction }
             );
         } else {
             await paymentRepository.createPayment({
                 ...payload,
                 stripe_payment_intent_id: identifiers.stripe_payment_intent_id,
                 stripe_invoice_id: identifiers.stripe_invoice_id,
-            });
+            }, transaction);
         }
     }
 
@@ -162,11 +167,12 @@ export class PaymentService {
 
     static async updatePayment(
         paymentIntent: Stripe.PaymentIntent,
-        forcedStatus?: PaymentStatus
+        forcedStatus?: PaymentStatus,
+        transaction?: Transaction,
     ) {
         const existingPayment = await paymentRepository.getPayment({
             stripe_payment_intent_id: paymentIntent.id
-        });
+        }, { transaction });
 
         const customerId = typeof paymentIntent.customer === 'string' ? paymentIntent.customer : null;
         const userId = await this.resolveUserId(
@@ -222,7 +228,8 @@ export class PaymentService {
                     : existingPayment?.get().canceled_at ?? null,
                 failure_message: paymentIntent.last_payment_error?.message ?? existingPayment?.get().failure_message ?? null,
                 receipt_url: existingPayment?.get().receipt_url ?? null,
-            }
+            },
+            transaction
         );
     }
 
@@ -371,10 +378,10 @@ export class PaymentService {
         return payments.map((payment) => payment.toSafePayment());
     }
 
-    static async getPayment(stripePaymentIntentId: string) {
+    static async getPayment(stripePaymentIntentId: string, options?: { transaction?: Transaction; lock?: boolean }) {
         const payment = await paymentRepository.getPayment({
             stripe_payment_intent_id: stripePaymentIntentId
-        })
+        }, options)
         return payment
     }
 

@@ -5,6 +5,7 @@ import { stripe } from '../app';
 import Stripe from "stripe";
 import { config } from "../config/env";
 import { StripeWebhookController } from "../controllers/stripeWebhook";
+import { ActionLogService } from "../services/actionLog";
 
 const endpointSecret = config.STRIPE_WEBHOOK_SECRET;
 
@@ -33,8 +34,36 @@ const stripeWebHook = async (req: Request, res: Response) => {
     try {
         await StripeWebhookController.handleEvent(event);
     } catch (error) {
-        // Signature was valid, so always ack 200 to Stripe - internal failures shouldn't trigger retry storms.
+        // 4xx is permanent and acked to stop retries; anything else returns 500 so Stripe retries.
         console.error(`Error handling webhook event ${event.type}:`, error);
+
+        const statusCode = error instanceof AppError ? error.statusCode : 500;
+        const retryable = statusCode >= 500;
+
+        try {
+            await ActionLogService.appendStripeReconciliation({
+                schemaVersion: 1,
+                timestamp: new Date().toISOString(),
+                level: retryable ? 'error' : 'warn',
+                event: 'stripe_webhook_failed',
+                eventId: event.id,
+                eventType: event.type,
+                paymentIntentId: event.type.startsWith('payment_intent')
+                    ? (event.data.object as Stripe.PaymentIntent).id
+                    : null,
+                statusCode,
+                retryable,
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? (error.stack ?? null) : null,
+            });
+        } catch (logError) {
+            console.error('Failed to write Stripe reconciliation log:', logError);
+        }
+
+        if (retryable) {
+            res.status(500).json({ received: false });
+            return;
+        }
     }
 
     res.json({received: true});

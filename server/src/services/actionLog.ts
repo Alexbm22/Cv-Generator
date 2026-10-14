@@ -38,6 +38,20 @@ export interface PasswordActionLogEntry {
     reason: string | null;
 }
 
+export interface StripeReconciliationLogEntry {
+    schemaVersion: 1;
+    timestamp: string;
+    level: 'error' | 'warn';
+    event: string;
+    eventId: string;
+    eventType: string;
+    paymentIntentId: string | null;
+    statusCode: number;
+    retryable: boolean;
+    message: string;
+    stack: string | null;
+}
+
 export class ActionLogService {
     private static readonly logDirectory = path.resolve(process.cwd(), 'logs');
 
@@ -47,6 +61,10 @@ export class ActionLogService {
 
     static async appendPasswordAction(entry: PasswordActionLogEntry): Promise<void> {
         await this.writeEntry('password-actions', entry);
+    }
+
+    static async appendStripeReconciliation(entry: StripeReconciliationLogEntry): Promise<void> {
+        await this.writeEntry('stripe-reconciliation', entry);
     }
 
     private static async writeEntry(prefix: string, entry: { timestamp: string }): Promise<void> {
