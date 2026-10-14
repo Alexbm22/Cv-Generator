@@ -10,7 +10,8 @@ import Button from "../../components/UI/Buttons/Button";
 import { ButtonStyles } from "../../constants/CV/buttonStyles";
 import { useConfirmSetupAndSubscribe } from "../../hooks/useStripe";
 import { useNavigate } from "react-router-dom";
-import { refreshUserProfile } from "../../hooks/useUser";
+import { waitForUserProfile } from "../../hooks/useUser";
+import { PaymentStatus } from "../../interfaces/payments";
 
 interface CheckoutFormProps {
   mode: string;
@@ -82,8 +83,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ mode, priceLookupKey, clien
                     },
                     {
                         onSuccess: async () => {
-                            await refreshUserProfile().catch(() => undefined);
-                            // Redirect to resumes page after subscription is confirmed
+                            await waitForUserProfile(profile => profile.subscription?.has_benefits === true).catch(() => undefined);
                             navigate(routes.resumes.path);
                         },
                         onError: () => {
@@ -104,7 +104,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ mode, priceLookupKey, clien
                 return_url: `${import.meta.env.VITE_APP_BASE_URL}${routes.resumes.path}`,
             };
 
-            const { error: stripeError } = await stripe.confirmPayment({
+            const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
                 elements,
                 confirmParams,
                 redirect: 'if_required'
@@ -113,7 +113,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ mode, priceLookupKey, clien
             if (stripeError) {
                 useErrorStore.getState().createError(stripeError);
             } else {
-                await refreshUserProfile().catch(() => undefined);
+                const paymentIntentId = paymentIntent?.id;
+                await waitForUserProfile(profile =>
+                    paymentIntentId !== undefined && profile.payments.some(payment => payment.stripe_payment_intent_id === paymentIntentId && payment.status === PaymentStatus.SUCCEEDED)
+                ).catch(() => undefined);
                 navigate(routes.resumes.path);
             }
 

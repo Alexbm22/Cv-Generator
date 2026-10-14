@@ -1,13 +1,19 @@
+import { Transaction } from "sequelize";
 import { PaymentAttributes, PaymentCreationAttributes } from "@/interfaces/payments";
 import { Payment } from "@/models";
 
-const createPayment = async (paymentData: PaymentCreationAttributes) => {
-    await Payment.create(paymentData) 
+const createPayment = async (paymentData: PaymentCreationAttributes, transaction?: Transaction) => {
+    await Payment.create(paymentData, { transaction })
 }
 
-const getPayment = async (paymentCriteria: Partial<PaymentAttributes>) => {
+const getPayment = async (
+    paymentCriteria: Partial<PaymentAttributes>,
+    options?: { transaction?: Transaction; lock?: boolean }
+) => {
     return await Payment.findOne({
-        where: paymentCriteria
+        where: paymentCriteria,
+        transaction: options?.transaction,
+        lock: options?.lock ? options.transaction?.LOCK.UPDATE : undefined,
     });
 }
 
@@ -30,6 +36,7 @@ const updatePaymentByFields = async (
         validate?: boolean;
         hooks?: boolean;
         individualHooks?: boolean;
+        transaction?: Transaction;
     }
 ) => {
     return await Payment.update(updates, {

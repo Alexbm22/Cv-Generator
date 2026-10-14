@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { DownloadCredits } from '@/models';
 
 const getUserCredits = async (user_id: number) => {
@@ -21,10 +22,15 @@ const createUserCredits = async (user_id: number, credits: number) => {
     });
 };
 
-const findOrCreateUserCredits = async (user_id: number, defaultCredits: number = 1) => {
+const findOrCreateUserCredits = async (
+    user_id: number,
+    defaultCredits: number = 1,
+    transaction?: Transaction
+) => {
     const [userCredits, created] = await DownloadCredits.findOrCreate({
         where: { user_id },
-        defaults: { user_id, credits: defaultCredits }
+        defaults: { user_id, credits: defaultCredits },
+        transaction,
     });
     return { userCredits, created };
 };

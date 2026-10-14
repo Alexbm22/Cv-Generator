@@ -7,11 +7,27 @@ import { SyncedDataAttributes, UserProfile } from "../interfaces/user";
 import { UserServices } from "../services/user";
 import { useAuthStore } from "../Store";
 import { useUserStore } from "../Store/useUserStore";
+import { queryClient } from "../queryClient";
 
 export const refreshUserProfile = async () => {
     const profile = await UserServices.fetchUserProfile();
+    queryClient.setQueryData<UserProfile>(['userProfile'], profile);
     useUserStore.getState().setUserProfile(profile);
     return profile;
+};
+
+// Stripe webhooks update the DB asynchronously, so the profile may not reflect a payment right away.
+export const waitForUserProfile = async (
+    isReady: (profile: UserProfile) => boolean,
+    attempts = 6,
+    delayMs = 1500
+) => {
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+        const profile = await refreshUserProfile();
+        if (isReady(profile)) return true;
+        if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+    return false;
 };
 
 export const useUserProfile = () => {

@@ -1,3 +1,4 @@
+import { Transaction } from "sequelize";
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
 import downloadCreditsRepository from '@/repositories/downloadCredits';
@@ -28,7 +29,7 @@ export class CreditsService {
     }
 
     @handleServiceError('Failed to add credits')
-    static async addCredits(user_id: number, amount: number) {
+    static async addCredits(user_id: number, amount: number, transaction?: Transaction) {
         const normalizedAmount = Number.isFinite(amount) ? Math.trunc(amount) : NaN;
         if (normalizedAmount <= 0) {
             throw new AppError(
@@ -39,9 +40,9 @@ export class CreditsService {
         }
 
         // Use an atomic DB increment to avoid lost updates under concurrency.
-        const { userCredits } = await downloadCreditsRepository.findOrCreateUserCredits(user_id, 0);
-        await userCredits.increment('credits', { by: normalizedAmount });
-        await userCredits.reload();
+        const { userCredits } = await downloadCreditsRepository.findOrCreateUserCredits(user_id, 0, transaction);
+        await userCredits.increment('credits', { by: normalizedAmount, transaction });
+        await userCredits.reload({ transaction });
 
         return userCredits;
     }

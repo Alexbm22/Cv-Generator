@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { stripe } from "@/app";
+import sequelize from "@/config/DB/database_config";
 import { AppError } from "@/middleware/error_middleware";
 import { ErrorTypes } from "@/interfaces/error";
 import { PaymentStatus } from "@/interfaces/payments";
@@ -30,30 +31,9 @@ export const handlePaymentIntentEvent = async (event: Stripe.Event): Promise<voi
             break;
         }
         case 'payment_intent.succeeded': {
-            const paymentBeforeUpdate = await PaymentService.getPayment(paymentIntent.id);
-            const wasAlreadySucceeded = paymentBeforeUpdate?.get().status === PaymentStatus.SUCCEEDED;
+            const price = await StripeService.getPriceById(paymentIntent.metadata.priceId);
 
-            await PaymentService.updatePayment(paymentIntent);
-
-            const updatedPayment = await PaymentService.getPayment(paymentIntent.id);
-            if (!updatedPayment) {
-                throw new AppError(
-                    "Payment not found after update.",
-                    404,
-                    ErrorTypes.NOT_FOUND
-                );
-            }
-
-            if (wasAlreadySucceeded) {
-                return;
-            }
-
-            const updatedPaymentData = updatedPayment.get();
-            if (!updatedPaymentData.price) {
-                return;
-            }
-
-            if (updatedPaymentData.price.type === 'recurring') {
+            if (price.type === 'recurring') {
                 throw new AppError(
                     'Invalid request: Received a recurring payment intent in the webhook.',
                     400,
@@ -61,15 +41,46 @@ export const handlePaymentIntentEvent = async (event: Stripe.Event): Promise<voi
                 );
             }
 
-            if (updatedPaymentData.price.type === 'one_time') {
-                const price = await StripeService.getPriceById(updatedPaymentData.price.id);
-                const creditsToAdd = price?.metadata?.credits
-                    ? parseInt(price.metadata.credits, 10)
-                    : updatedPaymentData.quantity || 0;
+            const creditsToAdd = price.metadata?.credits
+                ? parseInt(price.metadata.credits, 10)
+                : Number(paymentIntent.metadata.quantity) || 0;
 
-                await CreditsService.addCredits(
-                    updatedPaymentData.user_id,
-                    creditsToAdd,
+            if (!(await PaymentService.getPayment(paymentIntent.id))) {
+                try {
+                    await PaymentService.createPayment(paymentIntent, price);
+                } catch (error) {
+                    if (!(await PaymentService.getPayment(paymentIntent.id))) {
+                        throw error;
+                    }
+                }
+            }
+
+            try {
+                await sequelize.transaction(async transaction => {
+                    const payment = await PaymentService.getPayment(paymentIntent.id, { transaction, lock: true });
+                    if (!payment) {
+                        throw new AppError("Payment not found.", 404, ErrorTypes.NOT_FOUND);
+                    }
+
+                    if (payment.get().status === PaymentStatus.SUCCEEDED) {
+                        return;
+                    }
+
+                    await PaymentService.updatePayment(paymentIntent, undefined, transaction);
+                    await CreditsService.addCredits(payment.get().user_id, creditsToAdd, transaction);
+                });
+            } catch (error) {
+                // Rollback reverted the status; record FAILED outside the transaction so the UI shows it.
+                await PaymentService.updatePayment(paymentIntent, PaymentStatus.FAILED)
+                    .catch(markError => console.error(`Failed to mark payment ${paymentIntent.id} as FAILED:`, markError));
+
+                // Any grant failure must be 500 so Stripe retries; a 4xx would ack the event and keep the charge.
+                throw new AppError(
+                    `Failed to grant credits for payment intent ${paymentIntent.id}.`,
+                    500,
+                    ErrorTypes.INTERNAL_ERR,
+                    undefined,
+                    error instanceof Error ? error : undefined
                 );
             }
             break;
