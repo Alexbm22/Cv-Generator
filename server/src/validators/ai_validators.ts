@@ -5,7 +5,7 @@ import { CVLanguageCodes } from '@/interfaces/cv';
 
 export const historyEntrySchema = z.object({
   role: z.enum(['user', 'assistant', 'system']),
-  content: z.string().max(4000),
+  content: z.string().max(7000),
 });
 
 
@@ -63,7 +63,7 @@ export const jobDataSchema = z.object({
 });
 
 export const aiGuestRequestSchema = z.object({
-  prompt: z.string().min(1).max(5000),
+  prompt: z.string().min(1).max(7000),
   history: z.array(historyEntrySchema).max(50),
   sectionData: sectionDataSchema.optional(),
   cvData: GuestCVSchema.optional(),

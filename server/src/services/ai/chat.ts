@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { openai } from '../../config/openai';
+import { aiService, modelFor } from './core';
 import { HistoryEntry } from '../../interfaces/ai';
 import {
   aiCVEditResponseSchema,
@@ -64,12 +64,15 @@ export async function callSectionEditAI(params: SectionEditCallParams): Promise<
   ];
 
   try {
-    const completion = await openai.chat.completions.create(
-      { model: 'gpt-4.1-mini', messages, temperature: 0.3, response_format: { type: 'json_object' } },
-      { signal },
-    );
+    const completion = await aiService.complete({
+      purpose: 'section_edit',
+      messages,
+      model: modelFor('section_edit'),
+      responseFormat: 'json',
+      signal,
+    });
 
-    const response = parseAndValidate(completion.choices[0]?.message?.content, aiSectionEditResponseSchema);
+    const response = parseAndValidate(completion.content, aiSectionEditResponseSchema);
     return {
       ...response,
       ItemEditOperation: sanitizeSkillLevelOperation(response.ItemEditOperation),
@@ -106,12 +109,15 @@ export async function callCVEditAI(params: CVEditCallParams): Promise<AiCVEditRe
     },
   ];
 
-  const completion = await openai.chat.completions.create(
-    { model: 'gpt-4o-mini', messages, temperature: 0.3, response_format: { type: 'json_object' } },
-    { signal },
-  );
+  const completion = await aiService.complete({
+    purpose: 'cv_edit',
+    messages,
+    model: modelFor('cv_edit'),
+    responseFormat: 'json',
+    signal,
+  });
 
-  const response = parseAndValidate(completion.choices[0]?.message?.content, aiCVEditResponseSchema);
+  const response = parseAndValidate(completion.content, aiCVEditResponseSchema);
   return {
     ...response,
     CVEditOperations: response.CVEditOperations.map(sanitizeSkillLevelOperation),
@@ -166,6 +172,8 @@ function normalizeLevel(value: unknown, sectionType: 'skills' | 'languages'): nu
   return labels[sectionType][label];
 }
 
+const DEFAULT_LEVEL: Record<'skills' | 'languages', number> = { skills: 2, languages: 3 };
+
 function sanitizeSkillLevelOperation<T extends { operationType: string }>(operation: T): T {
   if (operation.operationType !== 'add_item' && operation.operationType !== 'update_item') return operation;
   if (!('sectionType' in operation) || !('newValue' in operation)) return operation;
@@ -183,7 +191,7 @@ function sanitizeSkillLevelOperation<T extends { operationType: string }>(operat
 
   const level = normalizeLevel(item.level, operation.sectionType);
   if (operation.operationType === 'add_item') {
-    item.level = level ?? null;
+    item.level = level ?? DEFAULT_LEVEL[operation.sectionType];
   } else if (Object.prototype.hasOwnProperty.call(item, 'level') && level !== undefined) {
     item.level = level;
   } else if (Object.prototype.hasOwnProperty.call(item, 'level')) {
@@ -227,12 +235,15 @@ export async function callAboutMeEditAI(params: AboutMeEditCallParams): Promise<
   ];
 
   try {
-    const completion = await openai.chat.completions.create(
-      { model: 'gpt-4.1-mini', messages, temperature: 0.4, response_format: { type: 'json_object' } },
-      { signal },
-    );
+    const completion = await aiService.complete({
+      purpose: 'about_me_edit',
+      messages,
+      model: modelFor('about_me_edit'),
+      responseFormat: 'json',
+      signal,
+    });
 
-    return parseAndValidate(completion.choices[0]?.message?.content, aiAboutMeResponseSchema);
+    return parseAndValidate(completion.content, aiAboutMeResponseSchema);
   } catch (error) {
     console.error('Error calling about me edit AI:', error);
     throw error;
@@ -262,12 +273,15 @@ export async function callTranslateCVAI(params: TranslateCVCallParams): Promise<
   ];
 
   try {
-    const completion = await openai.chat.completions.create(
-      { model: 'gpt-4o', messages, temperature: 0, response_format: { type: 'json_object' } },
-      { signal },
-    );
+    const completion = await aiService.complete({
+      purpose: 'translate',
+      messages,
+      model: modelFor('translate'),
+      responseFormat: 'json',
+      signal,
+    });
 
-    const response = parseAndValidate(completion.choices[0]?.message?.content, aiCVEditResponseSchema);
+    const response = parseAndValidate(completion.content, aiCVEditResponseSchema);
     return {
       ...response,
       CVEditOperations: response.CVEditOperations.map(sanitizeSkillLevelOperation),

@@ -17,12 +17,12 @@ export const GuestCVSchema = z.object({
     languages: z.array(z.object({
         id: z.uuidv4(),
         name: z.string().max(100),
-        level: z.string().nullable(),
+        level: z.number().nullable(),
     })),
     skills: z.array(z.object({
         id: z.uuidv4(),
         name: z.string().max(100),
-        level: z.string().nullable(),
+        level: z.number().nullable(),
     })),
     workExperience: z.array(z.object({
         id: z.uuidv4(),
@@ -126,7 +126,7 @@ export const sectionDataSchema = z.discriminatedUnion('sectionType', [
     contentId: z.uuidv4(),
     content: z.object({
       name: z.string().max(100),
-      level: z.string().nullable(),
+      level: z.number().nullable(),
     }),
   }),
   z.object({
@@ -134,7 +134,7 @@ export const sectionDataSchema = z.discriminatedUnion('sectionType', [
     contentId: z.uuidv4(),
     content: z.object({
       name: z.string().max(100),
-      level: z.string().nullable(),
+      level: z.number().nullable(),
     }),
   }),
 ]);
