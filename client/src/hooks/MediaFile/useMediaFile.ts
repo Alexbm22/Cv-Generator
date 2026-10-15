@@ -1,6 +1,6 @@
 import { MediaFilesAttributes } from "../../interfaces/mediaFiles";
 import { QueryObserverResult, RefetchOptions, useQueryClient } from "@tanstack/react-query";
-import { deleteImage, getMediaFileUrl, markMediaFileActiveStatus, uploadImage } from "../../services/MediaFiles";
+import { deleteImage, getMediaFilePresignedPost, getMediaFileUrl, markMediaFileActiveStatus, uploadImage } from "../../services/MediaFiles";
 import { isUrlValid } from "../../utils/urls";
 import { useCallback } from "react";
 
@@ -51,19 +51,19 @@ export const useMediaFile = (mediaFile?: MediaFilesAttributes, refetch?: (option
                 }
             }
     
-            return getMediaFileUrl(mediaFile!.id, 'put');
+            return getMediaFilePresignedPost(mediaFile!.id);
         } else return mediaFile.put_URL;
     }, [mediaFile, refetch]);
 
     const uploadMediaFile = useCallback(async (blobObj: Blob) => {
         try { 
-            const url = await getMediaFilePutUrl();
+            const upload = await getMediaFilePutUrl();
 
-            if (!url) {
+            if (!upload) {
                 throw new Error("Unable to Upload Photo");
             }
 
-            await uploadImage(url, blobObj);
+            await uploadImage(upload, blobObj);
     
             // Mark media file as active after successful upload
             if(!mediaFile?.is_active && mediaFile) {

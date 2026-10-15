@@ -25,7 +25,7 @@ export type DownloadPreparation =
         actionId: string;
         downloadId: string;
         fileName: string;
-        pdf: { putUrl: string; expiresAt: number; requiredContentType: 'application/pdf' };
+        pdf: { uploadUrl: string; fields: Record<string, string>; expiresAt: number; requiredContentType: 'application/pdf' };
     };
 
 export type DownloadFailureType = 'pdf_generation' | 's3_upload' | 'completion' | 'unknown';

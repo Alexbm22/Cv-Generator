@@ -1,6 +1,7 @@
 import { MediaFiles } from "@/models";
-import { MediaFilesCreationAttributes, PublicMediaFilesAttributes, PresignedUrlType, MediaFilesAttributes, OwnerType } from "@/interfaces/mediaFiles";
+import { MediaFilesCreationAttributes, PublicMediaFilesAttributes, PresignedUrlType, PresignedPost, MediaFilesAttributes, OwnerType } from "@/interfaces/mediaFiles";
 import S3Service from "@/services/s3";
+import { getUploadMaxBytes } from "@/constants/uploads";
 import { config } from "@/config/env";
 import mediaFilesRepository from '@/repositories/mediaFiles';
 import { generateS3ObjKey } from '@/utils/mediaFiles';
@@ -88,7 +89,7 @@ export class MediaFilesServices {
 
         const mediaFileData = mediaFile.get();
         const get_URL = await this.getMediaPresignedUrl(mediaFile, 'GET', Math.floor(timeToLive));
-        const put_URL = await this.getMediaPresignedUrl(mediaFile, 'PUT', Math.floor(timeToLive));
+        const put_URL = await this.getMediaPresignedPost(mediaFile, Math.floor(timeToLive));
 
         return {
             expiresAt,
@@ -120,7 +121,7 @@ export class MediaFilesServices {
 
         const mediaFileData = mediaFile.get();
         const get_URL = await this.getMediaPresignedUrl(mediaFile, 'GET', Math.floor(timeToLive));
-        const put_URL = await this.getMediaPresignedUrl(mediaFile, 'PUT', Math.floor(timeToLive));
+        const put_URL = await this.getMediaPresignedPost(mediaFile, Math.floor(timeToLive));
 
         const result: PublicMediaFilesAttributes = {
             expiresAt,
@@ -189,14 +190,6 @@ export class MediaFilesServices {
             case 'GET':
                 presignedUrl = await S3Service.generatePresignedGetUrl(s3Key, bucket, timeToLive);
                 break;
-            case 'PUT':
-                presignedUrl = await S3Service.generatePresignedPutUrl(
-                    s3Key,
-                    bucket,
-                    timeToLive,
-                    mediaFile.get().mime_type
-                );
-                break;
             case 'DELETE':
                 presignedUrl = await S3Service.generatePresignedDeleteUrl(s3Key, bucket, timeToLive);
                 break;
@@ -205,6 +198,26 @@ export class MediaFilesServices {
         return presignedUrl.url;
     }
     
+    @handleServiceError('Failed to get media presigned POST')
+    private static async getMediaPresignedPost(
+        mediaFile: MediaFiles,
+        timeToLive: number
+    ): Promise<PresignedPost> {
+        const mediaData = mediaFile.get();
+        if (!mediaData.s3_key) {
+            throw new AppError('Media file not found', 404, ErrorTypes.NOT_FOUND);
+        }
+
+        const { url, fields } = await S3Service.generatePresignedPostUpload(
+            mediaData.s3_key,
+            config.AWS_S3_BUCKET,
+            getUploadMaxBytes(mediaData.mime_type),
+            mediaData.mime_type,
+            timeToLive
+        );
+        return { url, fields };
+    }
+
     @handleServiceError('Failed to delete media file')
     public static async deleteMediaFileS3Content(mediaFilePublicId: string) {
         const mediaFile = await MediaFilesServices.getMediaFile(mediaFilePublicId);
@@ -236,8 +249,7 @@ export class MediaFilesServices {
             );
         }
 
-        const putUrl = await this.getMediaPresignedUrl(mediaFile, 'PUT', timeToLive);
-        return { url: putUrl };
+        return this.getMediaPresignedPost(mediaFile, timeToLive);
     }
 
     @handleServiceError('Failed to get media file GET URL')

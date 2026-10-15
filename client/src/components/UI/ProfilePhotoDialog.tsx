@@ -272,13 +272,17 @@ const ImageCropStep: React.FC<ImageCropStepProps> = ({
 
     try {
       const cropOptions: CropImageOptions = {
-        quality: 0.9,
+        quality: 0.5,
         format: 'image/jpeg',
         maxWidth: 512,
         maxHeight: 512,
       };
 
       const result = await getCroppedImage(imageSrc, cropArea, cropOptions);
+      if (result.imgBlob.size > MAX_FILE_SIZE) {
+        setCropError('Cropped image must be smaller than 10MB');
+        return;
+      }
       await onCropComplete(result.imgBlob);
     } catch (err) {
       setCropError(err instanceof Error ? err.message : 'Failed to crop image');

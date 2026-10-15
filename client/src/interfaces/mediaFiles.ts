@@ -1,4 +1,9 @@
 
+export interface PresignedPost {
+    url: string;
+    fields: Record<string, string>;
+}
+
 export interface MediaFilesAttributes {
     id: string;
     owner_type: OwnerTypes;
@@ -6,11 +11,11 @@ export interface MediaFilesAttributes {
     type: MediaTypes;
     expiresAt: number;
     get_URL: string | null;
-    put_URL: string | null;
+    put_URL: PresignedPost | null;
     is_active: boolean;
 }
 
-export type Url = 'get' | 'put' | 'delete';
+export type Url = 'get' | 'delete';
 
 export enum MediaTypes {
     CV_PHOTO = 'cv_photo',

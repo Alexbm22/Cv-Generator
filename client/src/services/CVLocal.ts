@@ -4,7 +4,7 @@ import { useCVsStore } from "../Store";
 import { CVServerService } from "./CVServer";
 import { debounce } from "lodash";
 import { generatePdfBlob, pdfBlobToCanvas } from "./Pdf";
-import { getMediaFileUrl, uploadImage, markMediaFileActiveStatus } from "./MediaFiles";
+import { getMediaFilePresignedPost, uploadImage, markMediaFileActiveStatus } from "./MediaFiles";
 import { getImageBlob } from "../utils/blob";
 import { MediaFilesAttributes } from "../interfaces/mediaFiles";
 import { queryClient } from "../queryClient";
@@ -68,9 +68,9 @@ export const generateAndUploadCVPreview = async (
     if (CVCanvas) {
         CVCanvas.toBlob(async (blob) => {
             if(!blob) return;
-            const putUrl = await getMediaFileUrl(cvData.previewId, 'put');
-            if(putUrl) {
-                await uploadImage(putUrl, blob);
+            const upload = await getMediaFilePresignedPost(cvData.previewId);
+            if(upload) {
+                await uploadImage(upload, blob);
             }
 
             const blobUrl = URL.createObjectURL(blob);
@@ -84,10 +84,10 @@ export const generateAndUploadCVPreview = async (
 
 const uploadGuestMediaFile = async (mediaId: string, base64Photo: string): Promise<void> => {
     const blob = await getImageBlob(base64Photo);
-    const putUrl = await getMediaFileUrl(mediaId, 'put');
-    if (!putUrl) return;
+    const upload = await getMediaFilePresignedPost(mediaId);
+    if (!upload) return;
 
-    await uploadImage(putUrl, blob);
+    await uploadImage(upload, blob);
     await markMediaFileActiveStatus(mediaId, true);
 
     const blobUrl = URL.createObjectURL(blob);

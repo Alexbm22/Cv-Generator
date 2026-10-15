@@ -16,6 +16,7 @@ import { cvMappers, downloadMappers } from '@/mappers';
 import { generateS3ObjKey } from '@/utils/mediaFiles';
 import { generateUUID } from '@/utils/uuid';
 import { MediaFilesServices } from '@/services/mediaFiles';
+import { PDF_UPLOAD_MAX_BYTES } from '@/constants/uploads';
 
 const PENDING_DOWNLOAD_TTL_MS = 15 * 60 * 1000;
 
@@ -27,7 +28,7 @@ export type DownloadPreparation =
         actionId: string;
         downloadId: string;
         fileName: string;
-        pdf: { putUrl: string; expiresAt: number; requiredContentType: MimeType.APPLICATION_PDF };
+        pdf: { uploadUrl: string; fields: Record<string, string>; expiresAt: number; requiredContentType: MimeType.APPLICATION_PDF };
     };
 
 const canonicalize = (value: unknown): unknown => {
@@ -217,10 +218,10 @@ export class DownloadWorkflowService {
                 ...(previewCopy.status === 'fulfilled' ? [preview.update({ is_active: true })] : [])
             ]);
 
-            const signedUpload = await S3Service.generatePresignedPutUrl(
+            const signedUpload = await S3Service.generatePresignedPostUpload(
                 pdf.get().s3_key,
                 config.AWS_S3_BUCKET,
-                5 * 60,
+                PDF_UPLOAD_MAX_BYTES,
                 MimeType.APPLICATION_PDF
             );
             return {
@@ -229,7 +230,8 @@ export class DownloadWorkflowService {
                 downloadId: preparedDownload.get().public_id,
                 fileName: preparedDownload.get().fileName,
                 pdf: {
-                    putUrl: signedUpload.url,
+                    uploadUrl: signedUpload.url,
+                    fields: signedUpload.fields,
                     expiresAt: signedUpload.expiresAt,
                     requiredContentType: MimeType.APPLICATION_PDF
                 }
@@ -259,6 +261,10 @@ export class DownloadWorkflowService {
             const pdf = await MediaFiles.findOne({ where: { owner_id: download.get().id, owner_type: OwnerType.DOWNLOAD, type: MediaType.DOWNLOAD_FILE } });
             if (!pdf) throw new Error('Pending PDF media file is missing.');
             const metadata = await S3Service.getObjectMetadata(pdf.get().s3_key, config.AWS_S3_BUCKET);
+            if (metadata.contentLength > PDF_UPLOAD_MAX_BYTES) {
+                await S3Service.deleteFile(pdf.get().s3_key, config.AWS_S3_BUCKET);
+                throw new AppError('Uploaded PDF exceeds the maximum allowed size.', 413, ErrorTypes.BAD_REQUEST);
+            }
             if (metadata.contentLength <= 0 || metadata.contentType !== MimeType.APPLICATION_PDF) {
                 throw new Error('Uploaded file is not a non-empty application/pdf object.');
             }

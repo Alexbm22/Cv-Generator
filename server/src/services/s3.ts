@@ -2,6 +2,7 @@ import { config } from '../config/env';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { AppError } from '../middleware/error_middleware';
 import { ErrorTypes } from '../interfaces/error';
 import { Readable } from 'stream';
@@ -167,34 +168,37 @@ class S3Service {
         }
     }
 
-    public async generatePresignedPutUrl(
+    public async generatePresignedPostUpload(
         key: string,
         bucketName: string,
-        expiresIn: number = 5 * 60,
-        contentType?: string
+        maxBytes: number,
+        contentType: string,
+        expiresIn: number = 5 * 60
     ) {
         try {
-            const params = {
+            const { url, fields } = await createPresignedPost(this.s3Client, {
                 Bucket: bucketName,
                 Key: key,
-                ...(contentType && { ContentType: contentType })
-            };
-
-            const command = new PutObjectCommand(params);
-
-            const url = await getSignedUrl(this.s3Client, command, { expiresIn: expiresIn });
+                Fields: { 'Content-Type': contentType },
+                Conditions: [
+                    ['content-length-range', 1, maxBytes],
+                    ['eq', '$Content-Type', contentType]
+                ],
+                Expires: expiresIn
+            });
             const expiresAt = new Date(Date.now() + expiresIn * 1000).getTime();
 
             return {
                 url,
+                fields,
                 expiresAt
-            }
+            };
         } catch (error) {
             const errorMessage = error && typeof error === "object" && "message" in error ?
-                error.message : "Failed to generate presigned URL";
+                error.message : "Failed to generate presigned POST";
 
             throw new AppError(
-                `S3 getPresignedUrl error: ${errorMessage}`,
+                `S3 generatePresignedPost error: ${errorMessage}`,
                 500,
                 ErrorTypes.BAD_REQUEST
             );

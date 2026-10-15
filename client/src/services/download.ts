@@ -22,11 +22,14 @@ export class DownloadService {
         );
     }
 
-    static async uploadPreparedPdf(putUrl: string, pdfBlob: Blob) {
-        const response = await fetch(putUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/pdf' },
-            body: pdfBlob
+    static async uploadPreparedPdf(pdf: { uploadUrl: string; fields: Record<string, string> }, pdfBlob: Blob) {
+        const formData = new FormData();
+        Object.entries(pdf.fields).forEach(([name, value]) => formData.append(name, value));
+        formData.append('file', pdfBlob);
+
+        const response = await fetch(pdf.uploadUrl, {
+            method: 'POST',
+            body: formData
         });
 
         if (!response.ok) {
