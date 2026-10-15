@@ -3,13 +3,14 @@ import { catchAsync } from '../../middleware/error_middleware';
 import RateLimitInstance from '../../middleware/rate_limit_middleware';
 import multer from 'multer';
 import express from 'express';
+import { PDF_UPLOAD_MAX_BYTES } from '../../constants/uploads';
 
 const router = express.Router();
 
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { 
-        fileSize: 10 * 1024 * 1024,
+        fileSize: PDF_UPLOAD_MAX_BYTES,
         files: 1
     },
     fileFilter: (req, file, cb) => {

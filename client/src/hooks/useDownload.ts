@@ -46,7 +46,7 @@ export const useDownloadCV = () => {
                 });
 
                 failureType = 's3_upload';
-                await DownloadService.uploadPreparedPdf(preparation.pdf.putUrl, pdfBlob);
+                await DownloadService.uploadPreparedPdf(preparation.pdf, pdfBlob);
 
                 failureType = 'completion';
                 return await DownloadService.completeDownload(preparation.downloadId, preparation.actionId);

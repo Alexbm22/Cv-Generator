@@ -20,6 +20,11 @@ export interface MediaFilesCreationAttributes extends Optional<MediaFilesAttribu
     'id' | 'createdAt' | 'updatedAt' | 'public_id' | 'size'
 > {}
 
+export interface PresignedPost {
+    url: string;
+    fields: Record<string, string>;
+}
+
 export interface PublicMediaFilesAttributes {
     id: string;
     owner_type: OwnerType;
@@ -28,7 +33,7 @@ export interface PublicMediaFilesAttributes {
     expiresAt: number;
     is_active: boolean;
     get_URL: string | null;
-    put_URL: string | null;
+    put_URL: PresignedPost | null;
 }
 
 export enum MimeType {
@@ -59,4 +64,4 @@ export enum OwnerType {
     USER = 'USER'
 }
 
-export  type PresignedUrlType = 'GET' | 'PUT' | 'DELETE';
+export  type PresignedUrlType = 'GET' | 'DELETE';

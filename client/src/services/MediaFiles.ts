@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MediaFilesAttributes, Url } from "../interfaces/mediaFiles";
+import { MediaFilesAttributes, PresignedPost, Url } from "../interfaces/mediaFiles";
 import { apiService } from "./api";
 
 const apiBaseUrl = '/protected/media_files';
@@ -22,6 +22,10 @@ export const getMediaFileUrl = async (mediaFileId: string, url: Url) => {
     return response.url;
 }
 
+export const getMediaFilePresignedPost = async (mediaFileId: string) => {
+    return await apiService.get<PresignedPost | null>(`${apiBaseUrl}/${mediaFileId}/put_url`);
+}
+
 export const getMediaFileById = async (id: string) => {
     const mediaFile = await apiService.get<MediaFilesAttributes>(
         `${apiBaseUrl}/${id}`
@@ -29,12 +33,11 @@ export const getMediaFileById = async (id: string) => {
     return mediaFile;
 }
 
-export const uploadImage = async (url: string, blobObj: Blob) => {
-    return await axios.put(url, blobObj, {
-        headers: {
-            'Content-Type': "image/png"
-        }
-    })
+export const uploadImage = async (upload: PresignedPost, blobObj: Blob) => {
+    const formData = new FormData();
+    Object.entries(upload.fields).forEach(([name, value]) => formData.append(name, value));
+    formData.append('file', blobObj);
+    return await axios.post(upload.url, formData);
 }
         
 
