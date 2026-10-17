@@ -17,6 +17,38 @@ import { PublicTokenData } from '@/interfaces/token';
 import { MediaFilesServices } from './mediaFiles';
 import { MediaType, MimeType, OwnerType } from '@/interfaces/mediaFiles';
 import { PasswordHasher } from '@/utils/passwordHasher';
+import { UniqueConstraintError } from 'sequelize';
+import sequelize from '@/config/DB/database_config';
+import { User } from '@/models';
+import { attachStripeCustomer, createInitialCredits } from '@/models/user';
+import { Actor } from '@/interfaces/actor';
+import { ServerUserAttributes } from '@/interfaces/user';
+
+// Converts the guest row in place, so the same user id keeps any data already attached to it.
+const upgradeGuestToRegistered = async (guest: User, updates: Partial<ServerUserAttributes>): Promise<User> => {
+    try {
+        await sequelize.transaction(async transaction => {
+            guest.set({
+                ...updates,
+                type: 'registered',
+                convertedAt: new Date(),
+                guestTokenHash: null,
+            });
+            await guest.save({ transaction });
+            await createInitialCredits(guest.get('id'), transaction);
+        });
+    } catch (error) {
+        if (error instanceof UniqueConstraintError) {
+            throw new AppError('Validation failed', 409, ErrorTypes.VALIDATION_ERR, {
+                email: 'Email or username is already taken',
+            });
+        }
+        throw error;
+    }
+
+    await attachStripeCustomer(guest);
+    return guest;
+};
 
 export class AuthServices {
     private googleService: GoogleServices;
@@ -28,10 +60,10 @@ export class AuthServices {
     }
 
     @handleServiceError('Google login failed')
-    async googleLogin(IdToken: string, res: Response): Promise<AuthResponse> {
+    async googleLogin(IdToken: string, res: Response, actor?: Actor): Promise<AuthResponse> {
         const googleTokenPayload = await this.googleService.verifyGoogleToken(IdToken);
 
-        let user = await UserService.getUserWithMediaFile({ email: googleTokenPayload.email });
+        let user = await UserService.getUserWithMediaFile({ email: googleTokenPayload.email, type: 'registered' });
         const isNewUser = !user;
 
         if (!user) {
@@ -46,20 +78,33 @@ export class AuthServices {
 
             const username = await UserService.generateUsername(given_name, family_name);
  
-            user = await UserService.createUser({
-                username: username,
-                email: email,
-                authProvider: 'google',
+            const guest = actor?.type === 'guest' ? await UserService.getUser({ id: actor.id, type: 'guest' }) : null;
+            const accountFields = {
                 lastLogin: new Date(),
-                googleId: google_id,
                 isActive: true,
-                needsInitialSync: true
-            });
+                needsInitialSync: true,
+                authProvider: 'google' as const,
+            };
+
+            user = guest
+                ? await upgradeGuestToRegistered(guest, {
+                    ...accountFields,
+                    username,
+                    email,
+                    googleId: guest.hashGoogleId(google_id),
+                })
+                : await UserService.createUser({
+                    ...accountFields,
+                    type: 'registered',
+                    username,
+                    email,
+                    googleId: google_id,
+                });
 
             const mediaFile =await MediaFilesServices.create({
                 user_id: user.id,
                 owner_id: user.id,
-                filename: user.get('username'),
+                filename: user.get('username') as string,
                 owner_type: OwnerType.USER,
                 mime_type: MimeType.IMAGE_PNG,
                 type: MediaType.PROFILE_PHOTO,
@@ -85,6 +130,8 @@ export class AuthServices {
             throw new AppError('User not found', 500, ErrorTypes.UNAUTHORIZED);
         }
 
+        CookieService.clearGuestToken(res);
+
         const accessToken = this.tokenService.generateAccessToken(user.get('id'), user.get('tokenVersion'), isNewUser);
         const refreshToken = this.tokenService.generateRefreshToken(user.get('id'), user.get('tokenVersion'));   
 
@@ -100,7 +147,7 @@ export class AuthServices {
     async login(data: loginDto, res: Response): Promise<AuthResponse> {
         const { email, password } = data;
 
-        const user = await UserService.getUserWithMediaFile({ email });
+        const user = await UserService.getUserWithMediaFile({ email, type: 'registered' });
         if (!user) {
             throw new AppError('Invalid credentials', 401, ErrorTypes.INVALID_CREDENTIALS);
         }
@@ -121,6 +168,7 @@ export class AuthServices {
         }
 
         await UserService.saveUserChanges({ lastLogin: new Date() }, user);
+        CookieService.clearGuestToken(res);
 
         const accessToken = this.tokenService.generateAccessToken(user.get('id'), user.get('tokenVersion'));
         const refreshToken = this.tokenService.generateRefreshToken(user.get('id'), user.get('tokenVersion'));   
@@ -134,31 +182,46 @@ export class AuthServices {
     }
 
     @handleServiceError('Registration failed')
-    async register(data: registerDto): Promise<AuthResponse> {
+    async register(data: registerDto, actor: Actor | undefined, res: Response): Promise<AuthResponse> {
         const { username, email, password } = data;
 
         await UserService.validateNewUserCredentials(email, username);
             
-        const user = await UserService.createUser({
-            username: username,
-            email: email,
-            password: password,
-            authProvider: 'local',
+        const guest = actor?.type === 'guest' ? await UserService.getUser({ id: actor.id, type: 'guest' }) : null;
+        const accountFields = {
             lastLogin: new Date(),
             isActive: true,
-            needsInitialSync: true
-        });
+            needsInitialSync: true,
+            authProvider: 'local' as const,
+        };
+
+        const user = guest
+            ? await upgradeGuestToRegistered(guest, {
+                ...accountFields,
+                username,
+                email,
+                password: await PasswordHasher.hash(password),
+            })
+            : await UserService.createUser({
+                ...accountFields,
+                type: 'registered',
+                username,
+                email,
+                password,
+            });
 
         await MediaFilesServices.create({
             user_id: user.id,
             owner_id: user.id,
-            filename: user.get('username'),
+            filename: user.get('username') as string,
             owner_type: OwnerType.USER,
             mime_type: MimeType.IMAGE_PNG,
             type: MediaType.PROFILE_PHOTO,
             is_active: false,
         });
         
+        CookieService.clearGuestToken(res);
+
         return {
             message: 'User registered successfully'
         };

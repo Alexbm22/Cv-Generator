@@ -15,7 +15,7 @@ export class StripeService {
     static async createCustomerForUser(user: User): Promise<string | null> {
         try {
             const customer = await stripe.customers.create({
-                email: user.email,
+                email: user.email ?? undefined,
                 metadata: {
                     userId: String(user.id),
                     publicId: user.public_id

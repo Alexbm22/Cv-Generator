@@ -14,10 +14,13 @@ export interface registerDto {
 
 export type AuthCredentials = registerDto | loginDto | CredentialResponse;
 
+export type ActorType = 'guest' | 'registered';
+
 export interface AuthResponse {
     message?: string,
     token?: TokenClientData,
     user?: UserAttributes;
+    actorType?: ActorType;
 }
 
 export interface TokenClientData {

@@ -1,5 +1,6 @@
 import { Optional } from 'sequelize';
 import { AuthProvider } from './auth';
+import { AccountType } from './actor';
 import { PublicPaymentData } from './payments';
 import { PublicSubscriptionData } from './subscriptions';
 import { PublicCVAttributes, PublicCVMetadataAttributes } from './cv';
@@ -36,9 +37,13 @@ export interface UserProfileData {
 export interface ServerUserAttributes {
     id: number;
     public_id: string;
-    username: string;
-    email: string;
+    type: AccountType;
+    username: string | null;
+    email: string | null;
     password: string | null;
+    guestTokenHash: string | null;
+    lastSeenAt: Date | null;
+    convertedAt: Date | null;
     googleId: string | null;
     authProvider: AuthProvider;
     isActive: boolean;
@@ -77,4 +82,4 @@ export interface InitialDataSyncAttributes {
 }
 
 export interface UserCreationAttributes extends Optional<ServerUserAttributes, 
-'id' | 'googleId' | 'password' | 'lastLogin' | 'passwordChangedAt' | 'isActive' | 'needsInitialSync' | 'useProfilePictureAsDefault' | 'customColors' | 'public_id' | 'tokenVersion' | 'stripeCustomerId'> {}
+'id' | 'username' | 'email' | 'googleId' | 'password' | 'lastLogin' | 'passwordChangedAt' | 'isActive' | 'needsInitialSync' | 'useProfilePictureAsDefault' | 'customColors' | 'public_id' | 'tokenVersion' | 'stripeCustomerId' | 'guestTokenHash' | 'lastSeenAt' | 'convertedAt'> {}

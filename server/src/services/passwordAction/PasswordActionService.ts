@@ -56,7 +56,7 @@ export class PasswordActionService {
         let userId: number | null = null;
         try {
             const normalizedEmail = email.trim().toLowerCase();
-            const user = await User.findOne({ where: { email: normalizedEmail } });
+            const user = await User.findOne({ where: { email: normalizedEmail, type: 'registered' } });
             if (!user) {
                 await PasswordActionLogger.append({
                     event: 'password.forgot.requested',

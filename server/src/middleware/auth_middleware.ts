@@ -4,6 +4,7 @@ import { AuthRequest } from '../interfaces/auth';
 import { ErrorTypes } from '../interfaces/error';
 import { UserService } from '@/services/user';
 import { AuthTokenService } from '@/services/tokens';
+import { toRegisteredActor } from './actor';
 
 const tokenService = new AuthTokenService();
 
@@ -26,21 +27,23 @@ export const authMiddleware = catchAsync(async (req: AuthRequest, res: Response,
             throw new AppError('Invalid token', 401, ErrorTypes.UNAUTHORIZED);
         }
 
-        const user = await UserService.getUser({ id: decodedAccessToken.user_id, tokenVersion: decodedAccessToken.version });
+        let user = await UserService.getUser({ id: decodedAccessToken.user_id, tokenVersion: decodedAccessToken.version });
+        if (!user && decodedAccessToken.isFirstAuth) {
+            // Wait for a short duration before retrying
+            await new Promise(resolve => setTimeout(resolve, 300));
+            user = await UserService.getUser({ id: decodedAccessToken.user_id, tokenVersion: decodedAccessToken.version });
+        }
         if (!user) {
-            if (decodedAccessToken.isFirstAuth) {
-                // Wait for a short duration before retrying
-                await new Promise(resolve => setTimeout(resolve, 300));
-                const retryUser = await UserService.getUser({ id: decodedAccessToken.user_id, tokenVersion: decodedAccessToken.version });
-                if (retryUser) {
-                    req.user = retryUser;
-                    return next();
-                }
-            }
-            return next(new AppError('User not found', 401, ErrorTypes.UNAUTHORIZED));
-        }  
-    
+            throw new AppError('User not found', 401, ErrorTypes.UNAUTHORIZED);
+        }
+
+        const actor = toRegisteredActor(user);
+        if (!actor) {
+            throw new AppError('User not found', 401, ErrorTypes.UNAUTHORIZED);
+        }
+
         req.user = user;
+        req.actor = actor;
     } catch (error) {
         if (error instanceof AppError) {
             return next(error);

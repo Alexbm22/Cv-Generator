@@ -5,6 +5,7 @@ import {
     registerDto
 } from '../interfaces/auth';
 import { AuthServices } from '../services/auth';
+import { CookieService, REFRESH_COOKIE_NAME } from '../services/cookie';
 
 export class AuthController {
     private authServices: AuthServices;
@@ -28,7 +29,7 @@ export class AuthController {
         const IdToken: string = req.body.credential;
 
         try {
-            const loginResult = await this.authServices.googleLogin(IdToken, res);
+            const loginResult = await this.authServices.googleLogin(IdToken, res, req.actor);
             return res.status(200).json(loginResult);
         } catch (error) {
             return next(error)
@@ -39,7 +40,7 @@ export class AuthController {
         const registerDto: registerDto = req.body;
 
         try {
-            const registrationResult = await this.authServices.register(registerDto);
+            const registrationResult = await this.authServices.register(registerDto, req.actor, res);
             return res.status(201).json(registrationResult);
         } catch (error) {
             return next(error)
@@ -67,8 +68,15 @@ export class AuthController {
     async checkAuth(req: Request, res: Response, next: NextFunction){
 
         try {
+            if (req.actor?.type !== 'registered') {
+                if (req.cookies?.[REFRESH_COOKIE_NAME]) {
+                    CookieService.clearRefreshToken(res);
+                }
+                return res.status(200).json({ actorType: 'guest' });
+            }
+
             const publicUserData = await this.authServices.checkAuth(req, res);   
-            return res.status(200).json(publicUserData);
+            return res.status(200).json({ ...publicUserData, actorType: 'registered' });
         } catch (error) {
             return next(error);
         }

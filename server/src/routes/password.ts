@@ -3,6 +3,7 @@ import { AuthRequest } from '@/interfaces/auth';
 import { PasswordActionExchangeRequest, PasswordActionRequest } from '@/interfaces/passwordAction';
 import { PasswordActionController } from '@/controllers/passwordAction';
 import { authMiddleware } from '@/middleware/auth_middleware';
+import { requireRegistered } from '@/middleware/actor';
 import { catchAsync } from '@/middleware/error_middleware';
 import {
     optionalPasswordActionAuth,
@@ -47,6 +48,7 @@ router.post(
 router.post(
     '/change/request',
     authMiddleware,
+    requireRegistered,
     changeByUserLimit,
     routeHandler(PasswordActionController.requestChange),
 );
@@ -54,6 +56,7 @@ router.post(
 router.post(
     '/set/request',
     authMiddleware,
+    requireRegistered,
     setByUserLimit,
     routeHandler(PasswordActionController.requestSet),
 );

@@ -2,6 +2,18 @@ import { config } from '@/config/env';
 import { PasswordActionType } from '@/interfaces/passwordAction';
 import { User } from '@/models';
 import { emailService } from '@/services/email';
+import { AppError } from '@/middleware/error_middleware';
+import { ErrorTypes } from '@/interfaces/error';
+
+// Password actions are only offered to registered accounts, which always have an email and username.
+const accountContact = (user: User): { email: string; username: string } => {
+    const email = user.get('email');
+    const username = user.get('username');
+    if (!email || !username) {
+        throw new AppError('Password action requires a registered account', 409, ErrorTypes.INVALID_OPERATION);
+    }
+    return { email, username };
+};
 
 export interface PasswordActionMailer {
     sendActionLink(user: User, type: PasswordActionType, link: string): Promise<void>;
@@ -15,25 +27,28 @@ export class DefaultPasswordActionMailer implements PasswordActionMailer {
             console.log('Password action link:', link);
         }
 
+        const { email, username } = accountContact(user);
         await emailService.sendPasswordActionLinkEmail(
-            user.get('email'),
+            email,
             type,
-            user.get('username'),
+            username,
             link
         );
     }
 
     async sendCompletionNotice(user: User, type: PasswordActionType): Promise<void> {
-        await emailService.sendPasswordActionTemplate(user.get('email'), 'completion_notice', {
-            user_name: user.get('username'),
+        const { email, username } = accountContact(user);
+        await emailService.sendPasswordActionTemplate(email, 'completion_notice', {
+            user_name: username,
             action_type: type,
             message: 'Your password was updated. Ignore this email if it was not you.',
         });
     }
 
     async sendGoogleOnlyResetNotice(user: User): Promise<void> {
-        await emailService.sendPasswordActionTemplate(user.get('email'), 'google_only_reset', {
-            user_name: user.get('username'),
+        const { email, username } = accountContact(user);
+        await emailService.sendPasswordActionTemplate(email, 'google_only_reset', {
+            user_name: username,
             message: 'This account uses Google sign-in. Add a password from Settings > Account Setings.',
         });
     }

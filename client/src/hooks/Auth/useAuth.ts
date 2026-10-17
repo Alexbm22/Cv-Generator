@@ -94,6 +94,11 @@ export const useCheckAuth = () => {
             return await AuthService.checkAuth();
         },
         onSuccess: async (response) => {
+            if (response.actorType === 'guest') {
+                clearAuthenticatedUser();
+                return;
+            }
+
             handleAuthSuccess(response);
             migrateGuestToUser();
             await refreshUserProfile().catch(() => undefined);

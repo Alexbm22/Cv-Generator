@@ -1,4 +1,4 @@
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, Transaction } from 'sequelize';
 import sequelize from '../config/DB/database_config';
 import bcrypt from 'bcrypt';
 import { AuthProvider } from '../interfaces/auth';
@@ -19,12 +19,38 @@ import { SubscriptionService } from '@/services/subscriptions';
 import { CreditsService } from '@/services/credits';
 import { StripeService } from '@/services/stripe';
 import { PasswordHasher } from '@/utils/passwordHasher';
+import { AccountType } from '@/interfaces/actor';
+
+export const createInitialCredits = async (userId: number, transaction?: Transaction): Promise<void> => {
+    try {
+        await DownloadCredits.create({ user_id: userId }, { transaction });
+    } catch (error) {
+        console.error('Error creating initial download credits:', error);
+        throw new AppError('Failed to create initial download credits', 500, ErrorTypes.INTERNAL_ERR);
+    }
+};
+
+// Stripe customer creation is a secondary operation and must never block user creation
+export const attachStripeCustomer = async (user: User): Promise<void> => {
+    try {
+        const stripeCustomerId = await StripeService.createCustomerForUser(user);
+        if (stripeCustomerId) {
+            await User.update(
+                { stripeCustomerId },
+                { where: { id: user.get('id') } }
+            );
+        }
+    } catch (error) {
+        console.error('Error creating Stripe customer:', error);
+    }
+};
 
 class User extends Model<ServerUserAttributes, UserCreationAttributes> implements ServerUserAttributes {
     declare id: number;
     declare public_id: string;
-    declare username: string;
-    declare email: string;
+    declare type: AccountType;
+    declare username: string | null;
+    declare email: string | null;
     declare googleId: string | null;
     declare authProvider: AuthProvider;
     declare isActive: boolean;
@@ -36,6 +62,9 @@ class User extends Model<ServerUserAttributes, UserCreationAttributes> implement
     declare password: string | null;
     declare tokenVersion: number;
     declare stripeCustomerId: string | null;
+    declare guestTokenHash: string | null;
+    declare lastSeenAt: Date | null;
+    declare convertedAt: Date | null;
     declare readonly createdAt: Date;
     declare readonly updatedAt: Date;
 
@@ -90,11 +119,18 @@ User.init({
         unique: true,
         defaultValue: () => generateUUID(),
     },
+    type: {
+        type: DataTypes.STRING(16),
+        allowNull: false,
+        validate: {
+            isIn: [['guest', 'registered']],
+        }
+    },
     username: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
         unique: true,
-        set(value: string) {
+        set(value: string | null) {
             this.setDataValue('username', lowerCaseIfString(value) as string);
         },
         validate: {
@@ -104,9 +140,9 @@ User.init({
     },
     email: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
         unique: true,
-        set(value: string) {
+        set(value: string | null) {
             this.setDataValue('email', lowerCaseIfString(value) as string);
         },
         validate: {
@@ -119,7 +155,7 @@ User.init({
         allowNull: true,
         validate: {
             customValidator(value: string | null) {
-                if (this.authProvider === 'local' && !value) {
+                if (this.type === 'registered' && this.authProvider === 'local' && !value) {
                     throw new AppError('Password is required for local authentication', 400, ErrorTypes.VALIDATION_ERR);
                 }
             }
@@ -173,6 +209,19 @@ User.init({
         allowNull: true,
         unique: true,
     },
+    guestTokenHash: {
+        type: DataTypes.STRING(64),
+        allowNull: true,
+        unique: true,
+    },
+    lastSeenAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    convertedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
 }, {
@@ -180,31 +229,29 @@ User.init({
     tableName: 'users',
     timestamps: true,
     underscored: true,
+    indexes: [
+        { name: 'users_type_last_seen_at_idx', fields: ['type', 'last_seen_at'] }
+    ],
+    validate: {
+        // Runs on instance saves; static updates build a partial instance without a type.
+        identityMatchesType() {
+            const type = this.type;
+            const email = this.email;
+            if (type === 'registered' && !email) {
+                throw new AppError('Registered accounts require an email', 400, ErrorTypes.VALIDATION_ERR);
+            }
+            if (type === 'guest' && email) {
+                throw new AppError('Guest accounts cannot have an email', 400, ErrorTypes.VALIDATION_ERR);
+            }
+        }
+    },
     hooks: {
         afterCreate: async (user: User) => {
-            const user_id = user.get('id');
-
-            try {
-                // Create initial download credits for the user
-                await DownloadCredits.create({ user_id })
-
-            } catch (error) {
-                console.error('Error creating initial download credits:', error);
-                throw new AppError('Failed to create initial download credits', 500, ErrorTypes.INTERNAL_ERR);
+            if (user.get('type') !== 'registered') {
+                return;
             }
-
-            // Stripe customer creation is a secondary operation and must never block user creation
-            try {
-                const stripeCustomerId = await StripeService.createCustomerForUser(user);
-                if (stripeCustomerId) {
-                    await User.update(
-                        { stripeCustomerId },
-                        { where: { id: user.get('id') } }
-                    );
-                }
-            } catch (error) {
-                console.error('Error creating Stripe customer:', error);
-            }
+            await createInitialCredits(user.get('id'));
+            await attachStripeCustomer(user);
         },
         beforeCreate: async (user: User) => {
             const google_id = user.get('googleId');
