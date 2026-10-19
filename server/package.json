@@ -7,7 +7,10 @@
     "start": "node dist/server.js",
     "build": "tsc && tsc-alias -p tsconfig.json",
     "lint": "eslint . --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "migrate": "ts-node -r tsconfig-paths/register src/config/DB/cli.ts migrate",
+    "migrate:down": "ts-node -r tsconfig-paths/register src/config/DB/cli.ts migrate:down",
+    "seed:ai": "ts-node -r tsconfig-paths/register src/config/DB/cli.ts seed:ai"
   },
   "keywords": [],
   "author": "",
@@ -61,6 +64,7 @@
     "resend": "^6.32.1",
     "sequelize": "^6.37.6",
     "stripe": "^18.3.0",
+    "umzug": "^3.8.3",
     "zod": "^4.0.14"
   }
 }

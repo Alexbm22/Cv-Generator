@@ -21,12 +21,9 @@ export const AiController = {
     req.on('close', () => controller.abort());
 
     try {
-      const { content, jobData } = await CVsService.getAiOptimizedCVContent(
-        req.user.get().id,
-        CVId,
-        SectionData?.sectionType,
-        SectionData?.contentId,
-      );
+      const { content, jobData } = SectionData
+        ? await CVsService.getCVSectionContext(req.user.get().id, CVId, SectionData.sectionType, SectionData.contentId)
+        : await CVsService.getFullCVContext(req.user.get().id, CVId);
       const currentContent = JSON.stringify(content);
 
       const updatedHistory: HistoryEntry[] = [
@@ -173,12 +170,11 @@ export const AiController = {
     req.on('close', () => controller.abort());
 
     try {
-      const cv = await CVsService.getCVWithMediaFiles(req.user.get().id, CVId);
-      if (!cv) {
+      const context = await CVsService.getAboutMeAiContext(req.user.get().id, CVId);
+      if (!context) {
         res.status(404).json({ message: 'CV not found.' });
         return;
       }
-      const currentText: string = cv.get().content?.aboutMe ?? '';
 
       const updatedHistory: HistoryEntry[] = [
         ...optimized,
@@ -188,8 +184,9 @@ export const AiController = {
       const aiResponse = await callAboutMeEditAI({
         prompt,
         history: optimized,
-        currentText,
+        currentText: context.currentText,
         pendingTextChange,
+        jobData: context.jobData,
         signal: controller.signal,
       });
 
@@ -265,7 +262,7 @@ export const AiController = {
     req.on('close', () => controller.abort());
 
     try {
-      const { content } = await CVsService.getAiOptimizedCVContent(
+      const { content } = await CVsService.getFullCVContext(
         req.user.get().id, CVId
       );
       const currentContent = JSON.stringify(content);
