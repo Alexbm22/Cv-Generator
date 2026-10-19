@@ -4,3 +4,5 @@ export {default as mediaFilesRepository} from './mediaFiles';
 export {default as userRepository} from './user';
 export {default as subscriptionRepository} from './subscription';
 export {default as paymentRepository} from './payment';
+export {default as aiUsageEventRepository} from './aiUsageEvent';
+export {default as aiUsageDailyRepository} from './aiUsageDaily';

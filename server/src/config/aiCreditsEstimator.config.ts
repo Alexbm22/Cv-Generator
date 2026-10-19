@@ -14,13 +14,13 @@ export const defaultConfig: EstimatorConfig = {
   // TODO: de calibrat pe date reale (lungimea system prompt-ului in tokeni)
   systemPromptTokens: {
     cv_edit: 2500,
-    section_edit: 700,
+    cv_translate: 1000,
   },
 
   // TODO: de calibrat pe date reale (intervalul de tokeni de output)
   output: {
     cv_edit: { minTokens: 300, maxTokens: 4000 },
-    section_edit: { minTokens: 50, maxTokens: 800 },
+    cv_translate: { minTokens: 300, maxTokens: 8000 },
   },
 
   difficulty: {
@@ -31,7 +31,7 @@ export const defaultConfig: EstimatorConfig = {
     // TODO: de calibrat pe date reale (ponderile promptului vs. datelor; suma = 1)
     weights: {
       cv_edit: { prompt: 0.3, data: 0.7 },
-      section_edit: { prompt: 0.7, data: 0.3 },
+      cv_translate: { prompt: 0.2, data: 0.8 },
     },
   },
 };

@@ -1,6 +1,7 @@
 import sequelize from './database_config';
 import { defineTablesRelationships } from './relationships';
 import { config } from '../env';
+import { ensureAiUsageDailySchema, ensureAiUsageEventsSchema } from './aiUsageSchema';
 
 export const initModels = async () => {
     defineTablesRelationships();
@@ -19,4 +20,7 @@ export const initModels = async () => {
         default:
             await sequelize.sync();
     }
+
+    await ensureAiUsageEventsSchema(sequelize.getQueryInterface());
+    await ensureAiUsageDailySchema(sequelize.getQueryInterface());
 }

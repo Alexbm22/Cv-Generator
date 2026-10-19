@@ -65,9 +65,9 @@ export async function callSectionEditAI(params: SectionEditCallParams): Promise<
 
   try {
     const completion = await aiService.complete({
-      purpose: 'section_edit',
+      purpose: 'cv_edit',
       messages,
-      model: modelFor('section_edit'),
+      model: modelFor('cv_edit'),
       responseFormat: 'json',
       signal,
     });
@@ -236,9 +236,9 @@ export async function callAboutMeEditAI(params: AboutMeEditCallParams): Promise<
 
   try {
     const completion = await aiService.complete({
-      purpose: 'about_me_edit',
+      purpose: 'cv_edit',
       messages,
-      model: modelFor('about_me_edit'),
+      model: modelFor('cv_edit'),
       responseFormat: 'json',
       signal,
     });
@@ -274,9 +274,9 @@ export async function callTranslateCVAI(params: TranslateCVCallParams): Promise<
 
   try {
     const completion = await aiService.complete({
-      purpose: 'translate',
+      purpose: 'cv_translate',
       messages,
-      model: modelFor('translate'),
+      model: modelFor('cv_translate'),
       responseFormat: 'json',
       signal,
     });

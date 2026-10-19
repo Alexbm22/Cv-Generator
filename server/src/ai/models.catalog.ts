@@ -9,7 +9,7 @@ export type ModelTier = keyof typeof MODEL_CATALOG;
 export type ModelId = (typeof MODEL_CATALOG)[ModelTier]['id'];
 export const MODEL_TIERS = Object.keys(MODEL_CATALOG) as ModelTier[];
 
-export const FEATURES = ['cv_edit', 'section_edit', 'translate'] as const;
+export const FEATURES = ['cv_edit', 'cv_translate'] as const;
 export type Feature = (typeof FEATURES)[number];
 
 // 'limited' is for authenticated users past the usage threshold; gating is not implemented yet.
@@ -24,14 +24,12 @@ export interface TokenLimits {
 // Code-defined fallbacks used when a stored policy is missing or invalid.
 export const DEFAULT_TIER: Record<Feature, ModelTier> = {
     cv_edit: 'balanced',
-    section_edit: 'balanced',
-    translate: 'balanced',
+    cv_translate: 'balanced',
 };
 
 export const DEFAULT_LIMITS: Record<Feature, TokenLimits> = {
     cv_edit: { maxInputTokens: 32_000, maxOutputTokens: 8_000 },
-    section_edit: { maxInputTokens: 8_000, maxOutputTokens: 2_000 },
-    translate: { maxInputTokens: 64_000, maxOutputTokens: 16_000 },
+    cv_translate: { maxInputTokens: 64_000, maxOutputTokens: 16_000 },
 };
 
 export const isModelTier = (value: unknown): value is ModelTier =>

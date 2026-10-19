@@ -1,9 +1,10 @@
 import { defaultConfig } from '../../config/aiCreditsEstimator.config';
+import { FEATURES } from '../../ai/models.catalog';
 import type { Feature, TokenLimits } from '../../ai/models.catalog';
 import { resolveModelPolicy } from '../../ai/policy.service';
 import { getPriceAt } from '../../ai/pricing.service';
 
-export type EditType = Extract<Feature, 'cv_edit' | 'section_edit'>;
+export type EditType = Feature;
 
 export type TokenKind = 'input' | 'output';
 
@@ -36,7 +37,7 @@ export interface EstimatorConfig {
   };
 }
 
-const EDIT_TYPES: readonly EditType[] = ['cv_edit', 'section_edit'];
+const EDIT_TYPES: readonly EditType[] = FEATURES;
 const WEIGHT_SUM_TOLERANCE = 1e-9;
 
 /**

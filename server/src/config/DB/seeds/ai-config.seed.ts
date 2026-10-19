@@ -16,23 +16,19 @@ const MODEL_PRICES: Record<ModelId, { input: string; output: string }> = {
 const POLICY_SEED: Record<PlanId, Record<Feature, { tier: ModelTier; maxInputTokens: number; maxOutputTokens: number }>> = {
     free: {
         cv_edit: { tier: 'fast', maxInputTokens: 16_000, maxOutputTokens: 4_000 },
-        section_edit: { tier: 'fast', maxInputTokens: 4_000, maxOutputTokens: 1_000 },
-        translate: { tier: 'fast', maxInputTokens: 16_000, maxOutputTokens: 4_000 },
+        cv_translate: { tier: 'fast', maxInputTokens: 16_000, maxOutputTokens: 4_000 },
     },
     credits_pack: {
         cv_edit: { tier: 'balanced', maxInputTokens: 32_000, maxOutputTokens: 8_000 },
-        section_edit: { tier: 'balanced', maxInputTokens: 8_000, maxOutputTokens: 2_000 },
-        translate: { tier: 'balanced', maxInputTokens: 64_000, maxOutputTokens: 16_000 },
+        cv_translate: { tier: 'balanced', maxInputTokens: 64_000, maxOutputTokens: 16_000 },
     },
     full_access: {
         cv_edit: { tier: 'balanced', maxInputTokens: 32_000, maxOutputTokens: 8_000 },
-        section_edit: { tier: 'balanced', maxInputTokens: 8_000, maxOutputTokens: 2_000 },
-        translate: { tier: 'balanced', maxInputTokens: 64_000, maxOutputTokens: 16_000 },
+        cv_translate: { tier: 'balanced', maxInputTokens: 64_000, maxOutputTokens: 16_000 },
     },
     limited: {
         cv_edit: { tier: 'economy', maxInputTokens: 16_000, maxOutputTokens: 4_000 },
-        section_edit: { tier: 'economy', maxInputTokens: 4_000, maxOutputTokens: 1_000 },
-        translate: { tier: 'economy', maxInputTokens: 16_000, maxOutputTokens: 4_000 },
+        cv_translate: { tier: 'economy', maxInputTokens: 16_000, maxOutputTokens: 4_000 },
     },
 };
 
