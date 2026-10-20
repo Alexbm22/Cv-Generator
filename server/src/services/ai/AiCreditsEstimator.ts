@@ -39,6 +39,8 @@ export interface EstimatorConfig {
 
 const EDIT_TYPES: readonly EditType[] = FEATURES;
 const WEIGHT_SUM_TOLERANCE = 1e-9;
+// Matches the equiv_tokens DECIMAL(20, 4) scale.
+const CREDIT_SCALE = 10_000;
 
 /**
  * Estimates export/edit credits for an AI request. Estimation is pure and synchronous;
@@ -101,7 +103,7 @@ export class AiCreditsEstimator {
     if (text.length === 0) return 0;
 
     const tokens = this.countTokens(text.length);
-    return Math.ceil(this.tokensToCredits(tokens, 'input') * this.config.safetyMargin);
+    return roundUpCredits(this.tokensToCredits(tokens, 'input') * this.config.safetyMargin);
   }
 
   /**
@@ -127,7 +129,7 @@ export class AiCreditsEstimator {
 
     const credits =
       this.tokensToCredits(inputTokens, 'input') + this.tokensToCredits(outputTokens, 'output');
-    return Math.max(1, Math.ceil(credits * this.config.safetyMargin));
+    return Math.max(1, roundUpCredits(credits * this.config.safetyMargin));
   }
 
   private countTokens(length: number): number {
@@ -154,6 +156,20 @@ export class AiCreditsEstimator {
 
 function isValidLength(value: number): boolean {
   return Number.isFinite(value) && value >= 0;
+}
+
+// toFixed strips floating-point noise so values like 1.2000000000000002 do not round up.
+function roundUpCredits(value: number): number {
+  const scaled = Number((value * CREDIT_SCALE).toFixed(6));
+  return Math.ceil(scaled) / CREDIT_SCALE;
+}
+
+// Converts recorded USD cost to credits; no safety margin or minimum, unlike estimates.
+export function usdToCredits(usd: number, config: EstimatorConfig = defaultConfig): number {
+  if (!isValidLength(usd)) {
+    throw new RangeError('usd must be finite and non-negative');
+  }
+  return Math.round((usd / config.creditValueUsd) * CREDIT_SCALE) / CREDIT_SCALE;
 }
 
 function validateConfig(config: EstimatorConfig): void {
