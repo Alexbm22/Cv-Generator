@@ -8,8 +8,9 @@ import AIConversation from "./AIConversation";
 import AISectionDiffViewer from "./AISectionDiffViewer";
 import AIDiffViewer from "./AIDiffViewer";
 import AISettingsDialog from "../../AISettingsDialog";
-import { sendSectionEditMessage, sendTextFieldEditMessage, sendAboutMeEditMessage } from "../../../../services/ai";
+import { AiLimitError, sendSectionEditMessage, sendTextFieldEditMessage, sendAboutMeEditMessage } from "../../../../services/ai";
 import { useAuthStore, useCvEditStore } from "../../../../Store";
+import { formatLimitChatMessage, useAiUsageNoticeStore } from "../../../../Store/useAiUsageNoticeStore";
 import {
   AIPanelState,
   ConversationMessage,
@@ -82,7 +83,7 @@ export default function AiPanel({
     try {
       if (isItemMode && contentId && currentItem) {
         // ── Section item edit ───────────────────────────────────────────────
-        const { operation, message, history } = await sendSectionEditMessage({
+        const { operation, message, history, usageNotice } = await sendSectionEditMessage({
           prompt: trimmedPrompt,
           history: state.history,
           sectionType,
@@ -92,6 +93,8 @@ export default function AiPanel({
           signal: controller.signal,
           cvId,
         });
+
+        if (usageNotice) useAiUsageNoticeStore.getState().show(usageNotice);
 
         setState((prev) => ({
           ...prev,
@@ -104,13 +107,15 @@ export default function AiPanel({
         }));
       } else if (sectionType === 'aboutMe') {
         // ── About Me dedicated route ────────────────────────────────────────
-        const { setAboutMe, message, history } = await sendAboutMeEditMessage({
+        const { setAboutMe, message, history, usageNotice } = await sendAboutMeEditMessage({
           prompt: trimmedPrompt,
           history: state.history,
           signal: controller.signal,
           pendingTextChange: state.pendingTextChange ?? undefined,
           ...(cvId ? { cvId } : { currentText: currentText ?? '', jobData: useCvEditStore.getState().getJobData() }),
         });
+
+        if (usageNotice) useAiUsageNoticeStore.getState().show(usageNotice);
 
         setState((prev) => ({
           ...prev,
@@ -126,7 +131,7 @@ export default function AiPanel({
           ? [{ operationType: 'set_field' as const, field: sectionType, newValue: state.pendingTextChange.proposed, originalValue: state.pendingTextChange.original }]
           : undefined;
 
-        const { operations, message, history } = await sendTextFieldEditMessage({
+        const { operations, message, history, usageNotice } = await sendTextFieldEditMessage({
           prompt: trimmedPrompt,
           history: state.history,
           sectionType,
@@ -135,6 +140,8 @@ export default function AiPanel({
           signal: controller.signal,
           ...(cvId ? { cvId } : { cvData: useCvEditStore.getState().getCVObject(), jobData: useCvEditStore.getState().getJobData() }),
         });
+
+        if (usageNotice) useAiUsageNoticeStore.getState().show(usageNotice);
 
         const setFieldOp = operations.find((op) => op.operationType === "set_field");
 
@@ -152,7 +159,16 @@ export default function AiPanel({
       }
     } catch (err: unknown) {
       const isAbort = err instanceof DOMException && err.name === "AbortError";
-      if (!isAbort) {
+      if (err instanceof AiLimitError) {
+        useAiUsageNoticeStore.getState().show(err.usageNotice);
+        setState((prev) => ({
+          ...prev,
+          conversation: [
+            ...prev.conversation,
+            { id: uuidv4(), role: "assistant" as const, content: formatLimitChatMessage(err.usageNotice) } satisfies ConversationMessage,
+          ],
+        }));
+      } else if (!isAbort) {
         const message =
           err instanceof Error ? err.message : "An unexpected error occurred.";
         setState((prev) => ({

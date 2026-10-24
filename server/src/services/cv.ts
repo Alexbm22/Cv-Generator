@@ -10,7 +10,7 @@ import cvFactories from '../factories/cv';
 import { handleServiceError } from '../utils/serviceErrorHandler';
 import { getCVLanguageDetectionText } from "@/utils/cv";
 import { detectLanguage } from "./ai/languageDetection";
-import { callTranslateCVAI } from "./ai/chat";
+import { callTranslateCVAI, TranslateCVCallParams } from "./ai/chat";
 import sequelize from '@/config/DB/database_config';
 
 export class CVsService {
@@ -142,6 +142,25 @@ export class CVsService {
         return await cvRepository.getCVWithMediaFiles(userId, cvPublicId);
     }
 
+    static async getAboutMeAiContext(userId: number, cvPublicId: string) {
+        const cv = await cvRepository.getCVByPublicId(userId, cvPublicId);
+
+        if (!cv) {
+            return null;
+        }
+
+        const cvData = cv.get();
+
+        return {
+            currentText: cvData.content?.aboutMe ?? '',
+            jobData: {
+                jobTitle: cvData.jobTitle,
+                jobDescription: cvData.jobDescription,
+                companyName: cvData.companyName
+            }
+        };
+    }
+
     @handleServiceError('CV details fetch failed')
     static async getDetailedCV(userId: number, cvPublicId: string) {
         const cv = await this.getCVWithMediaFiles(userId, cvPublicId);
@@ -181,7 +200,7 @@ export class CVsService {
         }   
     }
 
-    static async getAiOptimizedCVContent(userId: number, cvPublicId: string, sectionType?: CVSectionType, sectionId?: string) {
+    private static async getCVContext(userId: number, cvPublicId: string) {
         const cv = await this.getCVWithMediaFiles(userId, cvPublicId);
 
         if (!cv) {
@@ -196,31 +215,35 @@ export class CVsService {
             companyName: cvData.companyName
         };
 
-        if (sectionType && sectionId) {
-            const content = cvData.content;
-            let sectionContent = content[sectionType as keyof typeof content];
-            sectionContent = sectionType === 'customSections' ? (sectionContent as any).content : sectionContent;
+        return { cvData, jobData };
+    }
 
-            if (Array.isArray(sectionContent)) {
-                const section = sectionContent.find(section => (section as any).id === sectionId);
-                if (!section) {
-                    throw new AppError('CV section not found.', 404, ErrorTypes.NOT_FOUND);
-                }
-                return {
-                    content: section,
-                    jobData
-                };
-            }
-            else {
-                throw new AppError('Invalid CV section type.', 400, ErrorTypes.BAD_REQUEST);
-            }
+    static async getCVSectionContext(userId: number, cvPublicId: string, sectionType: CVSectionType, sectionId: string) {
+        const { cvData, jobData } = await this.getCVContext(userId, cvPublicId);
+
+        const content = cvData.content;
+        let sectionContent = content[sectionType as keyof typeof content];
+        sectionContent = sectionType === 'customSections' ? (sectionContent as any).content : sectionContent;
+
+        if (!Array.isArray(sectionContent)) {
+            throw new AppError('Invalid CV section type.', 400, ErrorTypes.BAD_REQUEST);
         }
+
+        const section = sectionContent.find(section => (section as any).id === sectionId);
+        if (!section) {
+            throw new AppError('CV section not found.', 404, ErrorTypes.NOT_FOUND);
+        }
+
+        return { content: section, jobData };
+    }
+
+    static async getFullCVContext(userId: number, cvPublicId: string) {
+        const { cvData, jobData } = await this.getCVContext(userId, cvPublicId);
 
         return {
             content: mapServerCVToAiOptimizedCVContent(cvData),
             jobData
         };
-
     }
 
     static async getCVDetectedLanguage(userId: number, cvPublicId: string) {
@@ -254,11 +277,7 @@ export class CVsService {
         return await cvRepository.countUserCVs(user_id);
     }
 
-    static async translateCVContent({ currentContent, targetLanguage, signal }: {
-        currentContent: string;
-        targetLanguage: string;
-        signal: AbortSignal;
-    }) {
-        return await callTranslateCVAI({ currentContent, targetLanguage, signal });
+    static async translateCVContent(params: TranslateCVCallParams) {
+        return await callTranslateCVAI(params);
     }
 }

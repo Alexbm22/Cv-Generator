@@ -8,3 +8,7 @@ export { default as CVSnapshot } from './CV_snapshot';
 export { default as MediaFiles } from './Media_files';
 export { default as PasswordActionToken } from './PasswordActionToken';
 export { default as PasswordActionSession } from './PasswordActionSession';
+export { default as AiModelPrice } from './AiModelPrice';
+export { default as AiPlanPolicy } from './AiPlanPolicy';
+export { default as AiUsageEvent } from './AiUsageEvent';
+export { default as AiUsageDaily } from './AiUsageDaily';

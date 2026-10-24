@@ -4,8 +4,10 @@ import { AlertCircle, Languages, RefreshCw, X } from 'lucide-react';
 import { useCvEditStore, useAiStore } from '../../Store';
 import { LANGUAGE_TO_FLAG } from '../../constants/CV/languageFlagMap';
 import type { CVLanguage } from '../../interfaces/cv';
-import type { CVEditOperation, TranslateResponse } from '../../interfaces/ai';
-import { translateCV } from '../../services/ai';
+import type { CVEditOperation, TranslateResponse, AiUsageNotice } from '../../interfaces/ai';
+import { AiLimitError, translateCV } from '../../services/ai';
+import { useAiUsageNoticeStore } from '../../Store/useAiUsageNoticeStore';
+import { useAuthStore } from '../../Store/useAuthStore';
 import AICVDiffViewer from './TextEditor/AiAssistant/AICVDiffViewer';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -17,6 +19,18 @@ interface CVTranslationDialogProps {
     onClose: () => void;
     targetLanguage: CVLanguage | null;
 }
+
+// Guests have no translate budget, so the server is never called for them.
+const GUEST_TRANSLATE_NOTICE: AiUsageNotice = {
+    feature: 'cv_translate',
+    userType: 'guest',
+    period: 'lifetime',
+    used: 0,
+    limit: 0,
+    remaining: 0,
+    level: 'limit_reached',
+    resetsAt: null,
+};
 
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 
@@ -137,8 +151,16 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
 
     // Abort controller ref for cleanup
     const abortRef = useRef<AbortController | null>(null);
+    // Notice from a successful translation, shown only after this dialog closes.
+    const pendingNoticeRef = useRef<AiUsageNotice | null>(null);
 
     const runTranslation = useCallback(async () => {
+        if (!useAuthStore.getState().isAuthenticated) {
+            onClose();
+            useAiUsageNoticeStore.getState().show(GUEST_TRANSLATE_NOTICE);
+            return;
+        }
+
         if (!targetLanguage || !cvId) {
             setPhase('error');
             setErrorMessage('Missing CV or target language. Please try again.');
@@ -151,6 +173,7 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
         abortRef.current = controller;
 
         setPhase('loading');
+        pendingNoticeRef.current = null;
         setOperations([]);
         setEmptyMessage('');
         setErrorMessage('');
@@ -161,6 +184,7 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
             setLanguage(targetLanguage); // Update the CV language in the store if translation is successful
         } catch (err) {
             if (controller.signal.aborted) return;
+            if (err instanceof AiLimitError) useAiUsageNoticeStore.getState().show(err.usageNotice);
             const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
             setPhase('error');
             setErrorMessage(msg);
@@ -175,6 +199,8 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
             return;
         }
 
+        if (response.usageNotice) pendingNoticeRef.current = response.usageNotice;
+
         if (response.operations.length === 0) {
             setPhase('empty');
             setEmptyMessage(
@@ -186,7 +212,7 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
 
         setOperations(response.operations as CVEditOperation[]);
         setPhase('success');
-    }, [targetLanguage, cvId]);
+    }, [targetLanguage, cvId, onClose]);
 
     // Fire translation as soon as the dialog opens
     useEffect(() => {
@@ -199,17 +225,25 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
     }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
     // runTranslation is intentionally omitted — we only want to fire on open, not on every re-render
 
-    const handleAcceptAll = useCallback(() => {
-        applyOperations(operations);
-        onClose();
-    }, [applyOperations, operations, onClose]);
-
-    const handleReject = useCallback(() => {
+    // Closing is the only point where a deferred translation notice is shown.
+    const closeDialog = useCallback(() => {
+        const notice = pendingNoticeRef.current;
+        pendingNoticeRef.current = null;
+        if (notice) useAiUsageNoticeStore.getState().show(notice);
         onClose();
     }, [onClose]);
 
+    const handleAcceptAll = useCallback(() => {
+        applyOperations(operations);
+        closeDialog();
+    }, [applyOperations, operations, closeDialog]);
+
+    const handleReject = useCallback(() => {
+        closeDialog();
+    }, [closeDialog]);
+
     return (
-        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Dialog.Root open={isOpen} onOpenChange={(open) => !open && closeDialog()}>
             <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
                 <Dialog.Content
@@ -260,14 +294,14 @@ const CVTranslationDialog: React.FC<CVTranslationDialogProps> = ({ isOpen, onClo
                         {phase === 'loading' && <LoadingState />}
 
                         {phase === 'empty' && (
-                            <EmptyState message={emptyMessage} onClose={onClose} />
+                            <EmptyState message={emptyMessage} onClose={closeDialog} />
                         )}
 
                         {phase === 'error' && (
                             <ErrorState
                                 message={errorMessage}
                                 onRetry={runTranslation}
-                                onClose={onClose}
+                                onClose={closeDialog}
                             />
                         )}
 

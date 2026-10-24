@@ -1,4 +1,4 @@
-import { openai } from '../../config/openai';
+import { aiService, modelFor } from './core';
 
 type SupportedLanguageCode = 'en' | 'fr' | 'es' | 'de' | 'it' | 'pt' | 'ro' | 'el' | 'ru';
 
@@ -11,17 +11,17 @@ If the language is not one of the supported ones, or you are not confident, resp
 export async function detectLanguage(text: string): Promise<SupportedLanguageCode | null> {
   if (!text || text.trim().length === 0) return null;
 
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+  const completion = await aiService.complete({
+    purpose: 'language_detection',
+    model: modelFor('language_detection'),
+    responseFormat: 'text',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: text },
     ],
-    temperature: 0.3,
-    max_tokens: 10,
   });
 
-  const raw = completion.choices[0]?.message?.content?.trim().toLowerCase() ?? '';
+  const raw = completion.content?.trim().toLowerCase() ?? '';
 
   if (raw === 'null' || raw === '') return null;
 

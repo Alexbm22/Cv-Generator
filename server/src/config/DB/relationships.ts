@@ -141,6 +141,19 @@ export const defineTablesRelationships = () => {
         }
     )
 
+    // FK and ON DELETE CASCADE are created by ensureAiUsageEventsSchema, not sync().
+    Models.User.hasMany(Models.AiUsageEvent, {
+        foreignKey: 'user_id',
+        as: 'aiUsageEvents',
+        constraints: false,
+    });
+
+    Models.AiUsageEvent.belongsTo(Models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+        constraints: false,
+    });
+
     Models.User.hasMany(Models.PasswordActionToken, {
         foreignKey: 'userId',
         as: 'passwordActionTokens',

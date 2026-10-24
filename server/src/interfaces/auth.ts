@@ -3,6 +3,7 @@ import { PublicCVAttributes } from './cv';
 import { User } from '../models';
 import { PublicUserAttributes, UserWithMediaFiles } from './user';
 import { AuthTokenPayload, PublicTokenData } from './token';
+import { AccountType } from './actor';
 
 export interface loginDto {
     email: string;
@@ -30,6 +31,10 @@ export interface AuthResponse {
     message?: string,
     token?: PublicTokenData,
     user?: PublicUserAttributes
+}
+
+export interface CheckAuthResponse extends AuthResponse {
+    actorType: AccountType;
 }
 
 export enum AuthStatus {

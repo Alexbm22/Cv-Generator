@@ -1,5 +1,5 @@
 import { getEncoding, Tiktoken } from 'js-tiktoken';
-import { openai } from '../../config/openai';
+import { aiService, modelFor } from './core';
 import { HistoryEntry } from '../../interfaces/ai';
 
 
@@ -26,8 +26,10 @@ function totalHistoryTokens(history: HistoryEntry[]): number {
 
 async function summarizeEntries(entries: HistoryEntry[]): Promise<HistoryEntry> {
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+    const completion = await aiService.complete({
+      purpose: 'history_summary',
+      model: modelFor('history_summary'),
+      responseFormat: 'text',
       messages: [
         {
           role: 'system',
@@ -41,10 +43,9 @@ async function summarizeEntries(entries: HistoryEntry[]): Promise<HistoryEntry> 
             .join('\n\n')}`,
         },
       ],
-      temperature: 0,
     });
 
-    const response = completion.choices[0]?.message?.content;
+    const response = completion.content;
     if (!response?.trim()) return entries.at(-1) ?? entries[0];
 
     return { role: 'system', content: response.trim() };

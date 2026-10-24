@@ -3,6 +3,7 @@ import auth_routes from './auth';
 import protectedRoutes from './protected';
 import ai_routes from './ai';
 import { authMiddleware } from '../middleware/auth_middleware';
+import { requireRegistered } from '../middleware/actor';
 import passwordRoutes from './password';
 
 const router = express.Router();
@@ -12,7 +13,7 @@ router.use('/ai', ai_routes);
 router.use('/password', passwordRoutes);
 
 //to be added to all routes that need authentication
-router.use('/protected', authMiddleware, protectedRoutes); 
+router.use('/protected', authMiddleware, requireRegistered, protectedRoutes); 
 
 export default router;
 

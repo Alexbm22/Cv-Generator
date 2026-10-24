@@ -6,6 +6,7 @@ import { Validate } from '../middleware/validation_middleware';
 import { registrationRules, loginRules } from '../validators/auth_validators';
 import { AuthController } from '../controllers/auth';
 import { AuthRequest } from '../interfaces/auth';
+import { resolveActor } from '../middleware/actor';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ const createRouterHandler = (controllerMethod: (req: AuthRequest, res: Response,
 router.post(
     '/google_login',
     RateLimitInstance.loginLimit(),
+    resolveActor({ create: false }),
     createRouterHandler(AuthController.prototype.googleLogin)
 )
 
@@ -33,6 +35,7 @@ router.post(
     '/register',
     RateLimitInstance.registerLimit(),
     Validate('register', registrationRules),
+    resolveActor({ create: false }),
     createRouterHandler(AuthController.prototype.register)
 )
 
@@ -51,6 +54,7 @@ router.get(
 router.get(
     '/check_auth',
     RateLimitInstance.checkAuthLimit(),
+    resolveActor({ create: false }),
     createRouterHandler(AuthController.prototype.checkAuth)
 )
 

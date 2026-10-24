@@ -109,6 +109,9 @@ export const envSchema = z.object({
     PASSWORD_ARGON2_PARALLELISM: boundedInt(64, 1),
     PASSWORD_MIN_LENGTH: boundedInt(4096, 10),
     PASSWORD_MAX_LENGTH: boundedInt(4096, 128),
+
+    // Lifetime of the guest identity cookie (days, 1-365).
+    GUEST_COOKIE_MAX_AGE_DAYS: boundedInt(365, 180),
 }).superRefine((values, context) => {
     const addIssue = (path: string, message: string) =>
         context.addIssue({ code: 'custom', path: [path], message });

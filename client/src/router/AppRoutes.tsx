@@ -1,11 +1,13 @@
 import { BrowserRouter as Router, Routes, Route  } from 'react-router-dom'
 import Layout from '../components/features/layout'
+import AiUsageNoticeDialog from '../components/UI/AiUsageNoticeDialog'
 import { routes } from './routes' 
 import RouteGuard from './RouteGuard'
 
 const AppRoutes: React.FC = () => {
     return (
         <Router>
+            <AiUsageNoticeDialog />
             <Routes>
                 <Route path='/' element={<Layout/>}>
                     {

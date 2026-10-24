@@ -201,6 +201,9 @@ class ApiService {
     const errType = error.response?.data?.errType || ErrorTypes.INTERNAL_ERR;
     const errors = error.response?.data?.errors;
 
+    // Usage-limit rejections are thrown as AiLimitError by the AI service, not shown globally.
+    if ((errors as unknown as { usageNotice?: unknown } | undefined)?.usageNotice) return;
+
     if(errors){
       errors.forEach((err) => {
         const errorObj = AppError.validation(err.message, err.param, err.formOrigin);

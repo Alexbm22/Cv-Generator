@@ -7,7 +7,9 @@
     "start": "node dist/server.js",
     "build": "tsc && tsc-alias -p tsconfig.json",
     "lint": "eslint . --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "seed:ai": "ts-node -r tsconfig-paths/register src/config/DB/cli.ts seed:ai",
+    "db:reset": "ts-node -r tsconfig-paths/register src/config/DB/cli.ts reset"
   },
   "keywords": [],
   "author": "",

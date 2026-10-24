@@ -1,25 +1,25 @@
 import { AiController } from '@/controllers/ai';
+import { resolveActor } from '@/middleware/actor';
+import { aiUsageGate } from '@/middleware/ai_usage_middleware';
 import RateLimitInstance from '@/middleware/rate_limit_middleware';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 
 const router = express.Router();
 
 router.post(
   '/chat',
   RateLimitInstance.globalRateLimit(),
-  (req, res) => AiController.GuestChat(req as Request, res as Response),
+  resolveActor({ create: true }),
+  aiUsageGate('cv_edit'),
+  (req, res, next) => AiController.GuestChat(req as Request, res as Response, next as NextFunction),
 );
 
 router.post(
   '/about-me',
   RateLimitInstance.globalRateLimit(),
-  (req, res) => AiController.GuestAboutMeChat(req as Request, res as Response),
-);
-
-router.post(
-  '/translate',
-  RateLimitInstance.globalRateLimit(),
-  (req, res) => AiController.GuestTranslate(req as Request, res as Response),
+  resolveActor({ create: true }),
+  aiUsageGate('cv_edit'),
+  (req, res, next) => AiController.GuestAboutMeChat(req as Request, res as Response, next as NextFunction),
 );
 
 export default router;
