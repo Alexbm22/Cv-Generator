@@ -8,9 +8,9 @@ export interface AiUsageDailyQuery {
     limit?: number;
 }
 
-type AiUsageDailyKey = Pick<AiUsageDailyAttributes, 'subject_key' | 'usage_date' | 'operation'>;
-type AiUsageDailyCounters = Partial<Pick<AiUsageDailyAttributes, 'equiv_tokens' | 'ops_count'>>;
-type AiUsageDailyDeltas = { equiv_tokens?: number; ops_count?: number };
+type AiUsageDailyKey = Pick<AiUsageDailyAttributes, 'user_id' | 'usage_date' | 'operation'>;
+type AiUsageDailyCounters = Partial<Pick<AiUsageDailyAttributes, 'credits' | 'ops_count'>>;
+type AiUsageDailyDeltas = { credits?: number; ops_count?: number };
 type WriteOptions = { transaction?: Transaction };
 type ReadOptions = WriteOptions & { lock?: boolean };
 

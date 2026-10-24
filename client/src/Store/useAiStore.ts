@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
-import { sendCVEditMessage } from '../services/ai';
+import { AiLimitError, sendCVEditMessage } from '../services/ai';
+import { formatLimitChatMessage, useAiUsageNoticeStore } from './useAiUsageNoticeStore';
 import { sanitizeHtml } from '../utils';
 import {
   CVEditOperation,
@@ -277,7 +278,9 @@ export const useAiStore = create<AiStore>()(
               };
 
         try {
-          const { operations, message, history: newHistory } = await sendCVEditMessage(params);
+          const response = await sendCVEditMessage(params);
+          const { operations, message, history: newHistory } = response;
+          if (response.usageNotice) useAiUsageNoticeStore.getState().show(response.usageNotice);
 
           set((state) => ({
             pendingOperations: operations,
@@ -289,7 +292,15 @@ export const useAiStore = create<AiStore>()(
           }));
         } catch (err: unknown) {
           const isAbort = err instanceof DOMException && err.name === 'AbortError';
-          if (!isAbort) {
+          if (err instanceof AiLimitError) {
+            useAiUsageNoticeStore.getState().show(err.usageNotice);
+            set((state) => ({
+              conversation: [
+                ...state.conversation,
+                { id: uuidv4(), role: 'assistant' as const, content: formatLimitChatMessage(err.usageNotice) } satisfies ConversationMessage,
+              ],
+            }));
+          } else if (!isAbort) {
             const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
             set((state) => ({
               conversation: [

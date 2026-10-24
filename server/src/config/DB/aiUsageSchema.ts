@@ -10,7 +10,7 @@ interface IndexSpec {
     fields: string[];
 }
 
-interface CheckSpec {
+export interface CheckSpec {
     name: string;
     expression: string;
 }
@@ -19,16 +19,13 @@ const sqlList = (values: readonly string[]): string => values.map((value) => `'$
 
 export const AI_USAGE_EVENTS_INDEXES: readonly IndexSpec[] = [
     { name: 'ai_usage_events_user_operation_status_idx', fields: ['user_id', 'operation', 'status'] },
-    { name: 'ai_usage_events_guest_operation_status_idx', fields: ['guest_key', 'operation', 'status'] },
     { name: 'ai_usage_events_operation_id_idx', fields: ['operation_id'] },
-    { name: 'ai_usage_events_action_id_idx', fields: ['action_id'] },
 ];
 
-const AI_USAGE_EVENTS_CHECKS: readonly CheckSpec[] = [
-    { name: 'ai_usage_events_single_subject', expression: '(user_id IS NULL) <> (guest_key IS NULL)' },
+const eventsChecks: readonly CheckSpec[] = [
     {
         name: 'ai_usage_events_non_negative',
-        expression: 'input_tokens >= 0 AND output_tokens >= 0 AND equiv_tokens >= 0 AND cost_usd >= 0',
+        expression: 'input_tokens >= 0 AND output_tokens >= 0 AND credits >= 0 AND cost_usd >= 0',
     },
     { name: 'ai_usage_events_operation_valid', expression: `operation IN (${sqlList(AI_USAGE_OPERATIONS)})` },
     { name: 'ai_usage_events_status_valid', expression: `status IN (${sqlList(AI_USAGE_STATUSES)})` },
@@ -36,12 +33,8 @@ const AI_USAGE_EVENTS_CHECKS: readonly CheckSpec[] = [
 ];
 
 const AI_USAGE_DAILY_CHECKS: readonly CheckSpec[] = [
-    { name: 'ai_usage_daily_non_negative', expression: 'equiv_tokens >= 0 AND ops_count >= 0' },
+    { name: 'ai_usage_daily_non_negative', expression: 'credits >= 0 AND ops_count >= 0' },
     { name: 'ai_usage_daily_operation_valid', expression: `operation IN (${sqlList(AI_USAGE_OPERATIONS)})` },
-    {
-        name: 'ai_usage_daily_subject_key_valid',
-        expression: "subject_key LIKE 'user:%' OR subject_key LIKE 'guest:%'",
-    },
 ];
 
 const currentSchema = (qi: QueryInterface): string =>
@@ -62,12 +55,13 @@ const ensureIndex = async (qi: QueryInterface, table: string, { name, fields }: 
     await qi.addIndex(table, fields, { name });
 };
 
-const ensureCheck = async (qi: QueryInterface, table: string, { name, expression }: CheckSpec): Promise<void> => {
+export const ensureCheck = async (qi: QueryInterface, table: string, { name, expression }: CheckSpec): Promise<void> => {
     if (await constraintExists(qi, table, name)) return;
     await qi.sequelize.query(`ALTER TABLE ${table} ADD CONSTRAINT ${name} CHECK (${expression})`);
 };
 
 const ensureUserForeignKey = async (qi: QueryInterface, table: string): Promise<void> => {
+    if (!('user_id' in (await qi.describeTable(table)))) return;
     if (!(await qi.tableExists('users'))) {
         console.warn(`[ai-usage] users table missing; ${table}.user_id foreign key deferred to server start`);
         return;
@@ -91,7 +85,7 @@ export const ensureAiUsageEventsSchema = async (qi: QueryInterface): Promise<voi
     for (const index of AI_USAGE_EVENTS_INDEXES) {
         await ensureIndex(qi, AI_USAGE_EVENTS_TABLE, index);
     }
-    for (const check of AI_USAGE_EVENTS_CHECKS) {
+    for (const check of eventsChecks) {
         await ensureCheck(qi, AI_USAGE_EVENTS_TABLE, check);
     }
     await ensureUserForeignKey(qi, AI_USAGE_EVENTS_TABLE);
@@ -101,4 +95,5 @@ export const ensureAiUsageDailySchema = async (qi: QueryInterface): Promise<void
     for (const check of AI_USAGE_DAILY_CHECKS) {
         await ensureCheck(qi, AI_USAGE_DAILY_TABLE, check);
     }
+    await ensureUserForeignKey(qi, AI_USAGE_DAILY_TABLE);
 };

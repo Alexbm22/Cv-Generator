@@ -31,10 +31,25 @@ export interface AIPanelState {
   isLoading: boolean;
 }
 
+export type AiUsageNoticeLevel = 'near_limit' | 'limit_reached';
+
+// Mirrors the server AiUsageNotice; resetsAt is null for lifetime budgets.
+export interface AiUsageNotice {
+  feature: 'cv_edit' | 'cv_translate';
+  userType: 'guest' | 'free' | 'free_credits' | 'pro';
+  period: 'daily' | 'lifetime';
+  used: number;
+  limit: number;
+  remaining: number;
+  level: AiUsageNoticeLevel;
+  resetsAt: string | null;
+}
+
 export interface SectionEditResponseBody {
   operation: SectionItemOperation;
   message: string;
   history: HistoryEntry[];
+  usageNotice?: AiUsageNotice | null;
 }
 
 export interface TextFieldEditResponseBody {
@@ -46,12 +61,14 @@ export interface TextFieldEditResponseBody {
   }>;
   message: string;
   history: HistoryEntry[];
+  usageNotice?: AiUsageNotice | null;
 }
 
 export interface AboutMeEditResponseBody {
   setAboutMe: SetAboutMeOperation;
   message: string;
   history: HistoryEntry[];
+  usageNotice?: AiUsageNotice | null;
 }
 
 // ── Full CV edit ─────────────────────────────────────────────────────────────
@@ -68,13 +85,14 @@ export interface CVEditResponseBody {
   operations: CVEditOperation[];
   message: string;
   history: HistoryEntry[];
+  usageNotice?: AiUsageNotice | null;
 }
 
 // ── CV Translation ─────────────────────────────────────────────────────────
 
 export type TranslateResponse =
-  | { operations: CVEditOperation[]; message?: string }
-  | { operations: []; message?: string }
+  | { operations: CVEditOperation[]; message?: string; usageNotice?: AiUsageNotice | null }
+  | { operations: []; message?: string; usageNotice?: AiUsageNotice | null }
   | { error: string };
 
 export interface TranslateRequest {

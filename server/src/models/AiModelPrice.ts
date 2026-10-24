@@ -7,6 +7,7 @@ class AiModelPrice extends Model {
     // DECIMAL columns are returned as strings to preserve precision.
     declare input_per_mtok: string;
     declare output_per_mtok: string;
+    declare temperature: string;
     declare effective_from: Date;
     declare effective_to: Date | null;
 }
@@ -28,6 +29,10 @@ AiModelPrice.init({
     },
     output_per_mtok: {
         type: DataTypes.DECIMAL(12, 6),
+        allowNull: false,
+    },
+    temperature: {
+        type: DataTypes.DECIMAL(3, 2),
         allowNull: false,
     },
     effective_from: {

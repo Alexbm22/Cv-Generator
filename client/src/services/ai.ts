@@ -1,6 +1,31 @@
 import { apiService } from './api';
-import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody, CVEditOperation, SectionItemOperation, TranslateResponse } from '../interfaces/ai';
+import { CVEditResponseBody, HistoryEntry, SectionEditResponseBody, TextFieldEditResponseBody, AboutMeEditResponseBody, CVEditOperation, SectionItemOperation, TranslateResponse, AiUsageNotice } from '../interfaces/ai';
 import axios from 'axios';
+
+// Thrown for 429 usage-limit rejections; carries the notice to show.
+export class AiLimitError extends Error {
+  readonly usageNotice: AiUsageNotice;
+
+  constructor(message: string, usageNotice: AiUsageNotice) {
+    super(message);
+    this.name = 'AiLimitError';
+    this.usageNotice = usageNotice;
+  }
+}
+
+const toAiError = (err: unknown): unknown => {
+  if (!axios.isAxiosError(err)) return err;
+
+  const data = err.response?.data;
+  const usageNotice: AiUsageNotice | undefined = data?.errors?.usageNotice;
+  if (err.response?.status === 429 && usageNotice) {
+    return new AiLimitError(data.message ?? 'AI usage limit reached', usageNotice);
+  }
+
+  const message: string =
+    data?.message ?? `AI request failed (${err.response?.status ?? 'unknown'})`;
+  return new Error(message);
+};
 
 export interface JobData {
   jobTitle?: string;
@@ -78,12 +103,7 @@ export async function sendSectionEditMessage(params: SectionAIChatParams): Promi
       { signal, timeout: 60000 },
     );
   } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const message: string =
-        err.response?.data?.message ?? `AI request failed (${err.response?.status ?? 'unknown'})`;
-      throw new Error(message);
-    }
-    throw err;
+    throw toAiError(err);
   }
 }
 
@@ -122,12 +142,7 @@ export async function sendTextFieldEditMessage(params: TextFieldAIChatParams): P
       { signal, timeout: 60000 },
     );
   } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const message: string =
-        err.response?.data?.message ?? `AI request failed (${err.response?.status ?? 'unknown'})`;
-      throw new Error(message);
-    }
-    throw err;
+    throw toAiError(err);
   }
 }
 
@@ -168,12 +183,7 @@ export async function sendCVEditMessage(params: CVEditAIChatParams): Promise<CVE
       { signal, timeout: 90000 },
     );
   } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const message: string =
-        err.response?.data?.message ?? `AI request failed (${err.response?.status ?? 'unknown'})`;
-      throw new Error(message);
-    }
-    throw err;
+    throw toAiError(err);
   }
 }
 
@@ -214,12 +224,7 @@ export async function sendAboutMeEditMessage(params: AboutMeAIChatParams): Promi
       { signal, timeout: 60000 },
     );
   } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const message: string =
-        err.response?.data?.message ?? `AI request failed (${err.response?.status ?? 'unknown'})`;
-      throw new Error(message);
-    }
-    throw err;
+    throw toAiError(err);
   }
 }
 
@@ -236,7 +241,7 @@ export async function translateCV({ cvId: _cvId, cvData, targetLanguage }: CVTra
       return await apiService.post<TranslateResponse>(
         '/protected/ai/translate',
         { CVId: _cvId, targetLanguage },
-        { timeout: 60000 },
+        { timeout: 90000 },
       );
     }
 
@@ -247,14 +252,9 @@ export async function translateCV({ cvId: _cvId, cvData, targetLanguage }: CVTra
     return await apiService.post<TranslateResponse>(
       '/ai/translate',
       { cvData, targetLanguage },
-      { timeout: 60000 },
+      { timeout: 90000 },
     );
   } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const message: string =
-        err.response?.data?.message ?? `AI request failed (${err.response?.status ?? 'unknown'})`;
-      throw new Error(message);
-    }
-    throw err;
+    throw toAiError(err);
   }
 }

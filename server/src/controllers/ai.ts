@@ -1,13 +1,28 @@
-import { Response, Request } from 'express';
+import { Response, Request, NextFunction } from 'express';
 import { AuthRequest } from '../interfaces/auth';
 import { aiGuestRequestSchema, aiProtectedRequestSchema, aiAboutMeProtectedRequestSchema, aiAboutMeGuestRequestSchema, aiProtectedTranslateCVRequestSchema, aiGuestTranslateCVRequestSchema } from '../validators/ai_validators';
 import { optimizeHistory } from '../services/ai/tokenOptimizer';
 import { callSectionEditAI, callCVEditAI, callAboutMeEditAI } from '../services/ai/chat';
+import { runMeteredAiCall } from '../services/ai/aiUsage';
+import { getAiAccess } from '../middleware/ai_usage_middleware';
+import { AppError } from '../middleware/error_middleware';
 import { HistoryEntry } from '../interfaces/ai';
 import { CVsService } from '@/services/cv';
 
+// AppError goes to the error handler for its status; aborted requests get no response.
+const respondWithError = (err: unknown, res: Response, next: NextFunction): void => {
+  if (err instanceof AppError) {
+    next(err);
+    return;
+  }
+  if (err instanceof Error && err.name === 'AbortError') return;
+
+  console.error('AI request failed:', err);
+  res.status(500).json({ message: 'An error occurred while processing your request.' });
+};
+
 export const AiController = {
-  ProtectedChat: async (req: AuthRequest, res: Response): Promise<void> => {
+  ProtectedChat: async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const parsed = aiProtectedRequestSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ message: 'Invalid request', errors: parsed.error.issues });
@@ -15,12 +30,13 @@ export const AiController = {
     }
 
     const { prompt, history, pendingOperations, pendingOperation, SectionData, CVId } = parsed.data;
-    const { optimized } = await optimizeHistory(history);
 
     const controller = new AbortController();
     req.on('close', () => controller.abort());
 
     try {
+      const access = getAiAccess(res);
+      const { optimized } = await optimizeHistory(history);
       const { content, jobData } = SectionData
         ? await CVsService.getCVSectionContext(req.user.get().id, CVId, SectionData.sectionType, SectionData.contentId)
         : await CVsService.getFullCVContext(req.user.get().id, CVId);
@@ -32,15 +48,20 @@ export const AiController = {
       ];
 
       if (SectionData) {
-        const aiResponse = await callSectionEditAI({
-          prompt,
-          history: optimized,
-          sectionType: SectionData.sectionType,
-          contentId: SectionData.contentId,
-          currentContent,
-          pendingOperation,
-          jobData,
+        const { value: aiResponse, usageNotice } = await runMeteredAiCall({
+          access,
           signal: controller.signal,
+          estimate: (estimator) => estimator.estimateEdit(optimized, prompt, currentContent),
+          run: (call) => callSectionEditAI({
+            ...call,
+            prompt,
+            history: optimized,
+            sectionType: SectionData.sectionType,
+            contentId: SectionData.contentId,
+            currentContent,
+            pendingOperation,
+            jobData,
+          }),
         });
 
         updatedHistory.push({ role: 'assistant', content: aiResponse.message });
@@ -49,15 +70,21 @@ export const AiController = {
           operation: aiResponse.ItemEditOperation,
           message: aiResponse.message,
           history: updatedHistory,
+          usageNotice,
         });
       } else {
-        const aiResponse = await callCVEditAI({
-          prompt,
-          history: optimized,
-          currentContent,
-          pendingOperations,
-          jobData,
+        const { value: aiResponse, usageNotice } = await runMeteredAiCall({
+          access,
           signal: controller.signal,
+          estimate: (estimator) => estimator.estimateEdit(optimized, prompt, currentContent),
+          run: (call) => callCVEditAI({
+            ...call,
+            prompt,
+            history: optimized,
+            currentContent,
+            pendingOperations,
+            jobData,
+          }),
         });
 
         updatedHistory.push({ role: 'assistant', content: aiResponse.message });
@@ -66,17 +93,15 @@ export const AiController = {
           operations: aiResponse.CVEditOperations,
           message: aiResponse.message,
           history: updatedHistory,
+          usageNotice,
         });
       }
     } catch (err: unknown) {
-      const isAbort = err instanceof Error && err.name === 'AbortError';
-      if (!isAbort) {
-        res.status(500).json({ message: 'An error occurred while processing your request.' });
-      }
+      respondWithError(err, res, next);
     }
   },
 
-  GuestChat: async (req: Request, res: Response): Promise<void> => {
+  GuestChat: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = aiGuestRequestSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ message: 'Invalid request', errors: parsed.error.issues });
@@ -95,6 +120,7 @@ export const AiController = {
     req.on('close', () => controller.abort());
 
     try {
+      const access = getAiAccess(res);
       const updatedHistory: HistoryEntry[] = [
         ...optimized,
         { role: 'user', content: prompt },
@@ -105,15 +131,20 @@ export const AiController = {
       if (sectionData && 'contentId' in sectionData) {
         const currentContent = JSON.stringify(sectionData.content);
 
-        const aiResponse = await callSectionEditAI({
-          prompt,
-          history: optimized,
-          sectionType: sectionData.sectionType,
-          contentId: sectionData.contentId,
-          currentContent,
-          pendingOperation,
-          jobData,
+        const { value: aiResponse, usageNotice } = await runMeteredAiCall({
+          access,
           signal: controller.signal,
+          estimate: (estimator) => estimator.estimateEdit(optimized, prompt, currentContent),
+          run: (call) => callSectionEditAI({
+            ...call,
+            prompt,
+            history: optimized,
+            sectionType: sectionData.sectionType,
+            contentId: sectionData.contentId,
+            currentContent,
+            pendingOperation,
+            jobData,
+          }),
         });
 
         updatedHistory.push({ role: 'assistant', content: aiResponse.message });
@@ -122,6 +153,7 @@ export const AiController = {
           operation: aiResponse.ItemEditOperation,
           message: aiResponse.message,
           history: updatedHistory,
+          usageNotice,
         });
       } else {
         // Full CV edit, or scalar field edit (e.g. aboutMe).
@@ -130,13 +162,18 @@ export const AiController = {
           ? JSON.stringify({ [sectionData.sectionType]: sectionData.content })
           : JSON.stringify(cvData);
 
-        const aiResponse = await callCVEditAI({
-          prompt,
-          history: optimized,
-          currentContent,
-          pendingOperations,
-          jobData,
+        const { value: aiResponse, usageNotice } = await runMeteredAiCall({
+          access,
           signal: controller.signal,
+          estimate: (estimator) => estimator.estimateEdit(optimized, prompt, currentContent),
+          run: (call) => callCVEditAI({
+            ...call,
+            prompt,
+            history: optimized,
+            currentContent,
+            pendingOperations,
+            jobData,
+          }),
         });
 
         updatedHistory.push({ role: 'assistant', content: aiResponse.message });
@@ -145,18 +182,15 @@ export const AiController = {
           operations: aiResponse.CVEditOperations,
           message: aiResponse.message,
           history: updatedHistory,
+          usageNotice,
         });
       }
     } catch (err: unknown) {
-      console.error('Error in GuestChat:', err);
-      const isAbort = err instanceof Error && err.name === 'AbortError';
-      if (!isAbort) {
-        res.status(500).json({ message: 'An error occurred while processing your request.' });
-      }
+      respondWithError(err, res, next);
     }
   },
 
-  ProtectedAboutMeChat: async (req: AuthRequest, res: Response): Promise<void> => {
+  ProtectedAboutMeChat: async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const parsed = aiAboutMeProtectedRequestSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ message: 'Invalid request', errors: parsed.error.issues });
@@ -164,12 +198,13 @@ export const AiController = {
     }
 
     const { prompt, history, CVId, pendingTextChange } = parsed.data;
-    const { optimized } = await optimizeHistory(history);
 
     const controller = new AbortController();
     req.on('close', () => controller.abort());
 
     try {
+      const access = getAiAccess(res);
+      const { optimized } = await optimizeHistory(history);
       const context = await CVsService.getAboutMeAiContext(req.user.get().id, CVId);
       if (!context) {
         res.status(404).json({ message: 'CV not found.' });
@@ -181,13 +216,18 @@ export const AiController = {
         { role: 'user', content: prompt },
       ];
 
-      const aiResponse = await callAboutMeEditAI({
-        prompt,
-        history: optimized,
-        currentText: context.currentText,
-        pendingTextChange,
-        jobData: context.jobData,
+      const { value: aiResponse, usageNotice } = await runMeteredAiCall({
+        access,
         signal: controller.signal,
+        estimate: (estimator) => estimator.estimateEdit(optimized, prompt, context.currentText),
+        run: (call) => callAboutMeEditAI({
+          ...call,
+          prompt,
+          history: optimized,
+          currentText: context.currentText,
+          pendingTextChange,
+          jobData: context.jobData,
+        }),
       });
 
       updatedHistory.push({ role: 'assistant', content: aiResponse.message });
@@ -196,16 +236,14 @@ export const AiController = {
         setAboutMe: aiResponse.setAboutMe,
         message: aiResponse.message,
         history: updatedHistory,
+        usageNotice,
       });
     } catch (err: unknown) {
-      const isAbort = err instanceof Error && err.name === 'AbortError';
-      if (!isAbort) {
-        res.status(500).json({ message: 'An error occurred while processing your request.' });
-      }
+      respondWithError(err, res, next);
     }
   },
 
-  GuestAboutMeChat: async (req: Request, res: Response): Promise<void> => {
+  GuestAboutMeChat: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = aiAboutMeGuestRequestSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ message: 'Invalid request', errors: parsed.error.issues });
@@ -213,24 +251,30 @@ export const AiController = {
     }
 
     const { prompt, history, currentText, pendingTextChange, jobData } = parsed.data;
-    const { optimized } = await optimizeHistory(history);
 
     const controller = new AbortController();
     req.on('close', () => controller.abort());
 
     try {
+      const access = getAiAccess(res);
+      const { optimized } = await optimizeHistory(history);
       const updatedHistory: HistoryEntry[] = [
         ...optimized,
         { role: 'user', content: prompt },
       ];
 
-      const aiResponse = await callAboutMeEditAI({
-        prompt,
-        history: optimized,
-        currentText,
-        pendingTextChange,
-        jobData,
+      const { value: aiResponse, usageNotice } = await runMeteredAiCall({
+        access,
         signal: controller.signal,
+        estimate: (estimator) => estimator.estimateEdit(optimized, prompt, currentText),
+        run: (call) => callAboutMeEditAI({
+          ...call,
+          prompt,
+          history: optimized,
+          currentText,
+          pendingTextChange,
+          jobData,
+        }),
       });
 
       updatedHistory.push({ role: 'assistant', content: aiResponse.message });
@@ -239,17 +283,14 @@ export const AiController = {
         setAboutMe: aiResponse.setAboutMe,
         message: aiResponse.message,
         history: updatedHistory,
+        usageNotice,
       });
     } catch (err: unknown) {
-      console.error('Error in GuestAboutMeChat:', err);
-      const isAbort = err instanceof Error && err.name === 'AbortError';
-      if (!isAbort) {
-        res.status(500).json({ message: 'An error occurred while processing your request.' });
-      }
+      respondWithError(err, res, next);
     }
   },
 
-  ProtectedTranslate: async (req: AuthRequest, res: Response): Promise<void> => {
+  ProtectedTranslate: async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const parsed = aiProtectedTranslateCVRequestSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ message: 'Invalid request', errors: parsed.error.issues });
@@ -262,30 +303,30 @@ export const AiController = {
     req.on('close', () => controller.abort());
 
     try {
+      const access = getAiAccess(res);
       const { content } = await CVsService.getFullCVContext(
         req.user.get().id, CVId
       );
       const currentContent = JSON.stringify(content);
 
-      const aiResponse = await CVsService.translateCVContent({
-        currentContent,
-        targetLanguage,
+      const { value: aiResponse, usageNotice } = await runMeteredAiCall({
+        access,
         signal: controller.signal,
+        estimate: (estimator) => estimator.estimateEdit([], targetLanguage, currentContent),
+        run: (call) => CVsService.translateCVContent({ ...call, currentContent, targetLanguage }),
       });
 
       res.status(200).json({
         operations: aiResponse.CVEditOperations,
         message: aiResponse.message,
+        usageNotice,
       });
     } catch (err: unknown) {
-      const isAbort = err instanceof Error && err.name === 'AbortError';
-      if (!isAbort) {
-        res.status(500).json({ message: 'An error occurred while processing your request.' });
-      }
+      respondWithError(err, res, next);
     }
   },
 
-  GuestTranslate: async (req: Request, res: Response): Promise<void> => {
+  GuestTranslate: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = aiGuestTranslateCVRequestSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ message: 'Invalid request', errors: parsed.error.issues });
@@ -298,23 +339,23 @@ export const AiController = {
     req.on('close', () => controller.abort());
 
     try {
+      const access = getAiAccess(res);
       const currentContent = JSON.stringify(cvData);
 
-      const aiResponse = await CVsService.translateCVContent({
-        currentContent,
-        targetLanguage,
+      const { value: aiResponse, usageNotice } = await runMeteredAiCall({
+        access,
         signal: controller.signal,
+        estimate: (estimator) => estimator.estimateEdit([], targetLanguage, currentContent),
+        run: (call) => CVsService.translateCVContent({ ...call, currentContent, targetLanguage }),
       });
 
       res.status(200).json({
         operations: aiResponse.CVEditOperations,
         message: aiResponse.message,
+        usageNotice,
       });
     } catch (err: unknown) {
-      const isAbort = err instanceof Error && err.name === 'AbortError';
-      if (!isAbort) {
-        res.status(500).json({ message: 'An error occurred while processing your request.' });
-      }
+      respondWithError(err, res, next);
     }
   }
 };

@@ -6,10 +6,10 @@ import { FEATURES, Feature, ModelId, MODEL_CATALOG, ModelTier, PLAN_IDS, PlanId 
 // Source: https://developers.openai.com/api/docs/pricing (standard, short context), verified 2026-10-17.
 const PRICE_EFFECTIVE_FROM = new Date('2026-10-17T00:00:00Z');
 
-const MODEL_PRICES: Record<ModelId, { input: string; output: string }> = {
-    'gpt-6-luna': { input: '0.100000', output: '0.500000' },
-    'gpt-6.1-sol': { input: '2.000000', output: '10.000000' },
-    'gpt-4.1-nano': { input: '0.100000', output: '0.400000' },
+const MODEL_PRICES: Record<ModelId, { input: string; output: string; temperature: string }> = {
+    'gpt-6-luna': { input: '0.100000', output: '0.500000', temperature: '1.00' },
+    'gpt-6.1-sol': { input: '2.000000', output: '10.000000', temperature: '1.00' },
+    'gpt-4.1-nano': { input: '0.100000', output: '0.400000', temperature: '0.00' },
 };
 
 // Limits are product defaults to confirm; they are only inserted when missing.
@@ -43,6 +43,11 @@ export async function seedAiConfig(): Promise<void> {
 
             if (open && Number(open.input_per_mtok) === Number(price.input)
                 && Number(open.output_per_mtok) === Number(price.output)) {
+                // Temperature is not billed, so it is updated in place instead of opening a new price period.
+                if (Number(open.temperature) !== Number(price.temperature)) {
+                    open.temperature = price.temperature;
+                    await open.save({ transaction });
+                }
                 continue;
             }
 
@@ -58,6 +63,7 @@ export async function seedAiConfig(): Promise<void> {
                 model_id: modelId,
                 input_per_mtok: price.input,
                 output_per_mtok: price.output,
+                temperature: price.temperature,
                 effective_from: PRICE_EFFECTIVE_FROM,
                 effective_to: null,
             }, { transaction });

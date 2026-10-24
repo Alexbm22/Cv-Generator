@@ -1,4 +1,5 @@
 import { AppError } from '../middleware/error_middleware';
+import type { AiUsageNotice, UsageNoticeLevel } from '../interfaces/aiUsage';
 import { ErrorTypes } from '../interfaces/error';
 import { Feature, isFeature, ModelTier } from './models.catalog';
 
@@ -16,6 +17,7 @@ interface TierBand {
 
 interface CreditPolicy {
     limit: number;
+    period: UsagePeriod;
     bands: readonly TierBand[];
 }
 
@@ -32,19 +34,23 @@ export const AI_LIMIT_POLICIES: {
 } = {
     cv_edit: {
         guest: {
-            limit: 5,
-            bands: [{ below: 4, tier: 'fast' }, { below: 5, tier: 'economy' }],
+            limit: 1,
+            period: 'lifetime',
+            bands: [{ below: 1, tier: 'fast' }],
         },
         free: {
             limit: 10,
+            period: 'daily',
             bands: [{ below: 9, tier: 'fast' }, { below: 10, tier: 'economy' }],
         },
         free_credits: {
             limit: 20,
+            period: 'daily',
             bands: [{ below: 19, tier: 'fast' }, { below: 20, tier: 'economy' }],
         },
         pro: {
             limit: 30,
+            period: 'daily',
             bands: [
                 { below: 11, tier: 'balanced' },
                 { below: 29, tier: 'fast' },
@@ -65,6 +71,51 @@ export interface AiAccessRequest {
     operation: Feature;
     used: number;
 }
+
+// cv_edit budgets are credits; cv_translate budgets are operations.
+export interface AiUsageBudget {
+    limit: number;
+    period: UsagePeriod;
+}
+
+export const getAiUsageBudget = (userType: AiUserType, operation: Feature): AiUsageBudget | null => {
+    if (operation === 'cv_edit') {
+        const policy = AI_LIMIT_POLICIES.cv_edit[userType];
+        return { limit: policy.limit, period: policy.period };
+    }
+    const policy = AI_LIMIT_POLICIES.cv_translate[userType];
+    return policy ? { limit: policy.limit, period: policy.period } : null;
+};
+
+const nextUtcMidnight = (now: Date): string =>
+    new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)).toISOString();
+
+// Translate warns once remaining operations reach 20% of the limit, with a minimum of one.
+const nearLimitThreshold = (limit: number): number => Math.max(1, Math.ceil(limit * 0.2));
+
+// cv_edit only reports at the limit; a blocked request always reports limit_reached.
+export const buildUsageNotice = (
+    { userType, feature, used, budget }: { userType: AiUserType; feature: Feature; used: number; budget: AiUsageBudget },
+    blocked = false,
+): AiUsageNotice | null => {
+    const remaining = Math.max(0, budget.limit - used);
+
+    let level: UsageNoticeLevel | null = null;
+    if (blocked || remaining <= 0) level = 'limit_reached';
+    else if (feature === 'cv_translate' && remaining <= nearLimitThreshold(budget.limit)) level = 'near_limit';
+    if (!level) return null;
+
+    return {
+        feature,
+        userType,
+        period: budget.period,
+        used,
+        limit: budget.limit,
+        remaining,
+        level,
+        resetsAt: budget.period === 'daily' ? nextUtcMidnight(new Date()) : null,
+    };
+};
 
 export type AiAccessDecision =
     | { allowed: true; tier: ModelTier }

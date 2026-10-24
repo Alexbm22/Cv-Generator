@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { aiService, modelFor } from './core';
+import { aiService, userModelFor } from './core';
+import type { AiCompletionResult, AiMessage } from './core';
 import { HistoryEntry } from '../../interfaces/ai';
 import {
   aiCVEditResponseSchema,
@@ -16,7 +17,31 @@ import { CV_EDIT_SYSTEM_PROMPT } from '../../constants/prompts/cvEdit';
 import { ABOUT_ME_SYSTEM_PROMPT } from '../../constants/prompts/aboutMeEdit';
 import { TRANSLATE_CV_SYSTEM_PROMPT } from '../../constants/prompts/translateCV';
 
-export interface SectionEditCallParams {
+// modelId and temperature are resolved by the usage pipeline; onCompletion reports usage as soon as the provider call returns.
+export interface AiCallOptions {
+  modelId: string;
+  temperature: number;
+  signal: AbortSignal;
+  onCompletion: (usage: AiCompletionResult['usage']) => void;
+}
+
+async function completeJson(
+  purpose: 'cv_edit' | 'cv_translate',
+  messages: AiMessage[],
+  call: AiCallOptions,
+): Promise<AiCompletionResult> {
+  const completion = await aiService.complete({
+    purpose,
+    messages,
+    model: userModelFor(call.modelId, call.temperature),
+    responseFormat: 'json',
+    signal: call.signal,
+  });
+  call.onCompletion(completion.usage);
+  return completion;
+}
+
+export interface SectionEditCallParams extends AiCallOptions {
   prompt: string;
   history: HistoryEntry[];
   sectionType: CVSectionType;
@@ -24,16 +49,14 @@ export interface SectionEditCallParams {
   currentContent: string;
   pendingOperation?: CVEditOperation;
   jobData?: { jobTitle?: string; jobDescription?: string; companyName?: string };
-  signal: AbortSignal;
 }
 
-export interface CVEditCallParams {
+export interface CVEditCallParams extends AiCallOptions {
   prompt: string;
   history: HistoryEntry[];
   pendingOperations?: CVEditOperation[];
   currentContent: string;
   jobData?: { jobTitle?: string; jobDescription?: string; companyName?: string };
-  signal: AbortSignal;
 }
 
 /**
@@ -41,7 +64,7 @@ export interface CVEditCallParams {
  * Always returns an update_item operation for the specified item.
  */
 export async function callSectionEditAI(params: SectionEditCallParams): Promise<AiSectionEditResponseOutput> {
-  const { prompt, history, sectionType, contentId, currentContent, pendingOperation, jobData, signal } = params;
+  const { prompt, history, sectionType, contentId, currentContent, pendingOperation, jobData } = params;
 
   const JobDataString = jobData ? `\n<job_posting>
     Job Title: ${jobData.jobTitle}
@@ -64,13 +87,7 @@ export async function callSectionEditAI(params: SectionEditCallParams): Promise<
   ];
 
   try {
-    const completion = await aiService.complete({
-      purpose: 'cv_edit',
-      messages,
-      model: modelFor('cv_edit'),
-      responseFormat: 'json',
-      signal,
-    });
+    const completion = await completeJson('cv_edit', messages, params);
 
     const response = parseAndValidate(completion.content, aiSectionEditResponseSchema);
     return {
@@ -88,7 +105,7 @@ export async function callSectionEditAI(params: SectionEditCallParams): Promise<
  * Returns an array of typed operations (update, add, remove, set_field, etc.).
  */
 export async function callCVEditAI(params: CVEditCallParams): Promise<AiCVEditResponseOutput> {
-  const { prompt, history, pendingOperations, currentContent, jobData, signal } = params;
+  const { prompt, history, pendingOperations, currentContent, jobData } = params;
 
   const JobDataString = jobData ? `\n\n<job_posting>
       Job Title: ${jobData.jobTitle}
@@ -109,13 +126,7 @@ export async function callCVEditAI(params: CVEditCallParams): Promise<AiCVEditRe
     },
   ];
 
-  const completion = await aiService.complete({
-    purpose: 'cv_edit',
-    messages,
-    model: modelFor('cv_edit'),
-    responseFormat: 'json',
-    signal,
-  });
+  const completion = await completeJson('cv_edit', messages, params);
 
   const response = parseAndValidate(completion.content, aiCVEditResponseSchema);
   return {
@@ -203,13 +214,12 @@ function sanitizeSkillLevelOperation<T extends { operationType: string }>(operat
 
 // ── About Me ──────────────────────────────────────────────────────────────────
 
-export interface AboutMeEditCallParams {
+export interface AboutMeEditCallParams extends AiCallOptions {
   prompt: string;
   history: HistoryEntry[];
   currentText: string;
   pendingTextChange?: { original: string; proposed: string };
   jobData?: { jobTitle?: string; jobDescription?: string; companyName?: string };
-  signal: AbortSignal;
 }
 
 /**
@@ -217,7 +227,7 @@ export interface AboutMeEditCallParams {
  * Always returns a set_about_me operation with newValue and originalValue.
  */
 export async function callAboutMeEditAI(params: AboutMeEditCallParams): Promise<AiAboutMeResponseOutput> {
-  const { prompt, history, currentText, pendingTextChange, jobData, signal } = params;
+  const { prompt, history, currentText, pendingTextChange, jobData } = params;
 
   const JobDataString = jobData ? `\n<job_posting>\n    Job Title: ${jobData.jobTitle}\n    Company: ${jobData.companyName}\n    Description: ${jobData.jobDescription}\n    </job_posting>\n    This is the job I'm targeting. When I ask you to update my CV, use this posting to identify key skills and keywords, and tailor accordingly — without fabricating experience I don't have.`
     : '';
@@ -235,13 +245,7 @@ export async function callAboutMeEditAI(params: AboutMeEditCallParams): Promise<
   ];
 
   try {
-    const completion = await aiService.complete({
-      purpose: 'cv_edit',
-      messages,
-      model: modelFor('cv_edit'),
-      responseFormat: 'json',
-      signal,
-    });
+    const completion = await completeJson('cv_edit', messages, params);
 
     return parseAndValidate(completion.content, aiAboutMeResponseSchema);
   } catch (error) {
@@ -252,10 +256,9 @@ export async function callAboutMeEditAI(params: AboutMeEditCallParams): Promise<
 
 // ── CV Translation ────────────────────────────────────────────────────────────
 
-export interface TranslateCVCallParams {
+export interface TranslateCVCallParams extends AiCallOptions {
   currentContent: string;
   targetLanguage: string;
-  signal: AbortSignal;
 }
 
 /**
@@ -263,7 +266,7 @@ export interface TranslateCVCallParams {
  * Returns an array of typed operations covering every translatable field.
  */
 export async function callTranslateCVAI(params: TranslateCVCallParams): Promise<AiCVEditResponseOutput> {
-  const { currentContent, targetLanguage, signal } = params;
+  const { currentContent, targetLanguage } = params;
 
   const userMessage = `Translate the following CV content into ${targetLanguage}.\n\nCV content:\n${currentContent}`;
 
@@ -273,13 +276,7 @@ export async function callTranslateCVAI(params: TranslateCVCallParams): Promise<
   ];
 
   try {
-    const completion = await aiService.complete({
-      purpose: 'cv_translate',
-      messages,
-      model: modelFor('cv_translate'),
-      responseFormat: 'json',
-      signal,
-    });
+    const completion = await completeJson('cv_translate', messages, params);
 
     const response = parseAndValidate(completion.content, aiCVEditResponseSchema);
     return {

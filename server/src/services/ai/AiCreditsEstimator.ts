@@ -1,7 +1,6 @@
 import { defaultConfig } from '../../config/aiCreditsEstimator.config';
-import { FEATURES } from '../../ai/models.catalog';
-import type { Feature, TokenLimits } from '../../ai/models.catalog';
-import { resolveModelPolicy } from '../../ai/policy.service';
+import { FEATURES, MODEL_CATALOG } from '../../ai/models.catalog';
+import type { Feature, ModelTier, TokenLimits } from '../../ai/models.catalog';
 import { getPriceAt } from '../../ai/pricing.service';
 
 export type EditType = Feature;
@@ -9,7 +8,7 @@ export type EditType = Feature;
 export type TokenKind = 'input' | 'output';
 
 export interface HistoryMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
@@ -21,6 +20,7 @@ export interface ModelPricing {
 export interface EstimatorTarget {
   model: string;
   pricing: ModelPricing;
+  temperature: number;
   limits: TokenLimits;
 }
 
@@ -39,12 +39,12 @@ export interface EstimatorConfig {
 
 const EDIT_TYPES: readonly EditType[] = FEATURES;
 const WEIGHT_SUM_TOLERANCE = 1e-9;
-// Matches the equiv_tokens DECIMAL(20, 4) scale.
+// Matches the DECIMAL(20, 4) scale of the credit columns.
 const CREDIT_SCALE = 10_000;
 
 /**
- * Estimates export/edit credits for an AI request. Estimation is pure and synchronous;
- * model, pricing and limits come from the AI configuration layer via `forPlan`.
+ * Estimates credits for an AI request. Estimation is pure and synchronous;
+ * model, pricing and temperature come from the tier catalog and the current price table via `forTier`.
  */
 export class AiCreditsEstimator {
   private readonly config: EstimatorConfig;
@@ -52,23 +52,26 @@ export class AiCreditsEstimator {
   private readonly pricePerMTok: Record<TokenKind, number>;
   private readonly limits: TokenLimits;
   public readonly model: string;
+  public readonly pricing: ModelPricing;
+  public readonly temperature: number;
 
   /**
-   * Resolves the model, limits and current price configured for a plan.
-   * @throws AppError if no price is configured for the resolved model.
+   * Builds an estimator for a model tier using its current price.
+   * @throws AppError if no price is configured for the tier's model.
    */
-  static async forPlan(
+  static async forTier(
     editType: EditType,
-    planId: string,
+    tier: ModelTier,
     config: EstimatorConfig = defaultConfig,
   ): Promise<AiCreditsEstimator> {
-    const policy = await resolveModelPolicy(editType, planId);
-    const price = await getPriceAt(policy.model);
+    const spec = MODEL_CATALOG[tier];
+    const price = await getPriceAt(spec.id);
     return new AiCreditsEstimator(
       {
-        model: policy.model,
+        model: spec.id,
         pricing: { inputPerMTok: Number(price.inputPerMTok), outputPerMTok: Number(price.outputPerMTok) },
-        limits: policy.limits,
+        temperature: Number(price.temperature),
+        limits: { maxInputTokens: spec.contextWindow, maxOutputTokens: spec.maxOutput },
       },
       editType,
       config,
@@ -88,11 +91,16 @@ export class AiCreditsEstimator {
       || !Number.isFinite(pricing.outputPerMTok) || pricing.outputPerMTok < 0) {
       throw new Error(`Invalid pricing for model "${target.model}"`);
     }
+    if (!Number.isFinite(target.temperature) || target.temperature < 0 || target.temperature > 2) {
+      throw new Error(`Invalid temperature for model "${target.model}"`);
+    }
 
     this.config = config;
     this.editType = editType;
     this.model = target.model;
+    this.temperature = target.temperature;
     this.limits = target.limits;
+    this.pricing = { inputPerMTok: pricing.inputPerMTok, outputPerMTok: pricing.outputPerMTok };
     this.pricePerMTok = { input: pricing.inputPerMTok, output: pricing.outputPerMTok };
   }
 
@@ -129,7 +137,7 @@ export class AiCreditsEstimator {
 
     const credits =
       this.tokensToCredits(inputTokens, 'input') + this.tokensToCredits(outputTokens, 'output');
-    return Math.max(1, roundUpCredits(credits * this.config.safetyMargin));
+    return roundUpCredits(credits * this.config.safetyMargin);
   }
 
   private countTokens(length: number): number {

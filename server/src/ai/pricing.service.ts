@@ -9,6 +9,7 @@ export interface PriceSnapshot {
     modelId: string;
     inputPerMTok: string;
     outputPerMTok: string;
+    temperature: string;
     effectiveFrom: Date;
     effectiveTo: Date | null;
 }
@@ -52,6 +53,7 @@ export async function getPriceAt(modelId: string, at?: Date): Promise<PriceSnaps
         modelId: row.model_id,
         inputPerMTok: row.input_per_mtok,
         outputPerMTok: row.output_per_mtok,
+        temperature: row.temperature,
         effectiveFrom: row.effective_from,
         effectiveTo: row.effective_to,
     };

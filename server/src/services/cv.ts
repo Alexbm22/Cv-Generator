@@ -10,7 +10,7 @@ import cvFactories from '../factories/cv';
 import { handleServiceError } from '../utils/serviceErrorHandler';
 import { getCVLanguageDetectionText } from "@/utils/cv";
 import { detectLanguage } from "./ai/languageDetection";
-import { callTranslateCVAI } from "./ai/chat";
+import { callTranslateCVAI, TranslateCVCallParams } from "./ai/chat";
 import sequelize from '@/config/DB/database_config';
 
 export class CVsService {
@@ -277,11 +277,7 @@ export class CVsService {
         return await cvRepository.countUserCVs(user_id);
     }
 
-    static async translateCVContent({ currentContent, targetLanguage, signal }: {
-        currentContent: string;
-        targetLanguage: string;
-        signal: AbortSignal;
-    }) {
-        return await callTranslateCVAI({ currentContent, targetLanguage, signal });
+    static async translateCVContent(params: TranslateCVCallParams) {
+        return await callTranslateCVAI(params);
     }
 }

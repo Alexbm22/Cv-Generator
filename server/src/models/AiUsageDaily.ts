@@ -8,21 +8,18 @@ import {
 } from '../interfaces/aiUsage';
 
 class AiUsageDaily extends Model<AiUsageDailyAttributes, AiUsageDailyCreationAttributes> implements AiUsageDailyAttributes {
-    declare subject_key: string;
+    declare user_id: number;
     declare usage_date: string;
     declare operation: AiUsageOperation;
-    declare equiv_tokens: string;
+    declare credits: string;
     declare ops_count: number;
 }
 
 AiUsageDaily.init({
-    subject_key: {
-        type: DataTypes.STRING(128),
+    user_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
-        validate: {
-            is: { args: /^(user:\d+|guest:.+)$/, msg: 'Invalid subject_key' },
-        },
     },
     usage_date: {
         type: DataTypes.DATEONLY,
@@ -37,7 +34,7 @@ AiUsageDaily.init({
             isIn: { args: [[...AI_USAGE_OPERATIONS]], msg: 'Unknown operation' },
         },
     },
-    equiv_tokens: {
+    credits: {
         type: DataTypes.DECIMAL(20, 4),
         allowNull: false,
         defaultValue: 0,

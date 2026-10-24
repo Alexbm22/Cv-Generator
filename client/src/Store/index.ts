@@ -6,6 +6,7 @@ import { useCVsStore } from "./useCVsStore";
 import { useLoadingStore } from "./useLoadingStore";
 import { usePreferencesStore } from "./usePreferencesStore";
 import { useAiStore } from "./useAiStore";
+import { useAiUsageNoticeStore } from "./useAiUsageNoticeStore";
 
 export { 
     useCvEditStore, 
@@ -16,4 +17,5 @@ export {
     useLoadingStore,
     usePreferencesStore,
     useAiStore,
+    useAiUsageNoticeStore,
 };

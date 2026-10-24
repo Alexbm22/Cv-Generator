@@ -11,19 +11,16 @@ import {
     AiUsageStatus,
 } from '../interfaces/aiUsage';
 
-// Exactly one of user_id and guest_key is set; enforced by ensureAiUsageEventsSchema.
 class AiUsageEvent extends Model<AiUsageEventAttributes, AiUsageEventCreationAttributes> implements AiUsageEventAttributes {
     declare id: number;
-    declare action_id: string | null;
     declare operation_id: string;
-    declare user_id: number | null;
-    declare guest_key: string | null;
+    declare user_id: number;
     declare operation: AiUsageOperation;
     declare model_tier: ModelTier;
     declare model_id: string;
     declare input_tokens: number;
     declare output_tokens: number;
-    declare equiv_tokens: string;
+    declare credits: string;
     declare cost_usd: string;
     declare status: AiUsageStatus;
     declare error_code: string | null;
@@ -38,21 +35,13 @@ AiUsageEvent.init({
         primaryKey: true,
         allowNull: false,
     },
-    action_id: {
-        type: DataTypes.STRING(64),
-        allowNull: true,
-    },
     operation_id: {
         type: DataTypes.STRING(64),
         allowNull: false,
     },
     user_id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    guest_key: {
-        type: DataTypes.STRING(64),
-        allowNull: true,
+        allowNull: false,
     },
     operation: {
         type: DataTypes.STRING(32),
@@ -84,7 +73,7 @@ AiUsageEvent.init({
         defaultValue: 0,
         validate: { min: 0 },
     },
-    equiv_tokens: {
+    credits: {
         type: DataTypes.DECIMAL(20, 4),
         allowNull: false,
         defaultValue: 0,
